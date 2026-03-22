@@ -9,7 +9,7 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "goalsmapping-db"
-database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
+database_id = "fe80528d-f294-47a8-a93e-f8023961bd21"
 
 # ─── Local dev variables ───────────────────────────────────────────────────────
 # For production, set JWT_SECRET in Cloudflare Pages dashboard:
