@@ -3,16 +3,26 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import {
   ArrowLeft, Phone, Calendar, Briefcase, Target, Shield,
-  Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock,
+  Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock, Pencil,
 } from 'lucide-react'
 
 const ACTIVITY_ICONS = { Call: PhoneCall, Meeting: Users, Email: MessageSquare }
 
+const fmtDate = (d) => {
+  if (!d) return ''
+  const date = new Date(d)
+  if (isNaN(date)) return d
+  return date.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 export default function ContactDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { contacts, addInteraction, addTask, toggleTask, addActivity } = useContacts()
+  const { contacts, addInteraction, addTask, toggleTask, addActivity, updateContact } = useContacts()
   const contact = contacts.find((c) => c.id === id)
+
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [editForm, setEditForm] = useState({})
 
   const [tab, setTab] = useState('interaction') // interaction | finances
   const [noteText, setNoteText] = useState('')
@@ -36,6 +46,26 @@ export default function ContactDetailPage() {
     if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) a--
     return a
   })()
+
+  const openEdit = () => {
+    setEditForm({
+      name: contact.name,
+      dob: contact.dob,
+      mobile: contact.mobile || '',
+      employment: contact.employment || '',
+      reviewDate: contact.reviewDate || '',
+      reviewFrequency: contact.reviewFrequency || '',
+      notes: contact.notes || '',
+    })
+    setShowEditForm(true)
+  }
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault()
+    if (!editForm.name || !editForm.dob) return
+    updateContact(id, editForm)
+    setShowEditForm(false)
+  }
 
   const handleAddNote = () => {
     if (!noteText.trim()) return
@@ -70,14 +100,19 @@ export default function ContactDetailPage() {
         {/* Left: Contact Summary */}
         <div className="w-72 shrink-0 space-y-4">
           <div className="hig-card p-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-hig-blue/10 text-hig-blue flex items-center justify-center text-hig-headline font-bold">
-                {contact.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-hig-blue/10 text-hig-blue flex items-center justify-center text-hig-headline font-bold">
+                  {contact.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </div>
+                <div>
+                  <h2 className="text-hig-headline">{contact.name}</h2>
+                  <p className="text-hig-caption1 text-hig-text-secondary">Age {age}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-hig-headline">{contact.name}</h2>
-                <p className="text-hig-caption1 text-hig-text-secondary">Age {age}</p>
-              </div>
+              <button onClick={openEdit} className="p-1.5 rounded-hig-sm hover:bg-hig-gray-6 text-hig-text-secondary hover:text-hig-blue transition-colors">
+                <Pencil size={15} />
+              </button>
             </div>
             <div className="space-y-2.5 text-hig-subhead">
               {contact.mobile && (
@@ -91,6 +126,7 @@ export default function ContactDetailPage() {
                   {new Date(contact.dob).toLocaleDateString('en-MY', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
               </div>
+
               {contact.employment && (
                 <div className="flex items-center gap-2.5 text-hig-text-secondary">
                   <Briefcase size={15} /> <span className="text-hig-text">{contact.employment}</span>
@@ -202,7 +238,7 @@ export default function ContactDetailPage() {
                         <FileText size={15} className="text-hig-text-secondary mt-0.5 shrink-0" />
                         <div className="flex-1">
                           <p className="text-hig-subhead">{n.content}</p>
-                          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">{n.date}</p>
+                          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">{fmtDate(n.date)}</p>
                         </div>
                       </div>
                     ))}
@@ -240,7 +276,7 @@ export default function ContactDetailPage() {
                         {t.title}
                       </span>
                       {t.dueDate && (
-                        <span className="text-hig-caption1 text-hig-text-secondary">{t.dueDate}</span>
+                        <span className="text-hig-caption1 text-hig-text-secondary">{fmtDate(t.dueDate)}</span>
                       )}
                     </div>
                   ))}
@@ -276,7 +312,7 @@ export default function ContactDetailPage() {
                       <div key={a.id} className="flex items-center gap-3 py-2 border-t border-hig-gray-5">
                         <Icon size={15} className="text-hig-blue shrink-0" />
                         <span className="text-hig-subhead flex-1">{a.description}</span>
-                        <span className="text-hig-caption1 text-hig-text-secondary">{a.date}</span>
+                        <span className="text-hig-caption1 text-hig-text-secondary">{fmtDate(a.date)}</span>
                         <span className="text-hig-caption2 px-2 py-0.5 rounded-full bg-hig-gray-6 text-hig-text-secondary">{a.type}</span>
                       </div>
                     )
@@ -298,6 +334,66 @@ export default function ContactDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Edit Contact Modal */}
+      {showEditForm && (
+        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowEditForm(false)}>
+          <form
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={handleEditSubmit}
+            className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-lg p-6 space-y-4 max-h-[85vh] overflow-y-auto"
+          >
+            <h2 className="text-hig-title3">Edit Contact</h2>
+
+            <div>
+              <label className="hig-label">Name <span className="text-hig-red">*</span></label>
+              <input value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} className="hig-input" placeholder="Full name" required />
+            </div>
+            <div>
+              <label className="hig-label">Date of Birth <span className="text-hig-red">*</span></label>
+              <input type="date" value={editForm.dob} onChange={(e) => setEditForm({...editForm, dob: e.target.value})} className="hig-input" required />
+            </div>
+            <div>
+              <label className="hig-label">Mobile</label>
+              <input value={editForm.mobile} onChange={(e) => setEditForm({...editForm, mobile: e.target.value})} className="hig-input" placeholder="012-3456789" />
+            </div>
+            <div>
+              <label className="hig-label">Employment Status</label>
+              <select value={editForm.employment} onChange={(e) => setEditForm({...editForm, employment: e.target.value})} className="hig-input">
+                <option value="">Select...</option>
+                <option>Employed</option>
+                <option>Self-Employed</option>
+                <option>Unemployed</option>
+                <option>Retired</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="hig-label">Review Date</label>
+                <input type="date" value={editForm.reviewDate} onChange={(e) => setEditForm({...editForm, reviewDate: e.target.value})} className="hig-input" />
+              </div>
+              <div>
+                <label className="hig-label">Review Frequency</label>
+                <select value={editForm.reviewFrequency} onChange={(e) => setEditForm({...editForm, reviewFrequency: e.target.value})} className="hig-input">
+                  <option value="">Select...</option>
+                  <option>Annually</option>
+                  <option>Semi-annually</option>
+                  <option>Quarterly</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="hig-label">Notes</label>
+              <textarea value={editForm.notes} onChange={(e) => setEditForm({...editForm, notes: e.target.value})} className="hig-input min-h-[80px] resize-y" placeholder="Any notes..." />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button type="button" onClick={() => setShowEditForm(false)} className="hig-btn-secondary">Cancel</button>
+              <button type="submit" className="hig-btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   )
 }

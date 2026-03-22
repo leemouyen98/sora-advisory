@@ -21,7 +21,7 @@ export default function RetirementPlannerPage() {
   const [plan, setPlan] = useState(
     contact?.retirementPlan || {
       retirementAge: 55,
-      lifeExpectancy: 80,
+      lifeExpectancy: 100,
       monthlyExpenses: 3000,
       inflationRate: 4,
       postRetirementReturn: 1,
@@ -63,11 +63,12 @@ export default function RetirementPlannerPage() {
   )
 
   // Step indicator
-  const stepIndicator = step < 3 && (
+  const stepIndicator = (
     <div className="flex items-center gap-3 mb-6">
       {[
         { n: 1, label: 'Basic Information' },
         { n: 2, label: 'Existing Provision' },
+        { n: 3, label: 'Retirement Planner' },
       ].map((s) => (
         <button
           key={s.n}
@@ -94,7 +95,7 @@ export default function RetirementPlannerPage() {
     <div className="max-w-6xl mx-auto">
       {breadcrumb}
 
-      {step < 3 && stepIndicator}
+      {stepIndicator}
 
       {step === 1 && (
         <BasicInfo

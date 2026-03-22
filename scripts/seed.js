@@ -10,7 +10,7 @@
  * Add/edit agents in the AGENTS array below.
  */
 
-const crypto = require('crypto')
+import crypto from 'crypto'
 
 function hashPassword(password, salt) {
   return crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256').toString('hex')

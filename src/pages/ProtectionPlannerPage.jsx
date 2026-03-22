@@ -67,21 +67,19 @@ export default function ProtectionPlannerPage() {
       </div>
 
       {/* Step Indicator */}
-      {step < 3 && (
-        <div className="flex items-center gap-3 mb-6">
-          {[{ n: 1, label: 'Basic Information' }, { n: 2, label: 'Existing Coverage' }].map((s) => (
-            <button key={s.n} onClick={() => setStep(s.n)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-hig-subhead font-medium transition-colors
-                ${step === s.n ? 'bg-hig-blue text-white' : step > s.n ? 'bg-hig-green/10 text-hig-green' : 'bg-hig-gray-6 text-hig-text-secondary'}`}>
-              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-hig-caption1 font-bold
-                ${step === s.n ? 'bg-white/20 text-white' : step > s.n ? 'bg-hig-green text-white' : 'bg-hig-gray-4 text-hig-text-secondary'}`}>
-                {step > s.n ? '✓' : s.n}
-              </span>
-              {s.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex items-center gap-3 mb-6">
+        {[{ n: 1, label: 'Basic Information' }, { n: 2, label: 'Existing Coverage' }, { n: 3, label: 'Protection Planner' }].map((s) => (
+          <button key={s.n} onClick={() => setStep(s.n)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-hig-subhead font-medium transition-colors
+              ${step === s.n ? 'bg-hig-blue text-white' : step > s.n ? 'bg-hig-green/10 text-hig-green' : 'bg-hig-gray-6 text-hig-text-secondary'}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-hig-caption1 font-bold
+              ${step === s.n ? 'bg-white/20 text-white' : step > s.n ? 'bg-hig-green text-white' : 'bg-hig-gray-4 text-hig-text-secondary'}`}>
+              {step > s.n ? '✓' : s.n}
+            </span>
+            {s.label}
+          </button>
+        ))}
+      </div>
 
       {step === 1 && (
         <ProtectionBasicInfo plan={plan} updatePlan={updatePlan} setNeed={setNeed} onContinue={() => setStep(2)} />
@@ -217,7 +215,7 @@ function ProtectionPlanner({ plan, currentAge, updatePlan, onEditAssumptions }) 
     const rec = {
       id: uid(),
       riskType: activeRisk,
-      coverageAmount: 0,
+      coverageAmount: active?.shortfall > 0 ? active.shortfall : 0,
       premiumAmount: 0,
       frequency: 'Monthly',
       periodYears: 20,
@@ -376,9 +374,18 @@ function ProtectionPlanner({ plan, currentAge, updatePlan, onEditAssumptions }) 
                   <Plus size={16} /> Add Recommendation
                 </button>
                 {recs.length === 0 && (
-                  <p className="text-hig-subhead text-hig-text-secondary text-center py-3">
-                    No recommendations for {RISK_SHORT[activeRisk]} yet.
-                  </p>
+                  <div className="py-3 space-y-1.5">
+                    {active?.shortfall > 0 ? (
+                      <div className="bg-red-50 rounded-hig-sm p-3 text-hig-caption1 text-hig-red">
+                        <p className="font-semibold mb-0.5">Coverage gap: {formatRMFull(active.shortfall)}</p>
+                        <p className="text-hig-text-secondary">Add a recommendation to close this shortfall.</p>
+                      </div>
+                    ) : (
+                      <p className="text-hig-subhead text-hig-text-secondary text-center">
+                        No recommendations for {RISK_SHORT[activeRisk]} yet.
+                      </p>
+                    )}
+                  </div>
                 )}
                 {recs.map((rec, i) => (
                   <div key={rec.id} className="border border-hig-gray-4 rounded-hig-sm p-3 space-y-2">

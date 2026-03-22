@@ -88,9 +88,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-hig-caption1 text-hig-text-secondary mt-6">
-          Demo: Agent Code <strong>100001</strong> / Password <strong>demo123</strong>
-        </p>
       </div>
     </div>
   )
