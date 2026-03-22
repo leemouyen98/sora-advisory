@@ -60,7 +60,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
       ? 'Progressing'
       : 'At Risk'
 
-  // Recommendation presets
+  // Recommendation presets — auto-selected so the chart updates immediately
   const addPresetRecommendation = (monthlyAmount, years, lumpSum = 0) => {
     const rec = {
       id: uid(),
@@ -69,7 +69,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
       periodYears: years,
       lumpSum,
       growthRate: 5,
-      isSelected: false,
+      isSelected: true,
     }
     onChange({ recommendations: [...(plan.recommendations || []), rec] })
   }

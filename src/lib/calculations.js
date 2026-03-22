@@ -288,6 +288,7 @@ export function generateRetirementProjection({
   for (let age = currentAge; age <= lifeExpectancy; age++) {
     const yearIdx = age - currentAge
     const isPreRetirement = age < retirementAge
+    const isRetirementYear = age === retirementAge
 
     if (isPreRetirement) {
       // ── Accumulation Phase ──
@@ -340,8 +341,26 @@ export function generateRetirementProjection({
         : 5
       recBal = (recBal + recContrib) * (1 + avgRecRate / 100)
 
+    } else if (isRetirementYear) {
+      // ── Retirement Year Snapshot ──
+      // The person just retired. Balances are at their peak — no new contributions,
+      // no deductions yet. Just a final growth tick so the peak lands exactly at retirementAge.
+      const avgRecRate = selectedRecs.length > 0
+        ? selectedRecs.reduce((s, r) => s + (r.growthRate || 5), 0) / selectedRecs.length
+        : 5
+      const avgProvReturn = (provisions || []).length > 0
+        ? provisions.reduce((s, p) => s + (p.preRetirementReturn || 1), 0) / provisions.length
+        : 1
+      if (includeEPF) {
+        epfBal *= (1 + postRetirementReturn / 100)
+        epfBalNoRec *= (1 + postRetirementReturn / 100)
+      }
+      provBal *= (1 + avgProvReturn / 100)
+      provBalNoRec *= (1 + avgProvReturn / 100)
+      recBal *= (1 + avgRecRate / 100)
+
     } else {
-      // ── Drawdown Phase ──
+      // ── Drawdown Phase (age > retirementAge) ──
       // Annual expense = monthly expense at retirement, inflated further each year into retirement
       const yearsIntoRetirement = age - retirementAge
       const annualExpense = monthlyAtRetirement * 12 *
