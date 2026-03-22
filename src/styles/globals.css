@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+      'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  /* Apple HIG-style scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  /* Number input — hide spinners */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+@layer components {
+  .hig-card {
+    @apply bg-hig-card rounded-hig shadow-hig;
+  }
+
+  .hig-input {
+    @apply w-full min-h-touch px-3 py-2.5 rounded-hig-sm border border-hig-gray-4
+           text-hig-body text-hig-text placeholder-hig-text-secondary
+           outline-none transition-all duration-hig
+           focus:border-hig-blue focus:ring-2 focus:ring-hig-blue/20;
+  }
+
+  .hig-label {
+    @apply block text-hig-subhead font-medium text-hig-text mb-1.5;
+  }
+
+  .hig-btn-primary {
+    @apply inline-flex items-center justify-center min-h-touch px-5 py-2.5
+           bg-hig-blue text-white font-semibold rounded-hig-sm
+           transition-all duration-hig
+           hover:bg-blue-600 active:bg-blue-700 active:scale-[0.98]
+           disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  .hig-btn-secondary {
+    @apply inline-flex items-center justify-center min-h-touch px-5 py-2.5
+           bg-hig-gray-6 text-hig-blue font-semibold rounded-hig-sm
+           transition-all duration-hig
+           hover:bg-hig-gray-5 active:bg-hig-gray-4 active:scale-[0.98]
+           disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  .hig-btn-ghost {
+    @apply inline-flex items-center justify-center min-h-touch px-3 py-2
+           text-hig-blue font-medium rounded-hig-sm
+           transition-all duration-hig
+           hover:bg-hig-blue/5 active:bg-hig-blue/10;
+  }
+
+  .hig-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full
+           text-hig-caption1 font-medium;
+  }
+
+  .hig-badge-green {
+    @apply hig-badge bg-green-50 text-hig-green;
+  }
+
+  .hig-badge-red {
+    @apply hig-badge bg-red-50 text-hig-red;
+  }
+
+  .hig-badge-orange {
+    @apply hig-badge bg-orange-50 text-hig-orange;
+  }
+
+  .hig-badge-blue {
+    @apply hig-badge bg-blue-50 text-hig-blue;
+  }
+}

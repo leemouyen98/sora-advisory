@@ -1,0 +1,200 @@
+import { useState, useMemo } from 'react'
+import { formatRMFull } from '../../lib/calculations'
+import { projectProvision } from '../../lib/calculations'
+import { Plus, Trash2, ArrowLeft } from 'lucide-react'
+
+const FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
+
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+
+export default function ExistingProvision({ plan, currentAge, onChange, onBack, onContinue }) {
+  const provisions = plan.provisions || []
+  const yearsToRetirement = plan.retirementAge - currentAge
+
+  const addProvision = () => {
+    onChange({
+      provisions: [
+        ...provisions,
+        { id: uid(), name: '', amount: 0, frequency: 'Monthly', preRetirementReturn: 5 },
+      ],
+    })
+  }
+
+  const updateProvision = (idx, updates) => {
+    const next = [...provisions]
+    next[idx] = { ...next[idx], ...updates }
+    onChange({ provisions: next })
+  }
+
+  const removeProvision = (idx) => {
+    onChange({ provisions: provisions.filter((_, i) => i !== idx) })
+  }
+
+  // Calculate projected values
+  const projections = useMemo(() => {
+    return provisions.map((p) => ({
+      ...p,
+      projectedValue: Math.round(projectProvision(p, yearsToRetirement)),
+    }))
+  }, [provisions, yearsToRetirement])
+
+  const totalCapital = provisions.reduce((sum, p) => {
+    if (p.frequency === 'One-Time') return sum + (p.amount || 0)
+    const freqMap = { Monthly: 12, Quarterly: 4, 'Semi-annually': 2, Yearly: 1 }
+    return sum + (p.amount || 0) * (freqMap[p.frequency] || 12) * yearsToRetirement
+  }, 0)
+
+  const totalProjected = projections.reduce((sum, p) => sum + p.projectedValue, 0)
+
+  return (
+    <div className="flex gap-6">
+      {/* Left: Form */}
+      <div className="flex-1 space-y-4">
+        <div className="hig-card p-5">
+          <h3 className="text-hig-headline mb-2">Existing Provision</h3>
+          <p className="text-hig-subhead text-hig-text-secondary mb-5">
+            Include what you already have in place (Savings, Insurance, Investment) for a more accurate estimate of your future needs.
+          </p>
+
+          {provisions.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-hig-subhead text-hig-text-secondary mb-4">
+                No existing provisions added yet.
+              </p>
+              <button onClick={addProvision} className="hig-btn-primary gap-2">
+                <Plus size={16} /> Add Entry
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {provisions.map((p, idx) => (
+                <div key={p.id} className="border border-hig-gray-5 rounded-hig-sm p-4 relative">
+                  <button
+                    onClick={() => removeProvision(idx)}
+                    className="absolute top-3 right-3 text-hig-text-secondary hover:text-hig-red transition-colors p-1"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="col-span-2">
+                      <label className="hig-label">Name</label>
+                      <input
+                        value={p.name}
+                        onChange={(e) => updateProvision(idx, { name: e.target.value })}
+                        className="hig-input"
+                        placeholder="e.g. Unit Trust, ASNB"
+                      />
+                    </div>
+                    <div>
+                      <label className="hig-label">Amount (RM)</label>
+                      <input
+                        type="number"
+                        value={p.amount || ''}
+                        onChange={(e) => updateProvision(idx, { amount: parseFloat(e.target.value) || 0 })}
+                        className="hig-input"
+                        placeholder="500"
+                      />
+                    </div>
+                    <div>
+                      <label className="hig-label">Frequency</label>
+                      <select
+                        value={p.frequency}
+                        onChange={(e) => updateProvision(idx, { frequency: e.target.value })}
+                        className="hig-input"
+                      >
+                        {FREQUENCIES.map((f) => (
+                          <option key={f}>{f}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="hig-label">Pre-Retirement Return (%)</label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={p.preRetirementReturn}
+                        onChange={(e) => updateProvision(idx, { preRetirementReturn: parseFloat(e.target.value) || 0 })}
+                        className="hig-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <button onClick={addProvision} className="hig-btn-secondary gap-2 w-full">
+                <Plus size={16} /> Add Entry
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-between">
+          <button onClick={onBack} className="hig-btn-ghost gap-1.5">
+            <ArrowLeft size={16} /> Back
+          </button>
+          <button onClick={onContinue} className="hig-btn-primary">
+            Continue
+          </button>
+        </div>
+      </div>
+
+      {/* Right: Summary */}
+      <div className="w-72 shrink-0">
+        <div className="hig-card p-5 space-y-4 sticky top-4">
+          <h3 className="text-hig-headline">Provision Summary</h3>
+
+          {provisions.length === 0 ? (
+            <p className="text-hig-subhead text-hig-text-secondary">
+              Add your existing provisions to see a summary.
+            </p>
+          ) : (
+            <>
+              <div className="bg-green-50 rounded-hig-sm p-4">
+                <p className="text-hig-caption1 text-hig-green font-medium mb-1">
+                  At age {plan.retirementAge}
+                </p>
+                <p className="text-hig-title2 text-hig-green">
+                  {formatRMFull(totalProjected)}
+                </p>
+                <p className="text-hig-caption2 text-hig-text-secondary mt-1">
+                  {formatRMFull(totalProjected - totalCapital)} increase over {yearsToRetirement} years
+                </p>
+              </div>
+
+              <div className="space-y-2.5 text-hig-subhead">
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Provisions</span>
+                  <span className="font-semibold">{provisions.length} investment{provisions.length > 1 ? 's' : ''}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Total Capital</span>
+                  <span className="font-semibold">{formatRMFull(totalCapital)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Today's Value</span>
+                  <span className="font-semibold">{formatRMFull(provisions.reduce((s, p) => s + (p.frequency === 'One-Time' ? p.amount : 0), 0))}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Years to Target</span>
+                  <span className="font-semibold">{yearsToRetirement}</span>
+                </div>
+              </div>
+
+              {/* Individual projections */}
+              <hr className="border-hig-gray-5" />
+              <div className="space-y-2">
+                {projections.map((p, i) => (
+                  <div key={p.id} className="flex justify-between text-hig-caption1">
+                    <span className="text-hig-text-secondary truncate">{p.name || `Provision ${i + 1}`}</span>
+                    <span className="font-medium">{formatRMFull(p.projectedValue)}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
