@@ -7,12 +7,12 @@ import { formatRMFull } from '../../lib/calculations'
 
 const COLORS = {
   epf: '#FF9500',
-  epfFill: 'rgba(255,149,0,0.25)',
+  epfFill: 'rgba(255,149,0,0.55)',
   provisions: '#34C759',
-  provisionsFill: 'rgba(52,199,89,0.25)',
+  provisionsFill: 'rgba(52,199,89,0.55)',
   recommendations: '#007AFF',
-  recommendationsFill: 'rgba(0,122,255,0.25)',
-  shortfall: 'rgba(255,59,48,0.12)',
+  recommendationsFill: 'rgba(0,122,255,0.55)',
+  shortfall: 'rgba(255,59,48,0.45)',
 }
 
 function CustomTooltip({ active, payload, label }) {
@@ -88,13 +88,13 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
   }
 
   const legendPayload = [
-    { value: 'Shortfall', type: 'rect', color: '#FF3B30' },
     { value: 'Existing Provision', type: 'rect', color: '#34C759' },
     { value: 'EPF', type: 'rect', color: '#FF9500' },
   ]
   if (hasRecommendations) {
     legendPayload.push({ value: 'Recommendation', type: 'rect', color: '#007AFF' })
   }
+  legendPayload.push({ value: 'Shortfall', type: 'rect', color: '#FF3B30' })
   legendPayload.push({ value: 'Required Amount', type: 'plainline', color: '#1C1C1E', payload: { strokeDasharray: '6 4', strokeWidth: 1.5 } })
 
   return (
@@ -125,29 +125,8 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
             cursor={{ stroke: '#007AFF', strokeWidth: 1, strokeDasharray: '4 4' }}
           />
 
-          {/* Stacked areas — always render all, vary opacity instead of null */}
-          <Area
-            type="monotone"
-            dataKey="shortfall"
-            stackId="stack"
-            fill={COLORS.shortfall}
-            stroke="none"
-            strokeWidth={0}
-            animationDuration={500}
-            name="Shortfall"
-          />
-
-          <Area
-            type="monotone"
-            dataKey="recommendations"
-            stackId="stack"
-            fill={hasRecommendations ? COLORS.recommendationsFill : 'transparent'}
-            stroke={hasRecommendations ? COLORS.recommendations : 'none'}
-            strokeWidth={hasRecommendations ? 1.5 : 0}
-            animationDuration={500}
-            name="Recommendation"
-          />
-
+          {/* Stacked areas — bottom to top: provisions → epf → recommendations → shortfall
+               Total height = idealCorpus. Shortfall fills the gap at the top. */}
           <Area
             type="monotone"
             dataKey="provisions"
@@ -168,6 +147,28 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
             strokeWidth={1.5}
             animationDuration={500}
             name="EPF"
+          />
+
+          <Area
+            type="monotone"
+            dataKey="recommendations"
+            stackId="stack"
+            fill={hasRecommendations ? COLORS.recommendationsFill : 'transparent'}
+            stroke={hasRecommendations ? COLORS.recommendations : 'none'}
+            strokeWidth={hasRecommendations ? 1.5 : 0}
+            animationDuration={500}
+            name="Recommendation"
+          />
+
+          <Area
+            type="monotone"
+            dataKey="shortfall"
+            stackId="stack"
+            fill={COLORS.shortfall}
+            stroke="rgba(255,59,48,0.6)"
+            strokeWidth={1}
+            animationDuration={500}
+            name="Shortfall"
           />
 
           {/* Vertical dashed line at retirement age */}
