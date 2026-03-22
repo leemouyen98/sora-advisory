@@ -11,8 +11,7 @@ binding = "DB"
 database_name = "goalsmapping-db"
 database_id = "fe80528d-f294-47a8-a93e-f8023961bd21"
 
-# ─── Local dev variables ───────────────────────────────────────────────────────
-# For production, set JWT_SECRET in Cloudflare Pages dashboard:
-# Pages > goalsmapping-app > Settings > Environment variables
-[vars]
-JWT_SECRET = "change-this-to-a-random-secret-in-production"
+# ─── Environment variables ─────────────────────────────────────────────────────
+# Set JWT_SECRET in Cloudflare Pages dashboard (NOT here — causes binding conflict):
+# Pages > goalsmapping-app > Settings > Environment variables > Add variable
+# Name: JWT_SECRET  |  Value: <your-random-secret>
