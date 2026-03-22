@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react'
+import { useMemo } from 'react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceLine, ResponsiveContainer, Legend,
@@ -64,7 +64,23 @@ function formatYAxis(value) {
 }
 
 export default function RetirementChart({ data, retirementAge, targetAmount, hasRecommendations }) {
-  if (!data || data.length === 0) {
+  // ALL hooks MUST run before any early return (React Rules of Hooks)
+  const safeData = data && data.length > 0 ? data : []
+
+  const maxVal = useMemo(function() {
+    if (safeData.length === 0) return 100000
+    var maxFund = 0
+    for (var i = 0; i < safeData.length; i++) {
+      var d = safeData[i]
+      var stacked = (d.epf || 0) + (d.provisions || 0) + (d.recommendations || 0) + (d.shortfall || 0)
+      if (stacked > maxFund) maxFund = stacked
+    }
+    var ceiling = Math.max(targetAmount * 1.15, maxFund * 1.1, 100000)
+    return Math.ceil(ceiling / 100000) * 100000
+  }, [safeData, targetAmount])
+
+  // Early return AFTER all hooks
+  if (safeData.length === 0) {
     return (
       <div style={{ height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E8E93' }}>
         No data to display
@@ -72,21 +88,20 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
     )
   }
 
-  var maxVal = useMemo(function() {
-    var maxFund = 0
-    for (var i = 0; i < data.length; i++) {
-      var d = data[i]
-      var stacked = (d.epf || 0) + (d.provisions || 0) + (d.recommendations || 0) + (d.shortfall || 0)
-      if (stacked > maxFund) maxFund = stacked
-    }
-    var ceiling = Math.max(targetAmount * 1.15, maxFund * 1.1, 100000)
-    return Math.ceil(ceiling / 100000) * 100000
-  }, [data, targetAmount])
+  const legendPayload = [
+    { value: 'Shortfall', type: 'rect', color: '#FF3B30' },
+    { value: 'Existing Provision', type: 'rect', color: '#34C759' },
+    { value: 'EPF', type: 'rect', color: '#FF9500' },
+  ]
+  if (hasRecommendations) {
+    legendPayload.push({ value: 'Recommendation', type: 'rect', color: '#007AFF' })
+  }
+  legendPayload.push({ value: 'Required Amount', type: 'plainline', color: '#1C1C1E' })
 
   return (
     <div style={{ width: '100%', height: 380 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+        <AreaChart data={safeData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E5EA" vertical={false} />
 
           <XAxis
@@ -123,18 +138,16 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
             name="Shortfall"
           />
 
-          {hasRecommendations ? (
-            <Area
-              type="monotone"
-              dataKey="recommendations"
-              stackId="stack"
-              fill={COLORS.recommendationsFill}
-              stroke={COLORS.recommendations}
-              strokeWidth={1.5}
-              animationDuration={500}
-              name="Recommendation"
-            />
-          ) : null}
+          <Area
+            type="monotone"
+            dataKey="recommendations"
+            stackId="stack"
+            fill={hasRecommendations ? COLORS.recommendationsFill : 'transparent'}
+            stroke={hasRecommendations ? COLORS.recommendations : 'none'}
+            strokeWidth={hasRecommendations ? 1.5 : 0}
+            animationDuration={500}
+            name="Recommendation"
+          />
 
           <Area
             type="monotone"
@@ -177,13 +190,7 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
           <Legend
             verticalAlign="bottom"
             height={36}
-            payload={[
-              { value: 'Shortfall', type: 'rect', color: '#FF3B30' },
-              { value: 'Existing Provision', type: 'rect', color: '#34C759' },
-              { value: 'EPF', type: 'rect', color: '#FF9500' },
-              hasRecommendations ? { value: 'Recommendation', type: 'rect', color: '#007AFF' } : null,
-              { value: 'Required Amount', type: 'plainline', color: '#1C1C1E' },
-            ].filter(Boolean)}
+            payload={legendPayload}
           />
         </AreaChart>
       </ResponsiveContainer>
