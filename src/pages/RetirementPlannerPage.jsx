@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { getAge } from '../lib/formatters'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Settings } from 'lucide-react'
 import BasicInfo from '../components/retirement/BasicInfo'
 import ExistingProvision from '../components/retirement/ExistingProvision'
 import RetirementPlanner from '../components/retirement/RetirementPlanner'
@@ -14,6 +14,7 @@ export default function RetirementPlannerPage() {
   const contact = contacts.find((c) => c.id === id)
 
   const [step, setStep] = useState(1) // 1: Basic Info, 2: Existing Provision, 3: Planner
+  const [showAssumptions, setShowAssumptions] = useState(false)
 
   const currentAge = contact ? getAge(contact.dob) : 30
 
@@ -62,32 +63,48 @@ export default function RetirementPlannerPage() {
     </div>
   )
 
-  // Step indicator
+  // Step indicator — compact
   const stepIndicator = (
-    <div className="flex items-center gap-3 mb-6">
-      {[
-        { n: 1, label: 'Basic Information' },
-        { n: 2, label: 'Existing Provision' },
-        { n: 3, label: 'Retirement Planner' },
-      ].map((s) => (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-1.5">
+        {[
+          { n: 1, label: 'Basic Info' },
+          { n: 2, label: 'Existing Provision' },
+          { n: 3, label: 'Planner' },
+        ].map((s, idx) => (
+          <div key={s.n} className="flex items-center gap-1.5">
+            {idx > 0 && (
+              <span className="w-5 h-px bg-hig-gray-4" />
+            )}
+            <button
+              onClick={() => setStep(s.n)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-hig-caption1 font-medium transition-colors
+                ${step === s.n
+                  ? 'bg-hig-blue text-white'
+                  : step > s.n
+                    ? 'bg-hig-green/10 text-hig-green'
+                    : 'bg-hig-gray-6 text-hig-text-secondary'
+                }`}
+            >
+              <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
+                ${step === s.n ? 'bg-white/20 text-white' : step > s.n ? 'bg-hig-green text-white' : 'bg-hig-gray-4 text-hig-text-secondary'}`}>
+                {step > s.n ? '✓' : s.n}
+              </span>
+              {s.label}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Planning Assumptions — top right, only on step 3 */}
+      {step === 3 && (
         <button
-          key={s.n}
-          onClick={() => setStep(s.n)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full text-hig-subhead font-medium transition-colors
-            ${step === s.n
-              ? 'bg-hig-blue text-white'
-              : step > s.n
-                ? 'bg-hig-green/10 text-hig-green'
-                : 'bg-hig-gray-6 text-hig-text-secondary'
-            }`}
+          onClick={() => setShowAssumptions(true)}
+          className="flex items-center gap-1.5 text-hig-caption1 font-medium text-hig-blue hover:text-blue-700 transition-colors"
         >
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-hig-caption1 font-bold
-            ${step === s.n ? 'bg-white/20 text-white' : step > s.n ? 'bg-hig-green text-white' : 'bg-hig-gray-4 text-hig-text-secondary'}`}>
-            {step > s.n ? '✓' : s.n}
-          </span>
-          {s.label}
+          <Settings size={14} /> Planning Assumptions
         </button>
-      ))}
+      )}
     </div>
   )
 
@@ -124,6 +141,8 @@ export default function RetirementPlannerPage() {
           contactName={contact.name}
           onChange={updatePlan}
           onEditAssumptions={() => setStep(1)}
+          showAssumptions={showAssumptions}
+          onToggleAssumptions={setShowAssumptions}
         />
       )}
     </div>

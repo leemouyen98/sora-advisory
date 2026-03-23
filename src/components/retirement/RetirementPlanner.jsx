@@ -1,14 +1,15 @@
 import { useState, useMemo } from 'react'
-import { formatRMFull, generateRetirementProjection, tvmSolve, generateBreakdown } from '../../lib/calculations'
-import { Settings, Plus, ChevronDown, ChevronUp, Trash2, CheckCircle2, AlertTriangle, XCircle, Maximize2, MoreVertical } from 'lucide-react'
+import { formatRMFull, generateRetirementProjection, tvmSolve, generateBreakdown, projectProvision } from '../../lib/calculations'
+import { Plus, ChevronDown, ChevronUp, Trash2, CheckCircle2, AlertTriangle, XCircle, Maximize2 } from 'lucide-react'
 import RetirementChart from './RetirementChart'
 import PlanningAssumptions from './PlanningAssumptions'
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
-export default function RetirementPlanner({ plan, currentAge, contactName, onChange, onEditAssumptions }) {
+const PROVISION_FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
+
+export default function RetirementPlanner({ plan, currentAge, contactName, onChange, onEditAssumptions, showAssumptions, onToggleAssumptions }) {
   const [activeTab, setActiveTab] = useState('recommendations') // recommendations | provisions
-  const [showAssumptions, setShowAssumptions] = useState(false)
   const [expandedRec, setExpandedRec] = useState(null)
   const [showBreakdown, setShowBreakdown] = useState(null)
   const [showCustomForm, setShowCustomForm] = useState(false)
@@ -149,27 +150,16 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Progress badge */}
-            <div className="flex items-center gap-2">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-hig-subhead
-                bg-${statusColor}`}
-                style={{ backgroundColor: projection.isFullyFunded ? '#34C759' : projection.coveragePercent >= 75 ? '#FF9500' : '#FF3B30' }}
-              >
-                {projection.coveragePercent}%
-              </div>
-              <span className="text-hig-subhead font-medium" style={{ color: projection.isFullyFunded ? '#34C759' : projection.coveragePercent >= 75 ? '#FF9500' : '#FF3B30' }}>
-                {statusLabel}
-              </span>
-            </div>
-
-            {/* Planning Assumptions button */}
-            <button
-              onClick={() => setShowAssumptions(true)}
-              className="hig-btn-ghost gap-1.5 text-hig-blue"
+          {/* Progress badge */}
+          <div className="flex items-center gap-2">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-hig-subhead`}
+              style={{ backgroundColor: projection.isFullyFunded ? '#34C759' : projection.coveragePercent >= 75 ? '#FF9500' : '#FF3B30' }}
             >
-              <Settings size={16} /> Planning Assumptions
-            </button>
+              {projection.coveragePercent}%
+            </div>
+            <span className="text-hig-subhead font-medium" style={{ color: projection.isFullyFunded ? '#34C759' : projection.coveragePercent >= 75 ? '#FF9500' : '#FF3B30' }}>
+              {statusLabel}
+            </span>
           </div>
         </div>
 
@@ -404,22 +394,11 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
             )}
 
             {activeTab === 'provisions' && (
-              <div className="space-y-3">
-                {(plan.provisions || []).length === 0 ? (
-                  <p className="text-hig-subhead text-hig-text-secondary text-center py-4">
-                    No existing provisions.
-                  </p>
-                ) : (
-                  plan.provisions.map((p, i) => (
-                    <div key={p.id} className="p-3 border border-hig-gray-4 rounded-hig-sm">
-                      <p className="text-hig-subhead font-medium">{p.name || `Provision ${i + 1}`}</p>
-                      <p className="text-hig-caption1 text-hig-text-secondary">
-                        {formatRMFull(p.amount)} {p.frequency} @ {p.preRetirementReturn}%
-                      </p>
-                    </div>
-                  ))
-                )}
-              </div>
+              <ProvisionPanel
+                plan={plan}
+                currentAge={currentAge}
+                onChange={onChange}
+              />
             )}
           </div>
         </div>
@@ -446,8 +425,129 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
           plan={plan}
           currentAge={currentAge}
           onChange={onChange}
-          onClose={() => setShowAssumptions(false)}
+          onClose={() => onToggleAssumptions(false)}
         />
+      )}
+    </div>
+  )
+}
+
+// ─── Inline Provision Panel ─────────────────────────────────────────────────
+
+function ProvisionPanel({ plan, currentAge, onChange }) {
+  const provisions = plan.provisions || []
+  const yearsToRetirement = (plan.retirementAge || 55) - currentAge
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ name: '', amount: 0, frequency: 'Monthly', preRetirementReturn: 5 })
+
+  const addProvision = () => {
+    if (!form.name && !form.amount) return
+    onChange({ provisions: [...provisions, { ...form, id: uid(), amount: parseFloat(form.amount) || 0 }] })
+    setForm({ name: '', amount: 0, frequency: 'Monthly', preRetirementReturn: 5 })
+    setShowForm(false)
+  }
+
+  const removeProvision = (idx) => {
+    onChange({ provisions: provisions.filter((_, i) => i !== idx) })
+  }
+
+  const totalProjected = useMemo(() =>
+    provisions.reduce((sum, p) => {
+      try { return sum + Math.round(projectProvision(p, yearsToRetirement)) }
+      catch { return sum }
+    }, 0),
+    [provisions, yearsToRetirement]
+  )
+
+  return (
+    <div className="space-y-3">
+      {/* + Entry button */}
+      <button
+        onClick={() => setShowForm((v) => !v)}
+        className="hig-btn-secondary w-full gap-2 text-hig-caption1"
+      >
+        <Plus size={14} /> Entry
+      </button>
+
+      {/* Inline add form */}
+      {showForm && (
+        <div className="border border-hig-blue/30 rounded-hig-sm p-3 bg-blue-50/20 space-y-2">
+          <div>
+            <label className="hig-label">Name</label>
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="hig-input text-hig-caption1 py-1.5"
+              placeholder="e.g. Unit Trust, ASNB"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="hig-label">Amount (RM)</label>
+              <input
+                type="number"
+                value={form.amount || ''}
+                onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
+                className="hig-input text-hig-caption1 py-1.5"
+                placeholder="500"
+              />
+            </div>
+            <div>
+              <label className="hig-label">Frequency</label>
+              <select
+                value={form.frequency}
+                onChange={(e) => setForm({ ...form, frequency: e.target.value })}
+                className="hig-input text-hig-caption1 py-1.5"
+              >
+                {PROVISION_FREQUENCIES.map((f) => <option key={f}>{f}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="hig-label">Pre-Retirement Return (%)</label>
+            <input
+              type="number"
+              step="0.5"
+              value={form.preRetirementReturn}
+              onChange={(e) => setForm({ ...form, preRetirementReturn: parseFloat(e.target.value) || 0 })}
+              className="hig-input text-hig-caption1 py-1.5"
+            />
+          </div>
+          <div className="flex gap-2 pt-1">
+            <button onClick={() => setShowForm(false)} className="hig-btn-secondary text-hig-caption1 flex-1">Cancel</button>
+            <button onClick={addProvision} className="hig-btn-primary text-hig-caption1 flex-1">Add</button>
+          </div>
+        </div>
+      )}
+
+      {/* Existing provisions list */}
+      {provisions.length === 0 && !showForm ? (
+        <p className="text-hig-caption1 text-hig-text-secondary text-center py-4">
+          No existing provisions.
+        </p>
+      ) : (
+        <>
+          {provisions.map((p, i) => (
+            <div key={p.id} className="p-3 border border-hig-gray-4 rounded-hig-sm flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-hig-subhead font-medium truncate">{p.name || `Provision ${i + 1}`}</p>
+                <p className="text-hig-caption1 text-hig-text-secondary">
+                  {formatRMFull(p.amount)} {p.frequency} @ {p.preRetirementReturn}%
+                </p>
+              </div>
+              <button onClick={() => removeProvision(i)} className="p-1 text-hig-text-secondary hover:text-hig-red shrink-0">
+                <Trash2 size={13} />
+              </button>
+            </div>
+          ))}
+
+          {provisions.length > 0 && (
+            <div className="pt-1 border-t border-hig-gray-5 flex justify-between text-hig-caption1">
+              <span className="text-hig-text-secondary">Projected at age {plan.retirementAge}</span>
+              <span className="font-semibold text-hig-green">{formatRMFull(totalProjected)}</span>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
