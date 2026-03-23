@@ -64,7 +64,17 @@ function formatYAxis(value) {
 
 export default function RetirementChart({ data, retirementAge, targetAmount, hasRecommendations }) {
   // ALL hooks MUST run before any early return — React Rules of Hooks
-  const safeData = data && data.length > 0 ? data : []
+  const rawData = data && data.length > 0 ? data : []
+
+  // Pad chart: one silent point before the first age and after the last age
+  const safeData = useMemo(() => {
+    if (rawData.length === 0) return []
+    const first = rawData[0]
+    const last = rawData[rawData.length - 1]
+    const pre = { ...first, age: first.age - 1 }
+    const post = { ...last, age: last.age + 1 }
+    return [pre, ...rawData, post]
+  }, [rawData])
 
   const maxVal = useMemo(function() {
     if (safeData.length === 0) return 100000
@@ -109,6 +119,8 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
             axisLine={{ stroke: '#D1D1D6' }}
             tick={{ fontSize: 11, fill: '#8E8E93' }}
             interval="preserveStartEnd"
+            domain={['dataMin', 'dataMax']}
+            type="number"
           />
 
           <YAxis
