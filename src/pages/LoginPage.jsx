@@ -51,11 +51,16 @@ export default function LoginPage() {
 
         {/* Logo + wordmark */}
         <div className="relative z-10">
-          <img
-            src="/assets/hla-logo.jpg"
-            alt="Henry Lee Advisory"
-            style={{ height: 48, width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-          />
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            background: 'white', borderRadius: 12, padding: '8px 16px',
+          }}>
+            <img
+              src="/assets/hla-logo.jpg"
+              alt="Henry Lee Advisory"
+              style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+            />
+          </div>
         </div>
 
         {/* Headline */}

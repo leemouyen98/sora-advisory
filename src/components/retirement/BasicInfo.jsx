@@ -25,7 +25,7 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
       annualIncome: plan.annualIncome,
       incomeGrowthRate: plan.incomeGrowthRate,
       currentAge,
-      retirementAge: Math.min(plan.retirementAge, 55),
+      retirementAge: plan.retirementAge,
     })
   }, [plan.includeEPF, plan.epfBalance, plan.epfGrowthRate, plan.annualIncome, plan.incomeGrowthRate, currentAge, plan.retirementAge])
 
@@ -49,7 +49,7 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
               <div className="flex items-center gap-3">
                 <input
                   type="range"
-                  min={55} max={70}
+                  min={currentAge + 1} max={75}
                   value={plan.retirementAge}
                   onChange={set('retirementAge')}
                   className="flex-1 accent-hig-blue"
@@ -217,7 +217,7 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
           {plan.includeEPF && epfProjection && (
             <div className="bg-green-50 rounded-hig-sm p-4">
               <p className="text-hig-caption1 text-hig-green font-medium mb-1">
-                Estimated EPF Balance at age {Math.min(plan.retirementAge, 55)}
+                Estimated EPF Balance at age {plan.retirementAge}
               </p>
               <p className="text-hig-title3 text-hig-green">
                 {formatRMFull(epfProjection.finalBalance)}

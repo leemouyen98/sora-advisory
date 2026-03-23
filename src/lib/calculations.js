@@ -228,7 +228,7 @@ export function generateRetirementProjection({
       annualIncome,
       incomeGrowthRate,
       currentAge,
-      retirementAge: Math.min(retirementAge, 55), // EPF pays out at 55
+      retirementAge, // use user-defined retirement age for EPF projection
     })
     epfAtRetirement = epfProjection.finalBalance
   }
@@ -293,9 +293,9 @@ export function generateRetirementProjection({
     if (isPreRetirement) {
       // ── Accumulation Phase ──
 
-      // EPF: contributions until age 55, then sits and grows
+      // EPF: contributions until retirement age, then grows at EPF rate until retirement
       if (includeEPF) {
-        if (age < 55) {
+        if (age < retirementAge) {
           const contribution = epfIncome * 0.24
           epfBal = (epfBal + contribution) * (1 + (epfGrowthRate || 6) / 100)
           epfIncome *= (1 + (incomeGrowthRate || 0) / 100)
@@ -304,7 +304,7 @@ export function generateRetirementProjection({
           epfBalNoRec = (epfBalNoRec + contribNoRec) * (1 + (epfGrowthRate || 6) / 100)
           epfIncomeNoRec *= (1 + (incomeGrowthRate || 0) / 100)
         } else {
-          // EPF paid out at 55, parked at post-retirement return
+          // After retirement age, parked at post-retirement return
           epfBal *= (1 + postRetirementReturn / 100)
           epfBalNoRec *= (1 + postRetirementReturn / 100)
         }
