@@ -111,7 +111,7 @@ export default function RetirementPlannerPage() {
   )
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="w-full">
       {breadcrumb}
 
       {stepIndicator}
