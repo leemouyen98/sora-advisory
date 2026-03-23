@@ -45,14 +45,19 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
           {/* Retirement Expense */}
           <div>
             <h3 className="text-hig-headline mb-3">Retirement Expense</h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
                 <label className="hig-label">Monthly Expenses (RM)</label>
                 <input type="number" value={plan.monthlyExpenses || ''} onChange={set('monthlyExpenses')} className="hig-input" />
               </div>
               <div>
                 <label className="hig-label">Inflation Rate (%)</label>
                 <input type="number" step="0.5" min={0} max={10} value={plan.inflationRate} onChange={set('inflationRate')} className="hig-input" />
+              </div>
+              <div>
+                <label className="hig-label">Pre-Retirement Return (%)</label>
+                <input type="number" step="0.5" min={0} max={20} value={plan.preRetirementReturn ?? 5} onChange={set('preRetirementReturn')} className="hig-input" />
+                <p className="text-hig-caption2 text-hig-text-secondary mt-1">Required accumulation curve discount rate</p>
               </div>
               <div>
                 <label className="hig-label">Post-Retirement Return (%)</label>

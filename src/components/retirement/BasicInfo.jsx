@@ -76,8 +76,8 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
         {/* Retirement Expense */}
         <div className="hig-card p-5">
           <h3 className="text-hig-headline mb-4">Retirement Expense</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 md:col-span-1">
               <label className="hig-label">Monthly Expenses (today's value)</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
@@ -94,28 +94,22 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
             <div>
               <label className="hig-label">Inflation Rate</label>
               <div className="relative">
-                <input
-                  type="number"
-                  step="0.5"
-                  min={0} max={10}
-                  value={plan.inflationRate}
-                  onChange={set('inflationRate')}
-                  className="hig-input pr-8"
-                />
+                <input type="number" step="0.5" min={0} max={10} value={plan.inflationRate} onChange={set('inflationRate')} className="hig-input pr-8" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">%</span>
               </div>
             </div>
             <div>
+              <label className="hig-label">Pre-Retirement Return</label>
+              <div className="relative">
+                <input type="number" step="0.5" min={0} max={20} value={plan.preRetirementReturn ?? 5} onChange={set('preRetirementReturn')} className="hig-input pr-8" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">%</span>
+              </div>
+              <p className="text-hig-caption2 text-hig-text-secondary mt-1">Used to discount the required corpus backward</p>
+            </div>
+            <div>
               <label className="hig-label">Post-Retirement Return</label>
               <div className="relative">
-                <input
-                  type="number"
-                  step="0.5"
-                  min={0} max={10}
-                  value={plan.postRetirementReturn}
-                  onChange={set('postRetirementReturn')}
-                  className="hig-input pr-8"
-                />
+                <input type="number" step="0.5" min={0} max={10} value={plan.postRetirementReturn} onChange={set('postRetirementReturn')} className="hig-input pr-8" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">%</span>
               </div>
             </div>

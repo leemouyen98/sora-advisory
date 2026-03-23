@@ -28,6 +28,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
         lifeExpectancy: plan.lifeExpectancy || 80,
         monthlyExpenses: plan.monthlyExpenses || 0,
         inflationRate: plan.inflationRate ?? 4,
+        preRetirementReturn: plan.preRetirementReturn ?? 5,
         postRetirementReturn: plan.postRetirementReturn ?? 1,
         includeEPF: plan.includeEPF || false,
         epfBalance: plan.epfBalance || 0,

@@ -207,6 +207,7 @@ export function generateRetirementProjection({
   lifeExpectancy,
   monthlyExpenses,
   inflationRate,
+  preRetirementReturn = 5,   // assumed accumulation return — used to discount the required curve backward
   postRetirementReturn,
   includeEPF,
   epfBalance,
@@ -423,17 +424,25 @@ export function generateRetirementProjection({
     const totalFund = epfBal + provBal + recBal
     const totalNoRecFund = epfBalNoRec + provBalNoRec
 
-    // Compute the "ideal corpus curve": at retirement it equals targetAmount,
-    // then it depletes at the same rate as expenses (the drawdown schedule).
-    // This gives us a reference to calculate shortfall area visually.
+    // ── Required Corpus Curve ───────────────────────────────────────────────
+    // Represents the amount you SHOULD have at each age to stay on track.
+    //
+    // Pre-retirement: discount targetAmount backward using preRetirementReturn.
+    //   i.e. the PV of the required corpus, growing at preRetirementReturn each year.
+    //   At currentAge  → targetAmount / (1 + r)^yearsToRetirement  (smallest)
+    //   At retirementAge → targetAmount                             (peak)
+    //
+    // Post-retirement: PV of all remaining withdrawals from this age onward,
+    //   discounted at real rate (postRetirementReturn − inflationRate).
+    //   Depletes to zero at lifeExpectancy.
     let idealCorpus = 0
     if (age < retirementAge) {
-      // Pre-retirement: scale linearly up to target (simplified growth curve)
-      idealCorpus = targetAmount * (yearIdx / Math.max(1, yearsToRetirement))
+      const yearsFromRetirement = retirementAge - age
+      idealCorpus = targetAmount / Math.pow(1 + preRetirementReturn / 100, yearsFromRetirement)
     } else if (age === retirementAge) {
       idealCorpus = targetAmount
     } else {
-      // Post-retirement: corpus that would sustain expenses from this age onward
+      // Post-retirement: PV of remaining withdrawals using real rate
       const remainingYears = lifeExpectancy - age
       const remainingMonths = remainingYears * 12
       const realRate = (postRetirementReturn - inflationRate) / 100 / 12
