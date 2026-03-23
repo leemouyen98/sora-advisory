@@ -8,8 +8,8 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
 const PROVISION_FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
 
-export default function RetirementPlanner({ plan, currentAge, contactName, onChange, onEditAssumptions, showAssumptions, onToggleAssumptions }) {
-  const [activeTab, setActiveTab] = useState('recommendations') // recommendations | provisions
+export default function RetirementPlanner({ plan, currentAge, contactName, onChange, onEditAssumptions, showAssumptions, onToggleAssumptions, activeTab, onActiveTabChange }) {
+  const setActiveTab = onActiveTabChange
   const [expandedRec, setExpandedRec] = useState(null)
   const [showBreakdown, setShowBreakdown] = useState(null)
   const [showCustomForm, setShowCustomForm] = useState(false)
@@ -263,28 +263,6 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
 
         {/* Right: Recommendations / Provisions Panel */}
         <div className="w-80 shrink-0">
-          {/* Tab toggle */}
-          <div className="flex bg-hig-gray-6 rounded-hig-sm p-1 mb-3">
-            <button
-              onClick={() => setActiveTab('recommendations')}
-              className={`flex-1 py-2 text-hig-subhead font-medium rounded-hig-sm transition-colors
-                ${activeTab === 'recommendations' ? 'bg-white shadow-sm text-hig-text' : 'text-hig-text-secondary'}`}
-            >
-              Recommendations {(plan.recommendations || []).length > 0 && (
-                <span className="ml-1 text-hig-caption2 bg-hig-blue text-white px-1.5 py-0.5 rounded-full">
-                  {(plan.recommendations || []).length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('provisions')}
-              className={`flex-1 py-2 text-hig-subhead font-medium rounded-hig-sm transition-colors
-                ${activeTab === 'provisions' ? 'bg-white shadow-sm text-hig-text' : 'text-hig-text-secondary'}`}
-            >
-              Provisions
-            </button>
-          </div>
-
           <div className="hig-card p-4 max-h-[calc(100vh-300px)] overflow-y-auto">
             {activeTab === 'recommendations' && (
               <div className="space-y-3">

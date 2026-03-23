@@ -15,6 +15,7 @@ export default function RetirementPlannerPage() {
 
   const [step, setStep] = useState(1) // 1: Basic Info, 2: Existing Provision, 3: Planner
   const [showAssumptions, setShowAssumptions] = useState(false)
+  const [activeTab, setActiveTab] = useState('recommendations') // recommendations | provisions
 
   const currentAge = contact ? getAge(contact.dob) : 30
 
@@ -114,6 +115,31 @@ export default function RetirementPlannerPage() {
 
       {stepIndicator}
 
+      {/* Tab bar — only on step 3, just below step indicator */}
+      {step === 3 && (
+        <div className="flex bg-hig-gray-6 rounded-hig-sm p-1 mb-5 w-72">
+          <button
+            onClick={() => setActiveTab('recommendations')}
+            className={`flex-1 py-1.5 text-hig-subhead font-medium rounded-hig-sm transition-colors
+              ${activeTab === 'recommendations' ? 'bg-white shadow-sm text-hig-text' : 'text-hig-text-secondary'}`}
+          >
+            Recommendations
+            {(plan.recommendations || []).length > 0 && (
+              <span className="ml-1.5 text-hig-caption2 bg-hig-blue text-white px-1.5 py-0.5 rounded-full">
+                {(plan.recommendations || []).length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('provisions')}
+            className={`flex-1 py-1.5 text-hig-subhead font-medium rounded-hig-sm transition-colors
+              ${activeTab === 'provisions' ? 'bg-white shadow-sm text-hig-text' : 'text-hig-text-secondary'}`}
+          >
+            Provisions
+          </button>
+        </div>
+      )}
+
       {step === 1 && (
         <BasicInfo
           plan={plan}
@@ -143,6 +169,8 @@ export default function RetirementPlannerPage() {
           onEditAssumptions={() => setStep(1)}
           showAssumptions={showAssumptions}
           onToggleAssumptions={setShowAssumptions}
+          activeTab={activeTab}
+          onActiveTabChange={setActiveTab}
         />
       )}
     </div>
