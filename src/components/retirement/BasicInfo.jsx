@@ -120,18 +120,20 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
         <div className="hig-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-hig-headline">EPF Payout Information</h3>
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <span className="text-hig-subhead text-hig-text-secondary">Include EPF</span>
-              <button
-                type="button"
-                onClick={() => onChange({ includeEPF: !plan.includeEPF })}
-                className={`w-12 h-7 rounded-full transition-colors duration-hig relative
-                  ${plan.includeEPF ? 'bg-hig-green' : 'bg-hig-gray-3'}`}
+            <div
+              className="flex items-center gap-2 cursor-pointer select-none"
+              onClick={() => onChange({ includeEPF: !plan.includeEPF })}
+            >
+              <span className={`text-hig-subhead transition-colors ${plan.includeEPF ? 'text-hig-text' : 'text-hig-text-secondary'}`}>
+                Include EPF
+              </span>
+              <div className={`w-12 h-7 rounded-full transition-colors duration-hig relative
+                ${plan.includeEPF ? 'bg-hig-green' : 'bg-hig-gray-3'}`}
               >
                 <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform duration-hig
-                  ${plan.includeEPF ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
-              </button>
-            </label>
+                  ${plan.includeEPF ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
+              </div>
+            </div>
           </div>
 
           {plan.includeEPF && (

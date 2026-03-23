@@ -77,7 +77,7 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
                 onClick={() => onChange({ includeEPF: !plan.includeEPF })}
                 className={`w-12 h-7 rounded-full transition-colors relative ${plan.includeEPF ? 'bg-hig-green' : 'bg-hig-gray-3'}`}
               >
-                <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${plan.includeEPF ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+                <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${plan.includeEPF ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
               </button>
             </div>
             {plan.includeEPF && (
