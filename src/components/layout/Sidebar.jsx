@@ -49,11 +49,17 @@ export default function Sidebar({ expanded, onToggle }) {
         {/* Logo area */}
         <div className="h-14 flex items-center justify-center border-b border-hig-gray-5 px-3">
           {expanded ? (
-            <span className="text-hig-headline text-hig-blue font-bold truncate">
-              GoalsMapping
-            </span>
+            <img
+              src="/assets/hla-logo.jpg"
+              alt="Henry Lee Advisory"
+              className="h-8 w-auto object-contain"
+            />
           ) : (
-            <span className="text-lg font-bold text-hig-blue">GM</span>
+            <img
+              src="/assets/favicon.jpg"
+              alt="HLA"
+              className="w-8 h-8 object-contain rounded-lg"
+            />
           )}
         </div>
 

@@ -51,20 +51,11 @@ export default function LoginPage() {
 
         {/* Logo + wordmark */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div style={{
-              width: 48, height: 48, borderRadius: 14,
-              background: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <span style={{ color: 'white', fontSize: 18, fontWeight: 700, letterSpacing: -0.5 }}>GM</span>
-            </div>
-            <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 20, fontWeight: 700, letterSpacing: -0.3 }}>
-              GoalsMapping
-            </span>
-          </div>
+          <img
+            src="/assets/hla-logo.jpg"
+            alt="Henry Lee Advisory"
+            style={{ height: 48, width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+          />
         </div>
 
         {/* Headline */}
@@ -117,10 +108,11 @@ export default function LoginPage() {
 
         {/* Mobile-only logo */}
         <div className="lg:hidden text-center mb-10">
-          <div className="w-14 h-14 rounded-2xl bg-hig-blue mx-auto mb-3 flex items-center justify-center shadow-hig-md">
-            <span className="text-white text-xl font-bold">GM</span>
-          </div>
-          <h1 className="text-hig-title2 text-hig-text">GoalsMapping</h1>
+          <img
+            src="/assets/hla-logo.jpg"
+            alt="Henry Lee Advisory"
+            className="h-10 w-auto object-contain mx-auto mb-2"
+          />
           <p className="text-hig-subhead text-hig-text-secondary mt-1">Financial Planning Suite</p>
         </div>
 
