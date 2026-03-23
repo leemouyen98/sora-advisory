@@ -5,7 +5,7 @@ import { getAge } from '../lib/formatters'
 import { formatRMFull, protectionNeed, generateProtectionSummary } from '../lib/calculations'
 import { ArrowLeft, X, Plus, Trash2, CheckCircle2, AlertTriangle, Settings } from 'lucide-react'
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from 'recharts'
 
@@ -921,27 +921,69 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
 
 // ─── Sub-component: Coverage Bar ──────────────────────────────────────────────
 
-// ─── Coverage by Age Chart ────────────────────────────────────────────────────
+// ─── Coverage Needs by Age Chart ─────────────────────────────────────────────
+//
+// Logic (verified against GoalsMapper tooltips):
+//   Each bar = annual living expense for that age (inflation-adjusted)
+//   Year 1 bar also includes the lump sum (drawn immediately on insured event)
+//   Coverage pool depletes year by year; remainder earns investment return
+//   Green  = drawn from existing coverage pool
+//   Blue   = drawn from recommended coverage pool (risk-colour per tab)
+//   Red    = shortfall (not covered by any pool)
 
-function CoverageAgeChartTooltip({ active, payload, label }) {
-  if (!active || !payload || payload.length === 0) return null
+function buildCoverageChartData({ lumpSum, monthly, period, inflationRate, returnRate, existing, withRecs, currentAge }) {
+  if (!period || period <= 0 || (!monthly && !lumpSum)) return []
+
+  let existingPool = existing
+  let recPool = Math.max(0, withRecs - existing)
+  const annualInflation = (inflationRate || 0) / 100
+  const annualReturn = (returnRate || 0) / 100
+
+  return Array.from({ length: period }, (_, y) => {
+    const age = currentAge + y
+
+    // Bar height: year 1 adds lump sum on top of first year's annual expenses
+    const annualExpense = y === 0
+      ? (lumpSum || 0) + (monthly || 0) * 12
+      : (monthly || 0) * 12 * Math.pow(1 + annualInflation, y)
+
+    // Draw from existing pool first
+    const fromExisting = Math.min(existingPool, annualExpense)
+    existingPool = Math.max(0, existingPool - fromExisting) * (1 + annualReturn)
+
+    // Then draw from recommended pool
+    const stillNeeded = annualExpense - fromExisting
+    const fromRec = Math.min(recPool, stillNeeded)
+    recPool = Math.max(0, recPool - fromRec) * (1 + annualReturn)
+
+    const shortfall = Math.max(0, stillNeeded - fromRec)
+
+    return { age, existing: Math.round(fromExisting), recommended: Math.round(fromRec), shortfall: Math.round(shortfall) }
+  })
+}
+
+function CoverageNeedsTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
   const d = payload[0]?.payload
   if (!d) return null
+  const rows = [
+    { key: 'existing',    label: 'Existing Coverage',     color: '#34C759' },
+    { key: 'recommended', label: 'Recommended Coverage',  color: '#007AFF' },
+    { key: 'shortfall',   label: 'Shortfall',             color: '#FF3B30' },
+  ]
   return (
     <div style={{
-      background: 'white', borderRadius: 12,
-      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-      border: '1px solid #E5E5EA', padding: '10px 14px', minWidth: 180,
+      background: 'white', borderRadius: 10,
+      boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
+      border: '1px solid #E5E5EA', padding: '10px 14px', minWidth: 200,
     }}>
-      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Age {label}</div>
-      {[
-        { key: 'existing', label: 'Existing', color: '#34C759' },
-        { key: 'recommended', label: 'Recommended', color: '#007AFF' },
-        { key: 'shortfall', label: 'Shortfall', color: '#FF3B30' },
-      ].map(({ key, label: lbl, color }) =>
+      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 7 }}>
+        Client  Age {label}
+      </div>
+      {rows.map(({ key, label: lbl, color }) =>
         d[key] > 0 ? (
-          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginBottom: 3 }}>
-            <span style={{ width: 9, height: 9, borderRadius: 3, background: color, flexShrink: 0 }} />
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginBottom: 4 }}>
+            <span style={{ width: 10, height: 10, borderRadius: 3, background: color, flexShrink: 0 }} />
             <span style={{ color: '#8E8E93', flex: 1 }}>{lbl}</span>
             <span style={{ fontWeight: 500 }}>{formatRMFull(d[key])}</span>
           </div>
@@ -952,90 +994,72 @@ function CoverageAgeChartTooltip({ active, payload, label }) {
 }
 
 function CoverageAgeChart({ risk, currentAge, lumpSum, monthly, period, existing, withRecs, inflationRate, returnRate }) {
-  const colour = RISK_COLOUR[risk]
+  const recColour = RISK_COLOUR[risk]
 
-  const data = useMemo(() => {
-    if (!period || period <= 0) return []
-    return Array.from({ length: period + 1 }, (_, y) => {
-      const age = currentAge + y
-      const rem = Math.max(0, period - y)
-      const need = protectionNeed({ lumpSum, monthlyExpenses: monthly, period: rem, inflationRate, returnRate })
-      const cov = Math.min(need, existing)
-      const rec = Math.min(need, withRecs) - cov
-      const gap = Math.max(0, need - withRecs)
-      return { age, existing: cov, recommended: Math.max(0, rec), shortfall: gap }
-    })
-  }, [lumpSum, monthly, period, existing, withRecs, inflationRate, returnRate, currentAge])
+  const data = useMemo(
+    () => buildCoverageChartData({ lumpSum, monthly, period, inflationRate, returnRate, existing, withRecs, currentAge }),
+    [lumpSum, monthly, period, inflationRate, returnRate, existing, withRecs, currentAge]
+  )
 
   if (data.length === 0) return null
 
+  const hasRecs = data.some((d) => d.recommended > 0)
+
   const yTickFmt = (v) =>
     v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M`
-    : v >= 1_000 ? `${(v / 1_000).toFixed(0)}K`
+    : v >= 1_000   ? `${(v / 1_000).toFixed(0)}K`
     : String(v)
-
-  const hasRecs = data.some((d) => d.recommended > 0)
 
   return (
     <div className="hig-card p-5">
-      <div className="flex items-baseline justify-between mb-1">
-        <h3 className="text-hig-headline">Coverage by Age</h3>
-      </div>
-      <p className="text-hig-caption1 text-hig-text-secondary mb-4">
-        Need decreases as the protection period shortens. Red area = remaining shortfall.
+      <h3 className="text-hig-headline mb-1">Coverage Needs by Age</h3>
+      <p className="text-hig-caption1 text-hig-text-secondary mb-3">
+        Annual living expenses vs. how far your coverage pool reaches.
       </p>
 
       {/* Legend */}
       <div className="flex items-center gap-4 mb-3">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#34C759' }} />
-          <span className="text-hig-caption1 text-hig-text-secondary">Existing</span>
-        </div>
+        {existing > 0 && (
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#34C759' }} />
+            <span className="text-hig-caption1 text-hig-text-secondary">Existing Coverage</span>
+          </div>
+        )}
         {hasRecs && (
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm" style={{ background: colour }} />
-            <span className="text-hig-caption1 text-hig-text-secondary">Recommended</span>
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: recColour }} />
+            <span className="text-hig-caption1 text-hig-text-secondary">Recommended Coverage</span>
           </div>
         )}
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#FF3B30', opacity: 0.6 }} />
+          <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#FF6B6B' }} />
           <span className="text-hig-caption1 text-hig-text-secondary">Shortfall</span>
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
-        <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" />
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }} barCategoryGap="15%">
+          <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
           <XAxis
             dataKey="age"
             tick={{ fontSize: 11, fill: '#8E8E93' }}
             tickLine={false}
             axisLine={{ stroke: '#E5E5EA' }}
+            label={{ value: 'Age', position: 'insideBottom', offset: -1, fontSize: 11, fill: '#8E8E93' }}
           />
           <YAxis
             tickFormatter={yTickFmt}
             tick={{ fontSize: 11, fill: '#8E8E93' }}
             tickLine={false}
             axisLine={false}
-            width={44}
+            width={42}
           />
-          <Tooltip content={<CoverageAgeChartTooltip />} />
-          <Area
-            type="monotone" dataKey="existing" stackId="1"
-            fill="#34C759" stroke="#34C759" strokeWidth={0}
-            fillOpacity={0.85} name="Existing"
-          />
-          <Area
-            type="monotone" dataKey="recommended" stackId="1"
-            fill={colour} stroke={colour} strokeWidth={0}
-            fillOpacity={0.85} name="Recommended"
-          />
-          <Area
-            type="monotone" dataKey="shortfall" stackId="1"
-            fill="#FF3B30" stroke="#FF3B30" strokeWidth={0}
-            fillOpacity={0.35} name="Shortfall"
-          />
-        </AreaChart>
+          <Tooltip content={<CoverageNeedsTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+          {/* Stacked bars: existing → recommended → shortfall */}
+          <Bar dataKey="existing"    stackId="a" fill="#34C759" name="Existing Coverage"    radius={[0,0,0,0]} />
+          <Bar dataKey="recommended" stackId="a" fill={recColour} name="Recommended Coverage" radius={[0,0,0,0]} />
+          <Bar dataKey="shortfall"   stackId="a" fill="#FF6B6B" name="Shortfall"             radius={[2,2,0,0]} />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   )
