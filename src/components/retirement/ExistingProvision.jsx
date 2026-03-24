@@ -170,7 +170,8 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                   {formatRMFull(totalProjected)}
                 </p>
                 <p className="text-hig-caption2 text-hig-text-secondary mt-1">
-                  {formatRMFull(totalProjected - totalCapital)} increase over {yearsToRetirement} years
+                  Grows by {formatRMFull(totalProjected - totalCapital)} over {yearsToRetirement} years
+                  {totalCapital > 0 ? ` — a ${Math.round(((totalProjected / totalCapital) - 1) * 100).toLocaleString('en-MY')}% gain on committed capital.` : '.'}
                 </p>
               </div>
 

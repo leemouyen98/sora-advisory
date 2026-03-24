@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { getAge } from '../lib/formatters'
 import { formatRMFull, protectionNeed, generateProtectionSummary } from '../lib/calculations'
-import { ArrowLeft, X, Plus, Trash2, Settings } from 'lucide-react'
+import { ArrowLeft, X, Plus, Trash2, Settings, ChevronDown, ChevronUp } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
@@ -19,6 +19,13 @@ const RISK_LABELS = {
 }
 const RISK_SHORT = { death: 'Death', tpd: 'TPD', aci: 'ACI', eci: 'ECI' }
 const RISK_COLOUR = { death: '#007AFF', tpd: '#FF9500', aci: '#AF52DE', eci: '#FF3B30' }
+const RISK_DESC = {
+  death: 'Pays a lump sum and/or monthly income to your dependants if you pass away.',
+  tpd:   'Replaces your income if you become totally and permanently disabled.',
+  aci:   'Covers treatment and living costs when a critical illness reaches an advanced stage.',
+  eci:   'Provides early cash the moment a critical illness is first diagnosed, before it progresses.',
+}
+const roundUp50K = (val) => Math.ceil(Math.max(val, 1) / 50000) * 50000
 
 export default function ProtectionPlannerPage() {
   const { id } = useParams()
@@ -195,13 +202,14 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue }) {
           <div className="space-y-4">
             {RISKS.map((risk) => (
               <div key={risk} className="border border-hig-gray-5 rounded-hig-sm p-4">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-1">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: RISK_COLOUR[risk] }}
                   />
                   <h4 className="text-hig-subhead font-semibold">{RISK_LABELS[risk]}</h4>
                 </div>
+                <p className="text-hig-caption1 text-hig-text-secondary mb-3">{RISK_DESC[risk]}</p>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="hig-label">Lump Sum (RM)</label>
@@ -466,6 +474,7 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue }) {
 function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssumptions, onToggleAssumptions, onBack }) {
   const [activeRisk, setActiveRisk] = useState('death')
   const [activeTab, setActiveTab] = useState('recommendations')
+  const [expandedRecId, setExpandedRecId] = useState(null)
 
   const summary = useMemo(() =>
     generateProtectionSummary({
@@ -482,23 +491,20 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
   const allRecs = plan.recommendations || []
 
   const addRecommendation = () => {
-    const getShortfall = (risk) => {
-      const s = summary.find((x) => x.risk === risk)
-      return s?.shortfall > 0 ? Math.round(s.shortfall) : 0
-    }
     const rec = {
       id: uid(),
       name: '',
-      death: getShortfall('death'),
-      tpd: getShortfall('tpd'),
-      aci: getShortfall('aci'),
-      eci: getShortfall('eci'),
+      death: 0,
+      tpd: 0,
+      aci: 0,
+      eci: 0,
       premiumAmount: 0,
       frequency: 'Monthly',
       periodYears: 20,
       isSelected: true,
     }
     updatePlan({ recommendations: [...(plan.recommendations || []), rec] })
+    setExpandedRecId(rec.id)
   }
 
   const updateRec = (recId, updates) => {
@@ -533,51 +539,25 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
 
   return (
     <>
-      {/* Cross-category coverage status — quick overview across all 4 risks */}
-      <div className="flex gap-2 mb-3">
-        {summary.map((s) => {
-          const colour = s.coveragePercent >= 100 ? '#34C759' : s.coveragePercent >= 50 ? '#FF9500' : '#FF3B30'
-          const isActive = s.risk === activeRisk
-          return (
-            <button
-              key={s.risk}
-              onClick={() => setActiveRisk(s.risk)}
-              className={`flex-1 rounded-hig-sm p-2 text-center border transition-all
-                ${isActive ? 'border-transparent shadow-sm' : 'border-hig-gray-5 bg-white hover:border-hig-gray-4'}`}
-              style={isActive ? { backgroundColor: colour + '18', borderColor: colour + '60' } : {}}
-            >
-              <div className="flex items-center justify-center gap-1 mb-0.5">
-                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: RISK_COLOUR[s.risk] }} />
-                <span className="text-hig-caption2 text-hig-text-secondary font-medium">{RISK_SHORT[s.risk]}</span>
-              </div>
-              <div className="text-hig-caption1 font-bold" style={{ color: colour }}>
-                {s.coveragePercent}%
-              </div>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Risk tabs */}
+      {/* Risk tabs — coverage % embedded so there's no separate duplicate row */}
       <div className="flex bg-hig-gray-6 rounded-hig-sm p-1 mb-4">
         {RISKS.map((risk) => {
           const s = summary.find((x) => x.risk === risk)
           const isActive = activeRisk === risk
-          // Dot colour: active = risk colour; inactive = coverage status
-          const dotColour = isActive
-            ? RISK_COLOUR[risk]
-            : s?.coveragePercent >= 100 ? '#34C759'
-            : s?.coveragePercent >= 50  ? '#FF9500'
-            : '#FF3B30'
+          const pct = s?.coveragePercent ?? 0
+          const pctColour = pct >= 100 ? '#34C759' : pct >= 50 ? '#FF9500' : '#FF3B30'
           return (
             <button
               key={risk}
               onClick={() => setActiveRisk(risk)}
-              className={`flex-1 py-2.5 text-hig-subhead font-medium rounded-hig-sm transition-colors flex items-center justify-center gap-1.5
+              className={`flex-1 py-2 rounded-hig-sm transition-colors flex flex-col items-center gap-0.5
                 ${isActive ? 'bg-white shadow-sm text-hig-text' : 'text-hig-text-secondary'}`}
             >
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: dotColour }} />
-              {RISK_SHORT[risk]}
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: isActive ? RISK_COLOUR[risk] : pctColour }} />
+                <span className="text-hig-subhead font-medium">{RISK_SHORT[risk]}</span>
+              </div>
+              <span className="text-[10px] font-bold leading-none" style={{ color: pctColour }}>{pct}%</span>
             </button>
           )
         })}
@@ -624,6 +604,16 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
                 </div>
               </div>
             </div>
+            {/* NLP interpretation */}
+            <p className="text-hig-caption1 text-hig-text-secondary mt-3 pt-3 border-t border-hig-gray-6">
+              {active.coveragePercent >= 100
+                ? `${RISK_SHORT[activeRisk]} is fully covered — ${formatRMFull(active.surplus)} buffer above target.`
+                : active.coveragePercent >= 50
+                ? `Good start — ${active.coveragePercent}% covered. Adding ${formatRMFull(active.shortfall)} more in sum assured closes the gap.`
+                : active.targetCoverage > 0
+                ? `Significant exposure — only ${active.coveragePercent}% covered. ${formatRMFull(active.shortfall)} is unprotected.`
+                : `Enter needs in Step 1 to see the coverage target for ${RISK_SHORT[activeRisk]}.`}
+            </p>
           </div>
 
           {/* Needs breakdown */}
@@ -710,134 +700,180 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
 
                 {allRecs.map((rec, idx) => {
                   const freqMap = { Monthly: 12, Quarterly: 4, 'Semi-annually': 2, Yearly: 1 }
-                  const totalPremiumPaid = (rec.premiumAmount || 0) * (freqMap[rec.frequency] || 12) * (rec.periodYears || 0)
+                  const paymentsPerYear = freqMap[rec.frequency] || 12
+                  const totalPremiumPaid = (rec.premiumAmount || 0) * paymentsPerYear * (rec.periodYears || 0)
+                  const isExpanded = expandedRecId === rec.id
+                  const coveredRisks = RISKS.filter((r) => (rec[r] || 0) > 0)
                   return (
                     <div key={rec.id} className="border border-hig-gray-4 rounded-hig-sm overflow-hidden">
-                      {/* Header */}
+                      {/* Header — click to expand/collapse */}
                       <div
-                        className="flex items-center gap-2 px-3 py-2.5"
+                        className="flex items-center gap-2 px-3 py-2.5 cursor-pointer select-none"
                         style={{ backgroundColor: rec.isSelected ? '#007AFF' : '#8E8E93' }}
+                        onClick={() => setExpandedRecId(isExpanded ? null : rec.id)}
                       >
                         <button
-                          onClick={() => toggleRec(rec.id)}
+                          onClick={(e) => { e.stopPropagation(); toggleRec(rec.id) }}
                           className="w-5 h-5 rounded-full border-2 border-white/70 shrink-0 flex items-center justify-center transition-colors"
                           style={{ backgroundColor: rec.isSelected ? 'rgba(255,255,255,0.25)' : 'transparent' }}
                         >
                           {rec.isSelected && <span className="text-white text-[9px] font-bold leading-none">✓</span>}
                         </button>
                         <span className="text-hig-subhead font-semibold text-white flex-1">
-                          Recommendation {idx + 1}
+                          {rec.name || `Recommendation ${idx + 1}`}
                         </span>
-                        <button onClick={() => removeRec(rec.id)} className="text-white/60 hover:text-white p-0.5 transition-colors">
+                        {isExpanded ? <ChevronUp size={14} className="text-white/70 shrink-0" /> : <ChevronDown size={14} className="text-white/70 shrink-0" />}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeRec(rec.id) }}
+                          className="text-white/60 hover:text-white p-0.5 transition-colors"
+                        >
                           <Trash2 size={14} />
                         </button>
                       </div>
 
-                      {/* Form body */}
-                      <div className="p-3 space-y-2.5 bg-white">
-                        {/* Product name */}
-                        <input
-                          type="text"
-                          value={rec.name || ''}
-                          onChange={(e) => updateRec(rec.id, { name: e.target.value })}
-                          className="hig-input text-hig-subhead w-full"
-                          placeholder="Product / plan name (optional)"
-                        />
+                      {/* Collapsed summary */}
+                      {!isExpanded && (
+                        <div className="px-3 py-2 bg-white space-y-0.5">
+                          {coveredRisks.length > 0 ? (
+                            <p className="text-hig-caption1 text-hig-text-secondary">
+                              {coveredRisks.map((r) => `${RISK_SHORT[r]} ${formatRMFull(rec[r])}`).join(' · ')}
+                            </p>
+                          ) : (
+                            <p className="text-hig-caption1 text-hig-text-secondary italic">No coverage amounts entered yet.</p>
+                          )}
+                          {rec.premiumAmount > 0 && (
+                            <p className="text-hig-caption2 text-hig-text-secondary">
+                              {formatRMFull(rec.premiumAmount)}/{(rec.frequency || 'Monthly').toLowerCase()} · {rec.periodYears || 0} yrs
+                              {totalPremiumPaid > 0 && ` · Total ${formatRMFull(totalPremiumPaid)}`}
+                            </p>
+                          )}
+                        </div>
+                      )}
 
-                        {/* Per-risk coverage amounts */}
-                        {RISKS.map((risk) => (
-                          <div
-                            key={risk}
-                            className="rounded-md p-2.5"
-                            style={{
-                              border: `1.5px solid ${RISK_COLOUR[risk]}50`,
-                              backgroundColor: RISK_COLOUR[risk] + '0A',
-                            }}
-                          >
-                            <div className="flex items-center justify-between mb-1.5">
-                              <label
-                                className="text-hig-caption1 font-semibold"
-                                style={{ color: RISK_COLOUR[risk] }}
+                      {/* Expanded form body */}
+                      {isExpanded && (
+                        <div className="p-3 space-y-2.5 bg-white">
+                          {/* Product name */}
+                          <input
+                            type="text"
+                            value={rec.name || ''}
+                            onChange={(e) => updateRec(rec.id, { name: e.target.value })}
+                            className="hig-input text-hig-subhead w-full"
+                            placeholder="Product / plan name (optional)"
+                          />
+
+                          {/* Per-risk coverage amounts */}
+                          {RISKS.map((risk) => {
+                            const s = summary.find((x) => x.risk === risk)
+                            const shortfall = s?.shortfall || 0
+                            const suggested = shortfall > 0 ? roundUp50K(shortfall) : 0
+                            return (
+                              <div
+                                key={risk}
+                                className="rounded-md p-2.5"
+                                style={{
+                                  border: `1.5px solid ${RISK_COLOUR[risk]}50`,
+                                  backgroundColor: RISK_COLOUR[risk] + '0A',
+                                }}
                               >
-                                {RISK_SHORT[risk]} Coverage
-                              </label>
-                              <span className="text-[10px] text-hig-text-secondary font-medium">Required</span>
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <label className="text-hig-caption1 font-semibold" style={{ color: RISK_COLOUR[risk] }}>
+                                    {RISK_SHORT[risk]} Coverage
+                                  </label>
+                                  {suggested > 0 && (
+                                    <button
+                                      onClick={() => updateRec(rec.id, { [risk]: suggested })}
+                                      className="text-[10px] text-hig-blue hover:underline font-medium"
+                                    >
+                                      Suggested: {formatRMFull(suggested)} ↗
+                                    </button>
+                                  )}
+                                </div>
+                                <div className="relative">
+                                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption1 font-medium select-none">RM</span>
+                                  <input
+                                    type="number"
+                                    value={rec[risk] || ''}
+                                    onChange={(e) => updateRec(rec.id, { [risk]: parseFloat(e.target.value) || 0 })}
+                                    className="hig-input pl-9 text-hig-subhead"
+                                    placeholder="0"
+                                  />
+                                </div>
+                                {suggested > 0 && (
+                                  <p className="text-[10px] text-hig-text-secondary mt-1">
+                                    Shortfall is {formatRMFull(shortfall)} — rounded up to nearest RM 50,000.
+                                  </p>
+                                )}
+                              </div>
+                            )
+                          })}
+
+                          {/* Premium Amount */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="text-hig-caption1 text-hig-text-secondary font-medium">Premium Amount</label>
+                              <span className="text-[10px] text-hig-text-secondary">Required</span>
                             </div>
                             <div className="relative">
-                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption1 font-medium select-none">RM</span>
+                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption1 select-none">RM</span>
                               <input
                                 type="number"
-                                value={rec[risk] || ''}
-                                onChange={(e) => updateRec(rec.id, { [risk]: parseFloat(e.target.value) || 0 })}
-                                className="hig-input pl-9 text-hig-subhead"
+                                value={rec.premiumAmount || ''}
+                                onChange={(e) => updateRec(rec.id, { premiumAmount: parseFloat(e.target.value) || 0 })}
+                                className="hig-input pl-9"
                                 placeholder="0"
                               />
                             </div>
                           </div>
-                        ))}
 
-                        {/* Premium Amount */}
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="text-hig-caption1 text-hig-text-secondary font-medium">Premium Amount</label>
-                            <span className="text-[10px] text-hig-text-secondary">Required</span>
+                          {/* Frequency */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="text-hig-caption1 text-hig-text-secondary font-medium">Frequency</label>
+                              <span className="text-[10px] text-hig-text-secondary">Optional</span>
+                            </div>
+                            <select
+                              value={rec.frequency || 'Monthly'}
+                              onChange={(e) => updateRec(rec.id, { frequency: e.target.value })}
+                              className="hig-input"
+                            >
+                              <option>Monthly</option>
+                              <option>Quarterly</option>
+                              <option>Semi-annually</option>
+                              <option>Yearly</option>
+                            </select>
                           </div>
-                          <div className="relative">
-                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption1 select-none">RM</span>
-                            <input
-                              type="number"
-                              value={rec.premiumAmount || ''}
-                              onChange={(e) => updateRec(rec.id, { premiumAmount: parseFloat(e.target.value) || 0 })}
-                              className="hig-input pl-9"
-                              placeholder="0"
-                            />
+
+                          {/* Period */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="text-hig-caption1 text-hig-text-secondary font-medium">Period</label>
+                              <span className="text-[10px] text-hig-text-secondary">Required</span>
+                            </div>
+                            <div className="relative">
+                              <input
+                                type="number"
+                                value={rec.periodYears || ''}
+                                onChange={(e) => updateRec(rec.id, { periodYears: parseFloat(e.target.value) || 0 })}
+                                className="hig-input pr-12"
+                                placeholder="0"
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption1 select-none">years</span>
+                            </div>
                           </div>
+
+                          {/* Total premium paid */}
+                          {totalPremiumPaid > 0 && (
+                            <div className="rounded-md p-3 bg-amber-50 border border-amber-200">
+                              <p className="text-[10px] text-amber-700 font-bold tracking-wide mb-0.5">TOTAL PREMIUM PAID</p>
+                              <p className="text-hig-subhead font-bold text-amber-900">{formatRMFull(totalPremiumPaid)}</p>
+                              <p className="text-[10px] text-amber-700 mt-0.5">
+                                {formatRMFull(rec.premiumAmount)}/{(rec.frequency || 'Monthly').toLowerCase()} × {rec.periodYears} years
+                              </p>
+                            </div>
+                          )}
                         </div>
-
-                        {/* Frequency */}
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="text-hig-caption1 text-hig-text-secondary font-medium">Frequency</label>
-                            <span className="text-[10px] text-hig-text-secondary">Optional</span>
-                          </div>
-                          <select
-                            value={rec.frequency || 'Monthly'}
-                            onChange={(e) => updateRec(rec.id, { frequency: e.target.value })}
-                            className="hig-input"
-                          >
-                            <option>Monthly</option>
-                            <option>Quarterly</option>
-                            <option>Semi-annually</option>
-                            <option>Yearly</option>
-                          </select>
-                        </div>
-
-                        {/* Period */}
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="text-hig-caption1 text-hig-text-secondary font-medium">Period</label>
-                            <span className="text-[10px] text-hig-text-secondary">Required</span>
-                          </div>
-                          <div className="relative">
-                            <input
-                              type="number"
-                              value={rec.periodYears || ''}
-                              onChange={(e) => updateRec(rec.id, { periodYears: parseFloat(e.target.value) || 0 })}
-                              className="hig-input pr-12"
-                              placeholder="0"
-                            />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption1 select-none">years</span>
-                          </div>
-                        </div>
-
-                        {/* Total premium paid */}
-                        {totalPremiumPaid > 0 && (
-                          <div className="rounded-md p-3 bg-amber-50 border border-amber-200">
-                            <p className="text-[10px] text-amber-700 font-bold tracking-wide mb-0.5">TOTAL PREMIUM PAID</p>
-                            <p className="text-hig-subhead font-bold text-amber-900">{formatRMFull(totalPremiumPaid)}</p>
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                   )
                 })}
