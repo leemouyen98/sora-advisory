@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { getAge } from '../lib/formatters'
 import { formatRMFull, protectionNeed, generateProtectionSummary } from '../lib/calculations'
-import { ArrowLeft, X, Plus, Trash2, Settings, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, X, Plus, Trash2, Settings, ChevronDown, ChevronUp, AlertTriangle, CheckCircle, TrendingDown, ShieldAlert } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
@@ -157,6 +157,7 @@ export default function ProtectionPlannerPage() {
           plan={plan}
           currentAge={currentAge}
           contactName={contact.name}
+          monthlyIncome={Number(contact.financials?.income?.grossIncome) || 0}
           updatePlan={updatePlan}
           showAssumptions={showAssumptions}
           onToggleAssumptions={setShowAssumptions}
@@ -469,9 +470,81 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue }) {
   )
 }
 
+// ─── Urgency Narrative Builder ────────────────────────────────────────────────
+//
+// Produces a context-aware, income-referenced sentence per risk category.
+// Used in the summary card NLP line on Step 3.
+// Logic priority: (1) gap closed → reassure, (2) income known → anchor to income,
+// (3) no income → anchor to sum at risk, (4) no needs entered → prompt.
+
+function buildUrgencyNarrative({ risk, active, plan, monthlyIncome, contactName }) {
+  const firstName = (contactName || 'the client').split(' ')[0]
+  const { targetCoverage, shortfall, surplus, coveragePercent } = active
+  const need = plan.needs[risk] || {}
+  const period = need.period || 0
+
+  // ── No needs entered yet ──
+  if (!targetCoverage || targetCoverage === 0) {
+    const prompts = {
+      death:  `Enter ${firstName}'s lump sum obligations and monthly family expenses in Step 1 to calculate the death coverage needed.`,
+      tpd:    `TPD coverage replaces lost income if ${firstName} can no longer work. Enter the monthly amount and period in Step 1.`,
+      aci:    `Advanced stage CI typically sidelines someone for 2–5 years. Define the coverage need in Step 1 to see the gap.`,
+      eci:    `Early diagnosis coverage funds treatment at the most critical — and most treatable — stage. Set the need in Step 1.`,
+    }
+    return prompts[risk] || `Enter needs in Step 1 to calculate the ${RISK_SHORT[risk]} coverage target.`
+  }
+
+  // ── Gap fully closed ──
+  if (coveragePercent >= 100) {
+    const surplusText = surplus > 0 ? ` — ${formatRMFull(surplus)} buffer above target` : ''
+    return `${RISK_SHORT[risk]} gap is closed${surplusText}. No action needed here.`
+  }
+
+  // ── Gap exists — income available ──
+  if (monthlyIncome > 0) {
+    const monthsUnprotected = Math.round(shortfall / monthlyIncome)
+    const pctIncome = ((need.monthly || 0) / monthlyIncome * 100).toFixed(0)
+
+    switch (risk) {
+      case 'death':
+        return `If ${firstName} passes away today, the family needs ${formatRMFull(targetCoverage)} to cover obligations and sustain income over ${period} years. Only ${coveragePercent}% is in place — the ${formatRMFull(shortfall)} gap represents roughly ${monthsUnprotected} months of ${firstName}'s income left unprotected.`
+
+      case 'tpd':
+        return `Total permanent disability ends ${firstName}'s income immediately and permanently. At ${formatRMFull(monthlyIncome)}/month, the ${formatRMFull(shortfall)} shortfall means ${monthsUnprotected} months of income has no coverage. Only ${coveragePercent}% of the need is met.`
+
+      case 'aci':
+        return `Advanced stage CI typically forces 2–5 years out of the workforce. ${firstName} earns ${formatRMFull(monthlyIncome)}/month — the ${formatRMFull(shortfall)} gap, on top of treatment costs, leaves significant financial exposure. ${coveragePercent}% covered.`
+
+      case 'eci':
+        return `Early stage diagnosis is the window to act fast and afford the best treatment — it's also when financial pressure is highest. ${firstName}'s ${formatRMFull(shortfall)} shortfall means those costs land directly on the family. ${coveragePercent}% covered.`
+
+      default:
+        return `${formatRMFull(shortfall)} of ${RISK_SHORT[risk]} coverage is unprotected — ${coveragePercent}% met, ${monthsUnprotected} months of income at risk.`
+    }
+  }
+
+  // ── Gap exists — no income data ──
+  switch (risk) {
+    case 'death':
+      return `Only ${coveragePercent}% of death coverage is in force. The ${formatRMFull(shortfall)} gap leaves ${firstName}'s dependants exposed — obligations that cannot be met if the worst happens.`
+
+    case 'tpd':
+      return `Total disability means zero income, permanently. Only ${coveragePercent}% of the required cover is in place — ${formatRMFull(shortfall)} is unprotected.`
+
+    case 'aci':
+      return `Advanced CI at ${coveragePercent}% coverage leaves a ${formatRMFull(shortfall)} gap. Treatment costs plus lost income over ${period} years is the real exposure — not just the medical bill.`
+
+    case 'eci':
+      return `Early stage CI coverage is only ${coveragePercent}% funded. The ${formatRMFull(shortfall)} shortfall means ${firstName} absorbs early treatment costs with no financial cushion.`
+
+    default:
+      return `${coveragePercent}% of ${RISK_SHORT[risk]} coverage is in place. ${formatRMFull(shortfall)} remains unprotected.`
+  }
+}
+
 // ─── Step 3: Protection Planner ───────────────────────────────────────────────
 
-function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssumptions, onToggleAssumptions, onBack }) {
+function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updatePlan, showAssumptions, onToggleAssumptions, onBack }) {
   const [activeRisk, setActiveRisk] = useState('death')
   const [activeTab, setActiveTab] = useState('recommendations')
   const [expandedRecId, setExpandedRecId] = useState(null)
@@ -539,25 +612,43 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
 
   return (
     <>
-      {/* Risk tabs — coverage % embedded so there's no separate duplicate row */}
+      {/* ── Overview Panel ── */}
+      <OverviewPanel summary={summary} activeRisk={activeRisk} onSelect={setActiveRisk} contactName={contactName} />
+
+      {/* Risk tabs — gap-closed state shows green flash + checkmark */}
       <div className="flex bg-hig-gray-6 rounded-hig-sm p-1 mb-4">
         {RISKS.map((risk) => {
           const s = summary.find((x) => x.risk === risk)
           const isActive = activeRisk === risk
           const pct = s?.coveragePercent ?? 0
-          const pctColour = pct >= 100 ? '#34C759' : pct >= 50 ? '#FF9500' : '#FF3B30'
+          const isClosed = pct >= 100 && (s?.targetCoverage ?? 0) > 0
+          const pctColour = isClosed ? '#34C759' : pct >= 50 ? '#FF9500' : '#FF3B30'
+
           return (
             <button
               key={risk}
               onClick={() => setActiveRisk(risk)}
-              className={`flex-1 py-2 rounded-hig-sm transition-colors flex flex-col items-center gap-0.5
-                ${isActive ? 'bg-white shadow-sm text-hig-text' : 'text-hig-text-secondary'}`}
+              className={`flex-1 py-2 rounded-hig-sm transition-all duration-300 flex flex-col items-center gap-0.5
+                ${isActive
+                  ? isClosed
+                    ? 'bg-hig-green/15 shadow-sm text-hig-green'
+                    : 'bg-white shadow-sm text-hig-text'
+                  : isClosed
+                    ? 'text-hig-green hover:bg-hig-green/10'
+                    : 'text-hig-text-secondary'
+                }`}
             >
               <div className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: isActive ? RISK_COLOUR[risk] : pctColour }} />
+                {isClosed
+                  ? <CheckCircle size={11} className="text-hig-green shrink-0" />
+                  : <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: isActive ? RISK_COLOUR[risk] : pctColour }} />
+                }
                 <span className="text-hig-subhead font-medium">{RISK_SHORT[risk]}</span>
               </div>
-              <span className="text-[10px] font-bold leading-none" style={{ color: pctColour }}>{pct}%</span>
+              {isClosed
+                ? <span className="text-[10px] font-bold leading-none text-hig-green">Closed ✓</span>
+                : <span className="text-[10px] font-bold leading-none" style={{ color: pctColour }}>{pct}%</span>
+              }
             </button>
           )
         })}
@@ -604,16 +695,20 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
                 </div>
               </div>
             </div>
-            {/* NLP interpretation */}
-            <p className="text-hig-caption1 text-hig-text-secondary mt-3 pt-3 border-t border-hig-gray-6">
-              {active.coveragePercent >= 100
-                ? `${RISK_SHORT[activeRisk]} is fully covered — ${formatRMFull(active.surplus)} buffer above target.`
-                : active.coveragePercent >= 50
-                ? `Good start — ${active.coveragePercent}% covered. Adding ${formatRMFull(active.shortfall)} more in sum assured closes the gap.`
-                : active.targetCoverage > 0
-                ? `Significant exposure — only ${active.coveragePercent}% covered. ${formatRMFull(active.shortfall)} is unprotected.`
-                : `Enter needs in Step 1 to see the coverage target for ${RISK_SHORT[activeRisk]}.`}
-            </p>
+            {/* Urgency narrative — income-referenced where available */}
+            <div className={`mt-3 pt-3 border-t border-hig-gray-6 rounded-hig-sm transition-colors
+              ${active.coveragePercent >= 100 && active.targetCoverage > 0 ? 'text-hig-green' : 'text-hig-text-secondary'}`}
+            >
+              <p className="text-hig-caption1 leading-relaxed">
+                {buildUrgencyNarrative({
+                  risk: activeRisk,
+                  active,
+                  plan,
+                  monthlyIncome,
+                  contactName,
+                })}
+              </p>
+            </div>
           </div>
 
           {/* Needs breakdown */}
@@ -969,6 +1064,172 @@ function ProtectionPlanner({ plan, currentAge, contactName, updatePlan, showAssu
         </div>
       )}
     </>
+  )
+}
+
+// ─── Overview Panel ───────────────────────────────────────────────────────────
+//
+// Entry frame for Step 3. Shows the full picture across all 4 risks before
+// the client drills into individual tabs. Designed to open the closing
+// conversation: "Here's where you stand today."
+
+const RISK_PRIORITY_LABEL = { 0: 'Most Critical', 1: 'Critical', 2: 'Needs Attention', 3: '' }
+
+function OverviewPanel({ summary, activeRisk, onSelect, contactName }) {
+  // Aggregate totals
+  const totalTarget   = summary.reduce((s, r) => s + r.targetCoverage, 0)
+  const totalCovered  = summary.reduce((s, r) => s + r.totalCovered, 0)
+  const totalShortfall= summary.reduce((s, r) => s + r.shortfall, 0)
+  const overallPct    = totalTarget > 0 ? Math.min(100, Math.round((totalCovered / totalTarget) * 100)) : 0
+
+  // Sort by severity (biggest uncovered gap first) — used for priority badges
+  const sortedByGap = [...summary].sort((a, b) => b.shortfall - a.shortfall)
+  const priorityMap  = Object.fromEntries(sortedByGap.map((r, i) => [r.risk, i]))
+
+  const allCovered   = totalShortfall === 0 && totalTarget > 0
+  const noData       = totalTarget === 0
+
+  // Conversation starter narrative
+  const narrative = noData
+    ? `No coverage needs entered yet — go back to Step 1 to define what ${contactName?.split(' ')[0] || 'the client'} needs protected.`
+    : allCovered
+    ? `All four risk categories are fully covered. ${contactName?.split(' ')[0] || 'The client'} is well-protected.`
+    : totalShortfall > 0
+    ? `Total unprotected exposure: ${formatRMFull(totalShortfall)}. Without additional coverage, ${contactName?.split(' ')[0] || 'the client'} carries ${overallPct < 50 ? 'significant' : 'partial'} risk across ${summary.filter(r => r.shortfall > 0).length} of 4 categories.`
+    : ''
+
+  const overallStatus = noData ? 'na' : allCovered ? 'good' : overallPct >= 50 ? 'fair' : 'poor'
+  const statusConfig = {
+    good: { bg: 'bg-hig-green/10', border: 'border-hig-green/30', text: 'text-hig-green', label: 'Fully Protected', Icon: CheckCircle },
+    fair: { bg: 'bg-amber-50',     border: 'border-amber-200',     text: 'text-amber-600', label: 'Partially Protected', Icon: AlertTriangle },
+    poor: { bg: 'bg-red-50',       border: 'border-red-200',       text: 'text-hig-red',   label: 'Under-Protected', Icon: ShieldAlert },
+    na:   { bg: 'bg-hig-gray-6',   border: 'border-hig-gray-5',    text: 'text-hig-gray-1', label: 'No Data', Icon: TrendingDown },
+  }
+  const sc = statusConfig[overallStatus]
+  const StatusIcon = sc.Icon
+
+  return (
+    <div className="mb-5 space-y-3">
+      {/* ── Header: Total Exposure ── */}
+      <div className={`rounded-hig border px-5 py-4 flex items-center gap-5 ${sc.bg} ${sc.border}`}>
+        <StatusIcon size={28} className={sc.text} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`text-hig-subhead font-semibold ${sc.text}`}>{sc.label}</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">·</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">{overallPct}% of total coverage needs met</span>
+          </div>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">{narrative}</p>
+        </div>
+        {/* ── Aggregate numbers ── */}
+        {!noData && (
+          <div className="flex gap-5 shrink-0">
+            <div className="text-right">
+              <p className="text-hig-caption1 text-hig-text-secondary">Total Needed</p>
+              <p className="text-hig-headline font-semibold">{formatRMFull(totalTarget)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-hig-caption1 text-hig-text-secondary">Covered</p>
+              <p className="text-hig-headline font-semibold text-hig-green">{formatRMFull(totalCovered)}</p>
+            </div>
+            {totalShortfall > 0 && (
+              <div className="text-right">
+                <p className="text-hig-caption1 text-hig-text-secondary">Unprotected</p>
+                <p className="text-hig-headline font-semibold text-hig-red">{formatRMFull(totalShortfall)}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── 4 Risk Cards ── */}
+      <div className="grid grid-cols-4 gap-3">
+        {RISKS.map((risk) => {
+          const s = summary.find((x) => x.risk === risk)
+          const pct = s?.coveragePercent ?? 0
+          const gap = s?.shortfall ?? 0
+          const isActive = activeRisk === risk
+          const priorityIdx = priorityMap[risk]
+          const isMostCritical = priorityIdx === 0 && gap > 0
+          const isCritical     = priorityIdx === 1 && gap > 0
+
+          const cardStatus = pct >= 100 ? 'good' : pct >= 50 ? 'fair' : s?.targetCoverage > 0 ? 'poor' : 'na'
+          const cs = statusConfig[cardStatus]
+          const CardIcon = cs.Icon
+
+          return (
+            <button
+              key={risk}
+              onClick={() => onSelect(risk)}
+              className={`text-left rounded-hig border-2 p-4 transition-all duration-hig focus:outline-none
+                ${isActive
+                  ? 'border-hig-blue shadow-md scale-[1.01]'
+                  : `border-transparent ${cs.bg} hover:border-hig-gray-4 hover:shadow-sm`
+                }`}
+            >
+              {/* Risk header */}
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: RISK_COLOUR[risk] }}
+                  />
+                  <span className="text-hig-subhead font-semibold text-hig-text">{RISK_SHORT[risk]}</span>
+                </div>
+                {isMostCritical && (
+                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-hig-red/10 text-hig-red">
+                    Priority
+                  </span>
+                )}
+                {isCritical && (
+                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                    Critical
+                  </span>
+                )}
+              </div>
+
+              {/* Coverage % */}
+              {s?.targetCoverage > 0 ? (
+                <>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    <span className={`text-hig-title3 font-bold ${cs.text}`}>{pct}%</span>
+                    <span className="text-hig-caption1 text-hig-text-secondary">covered</span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="h-1.5 bg-hig-gray-5 rounded-full overflow-hidden mb-2">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${pct}%`,
+                        backgroundColor: pct >= 100 ? '#34C759' : pct >= 50 ? '#FF9500' : '#FF3B30',
+                      }}
+                    />
+                  </div>
+
+                  {/* Gap or covered state */}
+                  {gap > 0 ? (
+                    <p className="text-hig-caption1 text-hig-red font-medium">
+                      Gap: {formatRMFull(gap)}
+                    </p>
+                  ) : (
+                    <p className="text-hig-caption1 text-hig-green font-medium flex items-center gap-1">
+                      <CheckCircle size={11} /> Gap closed
+                    </p>
+                  )}
+
+                  <p className="text-hig-caption2 text-hig-text-secondary mt-0.5">
+                    Target: {formatRMFull(s.targetCoverage)}
+                  </p>
+                </>
+              ) : (
+                <p className="text-hig-caption1 text-hig-text-secondary mt-1">No needs entered</p>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
