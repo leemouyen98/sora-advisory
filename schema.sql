@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS agents (
   name       TEXT NOT NULL,
   password_hash TEXT NOT NULL,
   salt       TEXT NOT NULL,
+  role       TEXT NOT NULL DEFAULT 'agent',   -- 'admin' | 'agent'
+  is_active  INTEGER NOT NULL DEFAULT 1,      -- 1 = active, 0 = deactivated
   created_at TEXT DEFAULT (datetime('now'))
 );
 

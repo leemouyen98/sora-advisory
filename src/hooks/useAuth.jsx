@@ -48,8 +48,12 @@ export function AuthProvider({ children }) {
     setAgent(null)
   }, [])
 
+  // Convenience: role from agent object, defaults to 'agent'
+  const role = agent?.role ?? 'agent'
+  const isAdmin = role === 'admin'
+
   return (
-    <AuthContext.Provider value={{ agent, token, loading, error, login, logout }}>
+    <AuthContext.Provider value={{ agent, token, loading, error, login, logout, role, isAdmin }}>
       {children}
     </AuthContext.Provider>
   )

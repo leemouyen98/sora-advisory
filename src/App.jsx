@@ -5,14 +5,15 @@ import AppShell from './components/layout/AppShell'
 import ErrorBoundary from './components/ErrorBoundary'
 
 // ─── Lazy-loaded pages (code splitting per route) ─────────────────────────────
-const LoginPage            = lazy(() => import('./pages/LoginPage'))
-const DashboardPage        = lazy(() => import('./pages/DashboardPage'))
-const ContactsPage         = lazy(() => import('./pages/ContactsPage'))
-const ContactDetailPage    = lazy(() => import('./pages/ContactDetailPage'))
+const LoginPage             = lazy(() => import('./pages/LoginPage'))
+const DashboardPage         = lazy(() => import('./pages/DashboardPage'))
+const ContactsPage          = lazy(() => import('./pages/ContactsPage'))
+const ContactDetailPage     = lazy(() => import('./pages/ContactDetailPage'))
 const RetirementPlannerPage = lazy(() => import('./pages/RetirementPlannerPage'))
 const ProtectionPlannerPage = lazy(() => import('./pages/ProtectionPlannerPage'))
-const SettingsPage         = lazy(() => import('./pages/SettingsPage'))
-const NotFoundPage         = lazy(() => import('./pages/NotFoundPage'))
+const SettingsPage          = lazy(() => import('./pages/SettingsPage'))
+const AdminPage             = lazy(() => import('./pages/AdminPage'))
+const NotFoundPage          = lazy(() => import('./pages/NotFoundPage'))
 
 // ─── Full-screen loading fallback ─────────────────────────────────────────────
 function PageLoader() {
@@ -32,10 +33,10 @@ function PageLoader() {
   )
 }
 
-// ─── Auth guard ───────────────────────────────────────────────────────────────
-function ProtectedRoute({ children }) {
-  const { agent } = useAuth()
-  if (!agent) return <Navigate to="/login" replace />
+// ─── Admin-only guard ─────────────────────────────────────────────────────────
+function AdminRoute({ children }) {
+  const { isAdmin } = useAuth()
+  if (!isAdmin) return <Navigate to="/dashboard" replace />
   return children
 }
 
@@ -70,6 +71,9 @@ export default function App() {
               <ErrorBoundary><ProtectionPlannerPage /></ErrorBoundary>
             } />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/admin" element={
+              <AdminRoute><AdminPage /></AdminRoute>
+            } />
             <Route path="/login" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

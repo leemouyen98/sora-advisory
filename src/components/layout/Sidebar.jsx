@@ -4,13 +4,15 @@ import {
   LayoutDashboard,
   Users,
   Settings,
+  Shield,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+import { useAuth } from '../../hooks/useAuth'
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/contacts', label: 'Contacts',   icon: Users },
+  { path: '/contacts',  label: 'Contacts',  icon: Users },
 ]
 
 const BOTTOM_NAV = [
@@ -18,8 +20,9 @@ const BOTTOM_NAV = [
 ]
 
 export default function Sidebar({ expanded, onToggle }) {
-  const location = useLocation()
-  const navigate = useNavigate()
+  const location  = useLocation()
+  const navigate  = useNavigate()
+  const { isAdmin } = useAuth()
   const [hovered, setHovered] = useState(false)
   const hoverTimer = useRef(null)
 
@@ -27,7 +30,7 @@ export default function Sidebar({ expanded, onToggle }) {
   const isOpen = expanded || hovered
 
   const handleMouseEnter = useCallback(() => {
-    if (expanded) return // already pinned, no need
+    if (expanded) return
     hoverTimer.current = setTimeout(() => setHovered(true), 100)
   }, [expanded])
 
@@ -38,14 +41,9 @@ export default function Sidebar({ expanded, onToggle }) {
 
   const isActive = (item) => {
     if (item.path === '/contacts') {
-      // Contacts: active on /contacts, /contacts/:id, and any planner sub-routes
       return location.pathname.startsWith('/contacts')
     }
     return location.pathname.startsWith(item.path)
-  }
-
-  const handleClick = (item) => {
-    navigate(item.path)
   }
 
   return (
@@ -92,7 +90,7 @@ export default function Sidebar({ expanded, onToggle }) {
             return (
               <button
                 key={item.label}
-                onClick={() => handleClick(item)}
+                onClick={() => navigate(item.path)}
                 className={`
                   w-full flex items-center gap-3 min-h-touch rounded-hig-sm
                   px-3 py-2.5 transition-all duration-hig text-left cursor-pointer
@@ -112,6 +110,32 @@ export default function Sidebar({ expanded, onToggle }) {
               </button>
             )
           })}
+
+          {/* Admin-only nav item */}
+          {isAdmin && (() => {
+            const active = location.pathname.startsWith('/admin')
+            return (
+              <button
+                onClick={() => navigate('/admin')}
+                className={`
+                  w-full flex items-center gap-3 min-h-touch rounded-hig-sm
+                  px-3 py-2.5 transition-all duration-hig text-left cursor-pointer
+                  ${active
+                    ? 'bg-purple-100 text-purple-600'
+                    : 'text-hig-text-secondary hover:bg-hig-gray-6'
+                  }
+                `}
+                title="Admin"
+              >
+                <Shield size={22} strokeWidth={active ? 2.2 : 1.8} />
+                {isOpen && (
+                  <span className={`text-hig-subhead ${active ? 'font-semibold' : ''} truncate`}>
+                    Admin
+                  </span>
+                )}
+              </button>
+            )
+          })()}
         </nav>
 
         {/* Bottom: Settings + Toggle */}
@@ -122,7 +146,7 @@ export default function Sidebar({ expanded, onToggle }) {
             return (
               <button
                 key={item.label}
-                onClick={() => handleClick(item)}
+                onClick={() => navigate(item.path)}
                 className={`
                   w-full flex items-center gap-3 min-h-touch
                   px-5 py-2.5 transition-all duration-hig text-left cursor-pointer

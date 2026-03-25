@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
+import { useAuth } from '../hooks/useAuth'
 import FinancesTab from '../components/finances/FinancesTab'
 import CashFlowTab from '../components/finances/CashFlowTab'
 import {
@@ -36,6 +37,7 @@ function fmtRM(val) {
 export default function ContactDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const { contacts, addInteraction, addTask, toggleTask, addActivity, updateContact, deleteContacts, saveFinancials, addTag, removeTag } = useContacts()
   const contact = contacts.find((c) => c.id === id)
 
@@ -249,7 +251,7 @@ export default function ContactDetailPage() {
                   <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Reset Planner</p>
                 </div>
                 {[
-                  { label: 'Cash Flow Planner', icon: BarChart2, onClick: confirmResetCashFlow },
+                  ...(isAdmin ? [{ label: 'Cash Flow Planner', icon: BarChart2, onClick: confirmResetCashFlow }] : []),
                   { label: 'Retirement Planner', icon: Target, onClick: confirmResetRetirement },
                   { label: 'Insurance Planner', icon: Shield, onClick: confirmResetInsurance },
                 ].map(({ label, icon: Icon, onClick }) => (
@@ -290,22 +292,26 @@ export default function ContactDetailPage() {
               {/* Overlay to close on click-away */}
               <div className="fixed inset-0 z-20" onClick={() => setShowStartPlanning(false)} />
               <div className="absolute right-0 top-full mt-1.5 bg-white rounded-hig shadow-hig-lg border border-hig-gray-5 py-1 min-w-[210px] z-30">
-                <button
-                  onClick={launchCashFlow}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-hig-subhead hover:bg-hig-gray-6 transition-colors text-left"
-                >
-                  <div className="w-7 h-7 rounded-hig-sm bg-hig-blue/10 flex items-center justify-center shrink-0">
-                    <TrendingUp size={14} className="text-hig-blue" />
-                  </div>
-                  <div>
-                    <p className="font-medium leading-none mb-0.5">Cash Flow Planner</p>
-                    <p className="text-hig-caption2 text-hig-text-secondary leading-none">Full suite</p>
-                  </div>
-                  {hasFinancialData && (
-                    <span className="ml-auto text-hig-caption2 text-hig-green font-semibold">Ready</span>
-                  )}
-                </button>
-                <div className="border-t border-hig-gray-5 my-1" />
+                {isAdmin && (
+                  <>
+                    <button
+                      onClick={launchCashFlow}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-hig-subhead hover:bg-hig-gray-6 transition-colors text-left"
+                    >
+                      <div className="w-7 h-7 rounded-hig-sm bg-hig-blue/10 flex items-center justify-center shrink-0">
+                        <TrendingUp size={14} className="text-hig-blue" />
+                      </div>
+                      <div>
+                        <p className="font-medium leading-none mb-0.5">Cash Flow Planner</p>
+                        <p className="text-hig-caption2 text-hig-text-secondary leading-none">Full suite</p>
+                      </div>
+                      {hasFinancialData && (
+                        <span className="ml-auto text-hig-caption2 text-hig-green font-semibold">Ready</span>
+                      )}
+                    </button>
+                    <div className="border-t border-hig-gray-5 my-1" />
+                  </>
+                )}
                 <button
                   onClick={() => { setShowStartPlanning(false); navigate(`/contacts/${id}/retirement`) }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-hig-subhead hover:bg-hig-gray-6 transition-colors text-left"
@@ -462,13 +468,15 @@ export default function ContactDetailPage() {
                   </p>
                 </button>
               </div>
-              <button
-                onClick={launchCashFlow}
-                className="w-full flex items-center gap-2 text-hig-caption1 text-hig-blue hover:text-hig-blue/80 transition-colors"
-              >
-                <BarChart2 size={13} />
-                <span>View full projection →</span>
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={launchCashFlow}
+                  className="w-full flex items-center gap-2 text-hig-caption1 text-hig-blue hover:text-hig-blue/80 transition-colors"
+                >
+                  <BarChart2 size={13} />
+                  <span>View full projection →</span>
+                </button>
+              )}
             </div>
           )}
         </div>

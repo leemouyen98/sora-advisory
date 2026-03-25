@@ -6,7 +6,7 @@ import { useToast } from '../hooks/useToast'
 import {
   Plus, Users, CheckSquare, CalendarClock, Cake,
   ExternalLink, Building2, FileText, Shield, Globe, Landmark,
-  Target, ChevronRight, CheckCircle2, FileCheck, ClipboardList, TrendingUp,
+  ChevronRight, CheckCircle2, FileCheck, ClipboardList, TrendingUp,
 } from 'lucide-react'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -436,41 +436,6 @@ export default function DashboardPage() {
                     </div>
                     <span style={{ fontSize: 11, color: '#1C1C1E', fontWeight: 500, lineHeight: 1.3 }}>{label}</span>
                   </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Planners */}
-            <div>
-              <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E', marginBottom: 4 }}>Planners</h2>
-              <p style={{ fontSize: 12, color: '#8E8E93', marginBottom: 12 }}>Select a contact to begin</p>
-              <div className="hig-card" style={{ overflow: 'hidden' }}>
-                {[
-                  { label: 'Retirement Planner', icon: Target, color: '#007AFF', path: '/contacts' },
-                  { label: 'Wealth Protection',  icon: Shield, color: '#34C759', path: '/contacts' },
-                ].map(({ label, icon: Icon, color, path }, idx) => (
-                  <button
-                    key={label}
-                    onClick={() => navigate(path)}
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '11px 16px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer',
-                      borderBottom: idx === 0 ? '1px solid #F2F2F7' : 'none',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#F9F9FB'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    <div style={{
-                      width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                      background: `${color}15`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Icon size={14} style={{ color }} />
-                    </div>
-                    <span style={{ fontSize: 13, color: '#1C1C1E', flex: 1 }}>{label}</span>
-                    <ChevronRight size={13} style={{ color: '#C7C7CC', flexShrink: 0 }} />
-                  </button>
                 ))}
               </div>
             </div>
