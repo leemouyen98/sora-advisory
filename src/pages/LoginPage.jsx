@@ -53,12 +53,12 @@ export default function LoginPage() {
         <div className="relative z-10">
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            background: 'white', borderRadius: 12, padding: '8px 16px',
+            background: 'white', borderRadius: 16, padding: '12px 20px',
           }}>
             <img
               src="/assets/colourful-llh-logo.jpg"
               alt="LLH Group"
-              style={{ height: 36, width: 'auto', maxWidth: 180, objectFit: 'contain' }}
+              style={{ height: 56, width: 'auto', maxWidth: 260, objectFit: 'contain' }}
             />
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
           <img
             src="/assets/colourful-llh-logo.jpg"
             alt="LLH Group"
-            className="h-10 w-auto max-w-[200px] object-contain mx-auto mb-2"
+            className="h-14 w-auto max-w-[280px] object-contain mx-auto mb-2"
           />
           <p className="text-hig-subhead text-hig-text-secondary mt-1">Financial Planning Suite</p>
         </div>
