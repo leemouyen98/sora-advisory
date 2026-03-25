@@ -45,15 +45,6 @@ export default function TopBar({ onMenuToggle }) {
         <Menu size={22} />
       </button>
 
-      {/* Agency Logo */}
-      <div className="hidden lg:flex items-center shrink-0">
-        <img
-          src="/assets/colourful-llh-logo.jpg"
-          alt="LLH Group"
-          className="h-8 w-auto max-w-[160px] object-contain shrink-0"
-        />
-      </div>
-
       {/* Search */}
       {showSearch ? (
         <div className="flex-1 max-w-md mx-auto">
