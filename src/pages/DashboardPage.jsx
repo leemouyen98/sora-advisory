@@ -243,27 +243,13 @@ export default function DashboardPage() {
             <p style={{ fontSize: 14, color: '#8E8E93', marginTop: 4 }}>{todayStr()}</p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {!contactsLoading && totalUpcoming > 0 && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                background: 'rgba(0,122,255,0.08)', border: '1px solid rgba(0,122,255,0.15)',
-                borderRadius: 20, padding: '6px 14px',
-              }}>
-                <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#007AFF' }} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#007AFF' }}>
-                  {totalUpcoming} upcoming {totalUpcoming === 1 ? 'item' : 'items'}
-                </span>
-              </div>
-            )}
-            <button
-              onClick={() => navigate('/contacts?new=true')}
-              className="hig-btn-primary"
-              style={{ gap: 7, fontSize: 14 }}
-            >
-              <Plus size={15} /> New Contact
-            </button>
-          </div>
+          <button
+            onClick={() => navigate('/contacts?new=true')}
+            className="hig-btn-primary"
+            style={{ gap: 7, fontSize: 14 }}
+          >
+            <Plus size={15} /> New Contact
+          </button>
         </div>
 
         {/* ── Stats ───────────────────────────────────────────────────────── */}
@@ -454,7 +440,8 @@ export default function DashboardPage() {
 
             {/* Planners */}
             <div>
-              <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E', marginBottom: 12 }}>Planners</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E', marginBottom: 4 }}>Planners</h2>
+              <p style={{ fontSize: 12, color: '#8E8E93', marginBottom: 12 }}>Select a contact to begin</p>
               <div className="hig-card" style={{ overflow: 'hidden' }}>
                 {[
                   { label: 'Retirement Planner', icon: Target, color: '#007AFF', path: '/contacts' },

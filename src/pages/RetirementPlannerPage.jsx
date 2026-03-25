@@ -98,15 +98,13 @@ export default function RetirementPlannerPage() {
         ))}
       </div>
 
-      {/* Planning Assumptions — top right, only on step 3 */}
-      {step === 3 && (
-        <button
-          onClick={() => setShowAssumptions(true)}
-          className="flex items-center gap-1.5 text-hig-caption1 font-medium text-hig-blue hover:text-blue-700 transition-colors"
-        >
-          <Settings size={14} /> Planning Assumptions
-        </button>
-      )}
+      {/* Planning Assumptions — always visible */}
+      <button
+        onClick={() => step === 3 ? setShowAssumptions(true) : setStep(1)}
+        className="flex items-center gap-1.5 text-hig-caption1 font-medium text-hig-blue hover:text-blue-700 transition-colors"
+      >
+        <Settings size={14} /> Planning Assumptions
+      </button>
     </div>
   )
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { getAge } from '../lib/formatters'
@@ -120,14 +120,13 @@ export default function ProtectionPlannerPage() {
         ))}
       </div>
 
-      {step === 3 && (
-        <button
-          onClick={() => setShowAssumptions(true)}
-          className="flex items-center gap-1.5 text-hig-caption1 font-medium text-hig-blue hover:text-blue-700 transition-colors"
-        >
-          <Settings size={14} /> Planning Assumptions
-        </button>
-      )}
+      {/* Planning Assumptions — always visible */}
+      <button
+        onClick={() => step === 3 ? setShowAssumptions(true) : setStep(1)}
+        className="flex items-center gap-1.5 text-hig-caption1 font-medium text-hig-blue hover:text-blue-700 transition-colors"
+      >
+        <Settings size={14} /> Planning Assumptions
+      </button>
     </div>
   )
 
@@ -548,6 +547,13 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
   const [activeRisk, setActiveRisk] = useState('death')
   const [activeTab, setActiveTab] = useState('recommendations')
   const [expandedRecId, setExpandedRecId] = useState(null)
+  const [savedFlash, setSavedFlash] = useState(false)
+  const saveTimer = useRef(null)
+  const flashSaved = useCallback(() => {
+    setSavedFlash(true)
+    clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => setSavedFlash(false), 2000)
+  }, [])
 
   const summary = useMemo(() =>
     generateProtectionSummary({
@@ -567,6 +573,8 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
     const rec = {
       id: uid(),
       name: '',
+      policyType: '',
+      termYears: '',
       death: 0,
       tpd: 0,
       aci: 0,
@@ -578,6 +586,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
     }
     updatePlan({ recommendations: [...(plan.recommendations || []), rec] })
     setExpandedRecId(rec.id)
+    flashSaved()
   }
 
   const updateRec = (recId, updates) => {
@@ -594,9 +603,11 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
         r.id === recId ? { ...r, isSelected: !r.isSelected } : r
       ),
     })
+    flashSaved()
   }
 
   const removeRec = (recId) => {
+    if (!window.confirm('Remove this recommendation? This cannot be undone.')) return
     updatePlan({ recommendations: (plan.recommendations || []).filter((r) => r.id !== recId) })
   }
 
@@ -783,9 +794,16 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
 
             {activeTab === 'recommendations' && (
               <div className="space-y-3">
-                <button onClick={addRecommendation} className="hig-btn-primary w-full gap-2">
-                  <Plus size={15} /> Add Recommendation
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={addRecommendation} className="hig-btn-primary flex-1 gap-2">
+                    <Plus size={15} /> Add Recommendation
+                  </button>
+                  {savedFlash && (
+                    <span className="text-hig-caption1 text-hig-green font-medium flex items-center gap-1 shrink-0">
+                      <CheckCircle size={13} /> Saved
+                    </span>
+                  )}
+                </div>
 
                 {allRecs.length === 0 && (
                   <p className="text-hig-subhead text-hig-text-secondary text-center py-4">
@@ -856,6 +874,43 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                             className="hig-input text-hig-subhead w-full"
                             placeholder="Product / plan name (optional)"
                           />
+
+                          {/* Policy Type + Coverage Term */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-hig-caption1 text-hig-text-secondary font-medium block mb-1">Policy Type</label>
+                              <select
+                                value={rec.policyType || ''}
+                                onChange={(e) => updateRec(rec.id, { policyType: e.target.value })}
+                                className="hig-input"
+                              >
+                                <option value="">Select...</option>
+                                <option>Term Life</option>
+                                <option>Whole Life</option>
+                                <option>Investment-Linked</option>
+                                <option>CI Rider</option>
+                                <option>Standalone CI</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-hig-caption1 text-hig-text-secondary font-medium block mb-1">Coverage Term</label>
+                              <select
+                                value={rec.termYears || ''}
+                                onChange={(e) => updateRec(rec.id, { termYears: e.target.value })}
+                                className="hig-input"
+                              >
+                                <option value="">Select...</option>
+                                <option>10 years</option>
+                                <option>15 years</option>
+                                <option>20 years</option>
+                                <option>25 years</option>
+                                <option>30 years</option>
+                                <option>To Age 70</option>
+                                <option>To Age 100</option>
+                                <option>Whole of Life</option>
+                              </select>
+                            </div>
+                          </div>
 
                           {/* Per-risk coverage amounts */}
                           {RISKS.map((risk) => {

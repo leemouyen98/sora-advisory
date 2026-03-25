@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Lock, Shield, AlertCircle } from 'lucide-react'
+import { User, Lock, Shield, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 
@@ -29,8 +29,11 @@ export default function SettingsPage() {
   const { addToast } = useToast()
 
   const [pw, setPw] = useState({ current: '', next: '', confirm: '' })
+  const [showPw, setShowPw] = useState({ current: false, next: false, confirm: false })
   const [pwLoading, setPwLoading] = useState(false)
   const [pwError, setPwError] = useState('')
+
+  const toggleShowPw = (field) => setShowPw((s) => ({ ...s, [field]: !s[field] }))
 
   const handlePasswordChange = async (e) => {
     e.preventDefault()
@@ -146,41 +149,71 @@ export default function SettingsPage() {
         <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <label className="hig-label">Current Password</label>
-            <input
-              type="password"
-              value={pw.current}
-              onChange={e => setPw(f => ({ ...f, current: e.target.value }))}
-              className="hig-input"
-              placeholder="Enter your current password"
-              required
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <input
+                type={showPw.current ? 'text' : 'password'}
+                value={pw.current}
+                onChange={e => setPw(f => ({ ...f, current: e.target.value }))}
+                className="hig-input pr-10"
+                placeholder="Enter your current password"
+                required
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => toggleShowPw('current')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary hover:text-hig-text transition-colors"
+                tabIndex={-1}
+              >
+                {showPw.current ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
             <div>
               <label className="hig-label">New Password</label>
-              <input
-                type="password"
-                value={pw.next}
-                onChange={e => setPw(f => ({ ...f, next: e.target.value }))}
-                className="hig-input"
-                placeholder="Min 6 characters"
-                required
-                autoComplete="new-password"
-              />
+              <div className="relative">
+                <input
+                  type={showPw.next ? 'text' : 'password'}
+                  value={pw.next}
+                  onChange={e => setPw(f => ({ ...f, next: e.target.value }))}
+                  className="hig-input pr-10"
+                  placeholder="Min 6 characters"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleShowPw('next')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary hover:text-hig-text transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPw.next ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
             </div>
             <div>
               <label className="hig-label">Confirm New Password</label>
-              <input
-                type="password"
-                value={pw.confirm}
-                onChange={e => setPw(f => ({ ...f, confirm: e.target.value }))}
-                className="hig-input"
-                placeholder="Repeat new password"
-                required
-                autoComplete="new-password"
-              />
+              <div className="relative">
+                <input
+                  type={showPw.confirm ? 'text' : 'password'}
+                  value={pw.confirm}
+                  onChange={e => setPw(f => ({ ...f, confirm: e.target.value }))}
+                  className="hig-input pr-10"
+                  placeholder="Repeat new password"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleShowPw('confirm')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary hover:text-hig-text transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPw.confirm ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
             </div>
           </div>
 

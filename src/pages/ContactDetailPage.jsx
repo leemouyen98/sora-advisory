@@ -5,6 +5,7 @@ import FinancesTab from '../components/finances/FinancesTab'
 import {
   ArrowLeft, Phone, Calendar, Briefcase, Target, Shield,
   Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock, Pencil,
+  CheckCircle2, X, Tag,
 } from 'lucide-react'
 
 const ACTIVITY_ICONS = { Call: PhoneCall, Meeting: Users, Email: MessageSquare }
@@ -19,7 +20,7 @@ const fmtDate = (d) => {
 export default function ContactDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { contacts, addInteraction, addTask, toggleTask, addActivity, updateContact, saveFinancials } = useContacts()
+  const { contacts, addInteraction, addTask, toggleTask, addActivity, updateContact, saveFinancials, addTag, removeTag } = useContacts()
   const contact = contacts.find((c) => c.id === id)
 
   const [showEditForm, setShowEditForm] = useState(false)
@@ -144,13 +145,34 @@ export default function ContactDetailPage() {
               )}
             </div>
             {/* Tags */}
-            {contact.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
+            <div className="pt-1">
+              <div className="flex items-center gap-1 mb-1.5">
+                <Tag size={12} className="text-hig-text-secondary" />
+                <span className="text-hig-caption2 text-hig-text-secondary font-semibold uppercase tracking-wide">Tags</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
                 {contact.tags.map((t) => (
-                  <span key={t} className="text-hig-caption1 px-2.5 py-1 rounded-full bg-hig-blue/10 text-hig-blue font-medium">{t}</span>
+                  <span key={t} className="flex items-center gap-1 text-hig-caption1 px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue font-medium">
+                    {t}
+                    <button
+                      onClick={() => removeTag([contact.id], t)}
+                      className="text-hig-blue/60 hover:text-hig-blue transition-colors"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                ))}
+                {['Client', 'Prospect'].filter((t) => !contact.tags.includes(t)).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => addTag([contact.id], t)}
+                    className="text-hig-caption1 px-2 py-0.5 rounded-full border border-dashed border-hig-gray-3 text-hig-text-secondary hover:border-hig-blue hover:text-hig-blue transition-colors"
+                  >
+                    + {t}
+                  </button>
                 ))}
               </div>
-            )}
+            </div>
             {contact.notes && (
               <p className="text-hig-caption1 text-hig-text-secondary pt-1 border-t border-hig-gray-5">
                 {contact.notes}
@@ -168,26 +190,34 @@ export default function ContactDetailPage() {
               className="w-full flex items-center gap-3 p-3 rounded-hig-sm
                          hover:bg-hig-gray-6 transition-colors text-left"
             >
-              <Target size={20} className="text-hig-blue" />
-              <div>
+              <Target size={20} className="text-hig-blue shrink-0" />
+              <div className="flex-1 min-w-0">
                 <p className="text-hig-subhead font-medium">Retirement Planner</p>
                 <p className="text-hig-caption1 text-hig-text-secondary">
-                  {contact.retirementPlan ? 'View plan' : 'Start planning'}
+                  {contact.retirementPlan ? 'View plan →' : 'Start planning →'}
                 </p>
               </div>
+              {contact.retirementPlan
+                ? <CheckCircle2 size={16} className="text-hig-green shrink-0" />
+                : <div className="w-4 h-4 rounded-full border-2 border-hig-gray-3 shrink-0" />
+              }
             </button>
             <button
               onClick={() => navigate(`/contacts/${id}/protection`)}
               className="w-full flex items-center gap-3 p-3 rounded-hig-sm
                          hover:bg-hig-gray-6 transition-colors text-left"
             >
-              <Shield size={20} className="text-hig-green" />
-              <div>
+              <Shield size={20} className="text-hig-green shrink-0" />
+              <div className="flex-1 min-w-0">
                 <p className="text-hig-subhead font-medium">Wealth Protection</p>
                 <p className="text-hig-caption1 text-hig-text-secondary">
-                  {contact.protectionPlan ? 'View plan' : 'Start planning'}
+                  {contact.protectionPlan ? 'View plan →' : 'Start planning →'}
                 </p>
               </div>
+              {contact.protectionPlan
+                ? <CheckCircle2 size={16} className="text-hig-green shrink-0" />
+                : <div className="w-4 h-4 rounded-full border-2 border-hig-gray-3 shrink-0" />
+              }
             </button>
           </div>
         </div>

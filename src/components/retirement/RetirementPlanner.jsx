@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
 import { formatRMFull, generateRetirementProjection, tvmSolve, generateBreakdown, projectProvision } from '../../lib/calculations'
 import { Plus, ChevronDown, ChevronUp, Trash2, CheckCircle2, AlertTriangle, XCircle, Maximize2 } from 'lucide-react'
 import RetirementChart from './RetirementChart'
@@ -14,6 +14,14 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
   const [showBreakdown, setShowBreakdown] = useState(null)
   const [showCustomForm, setShowCustomForm] = useState(false)
   const [customCalcFor, setCustomCalcFor] = useState('fv') // fv | pmt | pv | rate
+  const [savedFlash, setSavedFlash] = useState(false)
+  const saveTimer = useRef(null)
+
+  const flashSaved = useCallback(() => {
+    setSavedFlash(true)
+    clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => setSavedFlash(false), 2000)
+  }, [])
 
   // TVM form state
   const [customForm, setCustomForm] = useState({
@@ -81,6 +89,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
       isSelected: true,
     }
     onChange({ recommendations: [...(plan.recommendations || []), rec] })
+    flashSaved()
   }
 
   const addCustomRecommendation = () => {
@@ -105,6 +114,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
     }
     onChange({ recommendations: [...(plan.recommendations || []), rec] })
     setShowCustomForm(false)
+    flashSaved()
   }
 
   const toggleRecommendation = (recId) => {
@@ -112,10 +122,13 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
       r.id === recId ? { ...r, isSelected: !r.isSelected } : r
     )
     onChange({ recommendations: recs })
+    flashSaved()
   }
 
   const removeRecommendation = (recId) => {
+    if (!window.confirm('Remove this recommendation? This cannot be undone.')) return
     onChange({ recommendations: (plan.recommendations || []).filter((r) => r.id !== recId) })
+    flashSaved()
   }
 
   // Preset suggestions — wrapped in try/catch since TVM can produce NaN with edge inputs
@@ -304,13 +317,19 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
 
           {activeTab === 'recommendations' && (
             <div className="space-y-3">
-              <button
-                onClick={() => setShowCustomForm(true)}
-                className="hig-btn-primary w-full gap-2"
-              >
-                <Plus size={16} /> Add New Recommendation
-              </button>
-
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowCustomForm(true)}
+                  className="hig-btn-primary flex-1 gap-2"
+                >
+                  <Plus size={16} /> Add New Recommendation
+                </button>
+                {savedFlash && (
+                  <span className="text-hig-caption1 text-hig-green font-medium flex items-center gap-1 shrink-0">
+                    <CheckCircle2 size={13} /> Saved
+                  </span>
+                )}
+              </div>
               {shortfallAmount > 0 && (plan.recommendations || []).length === 0 && (
                 <p className="text-hig-caption1 text-hig-text-secondary">
                   To achieve your objective, you could get on track with one of the following:
@@ -712,7 +731,7 @@ function BreakdownTable({ rec, startAge }) {
     <div className="text-hig-caption1">
       <h4 className="text-hig-subhead font-semibold mb-2">Investment Growth Projection</h4>
       <table className="w-full">
-        <thead>
+        <thead className="sticky top-0 bg-white z-10">
           <tr className="border-b border-hig-gray-4 text-left text-hig-text-secondary">
             <th className="py-1.5 pr-2">Age</th>
             <th className="py-1.5 pr-2">Payment</th>

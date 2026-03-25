@@ -4,6 +4,7 @@ import { projectProvision } from '../../lib/calculations'
 import { Plus, Trash2, ArrowLeft } from 'lucide-react'
 
 const FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
+const PROVISION_TYPES = ['Unit Trust', 'Fixed Deposit', 'ASNB', 'Cash Savings', 'Insurance', 'EPF Voluntary', 'Private Pension', 'Other']
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
@@ -79,14 +80,25 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                   </button>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="col-span-2">
+                    <div>
                       <label className="hig-label">Name</label>
                       <input
                         value={p.name}
                         onChange={(e) => updateProvision(idx, { name: e.target.value })}
                         className="hig-input"
-                        placeholder="e.g. Unit Trust, ASNB"
+                        placeholder="e.g. PRS, ASNB"
                       />
+                    </div>
+                    <div>
+                      <label className="hig-label">Type</label>
+                      <select
+                        value={p.type || ''}
+                        onChange={(e) => updateProvision(idx, { type: e.target.value })}
+                        className="hig-input"
+                      >
+                        <option value="">Select...</option>
+                        {PROVISION_TYPES.map((t) => <option key={t}>{t}</option>)}
+                      </select>
                     </div>
                     <div>
                       <label className="hig-label">Current Balance (RM)</label>

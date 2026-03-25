@@ -3,8 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   Users,
-  Target,
-  Shield,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -12,9 +10,7 @@ import {
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/contacts', label: 'Contacts',  icon: Users },
-  { path: '/contacts', label: 'Retirement', icon: Target },
-  { path: '/contacts', label: 'Protection', icon: Shield },
+  { path: '/contacts', label: 'Contacts',   icon: Users },
 ]
 
 const BOTTOM_NAV = [
@@ -42,16 +38,8 @@ export default function Sidebar({ expanded, onToggle }) {
 
   const isActive = (item) => {
     if (item.path === '/contacts') {
-      // Retirement and Protection are contact-scoped planners — highlight correctly
-      if (item.label === 'Retirement') return location.pathname.includes('/retirement')
-      if (item.label === 'Protection') return location.pathname.includes('/protection')
-      // Contacts: active only on /contacts itself or /contacts/:id (not planner sub-routes)
-      return (
-        location.pathname === '/contacts' ||
-        (location.pathname.startsWith('/contacts/') &&
-          !location.pathname.includes('/retirement') &&
-          !location.pathname.includes('/protection'))
-      )
+      // Contacts: active on /contacts, /contacts/:id, and any planner sub-routes
+      return location.pathname.startsWith('/contacts')
     }
     return location.pathname.startsWith(item.path)
   }

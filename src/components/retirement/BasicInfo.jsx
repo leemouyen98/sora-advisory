@@ -112,6 +112,7 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
                 <input type="number" step="0.5" min={0} max={10} value={plan.postRetirementReturn} onChange={set('postRetirementReturn')} className="hig-input pr-8" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">%</span>
               </div>
+              <p className="text-hig-caption2 text-hig-text-secondary mt-1">Return on the corpus after retirement — lower than pre-retirement (conservative allocation). Typical: 3–5%.</p>
             </div>
           </div>
         </div>
@@ -153,18 +154,22 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
                 </div>
               </div>
               <div>
-                <label className="hig-label">Annual Income</label>
+                <label className="hig-label">Annual Income <span className="text-hig-text-secondary font-normal">(optional)</span></label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
                   <input type="number" value={plan.annualIncome || ''} onChange={set('annualIncome')} className="hig-input pl-10" placeholder="60,000" />
                 </div>
-                <p className="text-hig-caption1 text-hig-text-secondary mt-1">
-                  {(() => {
-                    const monthly = (plan.annualIncome || 0) / 12
-                    const er = monthly > 5000 ? 12 : 13
-                    return `${11 + er}% goes to EPF (11% employee + ${er}% employer${monthly > 5000 ? ', salary > RM5,000/mth' : ''})`
-                  })()}
-                </p>
+                {plan.annualIncome ? (
+                  <p className="text-hig-caption1 text-hig-text-secondary mt-1">
+                    {(() => {
+                      const monthly = (plan.annualIncome || 0) / 12
+                      const er = monthly > 5000 ? 12 : 13
+                      return `${11 + er}% goes to EPF (11% employee + ${er}% employer${monthly > 5000 ? ', salary > RM5,000/mth' : ''})`
+                    })()}
+                  </p>
+                ) : (
+                  <p className="text-hig-caption2 text-hig-text-secondary mt-1">Leave blank for self-employed / voluntary contributors.</p>
+                )}
               </div>
               <div>
                 <label className="hig-label">Income Growth Rate</label>

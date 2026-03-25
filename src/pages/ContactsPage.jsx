@@ -4,11 +4,21 @@ import { useContacts } from '../hooks/useContacts'
 import {
   Plus, Search, Trash2, Tag, MoreHorizontal,
   ChevronRight, Phone, Calendar, AlertCircle,
+  Target, Shield, CheckCircle2,
 } from 'lucide-react'
 
 const TAG_COLORS = {
   Client: 'bg-green-50 text-green-700',
   Prospect: 'bg-blue-50 text-hig-blue',
+}
+
+const getLastActivity = (contact) => {
+  const dates = [
+    ...(contact.activities || []).map((a) => a.date),
+    ...(contact.interactions || []).map((i) => i.date),
+  ].filter(Boolean).map((d) => new Date(d)).filter((d) => !isNaN(d))
+  if (!dates.length) return null
+  return new Date(Math.max(...dates))
 }
 
 export default function ContactsPage() {
@@ -21,6 +31,7 @@ export default function ContactsPage() {
   const [selected, setSelected] = useState(new Set())
   const [showForm, setShowForm] = useState(searchParams.get('new') === 'true')
   const [showBulkMenu, setShowBulkMenu] = useState(false)
+  // keep bulk selection internal only — checkboxes removed from UI
 
   // Form state
   const [form, setForm] = useState({
@@ -145,18 +156,10 @@ export default function ContactsPage() {
       {/* Contact List */}
       <div className="hig-card overflow-hidden">
         {/* Table header */}
-        <div className="grid grid-cols-[40px_1fr_140px_120px_100px_80px] items-center px-4 py-3 bg-hig-gray-6 border-b border-hig-gray-5 text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
-          <label className="flex items-center justify-center">
-            <input
-              type="checkbox"
-              checked={filtered.length > 0 && selected.size === filtered.length}
-              onChange={toggleAll}
-              className="w-4 h-4 rounded accent-hig-blue"
-            />
-          </label>
+        <div className="grid grid-cols-[1fr_130px_60px_120px_80px] items-center px-4 py-3 bg-hig-gray-6 border-b border-hig-gray-5 text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
           <span>Name</span>
-          <span>Mobile</span>
-          <span>Review Date</span>
+          <span>Last Activity</span>
+          <span className="text-center">Plans</span>
           <span>Tags</span>
           <span></span>
         </div>
@@ -179,48 +182,51 @@ export default function ContactsPage() {
             {search ? 'No contacts match your search.' : 'No contacts yet. Add your first client.'}
           </div>
         ) : (
-          filtered.map((c) => (
-            <div
-              key={c.id}
-              className="grid grid-cols-[40px_1fr_140px_120px_100px_80px] items-center px-4 py-3
-                         border-b border-hig-gray-5 last:border-b-0 hover:bg-hig-gray-6/50
-                         transition-colors cursor-pointer"
-              onClick={() => navigate(`/contacts/${c.id}`)}
-            >
-              <label className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  checked={selected.has(c.id)}
-                  onChange={() => toggleSelect(c.id)}
-                  className="w-4 h-4 rounded accent-hig-blue"
-                />
-              </label>
-              <div>
-                <p className="text-hig-subhead font-medium text-hig-text">{c.name}</p>
-                <p className="text-hig-caption1 text-hig-text-secondary">Age {getAge(c.dob)}</p>
+          filtered.map((c) => {
+            const lastActivity = getLastActivity(c)
+            return (
+              <div
+                key={c.id}
+                className="grid grid-cols-[1fr_130px_60px_120px_80px] items-center px-4 py-3
+                           border-b border-hig-gray-5 last:border-b-0 hover:bg-hig-gray-6/50
+                           transition-colors cursor-pointer"
+                onClick={() => navigate(`/contacts/${c.id}`)}
+              >
+                <div>
+                  <p className="text-hig-subhead font-medium text-hig-text">{c.name}</p>
+                  <p className="text-hig-caption1 text-hig-text-secondary">
+                    Age {getAge(c.dob)}
+                    {c.mobile && <span className="ml-2 inline-flex items-center gap-1"><Phone size={11} /> {c.mobile}</span>}
+                  </p>
+                </div>
+                <div className="text-hig-caption1 text-hig-text-secondary">
+                  {lastActivity
+                    ? lastActivity.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : '—'}
+                </div>
+                <div className="flex items-center justify-center gap-1.5">
+                  {c.retirementPlan
+                    ? <CheckCircle2 size={14} className="text-hig-blue" title="Retirement plan active" />
+                    : <Target size={14} className="text-hig-gray-3" title="No retirement plan" />
+                  }
+                  {c.protectionPlan
+                    ? <CheckCircle2 size={14} className="text-hig-green" title="Protection plan active" />
+                    : <Shield size={14} className="text-hig-gray-3" title="No protection plan" />
+                  }
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {c.tags.map((t) => (
+                    <span key={t} className={`text-hig-caption2 px-2 py-0.5 rounded-full font-medium ${TAG_COLORS[t] || 'bg-hig-gray-6 text-hig-text-secondary'}`}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex justify-end">
+                  <ChevronRight size={16} className="text-hig-text-secondary" />
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 text-hig-subhead text-hig-text-secondary">
-                {c.mobile && <Phone size={13} />}
-                {c.mobile || '—'}
-              </div>
-              <div className="flex items-center gap-1.5 text-hig-subhead text-hig-text-secondary">
-                {c.reviewDate && <Calendar size={13} />}
-                {c.reviewDate
-                  ? new Date(c.reviewDate).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })
-                  : '—'}
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {c.tags.map((t) => (
-                  <span key={t} className={`text-hig-caption2 px-2 py-0.5 rounded-full font-medium ${TAG_COLORS[t] || 'bg-hig-gray-6 text-hig-text-secondary'}`}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-              <div className="flex justify-end">
-                <ChevronRight size={16} className="text-hig-text-secondary" />
-              </div>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
 
