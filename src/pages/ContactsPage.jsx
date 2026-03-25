@@ -35,8 +35,8 @@ export default function ContactsPage() {
 
   // Form state
   const [form, setForm] = useState({
-    name: '', dob: '', mobile: '', employment: '', reviewDate: '',
-    reviewFrequency: '', notes: '',
+    name: '', dob: '', mobile: '', employment: '', retirementAge: 55,
+    reviewDate: '', reviewFrequency: '', notes: '',
   })
 
   const filtered = useMemo(() => {
@@ -70,7 +70,7 @@ export default function ContactsPage() {
     e.preventDefault()
     if (!form.name || !form.dob) return
     const c = addContact(form)
-    setForm({ name: '', dob: '', mobile: '', employment: '', reviewDate: '', reviewFrequency: '', notes: '' })
+    setForm({ name: '', dob: '', mobile: '', employment: '', retirementAge: 55, reviewDate: '', reviewFrequency: '', notes: '' })
     setShowForm(false)
     setSearchParams({})
     navigate(`/contacts/${c.id}`)
@@ -252,15 +252,27 @@ export default function ContactsPage() {
               <label className="hig-label">Mobile</label>
               <input value={form.mobile} onChange={(e) => setForm({...form, mobile: e.target.value})} className="hig-input" placeholder="012-3456789" />
             </div>
-            <div>
-              <label className="hig-label">Employment Status</label>
-              <select value={form.employment} onChange={(e) => setForm({...form, employment: e.target.value})} className="hig-input">
-                <option value="">Select...</option>
-                <option>Employed</option>
-                <option>Self-Employed</option>
-                <option>Unemployed</option>
-                <option>Retired</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="hig-label">Employment Status</label>
+                <select value={form.employment} onChange={(e) => setForm({...form, employment: e.target.value})} className="hig-input">
+                  <option value="">Select...</option>
+                  <option>Employed</option>
+                  <option>Self-Employed</option>
+                  <option>Unemployed</option>
+                  <option>Retired</option>
+                </select>
+              </div>
+              <div>
+                <label className="hig-label">Retirement Age</label>
+                <input
+                  type="number" min={40} max={80}
+                  value={form.retirementAge ?? 55}
+                  onChange={(e) => setForm({...form, retirementAge: parseInt(e.target.value) || 55})}
+                  className="hig-input"
+                  placeholder="55"
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
