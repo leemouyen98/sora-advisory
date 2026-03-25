@@ -246,7 +246,7 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
       const dedOff = deadSc && age >= deadSc.age
       const income = (retired || ciOff || disOff || dedOff) ? 0 : annualIncome
 
-      // Expenses — base (inflation-adjusted) + Dreams lump sums at their target age
+      // Expenses — base (inflation-adjusted) + Goals lump sums at their target age
       const goalLump = goals.filter((g) => g.active && g.age === age).reduce((s, g) => s + g.amount, 0)
       const expenses = annualExpenses * Math.pow(1 + ir, i) + goalLump
 
@@ -604,13 +604,13 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
           </div>
         </div>
 
-        {/* Dreams + Scenarios grid */}
+        {/* Goals + Scenarios grid */}
         <div className="grid grid-cols-2 gap-4">
 
-          {/* Dreams card */}
+          {/* Goals card */}
           <div className="hig-card p-4">
             <PanelHeader
-              title="Dreams"
+              title="Goals"
               actionLabel={goals.length ? 'Activate all' : null}
               onAction={() => setGoals((g) => g.map((x) => ({ ...x, active: true })))}
               onAdd={() => setShowAddGoal(true)}
@@ -653,7 +653,7 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
                   <option value="star">⭐ Other</option>
                 </select>
                 <div className="flex gap-2 pt-0.5">
-                  <button onClick={addGoal} className="hig-btn-primary flex-1 py-1.5 text-hig-footnote">Add Dream</button>
+                  <button onClick={addGoal} className="hig-btn-primary flex-1 py-1.5 text-hig-footnote">Add Goal</button>
                   <button onClick={() => setShowAddGoal(false)} className="hig-btn-ghost flex-1 py-1.5 text-hig-footnote">Cancel</button>
                 </div>
               </div>
@@ -661,12 +661,12 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
 
             {goals.length === 0 ? (
               <div className="text-center py-5">
-                <div className="text-hig-caption1 text-hig-text-secondary mb-2">No dreams added</div>
+                <div className="text-hig-caption1 text-hig-text-secondary mb-2">No goals added</div>
                 <div className="text-hig-caption2 text-hig-text-secondary mb-3 leading-snug">
-                  Dreams add a lump-sum expense to the chart at the target age
+                  Goals add a lump-sum expense to the chart at the target age
                 </div>
                 <button onClick={() => setShowAddGoal(true)} className="text-hig-caption2 text-hig-blue hover:opacity-70">
-                  + Add your first dream
+                  + Add your first goal
                 </button>
               </div>
             ) : (
