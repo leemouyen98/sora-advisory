@@ -7,7 +7,7 @@ import {
   ArrowLeft, Phone, Calendar, Briefcase, Target, Shield,
   Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock, Pencil,
   CheckCircle2, X, Tag, TrendingUp, ArrowRight, ChevronDown,
-  DollarSign, BarChart2,
+  DollarSign, BarChart2, MoreVertical, Trash2, RotateCcw, AlertTriangle,
 } from 'lucide-react'
 
 const ACTIVITY_ICONS = { Call: PhoneCall, Meeting: Users, Email: MessageSquare }
@@ -36,11 +36,13 @@ function fmtRM(val) {
 export default function ContactDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { contacts, addInteraction, addTask, toggleTask, addActivity, updateContact, saveFinancials, addTag, removeTag } = useContacts()
+  const { contacts, addInteraction, addTask, toggleTask, addActivity, updateContact, deleteContacts, saveFinancials, addTag, removeTag } = useContacts()
   const contact = contacts.find((c) => c.id === id)
 
   const [showEditForm, setShowEditForm] = useState(false)
   const [editForm, setEditForm] = useState({})
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false)
+  const [confirmAction, setConfirmAction] = useState(null) // { title, body, danger, onConfirm }
 
   const [tab, setTab] = useState('interaction')
   const [showCashFlow, setShowCashFlow] = useState(false)
@@ -150,6 +152,40 @@ export default function ContactDetailPage() {
     }
   }
 
+  // ── Destructive actions ───────────────────────────────────────────────────
+  const askConfirm = (action) => { setShowOptionsMenu(false); setConfirmAction(action) }
+
+  const confirmDelete = () => askConfirm({
+    title: 'Delete Contact',
+    body: `Permanently delete ${contact.name} and all their data? This cannot be undone.`,
+    danger: true,
+    onConfirm: () => { deleteContacts([id]); navigate('/contacts') },
+  })
+
+  const confirmResetRetirement = () => askConfirm({
+    title: 'Reset Retirement Planner',
+    body: 'Clears the Retirement Plan data for this contact. Profile and financial info are kept.',
+    danger: false,
+    onConfirm: () => updateContact(id, { retirementPlan: null, retirementAge: 55 }),
+  })
+
+  const confirmResetInsurance = () => askConfirm({
+    title: 'Reset Insurance Planner',
+    body: 'Clears the Insurance Plan and all policy entries. Profile and financial info are kept.',
+    danger: false,
+    onConfirm: () => {
+      updateContact(id, { protectionPlan: null })
+      if (contact.financials) saveFinancials(id, { ...contact.financials, insurance: [] })
+    },
+  })
+
+  const confirmResetCashFlow = () => askConfirm({
+    title: 'Reset Cash Flow Planner',
+    body: 'Clears all Financial Info (income, expenses, assets). The contact profile is kept.',
+    danger: false,
+    onConfirm: () => { saveFinancials(id, null); setShowCashFlow(false) },
+  })
+
   // ── Full-width Cash Flow view (early return) ──────────────────────────────
   if (showCashFlow) {
     return (
@@ -188,11 +224,57 @@ export default function ContactDetailPage() {
   // ── Normal two-column view ────────────────────────────────────────────────
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Top header: Back + Start Planning */}
+      {/* Top header: Back + Options + Start Planning */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={() => navigate('/contacts')} className="hig-btn-ghost gap-1.5 -ml-3">
           <ArrowLeft size={16} /> Contacts
         </button>
+
+        <div className="flex items-center gap-2">
+
+        {/* ⋮ Options menu */}
+        <div className="relative">
+          <button
+            onClick={() => setShowOptionsMenu((s) => !s)}
+            className={`hig-btn-ghost p-2 transition-colors ${showOptionsMenu ? 'bg-hig-gray-5' : ''}`}
+          >
+            <MoreVertical size={16} />
+          </button>
+          {showOptionsMenu && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setShowOptionsMenu(false)} />
+              <div className="absolute right-0 top-full mt-1.5 bg-white rounded-hig shadow-hig-lg border border-hig-gray-5 py-1 min-w-[230px] z-30">
+                {/* Reset planners */}
+                <div className="px-3 py-1.5">
+                  <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Reset Planner</p>
+                </div>
+                {[
+                  { label: 'Cash Flow Planner', icon: BarChart2, onClick: confirmResetCashFlow },
+                  { label: 'Retirement Planner', icon: Target, onClick: confirmResetRetirement },
+                  { label: 'Insurance Planner', icon: Shield, onClick: confirmResetInsurance },
+                ].map(({ label, icon: Icon, onClick }) => (
+                  <button
+                    key={label}
+                    onClick={onClick}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-hig-subhead hover:bg-hig-gray-6 transition-colors text-left"
+                  >
+                    <RotateCcw size={14} className="text-hig-text-secondary shrink-0" />
+                    <span>{label}</span>
+                  </button>
+                ))}
+                <div className="border-t border-hig-gray-5 my-1" />
+                {/* Delete */}
+                <button
+                  onClick={confirmDelete}
+                  className="w-full flex items-center gap-3 px-3 py-2 text-hig-subhead hover:bg-red-50 text-red-500 transition-colors text-left"
+                >
+                  <Trash2 size={14} className="shrink-0" />
+                  <span>Delete Contact</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Start Planning dropdown */}
         <div className="relative">
@@ -258,7 +340,20 @@ export default function ContactDetailPage() {
             </>
           )}
         </div>
+
+        </div> {/* end flex gap-2 */}
       </div>
+
+      {/* Confirm modal */}
+      {confirmAction && (
+        <ConfirmModal
+          title={confirmAction.title}
+          body={confirmAction.body}
+          danger={confirmAction.danger}
+          onConfirm={() => { confirmAction.onConfirm(); setConfirmAction(null) }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
 
       <div className="flex gap-6">
         {/* Left: Contact Summary */}
@@ -638,6 +733,37 @@ function EditContactModal({ editForm, setEditForm, onClose, onSubmit }) {
           <button type="submit" className="hig-btn-primary">Save Changes</button>
         </div>
       </form>
+    </div>
+  )
+}
+
+// ── Confirm Modal ─────────────────────────────────────────────────────────────
+function ConfirmModal({ title, body, danger, onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onCancel}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-sm p-6"
+      >
+        <div className="flex items-start gap-3 mb-4">
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${danger ? 'bg-red-100' : 'bg-amber-100'}`}>
+            <AlertTriangle size={16} className={danger ? 'text-red-500' : 'text-amber-500'} />
+          </div>
+          <div>
+            <h2 className="text-hig-title3 font-semibold mb-1">{title}</h2>
+            <p className="text-hig-subhead text-hig-text-secondary leading-snug">{body}</p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-3 pt-2">
+          <button onClick={onCancel} className="hig-btn-secondary">Cancel</button>
+          <button
+            onClick={onConfirm}
+            className={danger ? 'hig-btn-primary bg-red-500 hover:bg-red-600 border-red-500' : 'hig-btn-primary'}
+          >
+            {danger ? 'Delete' : 'Reset'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
