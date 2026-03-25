@@ -56,8 +56,8 @@ export default function LoginPage() {
             background: 'white', borderRadius: 12, padding: '8px 16px',
           }}>
             <img
-              src="/assets/hla-logo.jpg"
-              alt="Henry Lee Advisory"
+              src="/assets/colourful-llh-logo.jpg"
+              alt="LLH Group"
               style={{ height: 36, width: 'auto', objectFit: 'contain' }}
             />
           </div>
@@ -114,8 +114,8 @@ export default function LoginPage() {
         {/* Mobile-only logo */}
         <div className="lg:hidden text-center mb-10">
           <img
-            src="/assets/hla-logo.jpg"
-            alt="Henry Lee Advisory"
+            src="/assets/colourful-llh-logo.jpg"
+            alt="LLH Group"
             className="h-10 w-auto object-contain mx-auto mb-2"
           />
           <p className="text-hig-subhead text-hig-text-secondary mt-1">Financial Planning Suite</p>

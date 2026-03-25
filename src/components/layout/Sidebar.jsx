@@ -50,14 +50,14 @@ export default function Sidebar({ expanded, onToggle }) {
         <div className="h-14 flex items-center justify-center border-b border-hig-gray-5 px-3">
           {expanded ? (
             <img
-              src="/assets/hla-logo.jpg"
-              alt="Henry Lee Advisory"
+              src="/assets/colourful-llh-logo.jpg"
+              alt="LLH Group"
               className="h-8 w-auto object-contain"
             />
           ) : (
             <img
-              src="/assets/favicon.jpg"
-              alt="HLA"
+              src="/assets/colourful-llh-favicon.jpg"
+              alt="LLH"
               className="w-8 h-8 object-contain rounded-lg"
             />
           )}

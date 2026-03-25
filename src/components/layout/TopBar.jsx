@@ -46,13 +46,12 @@ export default function TopBar({ onMenuToggle }) {
       </button>
 
       {/* Agency Logo */}
-      <div className="hidden lg:flex items-center gap-2 shrink-0">
-        <div className="w-8 h-8 rounded-md bg-hig-blue flex items-center justify-center">
-          <span className="text-white text-xs font-bold">HL</span>
-        </div>
-        <span className="text-hig-subhead font-semibold text-hig-text hidden xl:inline">
-          Henry Lee Advisory
-        </span>
+      <div className="hidden lg:flex items-center shrink-0">
+        <img
+          src="/assets/colourful-llh-logo.jpg"
+          alt="LLH Group"
+          className="h-8 w-auto object-contain"
+        />
       </div>
 
       {/* Search */}
