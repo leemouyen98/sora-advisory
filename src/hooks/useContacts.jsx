@@ -165,6 +165,10 @@ export function ContactsProvider({ children }) {
     updateOne(contactId, (c) => ({ ...c, protectionPlan: plan }))
   }, [updateOne])
 
+  const saveFinancials = useCallback((contactId, financials) => {
+    updateOne(contactId, (c) => ({ ...c, financials }))
+  }, [updateOne])
+
   return (
     <ContactsContext.Provider
       value={{
@@ -181,6 +185,7 @@ export function ContactsProvider({ children }) {
         addActivity,
         saveRetirementPlan,
         saveProtectionPlan,
+        saveFinancials,
       }}
     >
       {children}
