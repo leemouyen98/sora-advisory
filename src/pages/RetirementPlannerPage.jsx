@@ -13,6 +13,14 @@ export default function RetirementPlannerPage() {
   const { contacts, saveRetirementPlan } = useContacts()
   const contact = contacts.find((c) => c.id === id)
 
+  // Pull gross income from Financial Info so we don't ask twice
+  const linkedGrossMonthly = useMemo(() => {
+    const incomeRows = contact?.financials?.income
+    if (!Array.isArray(incomeRows)) return 0
+    const row = incomeRows.find((r) => r.id === 'gross-income')
+    return Number(row?.amount) || 0
+  }, [contact?.financials?.income])
+
   const [step, setStep] = useState(1) // 1: Basic Info, 2: Existing Provision, 3: Planner
   const [showAssumptions, setShowAssumptions] = useState(false)
   const [activeTab, setActiveTab] = useState('recommendations') // recommendations | provisions
@@ -121,6 +129,8 @@ export default function RetirementPlannerPage() {
           contactName={contact.name}
           onChange={updatePlan}
           onContinue={() => setStep(2)}
+          linkedGrossMonthly={linkedGrossMonthly}
+          onGoToFinancialInfo={() => navigate(`/contacts/${id}`)}
         />
       )}
 

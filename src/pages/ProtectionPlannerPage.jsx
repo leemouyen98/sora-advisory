@@ -34,6 +34,30 @@ export default function ProtectionPlannerPage() {
   const contact = contacts.find((c) => c.id === id)
   const currentAge = contact ? getAge(contact.dob) : 30
 
+  // Derive gross monthly income from Financial Info (same source as Retirement Planner)
+  const monthlyIncomeFromFinancials = useMemo(() => {
+    const rows = contact?.financials?.income
+    if (!Array.isArray(rows)) return 0
+    const row = rows.find((r) => r.id === 'gross-income')
+    return Number(row?.amount) || 0
+  }, [contact?.financials?.income])
+
+  // Auto-compute existing coverage totals from the Insurance Tab
+  // ci field in insurance covers critical illness broadly — used for both ACI and ECI
+  const insuranceTotals = useMemo(() => {
+    const policies = (contact?.financials?.insurance || []).filter(
+      (p) => p.status !== 'Lapsed' && p.status !== 'Surrendered' && p.status !== 'Matured'
+    )
+    return {
+      death: policies.reduce((s, p) => s + (Number(p.coverageDetails?.death) || 0), 0),
+      tpd:   policies.reduce((s, p) => s + (Number(p.coverageDetails?.tpd)   || 0), 0),
+      aci:   policies.reduce((s, p) => s + (Number(p.coverageDetails?.ci)    || 0), 0),
+      eci:   policies.reduce((s, p) => s + (Number(p.coverageDetails?.ci)    || 0), 0),
+      count: policies.length,
+      totalPolicies: (contact?.financials?.insurance || []).length,
+    }
+  }, [contact?.financials?.insurance])
+
   const [step, setStep] = useState(1)
   const [showAssumptions, setShowAssumptions] = useState(false)
 
@@ -68,6 +92,18 @@ export default function ProtectionPlannerPage() {
 
   const setExisting = (risk, value) => {
     updatePlan({ existing: { ...plan.existing, [risk]: parseFloat(value) || 0 } })
+  }
+
+  // One-shot sync of all existing values from the Insurance Tab
+  const onSyncFromInsurance = () => {
+    updatePlan({
+      existing: {
+        death: insuranceTotals.death,
+        tpd:   insuranceTotals.tpd,
+        aci:   insuranceTotals.aci,
+        eci:   insuranceTotals.eci,
+      },
+    })
   }
 
   if (!contact) {
@@ -149,6 +185,8 @@ export default function ProtectionPlannerPage() {
           setExisting={setExisting}
           onBack={() => setStep(1)}
           onContinue={() => setStep(3)}
+          insuranceTotals={insuranceTotals}
+          onSyncFromInsurance={onSyncFromInsurance}
         />
       )}
       {step === 3 && (
@@ -156,11 +194,12 @@ export default function ProtectionPlannerPage() {
           plan={plan}
           currentAge={currentAge}
           contactName={contact.name}
-          monthlyIncome={Number(contact.financials?.income?.grossIncome) || 0}
+          monthlyIncome={monthlyIncomeFromFinancials}
           updatePlan={updatePlan}
           showAssumptions={showAssumptions}
           onToggleAssumptions={setShowAssumptions}
           onBack={() => setStep(2)}
+          insuranceTotals={insuranceTotals}
         />
       )}
     </div>
@@ -338,7 +377,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue }) {
 
 // ─── Step 2: Existing Coverage ────────────────────────────────────────────────
 
-function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue }) {
+function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, insuranceTotals = {}, onSyncFromInsurance }) {
   // Compute targets for reference
   const targets = useMemo(() =>
     Object.fromEntries(
@@ -356,15 +395,44 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue }) {
     [plan]
   )
 
+  const hasInsuranceData = (insuranceTotals.count || 0) > 0
+
   return (
     <div className="flex gap-6">
       {/* Left: Form */}
       <div className="flex-1 space-y-4">
         <div className="hig-card p-5">
           <h3 className="text-hig-headline mb-1">Existing Coverage</h3>
-          <p className="text-hig-subhead text-hig-text-secondary mb-5">
+          <p className="text-hig-subhead text-hig-text-secondary mb-4">
             Enter the total sum assured already in force for each risk category across all policies.
           </p>
+
+          {/* ── Insurance Tab sync banner ── */}
+          {hasInsuranceData && (
+            <div className="mb-5 bg-hig-blue/5 border border-hig-blue/20 rounded-hig-sm p-3 flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2 min-w-0">
+                <div className="w-6 h-6 rounded-full bg-hig-blue/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-hig-blue text-[10px] font-bold">i</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-hig-caption1 text-hig-blue font-semibold">
+                    {insuranceTotals.count} active {insuranceTotals.count === 1 ? 'policy' : 'policies'} found in Insurance Tab
+                  </p>
+                  <p className="text-hig-caption2 text-hig-text-secondary mt-0.5 flex flex-wrap gap-2">
+                    <span>Death: {formatRMFull(insuranceTotals.death || 0)}</span>
+                    <span>TPD: {formatRMFull(insuranceTotals.tpd || 0)}</span>
+                    <span>CI: {formatRMFull(insuranceTotals.aci || 0)}</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onSyncFromInsurance}
+                className="hig-btn-ghost text-hig-caption1 text-hig-blue whitespace-nowrap shrink-0 border border-hig-blue/30 hover:bg-hig-blue/10"
+              >
+                Sync values ↓
+              </button>
+            </div>
+          )}
 
           <div className="space-y-4">
             {RISKS.map((risk) => {
@@ -543,7 +611,7 @@ function buildUrgencyNarrative({ risk, active, plan, monthlyIncome, contactName 
 
 // ─── Step 3: Protection Planner ───────────────────────────────────────────────
 
-function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updatePlan, showAssumptions, onToggleAssumptions, onBack }) {
+function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updatePlan, showAssumptions, onToggleAssumptions, onBack, insuranceTotals = {} }) {
   const [activeRisk, setActiveRisk] = useState('death')
   const [activeTab, setActiveTab] = useState('recommendations')
   const [expandedRecId, setExpandedRecId] = useState(null)
@@ -1039,35 +1107,92 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
             )}
 
             {activeTab === 'existing' && (
-              <div className="space-y-3">
-                <p className="text-hig-caption1 text-hig-text-secondary mb-1">
-                  Existing coverage from all policies combined.
-                </p>
-                {RISKS.map((risk) => {
-                  const s = summary.find((x) => x.risk === risk)
-                  return (
-                    <div key={risk} className="space-y-1">
-                      <div className="flex items-center justify-between text-hig-subhead">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: RISK_COLOUR[risk] }} />
-                          <span className="text-hig-text-secondary">{RISK_SHORT[risk]}</span>
+              <div className="space-y-4">
+                {/* ── Gap vs Insurance Tab ── */}
+                {(insuranceTotals.count || 0) > 0 && (
+                  <div>
+                    <p className="text-hig-caption2 text-hig-text-secondary font-semibold uppercase tracking-wide mb-2">
+                      From Insurance Tab ({insuranceTotals.count} active {insuranceTotals.count === 1 ? 'policy' : 'policies'})
+                    </p>
+                    {RISKS.map((risk) => {
+                      const s = summary.find((x) => x.risk === risk)
+                      const insVal = insuranceTotals[risk] || 0
+                      const target = s?.targetCoverage || 0
+                      const gapFromIns = target > 0 ? Math.max(0, target - insVal) : 0
+                      const pct = target > 0 ? Math.min(100, Math.round((insVal / target) * 100)) : 0
+                      return (
+                        <div key={risk} className="mb-3 last:mb-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: RISK_COLOUR[risk] }} />
+                              <span className="text-hig-caption1 text-hig-text-secondary">{RISK_SHORT[risk]}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-hig-caption1 font-semibold">{insVal > 0 ? formatRMFull(insVal) : '—'}</span>
+                            </div>
+                          </div>
+                          {target > 0 && (
+                            <>
+                              <div className="h-1 bg-hig-gray-6 rounded-full overflow-hidden mb-1">
+                                <div
+                                  className="h-full rounded-full transition-all"
+                                  style={{
+                                    width: `${pct}%`,
+                                    backgroundColor: pct >= 100 ? '#34C759' : pct >= 50 ? '#FF9500' : '#FF3B30',
+                                  }}
+                                />
+                              </div>
+                              <div className="flex justify-between text-hig-caption2">
+                                <span className="text-hig-text-secondary">{pct}% of {formatRMFull(target)}</span>
+                                {gapFromIns > 0 ? (
+                                  <span className="text-hig-red font-medium">Gap {formatRMFull(gapFromIns)}</span>
+                                ) : target > 0 ? (
+                                  <span className="text-hig-green font-medium">✓ Covered</span>
+                                ) : null}
+                              </div>
+                            </>
+                          )}
                         </div>
-                        <span className="font-medium">{formatRMFull(plan.existing[risk] || 0)}</span>
+                      )
+                    })}
+                    <p className="text-hig-caption2 text-hig-text-secondary mt-1 pt-2 border-t border-hig-gray-5">
+                      CI sum used for both ACI &amp; ECI. Lapsed / matured policies excluded.
+                    </p>
+                  </div>
+                )}
+
+                {/* ── Manually entered (Step 2) ── */}
+                <div>
+                  <p className="text-hig-caption2 text-hig-text-secondary font-semibold uppercase tracking-wide mb-2">
+                    Entered in Step 2
+                  </p>
+                  {RISKS.map((risk) => {
+                    const s = summary.find((x) => x.risk === risk)
+                    const val = plan.existing[risk] || 0
+                    return (
+                      <div key={risk} className="mb-2 last:mb-0">
+                        <div className="flex items-center justify-between text-hig-subhead">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: RISK_COLOUR[risk] }} />
+                            <span className="text-hig-text-secondary">{RISK_SHORT[risk]}</span>
+                          </div>
+                          <span className="font-medium">{val > 0 ? formatRMFull(val) : '—'}</span>
+                        </div>
+                        {s && s.targetCoverage > 0 && (
+                          <div className="h-1 bg-hig-gray-6 rounded-full overflow-hidden mt-1">
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${Math.min(100, Math.round((s.existingCoverage / s.targetCoverage) * 100))}%`,
+                                backgroundColor: s.existingCoverage >= s.targetCoverage ? '#34C759' : '#FF9500',
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
-                      {s && s.targetCoverage > 0 && (
-                        <div className="h-1 bg-hig-gray-6 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${Math.min(100, Math.round((s.existingCoverage / s.targetCoverage) * 100))}%`,
-                              backgroundColor: s.existingCoverage >= s.targetCoverage ? '#34C759' : '#FF9500',
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>

@@ -3,8 +3,25 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ReferenceLine, ResponsiveContainer, LineChart, Line,
 } from 'recharts'
-import { Settings, Info } from 'lucide-react'
+import { Settings, Info, TrendingUp } from 'lucide-react'
 import { formatRMFull } from '../../lib/calculations'
+
+// ─── Surplus dot — rendered as a label on the zero-height marker bar ──────────
+function SurplusDotLabel({ x, y, width, value }) {
+  if (!value) return null
+  return (
+    <g>
+      <circle
+        cx={x + width / 2}
+        cy={y - 6}
+        r={4}
+        fill="#34C759"
+        stroke="white"
+        strokeWidth={1.5}
+      />
+    </g>
+  )
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function toAnnual(amount, frequency) {
@@ -53,11 +70,15 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
     const inflMult = Math.pow(1 + inflationRate / 100, yearsFromNow)
 
     // ── Annual expenses for this age ─────────────────────────────────────────
+    // inflationLinked defaults to true for backward-compat (old rows have no field)
     let annualExp = expenses
       .filter(e => (e.ageFrom ?? currentAge) <= age && age <= (e.ageTo ?? expectedAge))
-      .reduce((s, e) => s + toAnnual(e.amount, e.frequency) * inflMult, 0)
+      .reduce((s, e) => {
+        const factor = e.inflationLinked === false ? 1 : inflMult
+        return s + toAnnual(e.amount, e.frequency) * factor
+      }, 0)
 
-    // Add loan repayments (no inflation on debt)
+    // Add loan repayments (never inflation-adjusted — always nominal)
     liabilities.forEach(l => {
       const loanEndAge = (Number(l.startAge) || currentAge) + (Number(l.loanPeriod) || 360) / 12
       if ((Number(l.startAge) || currentAge) <= age && age < loanEndAge) {
@@ -84,9 +105,11 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
     let savingsDraw = 0
     let shortfall   = 0
 
+    let surplusAmt = 0
     if (remaining <= 0) {
-      // Surplus — add to savings
-      savingsPool += (totalIncome - annualExp)
+      // Surplus — income fully covers expenses; remainder accumulates in savings
+      surplusAmt = Math.round(totalIncome - annualExp)
+      savingsPool += surplusAmt
     } else {
       // Need to draw from savings
       const draw = Math.min(remaining, Math.max(0, savingsPool))
@@ -97,13 +120,16 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
 
     rows.push({
       age,
-      passive:  Math.round(passiveCovered),
-      active:   Math.round(activeCovered),
-      savings:  Math.round(savingsDraw),
-      shortfall: Math.round(shortfall),
-      total:    Math.round(annualExp),
-      pool:     Math.round(savingsPool),
-      income:   Math.round(totalIncome),
+      passive:    Math.round(passiveCovered),
+      active:     Math.round(activeCovered),
+      savings:    Math.round(savingsDraw),
+      shortfall:  Math.round(shortfall),
+      total:      Math.round(annualExp),
+      pool:       Math.round(savingsPool),
+      income:     Math.round(totalIncome),
+      surplusAmt,
+      // Tiny marker value — drives the surplus dot label; transparent fill keeps bar invisible
+      surplusDot: surplusAmt > 0 ? 1 : 0,
     })
   }
 
@@ -115,9 +141,17 @@ function CFTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload
   if (!d) return null
+  const isSurplus = (d.surplusAmt || 0) > 0
   return (
     <div className="bg-white border border-hig-gray-5 rounded-hig shadow-hig p-3 text-hig-caption1 min-w-[200px]">
-      <p className="text-hig-subhead font-semibold mb-2">Age {label}</p>
+      <div className="flex items-center gap-2 mb-2">
+        <p className="text-hig-subhead font-semibold">Age {label}</p>
+        {isSurplus && (
+          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-hig-green/15 text-hig-green rounded-full leading-none">
+            SURPLUS ✓
+          </span>
+        )}
+      </div>
       <div className="space-y-1">
         <div className="flex justify-between gap-4">
           <span className="text-hig-text-secondary">Total Expenses</span>
@@ -145,6 +179,12 @@ function CFTooltip({ active, payload, label }) {
           <div className="flex justify-between gap-4">
             <span style={{ color: '#FF3B30' }}>Shortfall</span>
             <span className="font-semibold tabular-nums text-hig-red">{formatRMFull(d.shortfall)}</span>
+          </div>
+        )}
+        {isSurplus && (
+          <div className="flex justify-between gap-4">
+            <span className="text-hig-green">Surplus to savings</span>
+            <span className="font-semibold tabular-nums text-hig-green">+{formatRMFull(d.surplusAmt)}</span>
           </div>
         )}
         <div className="flex justify-between gap-4 pt-1 border-t border-hig-gray-5 mt-1">
@@ -182,12 +222,13 @@ export default function CashFlowTab({ financials, contact }) {
   // ── Summary stats ──────────────────────────────────────────────────────────
   const summary = useMemo(() => {
     if (!data.length) return null
-    const shortfallYears  = data.filter(d => d.shortfall > 0)
-    const firstShortfall  = shortfallYears[0]
-    const totalShortfall  = shortfallYears.reduce((s, d) => s + d.shortfall, 0)
+    const shortfallYears    = data.filter(d => d.shortfall > 0)
+    const firstShortfall    = shortfallYears[0]
+    const totalShortfall    = shortfallYears.reduce((s, d) => s + d.shortfall, 0)
     const savingsDepletedAt = data.find(d => d.pool === 0 && data[data.indexOf(d) - 1]?.pool > 0)
-    const surplusYears    = data.filter(d => d.shortfall === 0 && d.savings === 0)
-    return { firstShortfall, totalShortfall, savingsDepletedAt, shortfallYears: shortfallYears.length, surplusYears: surplusYears.length }
+    const surplusYears      = data.filter(d => (d.surplusAmt || 0) > 0)
+    const totalSurplus      = surplusYears.reduce((s, d) => s + (d.surplusAmt || 0), 0)
+    return { firstShortfall, totalShortfall, savingsDepletedAt, shortfallYears: shortfallYears.length, surplusYears: surplusYears.length, totalSurplus }
   }, [data])
 
   const hasData = data.length > 0 && data.some(d => d.total > 0)
@@ -286,6 +327,16 @@ export default function CashFlowTab({ financials, contact }) {
               <p className="text-hig-subhead font-bold text-orange-600">Age {summary.savingsDepletedAt.age}</p>
             </div>
           )}
+          {summary.surplusYears > 0 && (
+            <div className="px-3 py-2 rounded-hig-sm bg-hig-green/10 border border-hig-green/20 flex items-start gap-2">
+              <TrendingUp size={14} className="text-hig-green mt-0.5 shrink-0" />
+              <div>
+                <p className="text-hig-caption2 text-hig-green font-semibold">SURPLUS YEARS</p>
+                <p className="text-hig-subhead font-bold text-hig-green">{summary.surplusYears} yrs</p>
+                <p className="text-hig-caption2 text-hig-green/70">{formatRMFull(summary.totalSurplus)} added</p>
+              </div>
+            </div>
+          )}
           <div className="px-3 py-2 rounded-hig-sm bg-hig-gray-6 border border-hig-gray-5">
             <p className="text-hig-caption2 text-hig-text-secondary font-semibold">FINAL SAVINGS</p>
             <p className={`text-hig-subhead font-bold ${data[data.length - 1]?.pool > 0 ? 'text-hig-text' : 'text-hig-red'}`}>
@@ -297,7 +348,15 @@ export default function CashFlowTab({ financials, contact }) {
 
       {/* Main bar chart */}
       <div className="hig-card p-4">
-        <p className="text-hig-caption1 font-semibold text-hig-text-secondary mb-3 uppercase tracking-wide">Annual Expenses Coverage</p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">Annual Expenses Coverage</p>
+          <div className="flex items-center gap-1.5 text-hig-caption2 text-hig-text-secondary">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <circle cx="5" cy="5" r="4" fill="#34C759" stroke="white" strokeWidth="1.5" />
+            </svg>
+            <span>Surplus year — income covers all expenses</span>
+          </div>
+        </div>
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={data} margin={{ top: 4, right: 16, left: 8, bottom: 4 }} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
@@ -328,10 +387,19 @@ export default function CashFlowTab({ financials, contact }) {
                 label={{ value: `Retire ${retirementAge}`, position: 'top', fontSize: 10, fill: '#8E8E93' }}
               />
             )}
-            <Bar dataKey="passive"   name="Passive Income"   stackId="a" fill="#30D158" radius={[0,0,0,0]} />
-            <Bar dataKey="active"    name="Active Income"    stackId="a" fill="#007AFF" radius={[0,0,0,0]} />
-            <Bar dataKey="savings"   name="Savings Draw"     stackId="a" fill="#FF9F0A" radius={[0,0,0,0]} />
-            <Bar dataKey="shortfall" name="Shortfall"        stackId="a" fill="#FF3B30" radius={[2,2,0,0]} />
+            <Bar dataKey="passive"    name="Passive Income"   stackId="a" fill="#30D158" radius={[0,0,0,0]} />
+            <Bar dataKey="active"     name="Active Income"    stackId="a" fill="#007AFF" radius={[0,0,0,0]} />
+            <Bar dataKey="savings"    name="Savings Draw"     stackId="a" fill="#FF9F0A" radius={[0,0,0,0]} />
+            <Bar dataKey="shortfall"  name="Shortfall"        stackId="a" fill="#FF3B30" radius={[2,2,0,0]} />
+            {/* Invisible marker bar — renders the green surplus dot above each surplus year */}
+            <Bar
+              dataKey="surplusDot"
+              stackId="a"
+              fill="transparent"
+              legendType="none"
+              isAnimationActive={false}
+              label={<SurplusDotLabel />}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

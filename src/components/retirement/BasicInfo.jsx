@@ -1,10 +1,18 @@
 import { useMemo } from 'react'
 import { formatRMFull, formatPercent, retirementCorpusNeeded, projectEPF, getEPFRate } from '../../lib/calculations'
-import { Info } from 'lucide-react'
+import { Info, ExternalLink } from 'lucide-react'
 
-export default function BasicInfo({ plan, currentAge, contactName, onChange, onContinue }) {
+export default function BasicInfo({
+  plan, currentAge, contactName, onChange, onContinue,
+  linkedGrossMonthly = 0,   // pulled from Financial Info — gross-income row (monthly)
+  onGoToFinancialInfo = null,
+}) {
   const yearsToRetirement = plan.retirementAge - currentAge
   const retirementDuration = plan.lifeExpectancy - plan.retirementAge
+
+  // If Financial Info has a gross income value, use it — otherwise fall back to plan.annualIncome
+  const isLinked = linkedGrossMonthly > 0
+  const effectiveAnnualIncome = isLinked ? linkedGrossMonthly * 12 : (plan.annualIncome || 0)
 
   const { monthlyAtRetirement } = useMemo(() =>
     retirementCorpusNeeded({
@@ -22,12 +30,12 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
     return projectEPF({
       currentBalance: plan.epfBalance,
       growthRate: plan.epfGrowthRate,
-      annualIncome: plan.annualIncome,
+      annualIncome: effectiveAnnualIncome,
       incomeGrowthRate: plan.incomeGrowthRate,
       currentAge,
       retirementAge: plan.retirementAge,
     })
-  }, [plan.includeEPF, plan.epfBalance, plan.epfGrowthRate, plan.annualIncome, plan.incomeGrowthRate, currentAge, plan.retirementAge])
+  }, [plan.includeEPF, plan.epfBalance, plan.epfGrowthRate, effectiveAnnualIncome, plan.incomeGrowthRate, currentAge, plan.retirementAge])
 
   const set = (key) => (e) => {
     const val = e.target.type === 'number' || e.target.type === 'range' || e.target.inputMode === 'numeric'
@@ -154,21 +162,56 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
                 </div>
               </div>
               <div>
-                <label className="hig-label">Annual Income <span className="text-hig-text-secondary font-normal">(optional)</span></label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-                  <input type="number" value={plan.annualIncome || ''} onChange={set('annualIncome')} className="hig-input pl-10" placeholder="60,000" />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="hig-label mb-0">Annual Income</label>
+                  {isLinked ? (
+                    <span className="text-hig-caption2 font-semibold px-2 py-0.5 bg-hig-blue/10 text-hig-blue rounded-full leading-none">
+                      Linked
+                    </span>
+                  ) : (
+                    <span className="text-hig-caption2 text-hig-text-secondary font-normal">optional</span>
+                  )}
                 </div>
-                {plan.annualIncome ? (
+
+                {isLinked ? (
+                  /* ── Read-only linked value from Financial Info ── */
+                  <div className="bg-hig-gray-6 border border-hig-gray-5 rounded-hig-sm px-3 py-2.5 flex items-center gap-2">
+                    <span className="text-hig-text-secondary text-hig-subhead">RM</span>
+                    <span className="text-hig-subhead font-semibold tabular-nums flex-1">
+                      {effectiveAnnualIncome.toLocaleString('en-MY')}
+                    </span>
+                    {onGoToFinancialInfo && (
+                      <button
+                        type="button"
+                        onClick={onGoToFinancialInfo}
+                        className="flex items-center gap-1 text-hig-caption2 text-hig-blue hover:text-blue-700 transition-colors shrink-0 font-medium"
+                      >
+                        Edit in Financial Info <ExternalLink size={10} />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  /* ── Manual input — no Financial Info data ── */
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
+                    <input type="number" value={plan.annualIncome || ''} onChange={set('annualIncome')} className="hig-input pl-10" placeholder="60,000" />
+                  </div>
+                )}
+
+                {effectiveAnnualIncome > 0 ? (
                   <p className="text-hig-caption1 text-hig-text-secondary mt-1">
                     {(() => {
-                      const monthly = (plan.annualIncome || 0) / 12
+                      const monthly = effectiveAnnualIncome / 12
                       const er = monthly > 5000 ? 12 : 13
                       return `${11 + er}% goes to EPF (11% employee + ${er}% employer${monthly > 5000 ? ', salary > RM5,000/mth' : ''})`
                     })()}
                   </p>
                 ) : (
-                  <p className="text-hig-caption2 text-hig-text-secondary mt-1">Leave blank for self-employed / voluntary contributors.</p>
+                  <p className="text-hig-caption2 text-hig-text-secondary mt-1">
+                    {isLinked
+                      ? 'Set gross income in Financial Info to enable EPF contribution projection.'
+                      : 'Leave blank for self-employed / voluntary contributors.'}
+                  </p>
                 )}
               </div>
               <div>
@@ -220,7 +263,7 @@ export default function BasicInfo({ plan, currentAge, contactName, onChange, onC
 
           {/* EPF Balance */}
           {plan.includeEPF && epfProjection && (() => {
-            const monthlyIncome = (plan.annualIncome || 0) / 12
+            const monthlyIncome = effectiveAnnualIncome / 12
             const isHighEarner = monthlyIncome > 5000
             const empRate = 11
             const erRate = isHighEarner ? 12 : 13

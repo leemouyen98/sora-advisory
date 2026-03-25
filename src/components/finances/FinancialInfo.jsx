@@ -301,6 +301,7 @@ function ExpenseModal({ row, currentAge, onSave, onClose }) {
   const isNew = !row.id
   const [form, setForm] = useState({
     type: 'All-Personal', description: '', ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: 0,
+    inflationLinked: true,   // default: expenses rise with inflation
     ...row,
   })
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -341,6 +342,33 @@ function ExpenseModal({ row, currentAge, onSave, onClose }) {
           </select>
         </div>
         <RMField label="Amount (RM)" value={form.amount} onChange={v => set('amount', v)} />
+      </div>
+
+      {/* ── Inflation toggle ── */}
+      <div
+        className={`flex items-center justify-between rounded-hig-sm px-3 py-2.5 cursor-pointer select-none border transition-colors
+          ${form.inflationLinked
+            ? 'bg-orange-50 border-orange-200'
+            : 'bg-hig-gray-6 border-hig-gray-5'
+          }`}
+        onClick={() => set('inflationLinked', !form.inflationLinked)}
+      >
+        <div>
+          <p className={`text-hig-caption1 font-semibold ${form.inflationLinked ? 'text-orange-700' : 'text-hig-text-secondary'}`}>
+            {form.inflationLinked ? 'Inflation-linked' : 'Fixed nominal (no inflation)'}
+          </p>
+          <p className="text-hig-caption2 text-hig-text-secondary mt-0.5">
+            {form.inflationLinked
+              ? 'Amount grows each year with the inflation rate.'
+              : 'Amount stays fixed — suitable for loan repayments, fixed contracts.'}
+          </p>
+        </div>
+        <div className={`w-11 h-6 rounded-full transition-colors duration-200 relative ml-3 shrink-0
+          ${form.inflationLinked ? 'bg-orange-400' : 'bg-hig-gray-3'}`}
+        >
+          <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200
+            ${form.inflationLinked ? 'translate-x-[22px]' : 'translate-x-[2px]'}`} />
+        </div>
       </div>
     </ModalShell>
   )
@@ -502,7 +530,7 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
           currentAge={currentAge}
           onEdit={(row) => openEdit('expenses', row)}
           onRemove={(id) => removeRow('expenses', id)}
-          onAdd={() => openAdd('expenses', { type: 'All-Personal', description: '', ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: 0 })}
+          onAdd={() => openAdd('expenses', { type: 'All-Personal', description: '', ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: 0, inflationLinked: true })}
         />
       )}
 
@@ -926,9 +954,14 @@ function ExpTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
           {rows.map((r, i) => (
             <div key={r.id} className={`flex items-center gap-4 px-4 py-3 ${i < rows.length - 1 ? 'border-b border-hig-gray-5' : ''}`}>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
+                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <span className="text-hig-caption2 px-2 py-0.5 bg-hig-gray-6 text-hig-text-secondary rounded-full">{r.type}</span>
                   <span className="text-hig-subhead font-medium">{r.description || '—'}</span>
+                  {r.inflationLinked === false && (
+                    <span className="text-hig-caption2 px-1.5 py-0.5 bg-hig-gray-5 text-hig-text-secondary rounded font-medium leading-none">
+                      Fixed
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-3 text-hig-caption1 text-hig-text-secondary">
                   <span>Age {r.ageFrom ?? currentAge} → {r.ageTo ?? 55}</span>
