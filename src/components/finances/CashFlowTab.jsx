@@ -207,12 +207,14 @@ export default function CashFlowTab({ financials, contact }) {
     return Math.max(18, a)
   }, [contact?.dob])
 
-  const [expectedAge,   setExpectedAge]   = useState(80)
-  const [growthRate,    setGrowthRate]    = useState(3.5)
-  const [inflationRate, setInflationRate] = useState(3.0)
-  const [showSettings,  setShowSettings]  = useState(false)
+  const [expectedAge,      setExpectedAge]      = useState(80)
+  const [growthRate,       setGrowthRate]       = useState(3.5)
+  const [inflationRate,    setInflationRate]    = useState(3.0)
+  const [showSettings,     setShowSettings]     = useState(false)
+  const [showCashSavings,  setShowCashSavings]  = useState(false)
+  const [localRetirementAge, setLocalRetirementAge] = useState(() => contact?.retirementAge ?? 55)
 
-  const retirementAge = contact?.retirementAge ?? 55
+  const retirementAge = localRetirementAge
 
   const data = useMemo(() => {
     if (!financials || !Array.isArray(financials.assets)) return []
@@ -265,7 +267,16 @@ export default function CashFlowTab({ financials, contact }) {
       {/* Settings panel */}
       {showSettings && (
         <div className="hig-card p-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
+            <div>
+              <label className="hig-label">Retirement Age</label>
+              <input
+                type="number" min={currentAge + 1} max={80}
+                value={localRetirementAge}
+                onChange={e => setLocalRetirementAge(parseInt(e.target.value) || 55)}
+                className="hig-input"
+              />
+            </div>
             <div>
               <label className="hig-label">Expected Age</label>
               <input
@@ -296,7 +307,7 @@ export default function CashFlowTab({ financials, contact }) {
           </div>
           <p className="text-hig-caption1 text-hig-text-secondary mt-3 flex items-center gap-1.5">
             <Info size={12} />
-            Retirement age ({retirementAge}) set on contact profile. Investments excluded from savings pool.
+            Retirement age overrides contact profile for this session only. Investments excluded from savings pool.
           </p>
         </div>
       )}
@@ -350,15 +361,31 @@ export default function CashFlowTab({ financials, contact }) {
       <div className="hig-card p-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">Annual Expenses Coverage</p>
-          <div className="flex items-center gap-1.5 text-hig-caption2 text-hig-text-secondary">
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <circle cx="5" cy="5" r="4" fill="#34C759" stroke="white" strokeWidth="1.5" />
-            </svg>
-            <span>Surplus year — income covers all expenses</span>
+          <div className="flex items-center gap-3">
+            {/* Cash Savings toggle */}
+            <button
+              onClick={() => setShowCashSavings(s => !s)}
+              className={`flex items-center gap-1.5 text-hig-caption2 px-2.5 py-1 rounded-hig-sm border transition-colors
+                ${showCashSavings
+                  ? 'bg-violet-50 border-violet-200 text-violet-700'
+                  : 'bg-hig-gray-6 border-hig-gray-5 text-hig-text-secondary hover:border-hig-gray-3'
+                }`}
+            >
+              <svg width="8" height="8" viewBox="0 0 8 8">
+                <rect width="8" height="8" rx="1.5" fill={showCashSavings ? '#5856D6' : '#8E8E93'} opacity="0.5" />
+              </svg>
+              Cash Savings
+            </button>
+            <div className="flex items-center gap-1.5 text-hig-caption2 text-hig-text-secondary">
+              <svg width="10" height="10" viewBox="0 0 10 10">
+                <circle cx="5" cy="5" r="4" fill="#34C759" stroke="white" strokeWidth="1.5" />
+              </svg>
+              <span>Surplus year</span>
+            </div>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data} margin={{ top: 4, right: 16, left: 8, bottom: 4 }} barCategoryGap="20%">
+          <BarChart data={data} margin={{ top: 4, right: showCashSavings ? 52 : 16, left: 8, bottom: 4 }} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
             <XAxis
               dataKey="age"
@@ -368,12 +395,24 @@ export default function CashFlowTab({ financials, contact }) {
               interval={4}
             />
             <YAxis
+              yAxisId="left"
               tickFormatter={fmtK}
               tick={{ fontSize: 11, fill: '#8E8E93' }}
               tickLine={false}
               axisLine={false}
               width={44}
             />
+            {showCashSavings && (
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tickFormatter={fmtK}
+                tick={{ fontSize: 11, fill: '#5856D6' }}
+                tickLine={false}
+                axisLine={false}
+                width={48}
+              />
+            )}
             <Tooltip content={<CFTooltip />} />
             <Legend
               wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
@@ -381,19 +420,33 @@ export default function CashFlowTab({ financials, contact }) {
             />
             {retirementAge <= expectedAge && (
               <ReferenceLine
+                yAxisId="left"
                 x={retirementAge}
                 stroke="#8E8E93"
                 strokeDasharray="4 3"
                 label={{ value: `Retire ${retirementAge}`, position: 'top', fontSize: 10, fill: '#8E8E93' }}
               />
             )}
-            <Bar dataKey="passive"    name="Passive Income"   stackId="a" fill="#30D158" radius={[0,0,0,0]} />
-            <Bar dataKey="active"     name="Active Income"    stackId="a" fill="#007AFF" radius={[0,0,0,0]} />
-            <Bar dataKey="savings"    name="Savings Draw"     stackId="a" fill="#FF9F0A" radius={[0,0,0,0]} />
-            <Bar dataKey="shortfall"  name="Shortfall"        stackId="a" fill="#FF3B30" radius={[2,2,0,0]} />
+            {showCashSavings && (
+              <Bar
+                dataKey="pool"
+                yAxisId="right"
+                name="Cash Savings"
+                stackId="b"
+                fill="#5856D6"
+                opacity={0.28}
+                radius={[2, 2, 0, 0]}
+                isAnimationActive={false}
+              />
+            )}
+            <Bar dataKey="passive"    yAxisId="left" name="Passive Income"   stackId="a" fill="#30D158" radius={[0,0,0,0]} />
+            <Bar dataKey="active"     yAxisId="left" name="Active Income"    stackId="a" fill="#007AFF" radius={[0,0,0,0]} />
+            <Bar dataKey="savings"    yAxisId="left" name="Savings Draw"     stackId="a" fill="#FF9F0A" radius={[0,0,0,0]} />
+            <Bar dataKey="shortfall"  yAxisId="left" name="Shortfall"        stackId="a" fill="#FF3B30" radius={[2,2,0,0]} />
             {/* Invisible marker bar — renders the green surplus dot above each surplus year */}
             <Bar
               dataKey="surplusDot"
+              yAxisId="left"
               stackId="a"
               fill="transparent"
               legendType="none"

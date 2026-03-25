@@ -7,6 +7,7 @@ import {
   ArrowLeft, Phone, Calendar, Briefcase, Target, Shield,
   Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock, Pencil,
   CheckCircle2, X, Tag, TrendingUp, ArrowRight, ChevronDown,
+  DollarSign, BarChart2,
 } from 'lucide-react'
 
 const ACTIVITY_ICONS = { Call: PhoneCall, Meeting: Users, Email: MessageSquare }
@@ -18,6 +19,20 @@ const fmtDate = (d) => {
   return date.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+function toMonthlyCF(amount, frequency) {
+  const map = { Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6, 'One-Time': 0 }
+  return (Number(amount) || 0) * (map[frequency] ?? 1)
+}
+
+function fmtRM(val) {
+  if (val === undefined || val === null) return '—'
+  const abs = Math.abs(val)
+  const str = abs >= 1_000_000
+    ? `RM ${(Math.abs(val) / 1_000_000).toFixed(1)}M`
+    : `RM ${Math.abs(val).toLocaleString('en-MY', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+  return val < 0 ? `−${str}` : str
+}
+
 export default function ContactDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -27,9 +42,16 @@ export default function ContactDetailPage() {
   const [showEditForm, setShowEditForm] = useState(false)
   const [editForm, setEditForm] = useState({})
 
-  const [tab, setTab] = useState('interaction') // interaction | finances
+  const [tab, setTab] = useState('interaction')
   const [showCashFlow, setShowCashFlow] = useState(false)
   const [showCFPrompt, setShowCFPrompt] = useState(false)
+  const [showStartPlanning, setShowStartPlanning] = useState(false)
+
+  const [noteText, setNoteText] = useState('')
+  const [showTaskForm, setShowTaskForm] = useState(false)
+  const [taskForm, setTaskForm] = useState({ title: '', dueDate: '' })
+  const [showActivityForm, setShowActivityForm] = useState(false)
+  const [activityForm, setActivityForm] = useState({ type: 'Call', description: '' })
 
   // Check if Financial Info has usable data (any income or expense entered)
   const hasFinancialData = useMemo(() => {
@@ -40,11 +62,25 @@ export default function ContactDetailPage() {
     return hasIncome || hasExpenses
   }, [contact?.financials])
 
-  const [noteText, setNoteText] = useState('')
-  const [showTaskForm, setShowTaskForm] = useState(false)
-  const [taskForm, setTaskForm] = useState({ title: '', dueDate: '' })
-  const [showActivityForm, setShowActivityForm] = useState(false)
-  const [activityForm, setActivityForm] = useState({ type: 'Call', description: '' })
+  // Sidebar financial summary — Net Worth + Monthly Cash Flow
+  const sidebarFinancial = useMemo(() => {
+    const fin = contact?.financials
+    if (!fin) return null
+    const assets = Array.isArray(fin.assets) ? fin.assets : []
+    const investments = Array.isArray(fin.investments) ? fin.investments : []
+    const liabilities = Array.isArray(fin.liabilities) ? fin.liabilities : []
+    const income = Array.isArray(fin.income) ? fin.income : []
+    const expenses = Array.isArray(fin.expenses) ? fin.expenses : []
+    const totalAssets = assets.reduce((s, r) => s + (Number(r.amount) || 0), 0)
+    const totalInv = investments.reduce((s, r) => s + (Number(r.currentValue) || 0), 0)
+    const totalLiab = liabilities.reduce((s, r) => s + (Number(r.principal) || 0), 0)
+    const monthlyIncome = income.reduce((s, r) => s + toMonthlyCF(r.amount, r.frequency), 0)
+    const monthlyExpenses = expenses.reduce((s, r) => s + toMonthlyCF(r.amount, r.frequency), 0)
+    const netWorth = totalAssets + totalInv - totalLiab
+    const monthlyCashFlow = monthlyIncome - monthlyExpenses
+    const hasData = monthlyIncome > 0 || monthlyExpenses > 0 || totalAssets > 0 || totalInv > 0
+    return { netWorth, monthlyCashFlow, monthlyIncome, monthlyExpenses, hasData }
+  }, [contact?.financials])
 
   if (!contact) {
     return (
@@ -105,12 +141,120 @@ export default function ContactDetailPage() {
     setShowActivityForm(false)
   }
 
+  const launchCashFlow = () => {
+    setShowStartPlanning(false)
+    if (!hasFinancialData) {
+      setShowCFPrompt(true)
+    } else {
+      setShowCashFlow(true)
+    }
+  }
+
+  // ── Full-width Cash Flow view (early return) ──────────────────────────────
+  if (showCashFlow) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-5">
+          <button
+            onClick={() => setShowCashFlow(false)}
+            className="hig-btn-ghost gap-1.5 -ml-3"
+          >
+            <ArrowLeft size={16} /> {contact.name}
+          </button>
+          <div className="flex items-center gap-2">
+            <TrendingUp size={17} className="text-hig-blue" />
+            <span className="text-hig-headline font-semibold">Cash Flow Projection</span>
+            <span className="text-hig-caption2 font-semibold px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue leading-none">
+              Full Suite
+            </span>
+          </div>
+          <div className="w-32" />
+        </div>
+        <CashFlowTab financials={contact.financials} contact={contact} />
+
+        {/* Edit modal still accessible */}
+        {showEditForm && <EditContactModal
+          editForm={editForm} setEditForm={setEditForm}
+          onClose={() => setShowEditForm(false)} onSubmit={handleEditSubmit}
+        />}
+      </div>
+    )
+  }
+
+  // ── Normal two-column view ────────────────────────────────────────────────
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Back */}
-      <button onClick={() => navigate('/contacts')} className="hig-btn-ghost gap-1.5 mb-4 -ml-3">
-        <ArrowLeft size={16} /> Contacts
-      </button>
+      {/* Top header: Back + Start Planning */}
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={() => navigate('/contacts')} className="hig-btn-ghost gap-1.5 -ml-3">
+          <ArrowLeft size={16} /> Contacts
+        </button>
+
+        {/* Start Planning dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setShowStartPlanning((s) => !s)}
+            className="hig-btn-primary gap-2"
+          >
+            Start Planning
+            <ChevronDown size={14} className={`transition-transform duration-hig ${showStartPlanning ? 'rotate-180' : ''}`} />
+          </button>
+          {showStartPlanning && (
+            <>
+              {/* Overlay to close on click-away */}
+              <div className="fixed inset-0 z-20" onClick={() => setShowStartPlanning(false)} />
+              <div className="absolute right-0 top-full mt-1.5 bg-white rounded-hig shadow-hig-lg border border-hig-gray-5 py-1 min-w-[210px] z-30">
+                <button
+                  onClick={launchCashFlow}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-hig-subhead hover:bg-hig-gray-6 transition-colors text-left"
+                >
+                  <div className="w-7 h-7 rounded-hig-sm bg-hig-blue/10 flex items-center justify-center shrink-0">
+                    <TrendingUp size={14} className="text-hig-blue" />
+                  </div>
+                  <div>
+                    <p className="font-medium leading-none mb-0.5">Cash Flow Planner</p>
+                    <p className="text-hig-caption2 text-hig-text-secondary leading-none">Full suite</p>
+                  </div>
+                  {hasFinancialData && (
+                    <span className="ml-auto text-hig-caption2 text-hig-green font-semibold">Ready</span>
+                  )}
+                </button>
+                <div className="border-t border-hig-gray-5 my-1" />
+                <button
+                  onClick={() => { setShowStartPlanning(false); navigate(`/contacts/${id}/retirement`) }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-hig-subhead hover:bg-hig-gray-6 transition-colors text-left"
+                >
+                  <div className="w-7 h-7 rounded-hig-sm bg-hig-blue/10 flex items-center justify-center shrink-0">
+                    <Target size={14} className="text-hig-blue" />
+                  </div>
+                  <div>
+                    <p className="font-medium leading-none mb-0.5">Retirement Planner</p>
+                    <p className="text-hig-caption2 text-hig-text-secondary leading-none">Quick planner</p>
+                  </div>
+                  {contact.retirementPlan && (
+                    <CheckCircle2 size={14} className="ml-auto text-hig-green shrink-0" />
+                  )}
+                </button>
+                <button
+                  onClick={() => { setShowStartPlanning(false); navigate(`/contacts/${id}/protection`) }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-hig-subhead hover:bg-hig-gray-6 transition-colors text-left"
+                >
+                  <div className="w-7 h-7 rounded-hig-sm bg-hig-green/10 flex items-center justify-center shrink-0">
+                    <Shield size={14} className="text-hig-green" />
+                  </div>
+                  <div>
+                    <p className="font-medium leading-none mb-0.5">Insurance Planner</p>
+                    <p className="text-hig-caption2 text-hig-text-secondary leading-none">Quick planner</p>
+                  </div>
+                  {contact.protectionPlan && (
+                    <CheckCircle2 size={14} className="ml-auto text-hig-green shrink-0" />
+                  )}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="flex gap-6">
         {/* Left: Contact Summary */}
@@ -142,7 +286,6 @@ export default function ContactDetailPage() {
                   {new Date(contact.dob).toLocaleDateString('en-MY', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
               </div>
-
               {contact.employment && (
                 <div className="flex items-center gap-2.5 text-hig-text-secondary">
                   <Briefcase size={15} /> <span className="text-hig-text">{contact.employment}</span>
@@ -194,115 +337,45 @@ export default function ContactDetailPage() {
             )}
           </div>
 
-          {/* Quick Planner Links */}
-          <div className="hig-card p-4 space-y-2">
-            <h3 className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
-              Quick Planners
-            </h3>
-            <button
-              onClick={() => navigate(`/contacts/${id}/retirement`)}
-              className="w-full flex items-center gap-3 p-3 rounded-hig-sm
-                         hover:bg-hig-gray-6 transition-colors text-left"
-            >
-              <Target size={20} className="text-hig-blue shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-hig-subhead font-medium">Retirement Planner</p>
-                <p className="text-hig-caption1 text-hig-text-secondary">
-                  {contact.retirementPlan ? 'View plan →' : 'Start planning →'}
-                </p>
+          {/* Financial Overview — Cash Flow + Net Worth */}
+          {sidebarFinancial?.hasData && (
+            <div className="hig-card p-4 space-y-3">
+              <h3 className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
+                Financial Overview
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setTab('finances')}
+                  className="rounded-hig-sm p-2.5 bg-hig-gray-6 hover:bg-hig-gray-5 transition-colors text-left"
+                >
+                  <p className="text-hig-caption2 text-hig-text-secondary font-medium mb-0.5">Net Worth</p>
+                  <p className={`text-hig-subhead font-bold leading-tight ${sidebarFinancial.netWorth >= 0 ? 'text-hig-text' : 'text-hig-red'}`}>
+                    {fmtRM(sidebarFinancial.netWorth)}
+                  </p>
+                </button>
+                <button
+                  onClick={() => setTab('finances')}
+                  className="rounded-hig-sm p-2.5 bg-hig-gray-6 hover:bg-hig-gray-5 transition-colors text-left"
+                >
+                  <p className="text-hig-caption2 text-hig-text-secondary font-medium mb-0.5">Monthly CF</p>
+                  <p className={`text-hig-subhead font-bold leading-tight ${sidebarFinancial.monthlyCashFlow >= 0 ? 'text-hig-text' : 'text-hig-red'}`}>
+                    {fmtRM(sidebarFinancial.monthlyCashFlow)}
+                  </p>
+                </button>
               </div>
-              {contact.retirementPlan
-                ? <CheckCircle2 size={16} className="text-hig-green shrink-0" />
-                : <div className="w-4 h-4 rounded-full border-2 border-hig-gray-3 shrink-0" />
-              }
-            </button>
-            <button
-              onClick={() => navigate(`/contacts/${id}/protection`)}
-              className="w-full flex items-center gap-3 p-3 rounded-hig-sm
-                         hover:bg-hig-gray-6 transition-colors text-left"
-            >
-              <Shield size={20} className="text-hig-green shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-hig-subhead font-medium">Wealth Protection</p>
-                <p className="text-hig-caption1 text-hig-text-secondary">
-                  {contact.protectionPlan ? 'View plan →' : 'Start planning →'}
-                </p>
-              </div>
-              {contact.protectionPlan
-                ? <CheckCircle2 size={16} className="text-hig-green shrink-0" />
-                : <div className="w-4 h-4 rounded-full border-2 border-hig-gray-3 shrink-0" />
-              }
-            </button>
-          </div>
+              <button
+                onClick={launchCashFlow}
+                className="w-full flex items-center gap-2 text-hig-caption1 text-hig-blue hover:text-hig-blue/80 transition-colors"
+              >
+                <BarChart2 size={13} />
+                <span>View full projection →</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right: Tabs */}
         <div className="flex-1 min-w-0">
-
-          {/* ── Cash Flow Full Suite hero card ── */}
-          {!showCashFlow ? (
-            <div className="hig-card p-4 mb-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-hig-sm bg-hig-blue/10 flex items-center justify-center shrink-0">
-                <TrendingUp size={20} className="text-hig-blue" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-hig-subhead font-semibold">Cash Flow Projection</span>
-                  <span className="text-hig-caption2 font-semibold px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue leading-none">
-                    Full Suite
-                  </span>
-                  {hasFinancialData ? (
-                    <span className="text-hig-caption2 font-semibold px-2 py-0.5 rounded-full bg-hig-green/10 text-hig-green leading-none">
-                      Ready
-                    </span>
-                  ) : (
-                    <span className="text-hig-caption2 font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 leading-none">
-                      Setup needed
-                    </span>
-                  )}
-                </div>
-                <p className="text-hig-caption1 text-hig-text-secondary">
-                  Full lifetime projection — income, expenses, surplus accumulation, and coverage gaps by age.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  if (!hasFinancialData) {
-                    setShowCFPrompt(true)
-                  } else {
-                    setShowCashFlow(true)
-                  }
-                }}
-                className="hig-btn-primary gap-1.5 shrink-0"
-              >
-                Launch <ArrowRight size={14} />
-              </button>
-            </div>
-          ) : (
-            /* ── Cash Flow open: full-width view ── */
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp size={18} className="text-hig-blue" />
-                  <span className="text-hig-headline font-semibold">Cash Flow Projection</span>
-                  <span className="text-hig-caption2 font-semibold px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue leading-none">
-                    Full Suite
-                  </span>
-                </div>
-                <button
-                  onClick={() => setShowCashFlow(false)}
-                  className="hig-btn-ghost gap-1.5 text-hig-caption1"
-                >
-                  <X size={14} /> Close
-                </button>
-              </div>
-              <CashFlowTab financials={contact.financials} contact={contact} />
-            </div>
-          )}
-
-          {/* ── Tab bar + content (hidden when Cash Flow is open) ── */}
-          {!showCashFlow && (
-            <>
           {/* Tab bar */}
           <div className="flex border-b border-hig-gray-5 mb-4">
             {[
@@ -339,7 +412,6 @@ export default function ContactDetailPage() {
                     Add
                   </button>
                 </div>
-                {/* Notes list */}
                 <div className="mt-3 space-y-2">
                   {contact.interactions
                     .filter((i) => i.type === 'note')
@@ -440,8 +512,6 @@ export default function ContactDetailPage() {
               }}
             />
           )}
-            </>
-          )}
         </div>
       </div>
 
@@ -469,17 +539,11 @@ export default function ContactDetailPage() {
               Head to the Finances tab and fill in the Financial Info section first.
             </p>
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowCFPrompt(false)}
-                className="hig-btn-secondary flex-1"
-              >
+              <button onClick={() => setShowCFPrompt(false)} className="hig-btn-secondary flex-1">
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setShowCFPrompt(false)
-                  setTab('finances')
-                }}
+                onClick={() => { setShowCFPrompt(false); setTab('finances') }}
                 className="hig-btn-primary flex-1 gap-1.5"
               >
                 Set up Financial Info <ArrowRight size={14} />
@@ -491,75 +555,85 @@ export default function ContactDetailPage() {
 
       {/* Edit Contact Modal */}
       {showEditForm && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowEditForm(false)}>
-          <form
-            onClick={(e) => e.stopPropagation()}
-            onSubmit={handleEditSubmit}
-            className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-lg p-6 space-y-4 max-h-[85vh] overflow-y-auto"
-          >
-            <h2 className="text-hig-title3">Edit Contact</h2>
-
-            <div>
-              <label className="hig-label">Name <span className="text-hig-red">*</span></label>
-              <input value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} className="hig-input" placeholder="Full name" required />
-            </div>
-            <div>
-              <label className="hig-label">Date of Birth <span className="text-hig-red">*</span></label>
-              <input type="date" value={editForm.dob} onChange={(e) => setEditForm({...editForm, dob: e.target.value})} className="hig-input" required />
-            </div>
-            <div>
-              <label className="hig-label">Mobile</label>
-              <input value={editForm.mobile} onChange={(e) => setEditForm({...editForm, mobile: e.target.value})} className="hig-input" placeholder="012-3456789" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="hig-label">Employment Status</label>
-                <select value={editForm.employment} onChange={(e) => setEditForm({...editForm, employment: e.target.value})} className="hig-input">
-                  <option value="">Select...</option>
-                  <option>Employed</option>
-                  <option>Self-Employed</option>
-                  <option>Unemployed</option>
-                  <option>Retired</option>
-                </select>
-              </div>
-              <div>
-                <label className="hig-label">Retirement Age</label>
-                <input
-                  type="number" min={40} max={80}
-                  value={editForm.retirementAge ?? 55}
-                  onChange={(e) => setEditForm({...editForm, retirementAge: parseInt(e.target.value) || 55})}
-                  className="hig-input"
-                  placeholder="55"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="hig-label">Review Date</label>
-                <input type="date" value={editForm.reviewDate} onChange={(e) => setEditForm({...editForm, reviewDate: e.target.value})} className="hig-input" />
-              </div>
-              <div>
-                <label className="hig-label">Review Frequency</label>
-                <select value={editForm.reviewFrequency} onChange={(e) => setEditForm({...editForm, reviewFrequency: e.target.value})} className="hig-input">
-                  <option value="">Select...</option>
-                  <option>Annually</option>
-                  <option>Semi-annually</option>
-                  <option>Quarterly</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className="hig-label">Notes</label>
-              <textarea value={editForm.notes} onChange={(e) => setEditForm({...editForm, notes: e.target.value})} className="hig-input min-h-[80px] resize-y" placeholder="Any notes..." />
-            </div>
-
-            <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={() => setShowEditForm(false)} className="hig-btn-secondary">Cancel</button>
-              <button type="submit" className="hig-btn-primary">Save Changes</button>
-            </div>
-          </form>
-        </div>
+        <EditContactModal
+          editForm={editForm} setEditForm={setEditForm}
+          onClose={() => setShowEditForm(false)} onSubmit={handleEditSubmit}
+        />
       )}
+    </div>
+  )
+}
+
+// ── Edit Contact Modal ────────────────────────────────────────────────────────
+function EditContactModal({ editForm, setEditForm, onClose, onSubmit }) {
+  return (
+    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <form
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={onSubmit}
+        className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-lg p-6 space-y-4 max-h-[85vh] overflow-y-auto"
+      >
+        <h2 className="text-hig-title3">Edit Contact</h2>
+
+        <div>
+          <label className="hig-label">Name <span className="text-hig-red">*</span></label>
+          <input value={editForm.name || ''} onChange={(e) => setEditForm({...editForm, name: e.target.value})} className="hig-input" placeholder="Full name" required />
+        </div>
+        <div>
+          <label className="hig-label">Date of Birth <span className="text-hig-red">*</span></label>
+          <input type="date" value={editForm.dob || ''} onChange={(e) => setEditForm({...editForm, dob: e.target.value})} className="hig-input" required />
+        </div>
+        <div>
+          <label className="hig-label">Mobile</label>
+          <input value={editForm.mobile || ''} onChange={(e) => setEditForm({...editForm, mobile: e.target.value})} className="hig-input" placeholder="012-3456789" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="hig-label">Employment Status</label>
+            <select value={editForm.employment || ''} onChange={(e) => setEditForm({...editForm, employment: e.target.value})} className="hig-input">
+              <option value="">Select...</option>
+              <option>Employed</option>
+              <option>Self-Employed</option>
+              <option>Unemployed</option>
+              <option>Retired</option>
+            </select>
+          </div>
+          <div>
+            <label className="hig-label">Retirement Age</label>
+            <input
+              type="number" min={40} max={80}
+              value={editForm.retirementAge ?? 55}
+              onChange={(e) => setEditForm({...editForm, retirementAge: parseInt(e.target.value) || 55})}
+              className="hig-input"
+              placeholder="55"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="hig-label">Review Date</label>
+            <input type="date" value={editForm.reviewDate || ''} onChange={(e) => setEditForm({...editForm, reviewDate: e.target.value})} className="hig-input" />
+          </div>
+          <div>
+            <label className="hig-label">Review Frequency</label>
+            <select value={editForm.reviewFrequency || ''} onChange={(e) => setEditForm({...editForm, reviewFrequency: e.target.value})} className="hig-input">
+              <option value="">Select...</option>
+              <option>Annually</option>
+              <option>Semi-annually</option>
+              <option>Quarterly</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className="hig-label">Notes</label>
+          <textarea value={editForm.notes || ''} onChange={(e) => setEditForm({...editForm, notes: e.target.value})} className="hig-input min-h-[80px] resize-y" placeholder="Any notes..." />
+        </div>
+
+        <div className="flex justify-end gap-3 pt-2">
+          <button type="button" onClick={onClose} className="hig-btn-secondary">Cancel</button>
+          <button type="submit" className="hig-btn-primary">Save Changes</button>
+        </div>
+      </form>
     </div>
   )
 }

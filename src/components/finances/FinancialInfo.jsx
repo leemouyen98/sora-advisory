@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Plus, Trash2, X, ChevronRight, Info, Pencil } from 'lucide-react'
+import { Plus, Trash2, X, ChevronRight, Info, Pencil, Upload } from 'lucide-react'
 import { formatRMFull } from '../../lib/calculations'
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
@@ -439,6 +439,7 @@ function LiabilityModal({ initial, currentAge, onSave, onClose }) {
 export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [modal, setModal] = useState(null) // { section, row } | null
+  const [showImport, setShowImport] = useState(false)
   const [data, setData] = useState(() => normalizeFinancials(financials, currentAge))
 
   useEffect(() => {
@@ -483,7 +484,9 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
         ))}
       </div>
 
-      {activeTab === 'overview' && <OverviewTab summary={summary} onNavigate={setActiveTab} />}
+      {activeTab === 'overview' && (
+        <OverviewTab summary={summary} onNavigate={setActiveTab} onImport={() => setShowImport(true)} />
+      )}
 
       {activeTab === 'assets' && (
         <AssetsTab
@@ -555,12 +558,109 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
           onClose={() => setModal(null)}
         />
       )}
+
+      {/* Quick Import modal */}
+      {showImport && (
+        <QuickImportModal
+          data={data}
+          onSave={(updated) => { setData(updated); onSave(updated) }}
+          onClose={() => setShowImport(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── Quick Import Modal ───────────────────────────────────────────────────────
+// Mirrors the InsuranceTab "Add Policy" pattern — fixed overlay form for bulk entry
+function QuickImportModal({ data, onSave, onClose }) {
+  const [form, setForm] = useState({
+    grossIncome:   (data.income || []).find(r => r.id === 'gross-income')?.amount || 0,
+    bonus:         (data.income || []).find(r => r.id === 'bonus')?.amount || 0,
+    savingsCash:   (data.assets || []).find(r => r.id === 'savings-cash')?.amount || 0,
+    epfPersaraan:  (data.assets || []).find(r => r.id === 'epf-persaraan')?.amount || 0,
+    epfSejahtera:  (data.assets || []).find(r => r.id === 'epf-sejahtera')?.amount || 0,
+    epfFleksibel:  (data.assets || []).find(r => r.id === 'epf-fleksibel')?.amount || 0,
+  })
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleSave = () => {
+    const updatedIncome = (data.income || []).map(r => {
+      if (r.id === 'gross-income') return { ...r, amount: Number(form.grossIncome) || 0 }
+      if (r.id === 'bonus')        return { ...r, amount: Number(form.bonus)       || 0 }
+      return r
+    })
+    const updatedAssets = (data.assets || []).map(r => {
+      if (r.id === 'savings-cash')  return { ...r, amount: Number(form.savingsCash)  || 0 }
+      if (r.id === 'epf-persaraan') return { ...r, amount: Number(form.epfPersaraan) || 0 }
+      if (r.id === 'epf-sejahtera') return { ...r, amount: Number(form.epfSejahtera) || 0 }
+      if (r.id === 'epf-fleksibel') return { ...r, amount: Number(form.epfFleksibel) || 0 }
+      return r
+    })
+    onSave({ ...data, income: updatedIncome, assets: updatedAssets })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        onClick={e => e.stopPropagation()}
+        className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-xl p-6 max-h-[85vh] overflow-y-auto"
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-hig-title3">Import Financial Data</h2>
+          <button onClick={onClose} className="p-2 rounded-hig-sm hover:bg-hig-gray-6"><X size={18} /></button>
+        </div>
+
+        {/* Income */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Employment Income</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <RMField label="Gross Monthly Income" value={form.grossIncome} onChange={v => set('grossIncome', v)} />
+            <RMField label="Annual Bonus" value={form.bonus} onChange={v => set('bonus', v)} />
+          </div>
+          {Number(form.grossIncome) > 0 && (
+            <p className="text-hig-caption1 text-hig-text-secondary mt-2 flex items-start gap-1.5">
+              <Info size={12} className="mt-0.5 shrink-0 text-hig-blue" />
+              EPF: Employee {formatRMFull(Number(form.grossIncome) * 0.11)}/mth (11%) ·
+              Employer {Number(form.grossIncome) > 5000 ? '12%' : '13%'}
+            </p>
+          )}
+        </div>
+
+        {/* Assets */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Savings & EPF Balances</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <RMField label="Savings / Cash" value={form.savingsCash} onChange={v => set('savingsCash', v)} />
+            <RMField label="EPF Akaun Persaraan" value={form.epfPersaraan} onChange={v => set('epfPersaraan', v)} />
+            <RMField label="EPF Akaun Sejahtera" value={form.epfSejahtera} onChange={v => set('epfSejahtera', v)} />
+            <RMField label="EPF Akaun Fleksibel" value={form.epfFleksibel} onChange={v => set('epfFleksibel', v)} />
+          </div>
+        </div>
+
+        <p className="text-hig-caption1 text-hig-text-secondary mb-5 flex items-start gap-1.5">
+          <Info size={12} className="mt-0.5 shrink-0" />
+          Investments, liabilities, and additional income / expense items can be added in the respective tabs.
+        </p>
+
+        <div className="flex justify-end gap-3 pt-4 border-t border-hig-gray-5">
+          <button onClick={onClose} className="hig-btn-secondary">Cancel</button>
+          <button onClick={handleSave} className="hig-btn-primary gap-1.5">
+            <Upload size={14} /> Save Financial Data
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
 
 // ─── Overview ─────────────────────────────────────────────────────────────────
-function OverviewTab({ summary, onNavigate }) {
+function OverviewTab({ summary, onNavigate, onImport }) {
   const cats = [
     { key: 'assets',      label: 'Assets',          value: summary.totalAssets,      negative: false },
     { key: 'investments', label: 'Investments',      value: summary.totalInvestments, negative: false },
@@ -570,6 +670,15 @@ function OverviewTab({ summary, onNavigate }) {
   ]
   return (
     <div className="space-y-4">
+      {/* Import Data CTA */}
+      <div className="flex justify-end">
+        <button
+          onClick={onImport}
+          className="hig-btn-ghost gap-1.5 text-hig-subhead"
+        >
+          <Upload size={14} /> Import Financial Data
+        </button>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="hig-card p-5">
           <p className="text-hig-caption1 text-hig-text-secondary font-medium mb-1">Net Worth</p>
