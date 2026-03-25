@@ -190,13 +190,15 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
 
   // ── Scenarios ───────────────────────────────────────────────────────────
   const [scenarios, setScenarios] = useState([
-    { id: 'ci',         label: 'Advanced Stage Critical Illness', icon: 'heart',    age: currentAge, active: false },
-    { id: 'disability', label: 'Disability',                      icon: 'activity', age: currentAge, active: false },
-    { id: 'death',      label: 'Death',                           icon: 'shield',   age: currentAge, active: false },
+    { id: 'ci',         label: 'Critical Illness',  icon: 'heart',    age: currentAge, duration: 3, active: false },
+    { id: 'disability', label: 'Disability (TPD)',  icon: 'activity', age: currentAge,              active: false },
+    { id: 'death',      label: 'Death',             icon: 'shield',   age: currentAge,              active: false },
   ])
+  // which scenario row is open for editing
+  const [editingSc, setEditingSc] = useState(null)
 
-  const toggleScenario = (id) =>
-    setScenarios((s) => s.map((x) => (x.id === id ? { ...x, active: !x.active } : x)))
+  const toggleScenario  = (id) => setScenarios((s) => s.map((x) => (x.id === id ? { ...x, active: !x.active } : x)))
+  const updateScenario  = (id, patch) => setScenarios((s) => s.map((x) => (x.id === id ? { ...x, ...patch } : x)))
 
   // ── Plan toggles ────────────────────────────────────────────────────────
   const [planStates, setPlanStates] = useState({})
@@ -238,14 +240,15 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
       const age = currentAge + i
       const retired = age >= localRetirementAge
 
-      // Income stops at retirement/disability/death
-      const incomeOff = retired || (disSc && age >= disSc.age) || (deadSc && age >= deadSc.age)
-      const income = incomeOff ? 0 : annualIncome
+      // Income — off at retirement, or during CI recovery window, or permanently from disability/death
+      const ciOff  = ciSc  && age >= ciSc.age  && age < ciSc.age + (ciSc.duration ?? 3)
+      const disOff = disSc && age >= disSc.age
+      const dedOff = deadSc && age >= deadSc.age
+      const income = (retired || ciOff || disOff || dedOff) ? 0 : annualIncome
 
-      // Expenses (inflation) + goal lump sums + CI one-time
+      // Expenses — base (inflation-adjusted) + Dreams lump sums at their target age
       const goalLump = goals.filter((g) => g.active && g.age === age).reduce((s, g) => s + g.amount, 0)
-      const ciLump   = ciSc && age === ciSc.age ? annualIncome * 5 : 0
-      const expenses = annualExpenses * Math.pow(1 + ir, i) + goalLump + ciLump
+      const expenses = annualExpenses * Math.pow(1 + ir, i) + goalLump
 
       let takeHomeIncomeUsed = 0
       let cashUsed  = 0
@@ -286,17 +289,61 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
     return { total: sy.reduce((s, d) => s + d.shortfall, 0), start: sy[0].age, end: sy[sy.length - 1].age }
   }, [chartData])
 
-  // ── Recommendations (gap analysis) ─────────────────────────────────────
+  // ── Recommendations — gap analysis + scenario-boosted priority ────────
   const recommendations = useMemo(() => {
     const ins = Array.isArray(financials?.insurance) ? financials.insurance : []
     const has = (...kws) => ins.some((p) => kws.some((kw) => (p.type ?? '').toLowerCase().includes(kw) || (p.name ?? '').toLowerCase().includes(kw)))
+
+    const ciActive  = scenarios.find((s) => s.id === 'ci'         && s.active)
+    const disActive = scenarios.find((s) => s.id === 'disability' && s.active)
+    const dedActive = scenarios.find((s) => s.id === 'death'      && s.active)
+    const hasShortfall = !!shortfallSummary
+
     const recs = []
-    if (!has('life', 'term', 'death', 'wholelife', 'whole life'))   recs.push({ label: 'Life Coverage',              desc: 'Income replacement for dependants' })
-    if (!has('hospital', 'medical', 'h&s', 'surgical'))             recs.push({ label: 'Hospital & Surgical',         desc: 'Medical cost protection' })
-    if (!has('critical', 'ci'))                                      recs.push({ label: 'Critical Illness',            desc: 'Income replacement on CI diagnosis' })
-    if (!has('disability', 'tpd', 'income protection'))             recs.push({ label: 'Total Permanent Disability',  desc: 'Protection against loss of income' })
-    return recs
-  }, [financials?.insurance])
+
+    // CI — surfaced first when CI scenario is active and produces shortfall
+    if (!has('critical', 'ci')) {
+      const triggered = ciActive && hasShortfall
+      recs.push({
+        label:     'Critical Illness',
+        desc:      triggered
+          ? `Scenario shows ${fmtRM(shortfallSummary?.total)} shortfall over ${(ciActive?.duration ?? 3)}yr CI recovery — CI payout covers income gap`
+          : 'Replaces income during CI recovery period',
+        priority:  triggered,
+      })
+    }
+
+    // TPD — surfaced when disability scenario active
+    if (!has('disability', 'tpd', 'income protection')) {
+      const triggered = disActive && hasShortfall
+      recs.push({
+        label:    'Total & Permanent Disability',
+        desc:     triggered
+          ? `Disability scenario shows ${fmtRM(shortfallSummary?.total)} shortfall — TPD lump sum bridges income loss`
+          : 'Replaces income on permanent disability',
+        priority: triggered,
+      })
+    }
+
+    // Life — surfaced when death scenario active
+    if (!has('life', 'term', 'death', 'wholelife', 'whole life')) {
+      const triggered = dedActive && hasShortfall
+      recs.push({
+        label:    'Life Coverage',
+        desc:     triggered
+          ? `Death scenario shows ${fmtRM(shortfallSummary?.total)} shortfall — life sum assured covers dependants`
+          : 'Income replacement for dependants',
+        priority: triggered,
+      })
+    }
+
+    // Always-on gaps
+    if (!has('hospital', 'medical', 'h&s', 'surgical'))
+      recs.push({ label: 'Hospital & Surgical', desc: 'Medical cost protection', priority: false })
+
+    // Sort: scenario-triggered (priority) first
+    return recs.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0))
+  }, [financials?.insurance, scenarios, shortfallSummary])
 
   // ── Insurance plans list ────────────────────────────────────────────────
   const insurancePlans = useMemo(() => {
@@ -557,24 +604,25 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
           </div>
         </div>
 
-        {/* Goals + Scenarios grid */}
+        {/* Dreams + Scenarios grid */}
         <div className="grid grid-cols-2 gap-4">
 
-          {/* Goals */}
+          {/* Dreams card */}
           <div className="hig-card p-4">
             <PanelHeader
-              title="Goals"
+              title="Dreams"
               actionLabel={goals.length ? 'Activate all' : null}
               onAction={() => setGoals((g) => g.map((x) => ({ ...x, active: true })))}
               onAdd={() => setShowAddGoal(true)}
             />
 
+            {/* Add Dream form */}
             {showAddGoal && (
               <div className="bg-hig-gray-6 rounded-xl p-3 mb-3 space-y-2">
                 <input
                   autoFocus
                   className="hig-input w-full text-hig-footnote"
-                  placeholder="Goal (e.g. Buy Property)"
+                  placeholder="Dream (e.g. Buy Property)"
                   value={newGoal.label}
                   onChange={(e) => setNewGoal((g) => ({ ...g, label: e.target.value }))}
                 />
@@ -582,15 +630,15 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
                   <div>
                     <label className="hig-label">Age</label>
                     <input type="number" className="hig-input w-full mt-1 text-hig-footnote"
-                      placeholder="e.g. 42" value={newGoal.age}
+                      placeholder="e.g. 40" value={newGoal.age}
                       onChange={(e) => setNewGoal((g) => ({ ...g, age: e.target.value }))}
                       min={currentAge} max={expectedAge}
                     />
                   </div>
                   <div>
-                    <label className="hig-label">Amount (RM)</label>
+                    <label className="hig-label">Lump Sum (RM)</label>
                     <input type="number" className="hig-input w-full mt-1 text-hig-footnote"
-                      placeholder="e.g. 500000" value={newGoal.amount}
+                      placeholder="e.g. 60000" value={newGoal.amount}
                       onChange={(e) => setNewGoal((g) => ({ ...g, amount: e.target.value }))}
                     />
                   </div>
@@ -600,12 +648,12 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
                   value={newGoal.icon}
                   onChange={(e) => setNewGoal((g) => ({ ...g, icon: e.target.value }))}
                 >
-                  <option value="home">🏠 Property</option>
-                  <option value="trending">📈 Investment</option>
+                  <option value="home">🏠 Property (Down Payment)</option>
+                  <option value="trending">📈 Investment / Business</option>
                   <option value="star">⭐ Other</option>
                 </select>
                 <div className="flex gap-2 pt-0.5">
-                  <button onClick={addGoal} className="hig-btn-primary flex-1 py-1.5 text-hig-footnote">Add</button>
+                  <button onClick={addGoal} className="hig-btn-primary flex-1 py-1.5 text-hig-footnote">Add Dream</button>
                   <button onClick={() => setShowAddGoal(false)} className="hig-btn-ghost flex-1 py-1.5 text-hig-footnote">Cancel</button>
                 </div>
               </div>
@@ -613,9 +661,12 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
 
             {goals.length === 0 ? (
               <div className="text-center py-5">
-                <div className="text-hig-caption1 text-hig-text-secondary mb-2">No goals added</div>
+                <div className="text-hig-caption1 text-hig-text-secondary mb-2">No dreams added</div>
+                <div className="text-hig-caption2 text-hig-text-secondary mb-3 leading-snug">
+                  Dreams add a lump-sum expense to the chart at the target age
+                </div>
                 <button onClick={() => setShowAddGoal(true)} className="text-hig-caption2 text-hig-blue hover:opacity-70">
-                  + Add your first goal
+                  + Add your first dream
                 </button>
               </div>
             ) : (
@@ -628,7 +679,7 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
                     iconBg="bg-green-100"
                     icon={<GoalIcon type={goal.icon} size={13} />}
                     title={goal.label}
-                    subtitle={`@ ${goal.age} yo. · ${fmtRM(goal.amount)}`}
+                    subtitle={`@ ${goal.age} yo. · ${fmtRM(goal.amount)} lump sum`}
                     onRemove={() => removeGoal(goal.id)}
                   />
                 ))}
@@ -636,7 +687,7 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
             )}
           </div>
 
-          {/* Scenarios */}
+          {/* Scenarios card */}
           <div className="hig-card p-4">
             <PanelHeader
               title="Scenarios"
@@ -646,15 +697,79 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
             />
             <div className="space-y-0">
               {scenarios.map((sc) => (
-                <CheckRow
-                  key={sc.id}
-                  active={sc.active}
-                  onToggle={() => toggleScenario(sc.id)}
-                  iconBg={sc.icon === 'heart' ? 'bg-pink-100' : sc.icon === 'activity' ? 'bg-purple-100' : 'bg-indigo-100'}
-                  icon={<ScenarioIcon type={sc.icon} size={13} />}
-                  title={sc.label}
-                  subtitle={`@ ${sc.age} yo.`}
-                />
+                <div key={sc.id}>
+                  {/* Row */}
+                  <div className="flex items-center gap-2.5 py-1.5">
+                    <button
+                      onClick={() => toggleScenario(sc.id)}
+                      className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
+                        sc.active ? 'bg-hig-blue border-hig-blue' : 'border-hig-gray-4 bg-transparent'
+                      }`}
+                    >
+                      {sc.active && <Check size={10} strokeWidth={3} className="text-white" />}
+                    </button>
+                    <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                      sc.icon === 'heart' ? 'bg-pink-100' : sc.icon === 'activity' ? 'bg-purple-100' : 'bg-indigo-100'
+                    }`}>
+                      <ScenarioIcon type={sc.icon} size={13} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-hig-footnote font-medium">{sc.label}</div>
+                      <div className="text-hig-caption2 text-hig-text-secondary">
+                        @ {sc.age} yo.
+                        {sc.id === 'ci' && ` · ${sc.duration ?? 3} yr income loss`}
+                        {sc.id === 'disability' && ' · income stops permanently'}
+                        {sc.id === 'death' && ' · income stops permanently'}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setEditingSc(editingSc === sc.id ? null : sc.id)}
+                      className={`text-hig-text-secondary hover:opacity-70 transition-colors ${editingSc === sc.id ? 'text-hig-blue' : ''}`}
+                    >
+                      <MoreVertical size={13} />
+                    </button>
+                  </div>
+
+                  {/* Inline edit panel */}
+                  {editingSc === sc.id && (
+                    <div className="ml-9 mb-2 p-2.5 bg-hig-gray-6 rounded-xl space-y-2">
+                      <div className={`grid gap-2 ${sc.id === 'ci' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                        <div>
+                          <label className="hig-label">Age when it happens</label>
+                          <input
+                            type="number"
+                            className="hig-input w-full mt-1 text-hig-caption2"
+                            value={sc.age}
+                            min={currentAge} max={expectedAge}
+                            onChange={(e) => updateScenario(sc.id, { age: Number(e.target.value) })}
+                          />
+                        </div>
+                        {sc.id === 'ci' && (
+                          <div>
+                            <label className="hig-label">Income loss (years)</label>
+                            <input
+                              type="number"
+                              className="hig-input w-full mt-1 text-hig-caption2"
+                              value={sc.duration ?? 3}
+                              min={1} max={10}
+                              onChange={(e) => updateScenario(sc.id, { duration: Number(e.target.value) })}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {sc.id === 'ci' && (
+                        <div className="text-hig-caption2 text-hig-text-secondary leading-snug">
+                          Income drops to RM 0 from age {sc.age} to {sc.age + (sc.duration ?? 3) - 1}. Expenses continue at inflation rate — cash savings drawn down, then shortfall.
+                        </div>
+                      )}
+                      {sc.id !== 'ci' && (
+                        <div className="text-hig-caption2 text-hig-text-secondary leading-snug">
+                          Income permanently stops from age {sc.age}. Savings drawn down, then shortfall.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -681,17 +796,25 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
                 <Plus size={13} />
                 Add New Recommendations
               </button>
-              <div className="space-y-0">
+              <div className="space-y-1">
                 {recommendations.map((rec) => (
-                  <div key={rec.label} className="flex items-center gap-2.5 py-1.5">
-                    <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                      <Lightbulb size={13} className="text-amber-500" />
+                  <div
+                    key={rec.label}
+                    className={`flex items-start gap-2.5 py-1.5 px-2 rounded-xl transition-colors ${
+                      rec.priority ? 'bg-red-50 border border-red-100' : ''
+                    }`}
+                  >
+                    <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${rec.priority ? 'bg-red-100' : 'bg-amber-100'}`}>
+                      <Lightbulb size={13} className={rec.priority ? 'text-red-500' : 'text-amber-500'} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-hig-footnote font-medium">{rec.label}</div>
-                      <div className="text-hig-caption2 text-hig-text-secondary leading-snug">{rec.desc}</div>
+                      <div className={`text-hig-footnote font-semibold ${rec.priority ? 'text-red-600' : ''}`}>
+                        {rec.label}
+                        {rec.priority && <span className="ml-1.5 text-hig-caption2 font-normal bg-red-500 text-white px-1.5 py-0.5 rounded-md">Triggered</span>}
+                      </div>
+                      <div className="text-hig-caption2 text-hig-text-secondary leading-snug mt-0.5">{rec.desc}</div>
                     </div>
-                    <button className="text-hig-text-secondary hover:opacity-70 flex-shrink-0">
+                    <button className="text-hig-text-secondary hover:opacity-70 flex-shrink-0 mt-0.5">
                       <MoreVertical size={13} />
                     </button>
                   </div>
