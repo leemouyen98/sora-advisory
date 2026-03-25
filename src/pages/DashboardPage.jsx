@@ -6,16 +6,19 @@ import { useToast } from '../hooks/useToast'
 import {
   Plus, Users, CheckSquare, CalendarClock, Cake,
   ExternalLink, Building2, FileText, Shield, Globe, Landmark,
-  Target, ChevronRight, CheckCircle2,
+  Target, ChevronRight, CheckCircle2, FileCheck, ClipboardList, TrendingUp,
 } from 'lucide-react'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const QUICK_LINKS = [
-  { label: 'Agency Portal',      icon: Building2, url: '#', color: '#007AFF' },
-  { label: 'Sales Illustration', icon: FileText,  url: '#', color: '#34C759' },
-  { label: 'T-Marine Pro',       icon: Shield,    url: '#', color: '#FF9500' },
-  { label: 'Insurance Portals',  icon: Globe,     url: '#', color: '#AF52DE' },
-  { label: 'Tokio Marine Life',  icon: Landmark,  url: '#', color: '#FF2D55' },
+  { label: 'Agency Portal',      icon: Building2,     url: 'https://portal.tokiomarinelife.com.my',                                            color: '#007AFF' },
+  { label: 'Sales Illustration', icon: FileText,       url: 'https://tmarinepro.tokiomarinelife.com.my/standalone/',                            color: '#34C759' },
+  { label: 'T-Marine Pro',       icon: Shield,         url: 'https://tmarinepro.tokiomarinelife.com.my/',                                       color: '#FF9500' },
+  { label: 'Insurance Portals',  icon: Globe,          url: 'https://portals.llhgroup.co',                                                      color: '#AF52DE' },
+  { label: 'Tokio Marine Life',  icon: Landmark,       url: 'https://www.tokiomarine.com/my/en/life.html',                                      color: '#FF2D55' },
+  { label: 'Claim Guide',        icon: FileCheck,      url: 'https://www.tokiomarine.com/my/en/life/claim/step-by-step-claim-guide.html',        color: '#FF6B35' },
+  { label: 'Service Form',       icon: ClipboardList,  url: 'https://www.tokiomarine.com/my/en/life/resources/forms.html',                      color: '#5856D6' },
+  { label: 'Funds Centre',       icon: TrendingUp,     url: 'https://www.tokiomarine.com/my/en/life/resources/fund-centre.html',                color: '#30B0C7' },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
