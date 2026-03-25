@@ -9,6 +9,7 @@ export function ContactsProvider({ children }) {
   const { token } = useAuth()
   const [contacts, setContacts] = useState([])
   const [contactsLoading, setContactsLoading] = useState(true)
+  const [contactsError, setContactsError] = useState(null)
 
   // Auth header helper
   const authHeaders = useCallback(() => ({
@@ -24,10 +25,14 @@ export function ContactsProvider({ children }) {
       return
     }
     setContactsLoading(true)
+    setContactsError(null)
     fetch('/api/contacts', { headers: { 'Authorization': `Bearer ${token}` } })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to load contacts (${r.status})`)
+        return r.json()
+      })
       .then((data) => { if (data.contacts) setContacts(data.contacts) })
-      .catch(() => {})
+      .catch((err) => setContactsError(err.message || 'Failed to load contacts.'))
       .finally(() => setContactsLoading(false))
   }, [token])
 
@@ -174,6 +179,7 @@ export function ContactsProvider({ children }) {
       value={{
         contacts,
         contactsLoading,
+        contactsError,
         addContact,
         updateContact,
         deleteContacts,

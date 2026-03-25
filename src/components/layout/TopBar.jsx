@@ -1,18 +1,23 @@
 import { useState, useRef, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Menu, Search, ChevronDown, LogOut, Settings } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 
 export default function TopBar({ onMenuToggle }) {
   const { agent, logout } = useAuth()
   const location = useLocation()
-  const [searchQuery, setSearchQuery] = useState('')
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [showProfile, setShowProfile] = useState(false)
   const profileRef = useRef(null)
 
-  const showSearch =
-    location.pathname === '/dashboard' ||
-    location.pathname === '/contacts'
+  const isOnContacts = location.pathname === '/contacts'
+  const isOnDashboard = location.pathname === '/dashboard'
+  const showSearch = isOnDashboard || isOnContacts
+
+  // Search query: mirrors URL ?q= param on contacts page
+  const searchQuery = isOnContacts ? (searchParams.get('q') || '') : ''
+  const [dashSearch, setDashSearch] = useState('')
 
   // Close profile menu on outside click
   useEffect(() => {
@@ -25,12 +30,28 @@ export default function TopBar({ onMenuToggle }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  const handleSearchChange = (e) => {
+    const val = e.target.value
+    if (isOnContacts) {
+      // Update URL param — ContactsPage reads it
+      setSearchParams(val ? { q: val } : {})
+    } else {
+      // Dashboard: hold in local state, navigate on Enter
+      setDashSearch(val)
+    }
+  }
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter' && isOnDashboard) {
+      navigate(dashSearch.trim() ? `/contacts?q=${encodeURIComponent(dashSearch.trim())}` : '/contacts')
+      setDashSearch('')
+    }
+  }
+
+  const displayQuery = isOnContacts ? searchQuery : dashSearch
+
   const initials = agent?.name
-    ? agent.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
+    ? agent.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : '??'
 
   return (
@@ -51,13 +72,14 @@ export default function TopBar({ onMenuToggle }) {
           <div className="relative">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary pointer-events-none"
             />
             <input
               type="text"
-              placeholder="Search clients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={isOnContacts ? 'Search contacts…' : 'Search contacts… (Enter)'}
+              value={displayQuery}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
               className="w-full h-9 pl-9 pr-3 rounded-lg bg-hig-gray-6 border-none
                          text-hig-subhead placeholder-hig-text-secondary
                          outline-none focus:bg-white focus:ring-2 focus:ring-hig-blue/20
@@ -88,9 +110,12 @@ export default function TopBar({ onMenuToggle }) {
                           border border-hig-gray-5 py-1 z-50">
             <div className="px-4 py-3 border-b border-hig-gray-5">
               <p className="text-hig-subhead font-semibold">{agent?.name}</p>
-              <p className="text-hig-caption1 text-hig-text-secondary">{agent?.email}</p>
+              <p className="text-hig-caption1 text-hig-text-secondary">
+                Agent Code: {agent?.code || '—'}
+              </p>
             </div>
             <button
+              onClick={() => { setShowProfile(false); navigate('/settings') }}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-hig-subhead
                          text-hig-text hover:bg-hig-gray-6 transition-colors"
             >

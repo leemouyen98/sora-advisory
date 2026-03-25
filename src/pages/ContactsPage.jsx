@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import {
   Plus, Search, Trash2, Tag, MoreHorizontal,
-  ChevronRight, Phone, Calendar,
+  ChevronRight, Phone, Calendar, AlertCircle,
 } from 'lucide-react'
 
 const TAG_COLORS = {
@@ -12,11 +12,12 @@ const TAG_COLORS = {
 }
 
 export default function ContactsPage() {
-  const { contacts, contactsLoading, addContact, deleteContacts, addTag } = useContacts()
+  const { contacts, contactsLoading, contactsError, addContact, deleteContacts, addTag } = useContacts()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const [search, setSearch] = useState('')
+  // Initialise from URL ?q= param (set by TopBar global search or direct links)
+  const [search, setSearch] = useState(() => searchParams.get('q') || '')
   const [selected, setSelected] = useState(new Set())
   const [showForm, setShowForm] = useState(searchParams.get('new') === 'true')
   const [showBulkMenu, setShowBulkMenu] = useState(false)
@@ -104,7 +105,11 @@ export default function ContactsPage() {
             type="text"
             placeholder="Search contacts..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value
+              setSearch(val)
+              setSearchParams(val ? { q: val } : {})
+            }}
             className="w-full h-10 pl-9 pr-3 rounded-lg bg-white border border-hig-gray-4
                        text-hig-subhead outline-none focus:border-hig-blue focus:ring-2
                        focus:ring-hig-blue/20 transition-all duration-hig"
@@ -157,7 +162,15 @@ export default function ContactsPage() {
         </div>
 
         {/* Rows */}
-        {contactsLoading ? (
+        {contactsError ? (
+          <div className="px-4 py-10 flex flex-col items-center gap-3 text-center">
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,59,48,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AlertCircle size={20} style={{ color: '#FF3B30' }} />
+            </div>
+            <p className="text-hig-subhead font-medium" style={{ color: '#FF3B30' }}>Failed to load contacts</p>
+            <p className="text-hig-caption1 text-hig-text-secondary">{contactsError}</p>
+          </div>
+        ) : contactsLoading ? (
           <div className="px-4 py-12 text-center text-hig-subhead text-hig-text-secondary">
             Loading contacts…
           </div>

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useContacts } from '../hooks/useContacts'
+import { useToast } from '../hooks/useToast'
 import {
   Plus, Users, CheckSquare, CalendarClock, Cake,
   ExternalLink, Building2, FileText, Shield, Globe, Landmark,
@@ -161,8 +162,13 @@ function StatCard({ icon: Icon, label, value, sub, color, loading, onClick }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { agent } = useAuth()
-  const { contacts, contactsLoading } = useContacts()
+  const { contacts, contactsLoading, contactsError } = useContacts()
   const navigate = useNavigate()
+  const { addToast } = useToast()
+
+  useEffect(() => {
+    if (contactsError) addToast(contactsError, 'error')
+  }, [contactsError, addToast])
 
   const now = new Date()
   const thisMonth = now.getMonth()
@@ -187,36 +193,37 @@ export default function DashboardPage() {
     const items = []
 
     contacts.forEach(c => {
-      // Tasks due in next 14 days
+      // Tasks due in next 60 days
       ;(c.tasks || []).forEach(t => {
         if (t.status === 'completed' || !t.dueDate) return
         const d = daysUntil(t.dueDate)
-        if (d >= 0 && d <= 14)
+        if (d >= 0 && d <= 60)
           items.push({ type: 'task', days: d, contact: c, title: t.title, sub: fmtShort(t.dueDate) })
       })
-      // Reviews in next 30 days
+      // Reviews in next 60 days
       if (c.reviewDate) {
         const d = daysUntil(c.reviewDate)
-        if (d >= 0 && d <= 30)
+        if (d >= 0 && d <= 60)
           items.push({
             type: 'review', days: d, contact: c,
             title: c.name,
             sub: `Review on ${fmtShort(c.reviewDate)}${c.reviewFrequency ? ' · ' + c.reviewFrequency : ''}`,
           })
       }
-      // Birthdays this month
-      if (c.dob && new Date(c.dob).getMonth() === thisMonth) {
+      // Birthdays in next 60 days
+      if (c.dob) {
         const d = daysUntilBirthday(c.dob)
-        items.push({
-          type: 'birthday', days: d, contact: c,
-          title: c.name,
-          sub: `Turns ${getAge(c.dob) + (d > 0 ? 1 : 0)} · ${fmtShort(c.dob)}`,
-        })
+        if (d >= 0 && d <= 60)
+          items.push({
+            type: 'birthday', days: d, contact: c,
+            title: c.name,
+            sub: `Turns ${getAge(c.dob) + (d > 0 ? 1 : 0)} · ${fmtShort(c.dob)}`,
+          })
       }
     })
 
-    return items.sort((a, b) => a.days - b.days).slice(0, 8)
-  }, [contacts, thisMonth])
+    return items.sort((a, b) => a.days - b.days).slice(0, 12)
+  }, [contacts])
 
   const totalUpcoming = feed.length
 
@@ -394,7 +401,7 @@ export default function DashboardPage() {
                 </div>
                 <p style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>All clear</p>
                 <p style={{ fontSize: 14, color: '#8E8E93', maxWidth: 280, lineHeight: 1.5 }}>
-                  No tasks, reviews, or birthdays coming up in the next 30 days.
+                  No tasks, reviews, or birthdays coming up in the next 60 days.
                 </p>
                 {contacts.length === 0 && (
                   <button
