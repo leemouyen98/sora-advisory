@@ -408,34 +408,33 @@ export default function DashboardPage() {
           {/* Right: Sidebar */}
           <div style={{ width: 240, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* Quick Links */}
+            {/* Quick Links — 2-column grid */}
             <div>
               <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E', marginBottom: 12 }}>Quick Links</h2>
-              <div className="hig-card" style={{ overflow: 'hidden' }}>
-                {QUICK_LINKS.map(({ label, icon: Icon, url, color }, idx) => (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {QUICK_LINKS.map(({ label, icon: Icon, url, color }) => (
                   <a
                     key={label}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="hig-card"
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '11px 16px', textDecoration: 'none',
-                      borderBottom: idx < QUICK_LINKS.length - 1 ? '1px solid #F2F2F7' : 'none',
-                      transition: 'background 0.15s',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      gap: 7, padding: '12px 8px', textDecoration: 'none',
+                      textAlign: 'center', transition: 'box-shadow 0.15s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#F9F9FB'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.10)'}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow = ''}
                   >
                     <div style={{
-                      width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                      width: 34, height: 34, borderRadius: 10, flexShrink: 0,
                       background: `${color}15`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <Icon size={14} style={{ color }} />
+                      <Icon size={16} style={{ color }} />
                     </div>
-                    <span style={{ fontSize: 13, color: '#1C1C1E', flex: 1, fontWeight: 400 }}>{label}</span>
-                    <ExternalLink size={11} style={{ color: '#C7C7CC', flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: '#1C1C1E', fontWeight: 500, lineHeight: 1.3 }}>{label}</span>
                   </a>
                 ))}
               </div>
