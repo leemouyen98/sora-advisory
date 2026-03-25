@@ -1,462 +1,867 @@
-import { useState, useMemo } from 'react'
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import { Pencil, X, TrendingUp, Wallet, Building2, ChevronRight } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Plus, Trash2, X, ChevronRight, Info } from 'lucide-react'
 import { formatRMFull } from '../../lib/calculations'
 
-// ─── Field / colour config ───────────────────────────────────────────────────
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
-const ASSET_FIELDS = [
-  { key: 'epfPersaraan',    label: 'EPF Akaun Persaraan' },
-  { key: 'epfSejahtera',    label: 'EPF Akaun Sejahtera' },
-  { key: 'epfFleksibel',    label: 'EPF Akaun Fleksibel' },
-  { key: 'savings',         label: 'Savings' },
-  { key: 'unitTrusts',      label: 'Unit Trusts' },
-  { key: 'otherInvestment', label: 'Other Investments' },
+// ─── Type constants ───────────────────────────────────────────────────────────
+const ASSET_DYNAMIC_TYPES = ['Property', 'Automobile', 'Others']
+const INVESTMENT_TYPES = ['ETFs', 'Stocks & Shares', 'Unit Trusts', 'Bonds', 'Other Investment']
+const PAYMENT_MODES = ['Monthly', 'Yearly', 'Quarterly', 'Semi-annually', 'Lump Sum']
+const LIABILITY_TYPES = ['Home Loan', 'Car Loan', 'Study Loan', 'Personal Loan', 'Credit Card', 'Business Loan', 'Other']
+const INCOME_DYNAMIC_TYPES = ['Rental', 'Business', 'Dividends', 'Insurance Payout', 'Other Income']
+const EXPENSE_TYPES = [
+  'All-Personal', 'All-Transport', 'All-Household', 'All-Dependants', 'All-Miscellaneous',
+  'Vacation/Travel', 'Dependant Allowances', 'Parent Allowance', 'Medical Cost', 'Rental Expense',
 ]
-const LIABILITY_FIELDS = [
-  { key: 'homeLoan',  label: 'Home Loan' },
-  { key: 'carLoan',   label: 'Car Loan' },
-  { key: 'studyLoan', label: 'Study Loan' },
-  { key: 'otherLoan', label: 'Other Loan' },
-]
-const INCOME_FIELDS = [
-  { key: 'grossIncome', label: 'Gross Monthly Income' },
-  { key: 'bonus',       label: 'Annual Bonus' },
-]
-const EXPENSE_FIELDS = [
-  { key: 'household',          label: 'Household' },
-  { key: 'personal',           label: 'Personal' },
-  { key: 'insuranceProtection',label: 'Insurance (Protection)' },
-  { key: 'carLoanRepayment',   label: 'Car Loan Repayment' },
-  { key: 'loanRepayment',      label: 'Loan Repayment' },
-  { key: 'petrol',             label: 'Petrol' },
-  { key: 'carInsurance',       label: 'Car Insurance' },
-  { key: 'incomeTax',          label: 'Income Tax' },
-  { key: 'roadTax',            label: 'Road Tax' },
+const FREQUENCIES = ['Monthly', 'Yearly', 'Quarterly', 'Semi-annually', 'One-Time']
+
+const TABS = [
+  { key: 'overview',     label: 'Overview'     },
+  { key: 'assets',       label: 'Assets'       },
+  { key: 'investments',  label: 'Investments'  },
+  { key: 'liabilities',  label: 'Liabilities'  },
+  { key: 'income',       label: 'Income'       },
+  { key: 'expenses',     label: 'Expenses'     },
 ]
 
-const COLORS = {
-  assets:      ['#007AFF', '#5AC8FA', '#34C759', '#FF9500', '#AF52DE', '#FF2D55'],
-  liabilities: ['#FF3B30', '#FF9500', '#AF52DE', '#8E8E93'],
-  income:      ['#34C759', '#5AC8FA'],
-  expenses:    ['#FF3B30', '#FF9500', '#AF52DE', '#007AFF', '#5AC8FA', '#FF2D55', '#8E8E93', '#34C759', '#AEAEB2'],
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function toMonthly(amount, frequency) {
+  const map = { Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6, 'One-Time': 0 }
+  return (Number(amount) || 0) * (map[frequency] ?? 1)
 }
 
-const SECTION_CFG = [
-  { key: 'overview',     label: 'Overview' },
-  { key: 'assets',       label: 'Assets',       fields: ASSET_FIELDS,     section: 'assets',      dataKey: 'assets' },
-  { key: 'liabilities',  label: 'Liabilities',  fields: LIABILITY_FIELDS, section: 'liabilities', dataKey: 'liabilities' },
-  { key: 'income',       label: 'Income',       fields: INCOME_FIELDS,    section: 'income',      dataKey: 'income' },
-  { key: 'expenses',     label: 'Expenses',     fields: EXPENSE_FIELDS,   section: 'expenses',    dataKey: 'expenses' },
-]
+function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
+  const P = Number(principal) || 0
+  const r = (Number(interestRate) || 0) / 100 / 12
+  const n = Number(loanPeriod) || 1
+  if (P === 0) return 0
+  if (r === 0) return P / n
+  return P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
+}
 
-// ─── Main ────────────────────────────────────────────────────────────────────
+function getDefaultFixedAssets() {
+  return [
+    { id: 'savings-cash',   fixed: true, type: 'Savings Cash',   description: 'Savings / Cash',        growthRate: 0.25, amount: 0 },
+    { id: 'epf-persaraan',  fixed: true, type: 'EPF Persaraan',  description: 'EPF Akaun Persaraan',   growthRate: 5.2,  amount: 0 },
+    { id: 'epf-sejahtera',  fixed: true, type: 'EPF Sejahtera',  description: 'EPF Akaun Sejahtera',   growthRate: 5.2,  amount: 0 },
+    { id: 'epf-fleksibel',  fixed: true, type: 'EPF Fleksibel',  description: 'EPF Akaun Fleksibel',   growthRate: 5.2,  amount: 0 },
+  ]
+}
 
-export default function FinancialInfo({ financials, onSave }) {
-  const [activeTab, setActiveTab] = useState('overview')
-  const [editSection, setEditSection] = useState(null) // null | 'assets' | 'liabilities' | 'income' | 'expenses'
-  const [form, setForm] = useState(null)
+function getDefaultFixedIncome() {
+  return [
+    { id: 'gross-income', fixed: true, type: 'Employment', description: 'Gross Income', frequency: 'Monthly', amount: 0 },
+    { id: 'bonus',        fixed: true, type: 'Employment', description: 'Bonus',        frequency: 'Yearly',  amount: 0 },
+  ]
+}
 
-  // ── Computed ──────────────────────────────────────────────────────────────
-
-  const summary = useMemo(() => {
-    const a = financials.assets || {}
-    const l = financials.liabilities || {}
-    const i = financials.income || {}
-    const e = financials.expenses || {}
-
-    const totalAssets      = Object.values(a).reduce((s, v) => s + (Number(v) || 0), 0)
-    const totalLiabilities = Object.values(l).reduce((s, v) => s + (Number(v) || 0), 0)
-    const netWorth         = totalAssets - totalLiabilities
-
-    const monthlyIncome    = (Number(i.grossIncome) || 0) + ((Number(i.bonus) || 0) / 12)
-    const monthlyExpenses  = Object.values(e).reduce((s, v) => s + (Number(v) || 0), 0)
-    const monthlyCashFlow  = monthlyIncome - monthlyExpenses
-    const epfContribution  = (Number(i.grossIncome) || 0) * 0.11
-
-    return { totalAssets, totalLiabilities, netWorth, monthlyIncome, monthlyExpenses, monthlyCashFlow, epfContribution }
-  }, [financials])
-
-  const hasData = summary.totalAssets > 0 || summary.totalLiabilities > 0 ||
-                  summary.monthlyIncome > 0 || summary.monthlyExpenses > 0
-
-  // ── Edit handlers ─────────────────────────────────────────────────────────
-
-  const openEdit = (section) => {
-    setForm({
-      assets:      { ...financials.assets },
-      liabilities: { ...financials.liabilities },
-      income:      { ...financials.income },
-      expenses:    { ...financials.expenses },
-    })
-    setEditSection(section)
+function normalizeFinancials(fin, currentAge = 30) {
+  if (!fin) {
+    return { assets: getDefaultFixedAssets(), investments: [], liabilities: [], income: getDefaultFixedIncome(), expenses: [], insurance: [] }
   }
 
-  const handleSave = () => {
-    const coerce = (obj) => {
-      const out = {}
-      for (const k in obj) out[k] = Number(obj[k]) || 0
-      return out
+  // Already new array-based format
+  if (Array.isArray(fin.assets)) {
+    const ensureFixedAssets = (rows) => {
+      if (rows.some(r => r.fixed)) return rows
+      return [...getDefaultFixedAssets(), ...rows]
     }
-    onSave({
-      ...financials,
-      assets:      coerce(form.assets),
-      liabilities: coerce(form.liabilities),
-      income:      coerce(form.income),
-      expenses:    coerce(form.expenses),
-    })
-    setEditSection(null)
+    const ensureFixedIncome = (rows) => {
+      if (!Array.isArray(rows)) return getDefaultFixedIncome()
+      if (rows.some(r => r.fixed)) return rows
+      return [...getDefaultFixedIncome(), ...rows]
+    }
+    return {
+      assets:      ensureFixedAssets(fin.assets),
+      investments: fin.investments || [],
+      liabilities: fin.liabilities || [],
+      income:      ensureFixedIncome(fin.income),
+      expenses:    fin.expenses    || [],
+      insurance:   fin.insurance   || [],
+    }
   }
 
-  const updateField = (section, key, value) =>
-    setForm((prev) => ({ ...prev, [section]: { ...prev[section], [key]: value } }))
+  // ── Migrate from old object format ──────────────────────────────────────────
+  const oldA = fin.assets      || {}
+  const oldL = fin.liabilities || {}
+  const oldI = fin.income      || {}
+  const oldE = fin.expenses    || {}
 
-  // ── Empty state ───────────────────────────────────────────────────────────
+  const assets = [
+    { id: 'savings-cash',  fixed: true, type: 'Savings Cash',  description: 'Savings / Cash',       growthRate: 0.25, amount: Number(oldA.savings)      || 0 },
+    { id: 'epf-persaraan', fixed: true, type: 'EPF Persaraan', description: 'EPF Akaun Persaraan',  growthRate: 5.2,  amount: Number(oldA.epfPersaraan) || 0 },
+    { id: 'epf-sejahtera', fixed: true, type: 'EPF Sejahtera', description: 'EPF Akaun Sejahtera',  growthRate: 5.2,  amount: Number(oldA.epfSejahtera) || 0 },
+    { id: 'epf-fleksibel', fixed: true, type: 'EPF Fleksibel', description: 'EPF Akaun Fleksibel',  growthRate: 5.2,  amount: Number(oldA.epfFleksibel) || 0 },
+    ...(Number(oldA.unitTrusts)      > 0 ? [{ id: uid(), fixed: false, type: 'Others', description: 'Unit Trusts',      growthRate: 6, amount: Number(oldA.unitTrusts)      }] : []),
+    ...(Number(oldA.otherInvestment) > 0 ? [{ id: uid(), fixed: false, type: 'Others', description: 'Other Investment', growthRate: 5, amount: Number(oldA.otherInvestment) }] : []),
+  ]
 
-  if (!hasData) {
-    return (
-      <div className="hig-card p-8 flex flex-col items-center justify-center min-h-[300px]">
-        <div className="w-14 h-14 rounded-2xl bg-hig-blue/10 flex items-center justify-center mb-4">
-          <Wallet size={26} className="text-hig-blue" />
-        </div>
-        <p className="text-hig-headline font-semibold mb-1">No Financial Data</p>
-        <p className="text-hig-subhead text-hig-text-secondary mb-4">
-          Add assets, liabilities, income and expenses to get started.
-        </p>
-        <button onClick={() => openEdit('assets')} className="hig-btn-primary">Add Financial Info</button>
+  const liabilities = [
+    ...(Number(oldL.homeLoan)  > 0 ? [{ id: uid(), type: 'Home Loan',    description: 'Home Loan',    principal: Number(oldL.homeLoan),  startAge: currentAge - 5, interestRate: 4.5, loanPeriod: 360 }] : []),
+    ...(Number(oldL.carLoan)   > 0 ? [{ id: uid(), type: 'Car Loan',     description: 'Car Loan',     principal: Number(oldL.carLoan),   startAge: currentAge - 2, interestRate: 3.0, loanPeriod: 84  }] : []),
+    ...(Number(oldL.studyLoan) > 0 ? [{ id: uid(), type: 'Study Loan',   description: 'PTPTN',        principal: Number(oldL.studyLoan), startAge: currentAge - 5, interestRate: 1.0, loanPeriod: 120 }] : []),
+    ...(Number(oldL.otherLoan) > 0 ? [{ id: uid(), type: 'Personal Loan',description: 'Other Loan',   principal: Number(oldL.otherLoan), startAge: currentAge,     interestRate: 5.0, loanPeriod: 60  }] : []),
+  ]
 
-        {editSection && (
-          <EditModal
-            editSection={editSection}
-            form={form}
-            financials={financials}
-            onClose={() => setEditSection(null)}
-            onSave={handleSave}
-            onChange={updateField}
-          />
-        )}
-      </div>
-    )
+  const income = [
+    { id: 'gross-income', fixed: true, type: 'Employment', description: 'Gross Income', frequency: 'Monthly', amount: Number(oldI.grossIncome) || 0 },
+    { id: 'bonus',        fixed: true, type: 'Employment', description: 'Bonus',        frequency: 'Yearly',  amount: Number(oldI.bonus)       || 0 },
+  ]
+
+  const expMap = [
+    { key: 'household',           type: 'All-Household',     desc: 'Household'            },
+    { key: 'personal',            type: 'All-Personal',      desc: 'Personal'             },
+    { key: 'petrol',              type: 'All-Transport',     desc: 'Petrol'               },
+    { key: 'carLoanRepayment',    type: 'All-Transport',     desc: 'Car Loan Repayment'   },
+    { key: 'loanRepayment',       type: 'All-Miscellaneous', desc: 'Loan Repayment'       },
+    { key: 'carInsurance',        type: 'All-Transport',     desc: 'Car Insurance'        },
+    { key: 'roadTax',             type: 'All-Transport',     desc: 'Road Tax'             },
+    { key: 'incomeTax',           type: 'All-Miscellaneous', desc: 'Income Tax'           },
+    { key: 'insuranceProtection', type: 'All-Miscellaneous', desc: 'Insurance Premium'    },
+  ]
+  const expenses = expMap
+    .filter(m => Number(oldE[m.key]) > 0)
+    .map(m => ({ id: uid(), type: m.type, description: m.desc, ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: Number(oldE[m.key]) }))
+
+  return { assets, investments: fin.investments || [], liabilities, income, expenses, insurance: fin.insurance || [] }
+}
+
+function computeSummary(data) {
+  const totalAssets      = (data.assets      || []).reduce((s, r) => s + (Number(r.amount)       || 0), 0)
+  const totalInvestments = (data.investments || []).reduce((s, r) => s + (Number(r.currentValue) || 0), 0)
+  const totalLiabilities = (data.liabilities || []).reduce((s, r) => s + (Number(r.principal)    || 0), 0)
+  const monthlyIncome    = (data.income      || []).reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
+  const monthlyExpenses  = (data.expenses    || []).reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
+  const grossRow         = (data.income      || []).find(r => r.id === 'gross-income')
+  const epfContribution  = (Number(grossRow?.amount) || 0) * 0.11
+  return {
+    totalAssets, totalInvestments, totalLiabilities,
+    netWorth:        totalAssets + totalInvestments - totalLiabilities,
+    monthlyIncome, monthlyExpenses,
+    monthlyCashFlow: monthlyIncome - monthlyExpenses,
+    epfContribution,
+  }
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
+  const [activeTab, setActiveTab] = useState('overview')
+  const [liabilityModal, setLiabilityModal] = useState(null)
+  const [data, setData] = useState(() => normalizeFinancials(financials, currentAge))
+
+  // Sync when financials prop changes (contact switch)
+  useEffect(() => {
+    setData(normalizeFinancials(financials, currentAge))
+  }, [financials]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const summary = useMemo(() => computeSummary(data), [data])
+
+  const saveSection = (section, newRows) => {
+    const updated = { ...data, [section]: newRows }
+    setData(updated)
+    onSave(updated)
   }
 
-  // ── Tab content helpers ───────────────────────────────────────────────────
+  const updateRow = (section, id, updates) =>
+    saveSection(section, data[section].map(r => r.id === id ? { ...r, ...updates } : r))
 
-  const cfg = SECTION_CFG.find((s) => s.key === activeTab)
+  const addRow = (section, newRow) =>
+    saveSection(section, [...(data[section] || []), newRow])
+
+  const removeRow = (section, id) =>
+    saveSection(section, data[section].filter(r => r.id !== id))
 
   return (
     <div className="space-y-4">
-
-      {/* Category tab bar */}
+      {/* Tab bar */}
       <div className="flex gap-1 p-1 bg-hig-gray-6 rounded-hig-sm w-fit">
-        {SECTION_CFG.map((s) => (
+        {TABS.map((t) => (
           <button
-            key={s.key}
-            onClick={() => setActiveTab(s.key)}
+            key={t.key}
+            onClick={() => setActiveTab(t.key)}
             className={`px-3 py-1.5 text-hig-caption1 font-medium rounded-hig-sm transition-all
-              ${activeTab === s.key
+              ${activeTab === t.key
                 ? 'bg-white text-hig-text shadow-hig'
                 : 'text-hig-text-secondary hover:text-hig-text'
               }`}
           >
-            {s.label}
+            {t.label}
           </button>
         ))}
       </div>
 
-      {/* ── Overview ─────────────────────────────────────────────────────── */}
       {activeTab === 'overview' && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <SummaryCard
-              title="Net Worth"
-              value={summary.netWorth}
-              subtitle={`Assets ${formatRMFull(summary.totalAssets)} − Liabilities ${formatRMFull(summary.totalLiabilities)}`}
-              positive={summary.netWorth >= 0}
-              icon={<Building2 size={18} />}
-              onEdit={() => openEdit('assets')}
-            />
-            <SummaryCard
-              title="Monthly Cash Flow"
-              value={summary.monthlyCashFlow}
-              subtitle={`Income ${formatRMFull(summary.monthlyIncome)} − Expenses ${formatRMFull(summary.monthlyExpenses)}`}
-              positive={summary.monthlyCashFlow >= 0}
-              icon={<TrendingUp size={18} />}
-              onEdit={() => openEdit('income')}
-            />
-          </div>
+        <OverviewTab summary={summary} onNavigate={setActiveTab} />
+      )}
 
-          {/* Quick-jump tiles */}
-          <div className="grid grid-cols-2 gap-3">
-            {SECTION_CFG.slice(1).map((s) => {
-              const data = financials[s.dataKey] || {}
-              const total = s.fields.reduce((sum, f) => sum + (Number(data[f.key]) || 0), 0)
-              const isNeg = s.key === 'liabilities'
-              return (
-                <button
-                  key={s.key}
-                  onClick={() => setActiveTab(s.key)}
-                  className="hig-card p-4 text-left hover:shadow-md transition-shadow flex items-center gap-3"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-hig-caption1 text-hig-text-secondary font-medium mb-0.5">{s.label}</p>
-                    <p className={`text-hig-headline font-bold ${isNeg && total > 0 ? 'text-hig-red' : 'text-hig-text'}`}>
-                      {formatRMFull(total)}
-                    </p>
-                  </div>
-                  <ChevronRight size={15} className="text-hig-text-secondary shrink-0" />
-                </button>
-              )
-            })}
-          </div>
+      {activeTab === 'assets' && (
+        <AssetsTab
+          rows={data.assets}
+          onUpdate={(id, u) => updateRow('assets', id, u)}
+          onAdd={() => addRow('assets', { id: uid(), fixed: false, type: 'Property', description: '', growthRate: 5, amount: 0 })}
+          onRemove={(id) => removeRow('assets', id)}
+        />
+      )}
 
-          {summary.epfContribution > 0 && (
-            <div className="bg-hig-blue/5 border border-hig-blue/20 rounded-hig p-4">
-              <p className="text-hig-subhead text-hig-blue font-medium">
-                EPF Employee Contribution: {formatRMFull(summary.epfContribution)}/month (11% of gross income)
+      {activeTab === 'investments' && (
+        <InvTab
+          rows={data.investments}
+          currentAge={currentAge}
+          onUpdate={(id, u) => updateRow('investments', id, u)}
+          onAdd={() => addRow('investments', { id: uid(), type: 'Unit Trusts', planName: '', paymentMode: 'Monthly', ageFrom: currentAge, ageTo: 55, growthRate: 6, currentValue: 0 })}
+          onRemove={(id) => removeRow('investments', id)}
+        />
+      )}
+
+      {activeTab === 'liabilities' && (
+        <LiabTab
+          rows={data.liabilities}
+          onAdd={() => setLiabilityModal({ type: 'Home Loan', description: '', principal: 0, startAge: currentAge, interestRate: 4.5, loanPeriod: 360 })}
+          onEdit={(row) => setLiabilityModal({ ...row })}
+          onRemove={(id) => removeRow('liabilities', id)}
+        />
+      )}
+
+      {activeTab === 'income' && (
+        <IncomeTab
+          rows={data.income}
+          onUpdate={(id, u) => updateRow('income', id, u)}
+          onAdd={() => addRow('income', { id: uid(), fixed: false, type: 'Rental', description: '', frequency: 'Monthly', amount: 0 })}
+          onRemove={(id) => removeRow('income', id)}
+        />
+      )}
+
+      {activeTab === 'expenses' && (
+        <ExpTab
+          rows={data.expenses}
+          currentAge={currentAge}
+          onUpdate={(id, u) => updateRow('expenses', id, u)}
+          onAdd={() => addRow('expenses', { id: uid(), type: 'All-Personal', description: '', ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: 0 })}
+          onRemove={(id) => removeRow('expenses', id)}
+        />
+      )}
+
+      {liabilityModal !== null && (
+        <LiabilityModal
+          initial={liabilityModal}
+          currentAge={currentAge}
+          onSave={(liab) => {
+            if (liab.id) updateRow('liabilities', liab.id, liab)
+            else addRow('liabilities', { ...liab, id: uid() })
+            setLiabilityModal(null)
+          }}
+          onClose={() => setLiabilityModal(null)}
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── Overview ─────────────────────────────────────────────────────────────────
+function OverviewTab({ summary, onNavigate }) {
+  const cats = [
+    { key: 'assets',      label: 'Assets',           value: summary.totalAssets,      negative: false },
+    { key: 'investments', label: 'Investments',       value: summary.totalInvestments, negative: false },
+    { key: 'liabilities', label: 'Liabilities',       value: summary.totalLiabilities, negative: true  },
+    { key: 'income',      label: 'Monthly Income',    value: summary.monthlyIncome,    negative: false },
+    { key: 'expenses',    label: 'Monthly Expenses',  value: summary.monthlyExpenses,  negative: true  },
+  ]
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="hig-card p-5">
+          <p className="text-hig-caption1 text-hig-text-secondary font-medium mb-1">Net Worth</p>
+          <p className={`text-hig-title2 font-bold ${summary.netWorth >= 0 ? 'text-hig-text' : 'text-hig-red'}`}>
+            {summary.netWorth < 0 && '−'}{formatRMFull(Math.abs(summary.netWorth))}
+          </p>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-1">
+            Assets {formatRMFull(summary.totalAssets + summary.totalInvestments)} − Liabilities {formatRMFull(summary.totalLiabilities)}
+          </p>
+        </div>
+        <div className="hig-card p-5">
+          <p className="text-hig-caption1 text-hig-text-secondary font-medium mb-1">Monthly Cash Flow</p>
+          <p className={`text-hig-title2 font-bold ${summary.monthlyCashFlow >= 0 ? 'text-hig-text' : 'text-hig-red'}`}>
+            {summary.monthlyCashFlow < 0 && '−'}{formatRMFull(Math.abs(summary.monthlyCashFlow))}
+          </p>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-1">
+            Income {formatRMFull(summary.monthlyIncome)}/mth − Expenses {formatRMFull(summary.monthlyExpenses)}/mth
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        {cats.map(c => (
+          <button
+            key={c.key}
+            onClick={() => onNavigate(c.key)}
+            className="hig-card p-4 text-left hover:shadow-md transition-shadow flex items-center justify-between"
+          >
+            <div>
+              <p className="text-hig-caption1 text-hig-text-secondary font-medium mb-0.5">{c.label}</p>
+              <p className={`text-hig-headline font-bold ${c.negative && c.value > 0 ? 'text-hig-red' : 'text-hig-text'}`}>
+                {formatRMFull(c.value)}
               </p>
-              <p className="text-hig-caption1 text-hig-text-secondary mt-1">
-                Employer contributes {(Number(financials.income?.grossIncome) || 0) > 5000 ? '12%' : '13%'} based on salary threshold.
+            </div>
+            <ChevronRight size={15} className="text-hig-text-secondary shrink-0" />
+          </button>
+        ))}
+      </div>
+
+      {summary.epfContribution > 0 && (
+        <div className="bg-hig-blue/5 border border-hig-blue/20 rounded-hig-sm p-3 flex items-start gap-2">
+          <Info size={13} className="text-hig-blue mt-0.5 shrink-0" />
+          <div>
+            <p className="text-hig-subhead text-hig-blue font-medium">
+              EPF Employee: {formatRMFull(summary.epfContribution)}/mth (11% of gross income)
+            </p>
+            <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">
+              Employer adds {summary.monthlyIncome > 5000 ? '12%' : '13%'} based on salary threshold.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Assets Tab ───────────────────────────────────────────────────────────────
+function AssetsTab({ rows, onUpdate, onAdd, onRemove }) {
+  const total = rows.reduce((s, r) => s + (Number(r.amount) || 0), 0)
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-hig-headline">Assets</h3>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">Total: {formatRMFull(total)}</p>
+        </div>
+        <button onClick={onAdd} className="hig-btn-primary gap-1.5">
+          <Plus size={14} /> Add Asset
+        </button>
+      </div>
+      <div className="hig-card overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-hig-gray-5 bg-hig-gray-6">
+              <th className="text-left px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-36">Type</th>
+              <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Description</th>
+              <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-28">Growth Rate %</th>
+              <th className="text-right px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-40">Amount (RM)</th>
+              <th className="w-8" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                <td className="px-4 py-2">
+                  {r.fixed
+                    ? <span className="text-hig-caption1 text-hig-text-secondary font-medium">{r.type}</span>
+                    : (
+                      <select value={r.type} onChange={e => onUpdate(r.id, { type: e.target.value })} className="hig-input text-hig-caption1 py-1">
+                        {ASSET_DYNAMIC_TYPES.map(t => <option key={t}>{t}</option>)}
+                      </select>
+                    )
+                  }
+                </td>
+                <td className="px-3 py-2">
+                  {r.fixed
+                    ? <span className="text-hig-subhead">{r.description}</span>
+                    : <input value={r.description} onChange={e => onUpdate(r.id, { description: e.target.value })} className="hig-input py-1" placeholder="Description" />
+                  }
+                </td>
+                <td className="px-3 py-2">
+                  <input
+                    type="number" step="0.1" min="0"
+                    value={r.growthRate}
+                    onChange={e => onUpdate(r.id, { growthRate: parseFloat(e.target.value) || 0 })}
+                    className="hig-input text-right py-1 tabular-nums w-full"
+                  />
+                </td>
+                <td className="px-4 py-2">
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                    <input
+                      type="number" min="0" step="100"
+                      value={r.amount || ''}
+                      onChange={e => onUpdate(r.id, { amount: parseFloat(e.target.value) || 0 })}
+                      className="hig-input text-right py-1 pl-8 tabular-nums"
+                      placeholder="0"
+                    />
+                  </div>
+                </td>
+                <td className="px-2 py-2 text-center">
+                  {!r.fixed && (
+                    <button onClick={() => onRemove(r.id)} className="text-hig-text-secondary hover:text-hig-red transition-colors p-1">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="border-t border-hig-gray-5 bg-hig-gray-6">
+              <td colSpan={3} className="px-4 py-2.5 text-hig-subhead font-semibold">Total</td>
+              <td className="px-4 py-2.5 text-right text-hig-subhead font-semibold tabular-nums">{formatRMFull(total)}</td>
+              <td />
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ─── Investments Tab ──────────────────────────────────────────────────────────
+function InvTab({ rows, currentAge, onUpdate, onAdd, onRemove }) {
+  const total = rows.reduce((s, r) => s + (Number(r.currentValue) || 0), 0)
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-hig-headline">Investments</h3>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">Total Value: {formatRMFull(total)}</p>
+        </div>
+        <button onClick={onAdd} className="hig-btn-primary gap-1.5">
+          <Plus size={14} /> Add Investment
+        </button>
+      </div>
+      {rows.length === 0 ? (
+        <div className="hig-card p-8 text-center">
+          <p className="text-hig-subhead text-hig-text-secondary mb-3">No investments recorded.</p>
+          <button onClick={onAdd} className="hig-btn-primary">Add Investment</button>
+        </div>
+      ) : (
+        <div className="hig-card overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-hig-gray-5 bg-hig-gray-6">
+                <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-36">Type</th>
+                <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Plan Name</th>
+                <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-28">Payment Mode</th>
+                <th className="text-center px-2 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-20">Age From</th>
+                <th className="text-center px-2 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-20">Age To</th>
+                <th className="text-right px-2 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-24">Return %</th>
+                <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-36">Current Value (RM)</th>
+                <th className="w-8" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                  <td className="px-3 py-2">
+                    <select value={r.type} onChange={e => onUpdate(r.id, { type: e.target.value })} className="hig-input text-hig-caption1 py-1">
+                      {INVESTMENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-3 py-2">
+                    <input value={r.planName || ''} onChange={e => onUpdate(r.id, { planName: e.target.value })} className="hig-input py-1" placeholder="Plan name" />
+                  </td>
+                  <td className="px-3 py-2">
+                    <select value={r.paymentMode || 'Monthly'} onChange={e => onUpdate(r.id, { paymentMode: e.target.value })} className="hig-input text-hig-caption1 py-1">
+                      {PAYMENT_MODES.map(m => <option key={m}>{m}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="number" min={18} max={100}
+                      value={r.ageFrom ?? currentAge}
+                      onChange={e => onUpdate(r.id, { ageFrom: parseInt(e.target.value) || currentAge })}
+                      className="hig-input text-center py-1"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="number" min={18} max={120}
+                      value={r.ageTo ?? 55}
+                      onChange={e => onUpdate(r.id, { ageTo: parseInt(e.target.value) || 55 })}
+                      className="hig-input text-center py-1"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="number" step="0.5" min="0"
+                      value={r.growthRate || 0}
+                      onChange={e => onUpdate(r.id, { growthRate: parseFloat(e.target.value) || 0 })}
+                      className="hig-input text-right py-1 tabular-nums"
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="relative">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                      <input
+                        type="number" min="0" step="100"
+                        value={r.currentValue || ''}
+                        onChange={e => onUpdate(r.id, { currentValue: parseFloat(e.target.value) || 0 })}
+                        className="hig-input text-right py-1 pl-8 tabular-nums"
+                        placeholder="0"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-2 py-2 text-center">
+                    <button onClick={() => onRemove(r.id)} className="text-hig-text-secondary hover:text-hig-red transition-colors p-1">
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-hig-gray-5 bg-hig-gray-6">
+                <td colSpan={6} className="px-3 py-2.5 text-hig-subhead font-semibold">Total Value</td>
+                <td className="px-3 py-2.5 text-right text-hig-subhead font-semibold tabular-nums">{formatRMFull(total)}</td>
+                <td />
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Liabilities Tab ──────────────────────────────────────────────────────────
+function LiabTab({ rows, onAdd, onEdit, onRemove }) {
+  const totalPrincipal = rows.reduce((s, r) => s + (Number(r.principal) || 0), 0)
+  const totalMonthly   = rows.reduce((s, r) => s + calcMonthlyRepayment(r.principal, r.interestRate, r.loanPeriod), 0)
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-hig-headline">Liabilities</h3>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">
+            Outstanding: {formatRMFull(totalPrincipal)} · Repayment: {formatRMFull(totalMonthly)}/mth
+          </p>
+        </div>
+        <button onClick={onAdd} className="hig-btn-primary gap-1.5">
+          <Plus size={14} /> New Liability
+        </button>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="hig-card p-8 text-center">
+          <p className="text-hig-subhead text-hig-text-secondary mb-3">No liabilities recorded.</p>
+          <button onClick={onAdd} className="hig-btn-primary">Add Liability</button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {rows.map(r => {
+            const monthly = calcMonthlyRepayment(r.principal, r.interestRate, r.loanPeriod)
+            return (
+              <div key={r.id} className="hig-card p-4 flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-hig-caption2 text-hig-text-secondary px-2 py-0.5 bg-hig-gray-6 rounded-full">{r.type}</span>
+                    <span className="text-hig-subhead font-medium">{r.description || r.type}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-4 text-hig-caption1 text-hig-text-secondary">
+                    <span>Principal: <span className="text-hig-text font-medium tabular-nums">{formatRMFull(r.principal)}</span></span>
+                    <span>Rate: <span className="text-hig-text font-medium">{r.interestRate}% p.a.</span></span>
+                    <span>Term: <span className="text-hig-text font-medium">{r.loanPeriod} mths</span></span>
+                    <span>Monthly: <span className="text-hig-red font-medium tabular-nums">{formatRMFull(monthly)}</span></span>
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button onClick={() => onEdit(r)} className="hig-btn-ghost py-1 px-2 text-hig-caption1">Edit</button>
+                  <button onClick={() => onRemove(r.id)} className="text-hig-text-secondary hover:text-hig-red transition-colors p-2">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+          <div className="hig-card p-3 flex justify-between text-hig-subhead font-semibold bg-hig-gray-6">
+            <span>Total Monthly Repayment</span>
+            <span className="text-hig-red tabular-nums">{formatRMFull(totalMonthly)}/mth</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Income Tab ───────────────────────────────────────────────────────────────
+function IncomeTab({ rows, onUpdate, onAdd, onRemove }) {
+  const totalMonthly = rows.reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
+  const grossRow = rows.find(r => r.id === 'gross-income')
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-hig-headline">Income</h3>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">Monthly equivalent: {formatRMFull(totalMonthly)}/mth</p>
+        </div>
+        <button onClick={onAdd} className="hig-btn-primary gap-1.5">
+          <Plus size={14} /> Add Income
+        </button>
+      </div>
+      <div className="hig-card overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-hig-gray-5 bg-hig-gray-6">
+              <th className="text-left px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-36">Type</th>
+              <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Description</th>
+              <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-32">Frequency</th>
+              <th className="text-right px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-40">Amount (RM)</th>
+              <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-32">Monthly Eq.</th>
+              <th className="w-8" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                <td className="px-4 py-2">
+                  {r.fixed
+                    ? <span className="text-hig-caption1 text-hig-text-secondary font-medium">{r.type}</span>
+                    : (
+                      <select value={r.type} onChange={e => onUpdate(r.id, { type: e.target.value })} className="hig-input text-hig-caption1 py-1">
+                        {INCOME_DYNAMIC_TYPES.map(t => <option key={t}>{t}</option>)}
+                      </select>
+                    )
+                  }
+                </td>
+                <td className="px-3 py-2">
+                  {r.fixed
+                    ? <span className="text-hig-subhead">{r.description}</span>
+                    : <input value={r.description} onChange={e => onUpdate(r.id, { description: e.target.value })} className="hig-input py-1" placeholder="Description" />
+                  }
+                </td>
+                <td className="px-3 py-2">
+                  {r.fixed
+                    ? <span className="text-hig-caption1 text-hig-text-secondary">{r.frequency}</span>
+                    : (
+                      <select value={r.frequency} onChange={e => onUpdate(r.id, { frequency: e.target.value })} className="hig-input text-hig-caption1 py-1">
+                        {FREQUENCIES.map(f => <option key={f}>{f}</option>)}
+                      </select>
+                    )
+                  }
+                </td>
+                <td className="px-4 py-2">
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                    <input
+                      type="number" min="0" step="100"
+                      value={r.amount || ''}
+                      onChange={e => onUpdate(r.id, { amount: parseFloat(e.target.value) || 0 })}
+                      className="hig-input text-right py-1 pl-8 tabular-nums"
+                      placeholder="0"
+                    />
+                  </div>
+                </td>
+                <td className="px-3 py-2 text-right text-hig-caption1 text-hig-text-secondary tabular-nums">
+                  {formatRMFull(toMonthly(r.amount, r.frequency))}
+                </td>
+                <td className="px-2 py-2 text-center">
+                  {!r.fixed && (
+                    <button onClick={() => onRemove(r.id)} className="text-hig-text-secondary hover:text-hig-red transition-colors p-1">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="border-t border-hig-gray-5 bg-hig-gray-6">
+              <td colSpan={4} className="px-4 py-2.5 text-hig-subhead font-semibold">Monthly Total</td>
+              <td className="px-3 py-2.5 text-right text-hig-subhead font-semibold text-hig-green tabular-nums">{formatRMFull(totalMonthly)}</td>
+              <td />
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      {grossRow && Number(grossRow.amount) > 0 && (
+        <div className="bg-hig-blue/5 border border-hig-blue/20 rounded-hig-sm p-3 flex items-start gap-2">
+          <Info size={13} className="text-hig-blue mt-0.5 shrink-0" />
+          <p className="text-hig-caption1 text-hig-blue">
+            EPF employee (11%): {formatRMFull(Number(grossRow.amount) * 0.11)}/mth
+            · Employer: {Number(grossRow.amount) > 5000 ? '12%' : '13%'} based on salary threshold
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Expenses Tab ─────────────────────────────────────────────────────────────
+function ExpTab({ rows, currentAge, onUpdate, onAdd, onRemove }) {
+  const totalMonthly = rows.reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-hig-headline">Expenses</h3>
+          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">Monthly equivalent: {formatRMFull(totalMonthly)}/mth</p>
+        </div>
+        <button onClick={onAdd} className="hig-btn-primary gap-1.5">
+          <Plus size={14} /> Add Expense
+        </button>
+      </div>
+      {rows.length === 0 ? (
+        <div className="hig-card p-8 text-center">
+          <p className="text-hig-subhead text-hig-text-secondary mb-3">No expenses recorded.</p>
+          <button onClick={onAdd} className="hig-btn-primary">Add Expense</button>
+        </div>
+      ) : (
+        <div className="hig-card overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-hig-gray-5 bg-hig-gray-6">
+                <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-40">Type</th>
+                <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Description</th>
+                <th className="text-center px-2 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-20">Age From</th>
+                <th className="text-center px-2 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-20">Age To</th>
+                <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-32">Frequency</th>
+                <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-36">Amount (RM)</th>
+                <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-28">Monthly Eq.</th>
+                <th className="w-8" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                  <td className="px-3 py-2">
+                    <select value={r.type} onChange={e => onUpdate(r.id, { type: e.target.value })} className="hig-input text-hig-caption1 py-1">
+                      {EXPENSE_TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-3 py-2">
+                    <input value={r.description} onChange={e => onUpdate(r.id, { description: e.target.value })} className="hig-input py-1" placeholder="Description" />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="number" min={18} max={100}
+                      value={r.ageFrom ?? currentAge}
+                      onChange={e => onUpdate(r.id, { ageFrom: parseInt(e.target.value) || currentAge })}
+                      className="hig-input text-center py-1"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="number" min={18} max={120}
+                      value={r.ageTo ?? 55}
+                      onChange={e => onUpdate(r.id, { ageTo: parseInt(e.target.value) || 55 })}
+                      className="hig-input text-center py-1"
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <select value={r.frequency} onChange={e => onUpdate(r.id, { frequency: e.target.value })} className="hig-input text-hig-caption1 py-1">
+                      {FREQUENCIES.map(f => <option key={f}>{f}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="relative">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                      <input
+                        type="number" min="0" step="100"
+                        value={r.amount || ''}
+                        onChange={e => onUpdate(r.id, { amount: parseFloat(e.target.value) || 0 })}
+                        className="hig-input text-right py-1 pl-8 tabular-nums"
+                        placeholder="0"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-right text-hig-caption1 text-hig-text-secondary tabular-nums">
+                    {formatRMFull(toMonthly(r.amount, r.frequency))}
+                  </td>
+                  <td className="px-2 py-2 text-center">
+                    <button onClick={() => onRemove(r.id)} className="text-hig-text-secondary hover:text-hig-red transition-colors p-1">
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-hig-gray-5 bg-hig-gray-6">
+                <td colSpan={6} className="px-3 py-2.5 text-hig-subhead font-semibold">Monthly Total</td>
+                <td className="px-3 py-2.5 text-right text-hig-subhead font-semibold text-hig-red tabular-nums">{formatRMFull(totalMonthly)}</td>
+                <td />
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Liability Modal ──────────────────────────────────────────────────────────
+function LiabilityModal({ initial, currentAge, onSave, onClose }) {
+  const [form, setForm] = useState({ ...initial })
+  const monthly = calcMonthlyRepayment(form.principal, form.interestRate, form.loanPeriod)
+
+  const set = (key) => (e) => {
+    const val = key === 'type' || key === 'description'
+      ? e.target.value
+      : parseFloat(e.target.value) || 0
+    setForm(f => ({ ...f, [key]: val }))
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-hig-title3">{form.id ? 'Edit Liability' : 'New Liability'}</h2>
+          <button onClick={onClose} className="p-2 rounded-hig-sm hover:bg-hig-gray-6"><X size={18} /></button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="hig-label">Type</label>
+              <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} className="hig-input">
+                {LIABILITY_TYPES.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="hig-label">Description</label>
+              <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="hig-input" placeholder="e.g. Maybank Home Loan" />
+            </div>
+          </div>
+          <div>
+            <label className="hig-label">Outstanding Principal (RM)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
+              <input type="number" min="0" step="1000" value={form.principal || ''} onChange={set('principal')} className="hig-input pl-10" placeholder="0" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="hig-label">Start Age</label>
+              <input type="number" min={18} max={90} value={form.startAge || currentAge} onChange={set('startAge')} className="hig-input" />
+            </div>
+            <div>
+              <label className="hig-label">Interest (% p.a.)</label>
+              <input type="number" step="0.1" min="0" max="30" value={form.interestRate || 0} onChange={set('interestRate')} className="hig-input" />
+            </div>
+            <div>
+              <label className="hig-label">Period (months)</label>
+              <input type="number" min="1" max="600" step="12" value={form.loanPeriod || 360} onChange={set('loanPeriod')} className="hig-input" />
+            </div>
+          </div>
+          {Number(form.principal) > 0 && (
+            <div className="bg-hig-red/5 border border-hig-red/20 rounded-hig-sm p-3">
+              <p className="text-hig-caption1 text-hig-red font-medium">
+                Est. Monthly Repayment: {formatRMFull(monthly)}
+              </p>
+              <p className="text-hig-caption2 text-hig-text-secondary mt-0.5">
+                This will be reflected in Cash Flow analysis.
               </p>
             </div>
           )}
         </div>
-      )}
-
-      {/* ── Category tabs (Assets / Liabilities / Income / Expenses) ──────── */}
-      {activeTab !== 'overview' && cfg && (
-        <CategoryTab
-          cfg={cfg}
-          financials={financials}
-          colors={COLORS[cfg.key]}
-          onEdit={() => openEdit(cfg.section)}
-        />
-      )}
-
-      {/* Edit Modal */}
-      {editSection && (
-        <EditModal
-          editSection={editSection}
-          form={form}
-          financials={financials}
-          onClose={() => setEditSection(null)}
-          onSave={handleSave}
-          onChange={updateField}
-        />
-      )}
-    </div>
-  )
-}
-
-// ─── Category tab panel ───────────────────────────────────────────────────────
-
-function CategoryTab({ cfg, financials, colors, onEdit }) {
-  const data = financials[cfg.dataKey] || {}
-  const chartData = cfg.fields
-    .map((f) => ({ name: f.label, value: Number(data[f.key]) || 0 }))
-    .filter((d) => d.value > 0)
-
-  const total = cfg.fields.reduce((s, f) => s + (Number(data[f.key]) || 0), 0)
-  const isNeg = cfg.key === 'liabilities'
-
-  return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-hig-title3">{cfg.label}</h3>
-          <p className={`text-hig-headline font-bold mt-0.5 ${isNeg && total > 0 ? 'text-hig-red' : 'text-hig-blue'}`}>
-            {formatRMFull(total)}
-          </p>
-        </div>
-        <button onClick={onEdit} className="hig-btn-ghost gap-1.5">
-          <Pencil size={14} /> Edit
-        </button>
-      </div>
-
-      {total === 0 ? (
-        <div className="hig-card p-6 text-center">
-          <p className="text-hig-subhead text-hig-text-secondary mb-3">No {cfg.label.toLowerCase()} recorded.</p>
-          <button onClick={onEdit} className="hig-btn-primary">Add {cfg.label}</button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4">
-          {/* Donut chart */}
-          <div className="hig-card p-4">
-            <h4 className="text-hig-headline mb-3">Breakdown</h4>
-            <div className="flex items-center gap-4">
-              <div className="w-28 h-28 shrink-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%" cy="50%"
-                      innerRadius={30} outerRadius={50}
-                      paddingAngle={2}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {chartData.map((_, i) => (
-                        <Cell key={i} fill={colors[i % colors.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(val) => formatRMFull(val)}
-                      contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: 12 }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex-1 space-y-1.5">
-                {chartData.map((d, i) => (
-                  <div key={d.name} className="flex items-center gap-2 text-hig-caption1">
-                    <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: colors[i % colors.length] }} />
-                    <span className="text-hig-text-secondary flex-1 truncate">{d.name}</span>
-                    <span className="text-hig-text font-medium tabular-nums">{formatRMFull(d.value)}</span>
-                  </div>
-                ))}
-                <div className="pt-1.5 border-t border-hig-gray-5 flex justify-between text-hig-caption1 font-semibold">
-                  <span className="text-hig-text-secondary">Total</span>
-                  <span className="text-hig-text">{formatRMFull(total)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Line-item table */}
-          <div className="hig-card p-4">
-            <h4 className="text-hig-headline mb-3">Detail</h4>
-            <div className="space-y-1">
-              {cfg.fields.map((f) => {
-                const val = Number(data[f.key]) || 0
-                if (val === 0) return null
-                const pct = total > 0 ? Math.round((val / total) * 100) : 0
-                return (
-                  <div key={f.key} className="space-y-0.5 py-1.5 border-b border-hig-gray-5 last:border-b-0">
-                    <div className="flex justify-between text-hig-subhead">
-                      <span className="text-hig-text-secondary">{f.label}</span>
-                      <span className="font-medium tabular-nums">{formatRMFull(val)}</span>
-                    </div>
-                    <div className="w-full h-1 bg-hig-gray-5 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${pct}%`, backgroundColor: colors[cfg.fields.indexOf(f) % colors.length] }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-              <div className="flex justify-between pt-2 text-hig-subhead font-semibold">
-                <span>Total</span>
-                <span className="tabular-nums">{formatRMFull(total)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Edit Modal (scoped to one section) ──────────────────────────────────────
-
-const SECTION_META = {
-  assets:      { label: 'Assets',          fields: ASSET_FIELDS },
-  liabilities: { label: 'Liabilities',     fields: LIABILITY_FIELDS },
-  income:      { label: 'Income',          fields: INCOME_FIELDS },
-  expenses:    { label: 'Monthly Expenses',fields: EXPENSE_FIELDS },
-}
-
-function EditModal({ editSection, form, financials, onClose, onSave, onChange }) {
-  const [activeEdit, setActiveEdit] = useState(editSection)
-  const meta = SECTION_META[activeEdit]
-
-  return (
-    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-hig-title3">Edit Financial Info</h2>
-          <button onClick={onClose} className="p-2 rounded-hig-sm hover:bg-hig-gray-6">
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Section tabs inside modal */}
-        <div className="flex gap-1 p-1 bg-hig-gray-6 rounded-hig-sm mb-5">
-          {Object.entries(SECTION_META).map(([key, m]) => (
-            <button
-              key={key}
-              onClick={() => setActiveEdit(key)}
-              className={`flex-1 py-1.5 text-hig-caption1 font-medium rounded-hig-sm transition-all
-                ${activeEdit === key ? 'bg-white text-hig-text shadow-hig' : 'text-hig-text-secondary hover:text-hig-text'}`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Fields */}
-        <div className="grid grid-cols-2 gap-3">
-          {meta.fields.map((f) => (
-            <div key={f.key}>
-              <label className="hig-label">{f.label}</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-                <input
-                  type="number"
-                  value={form[activeEdit]?.[f.key] || ''}
-                  onChange={(e) => onChange(activeEdit, f.key, e.target.value)}
-                  className="hig-input pl-10 tabular-nums"
-                  placeholder="0"
-                  min="0"
-                  step="100"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* EPF note on income tab */}
-        {activeEdit === 'income' && (
-          <div className="mt-4 bg-hig-blue/5 border border-hig-blue/20 rounded-hig-sm p-3">
-            <p className="text-hig-caption1 text-hig-blue">
-              EPF employee contribution (11% of gross): {formatRMFull((Number(form.income?.grossIncome) || 0) * 0.11)}/month
-            </p>
-          </div>
-        )}
 
         <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-hig-gray-5">
           <button onClick={onClose} className="hig-btn-secondary">Cancel</button>
-          <button onClick={onSave} className="hig-btn-primary">Save</button>
+          <button onClick={() => onSave(form)} className="hig-btn-primary">
+            {form.id ? 'Save Changes' : 'Add Liability'}
+          </button>
         </div>
       </div>
-    </div>
-  )
-}
-
-// ─── Summary Card ─────────────────────────────────────────────────────────────
-
-function SummaryCard({ title, value, subtitle, positive, icon, onEdit }) {
-  return (
-    <div className="hig-card p-5">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className={`p-1.5 rounded-hig-sm ${positive ? 'bg-hig-green/10 text-hig-green' : 'bg-hig-red/10 text-hig-red'}`}>
-            {icon}
-          </div>
-          <span className="text-hig-subhead text-hig-text-secondary">{title}</span>
-        </div>
-        <button onClick={onEdit} className="text-hig-text-secondary hover:text-hig-blue transition-colors p-1">
-          <Pencil size={13} />
-        </button>
-      </div>
-      <p className={`text-hig-title2 font-bold ${positive ? 'text-hig-text' : 'text-hig-red'}`}>
-        {value < 0 && '−'}{formatRMFull(Math.abs(value))}
-      </p>
-      <p className="text-hig-caption1 text-hig-text-secondary mt-1">{subtitle}</p>
     </div>
   )
 }

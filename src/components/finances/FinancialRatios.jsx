@@ -71,39 +71,85 @@ const STATUS_CONFIG = {
   na: { icon: Info, color: 'text-hig-gray-1', bg: 'bg-hig-gray-6', label: 'No Data' },
 }
 
+// ─── Helpers (duplicated to avoid cross-file import) ─────────────────────────
+function toMonthly(amount, frequency) {
+  const map = { Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6, 'One-Time': 0 }
+  return (Number(amount) || 0) * (map[frequency] ?? 1)
+}
+
+function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
+  const P = Number(principal) || 0
+  const r = (Number(interestRate) || 0) / 100 / 12
+  const n = Number(loanPeriod) || 1
+  if (P === 0) return 0
+  if (r === 0) return P / n
+  return P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
+}
+
 export default function FinancialRatios({ financials, contact }) {
   const ratioValues = useMemo(() => {
-    const a = financials.assets || {}
-    const l = financials.liabilities || {}
-    const i = financials.income || {}
-    const e = financials.expenses || {}
     const policies = financials.insurance || []
 
-    const totalAssets = Object.values(a).reduce((s, v) => s + (Number(v) || 0), 0)
-    const totalLiabilities = Object.values(l).reduce((s, v) => s + (Number(v) || 0), 0)
-    const netWorth = totalAssets - totalLiabilities
+    // ── Support both old object format and new array format ──────────────────
+    let totalAssets, totalLiabilities, liquidAssets, grossMonthly, annualBonus,
+        totalMonthlyExpenses, monthlyDebt
 
-    const liquidAssets = (Number(a.savings) || 0) + (Number(a.epfFleksibel) || 0)
-    const grossMonthly = Number(i.grossIncome) || 0
-    const annualIncome = grossMonthly * 12 + (Number(i.bonus) || 0)
-    const totalMonthlyExpenses = Object.values(e).reduce((s, v) => s + (Number(v) || 0), 0)
-    const monthlyIncome = grossMonthly + ((Number(i.bonus) || 0) / 12)
+    if (Array.isArray(financials.assets)) {
+      // New array format
+      const assets      = financials.assets      || []
+      const liabilities = financials.liabilities || []
+      const income      = financials.income       || []
+      const expenses    = financials.expenses     || []
+
+      totalAssets      = assets.reduce((s, r) => s + (Number(r.amount) || 0), 0)
+        + (financials.investments || []).reduce((s, r) => s + (Number(r.currentValue) || 0), 0)
+      totalLiabilities = liabilities.reduce((s, r) => s + (Number(r.principal) || 0), 0)
+
+      const savingsRow  = assets.find(r => r.id === 'savings-cash')
+      const fleksiRow   = assets.find(r => r.id === 'epf-fleksibel')
+      liquidAssets      = (Number(savingsRow?.amount) || 0) + (Number(fleksiRow?.amount) || 0)
+
+      const grossRow    = income.find(r => r.id === 'gross-income')
+      const bonusRow    = income.find(r => r.id === 'bonus')
+      grossMonthly      = Number(grossRow?.amount)  || 0
+      annualBonus       = Number(bonusRow?.amount)  || 0
+
+      totalMonthlyExpenses = expenses.reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
+      // Add monthly loan repayments to expense total
+      monthlyDebt = liabilities.reduce((s, r) => s + calcMonthlyRepayment(r.principal, r.interestRate, r.loanPeriod), 0)
+      totalMonthlyExpenses += monthlyDebt
+
+    } else {
+      // Legacy object format (migration path)
+      const a = financials.assets      || {}
+      const l = financials.liabilities || {}
+      const i = financials.income      || {}
+      const e = financials.expenses    || {}
+
+      totalAssets      = Object.values(a).reduce((s, v) => s + (Number(v) || 0), 0)
+      totalLiabilities = Object.values(l).reduce((s, v) => s + (Number(v) || 0), 0)
+      liquidAssets     = (Number(a.savings) || 0) + (Number(a.epfFleksibel) || 0)
+      grossMonthly     = Number(i.grossIncome) || 0
+      annualBonus      = Number(i.bonus) || 0
+      totalMonthlyExpenses = Object.values(e).reduce((s, v) => s + (Number(v) || 0), 0)
+      monthlyDebt      = (Number(e.carLoanRepayment) || 0) + (Number(e.loanRepayment) || 0)
+    }
+
+    const netWorth     = totalAssets - totalLiabilities
+    const annualIncome = grossMonthly * 12 + annualBonus
+    const monthlyIncome = grossMonthly + (annualBonus / 12)
     const monthlyCashFlow = monthlyIncome - totalMonthlyExpenses
-
-    // Debt service: car loan + loan repayment
-    const monthlyDebt = (Number(e.carLoanRepayment) || 0) + (Number(e.loanRepayment) || 0)
 
     // Insurance total sum assured
     const totalSumAssured = policies.reduce((s, p) => s + (Number(p.coverageDetails?.death) || Number(p.sumAssured) || 0), 0)
 
     return {
-      emergencyFund: totalMonthlyExpenses > 0 ? liquidAssets / totalMonthlyExpenses : null,
-      savingsRate: monthlyIncome > 0 ? (monthlyCashFlow / monthlyIncome) * 100 : null,
-      debtService: grossMonthly > 0 ? (monthlyDebt / grossMonthly) * 100 : null,
-      netWorthToAsset: totalAssets > 0 ? (netWorth / totalAssets) * 100 : null,
-      insuranceCoverage: annualIncome > 0 ? totalSumAssured / annualIncome : null,
-      liquidityRatio: totalLiabilities > 0 ? liquidAssets / totalLiabilities : null,
-      // Raw values for display
+      emergencyFund:    totalMonthlyExpenses > 0 ? liquidAssets / totalMonthlyExpenses : null,
+      savingsRate:      monthlyIncome > 0 ? (monthlyCashFlow / monthlyIncome) * 100 : null,
+      debtService:      grossMonthly > 0 ? (monthlyDebt / grossMonthly) * 100 : null,
+      netWorthToAsset:  totalAssets > 0 ? (netWorth / totalAssets) * 100 : null,
+      insuranceCoverage:annualIncome > 0 ? totalSumAssured / annualIncome : null,
+      liquidityRatio:   totalLiabilities > 0 ? liquidAssets / totalLiabilities : null,
       _raw: {
         liquidAssets, totalMonthlyExpenses, monthlyIncome, monthlyCashFlow,
         monthlyDebt, grossMonthly, totalAssets, totalLiabilities, netWorth,
