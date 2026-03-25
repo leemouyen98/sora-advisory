@@ -3,10 +3,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ReferenceLine, ResponsiveContainer, LineChart, Line,
 } from 'recharts'
-import { Settings, Info, TrendingUp } from 'lucide-react'
+import { Settings, Info, TrendingUp, Pencil, ChevronDown } from 'lucide-react'
 import { formatRMFull } from '../../lib/calculations'
 
-// ─── Surplus dot — rendered as a label on the zero-height marker bar ──────────
+// ─── Surplus dot label — renders on top of the surplusDot marker bar ─────────
 function SurplusDotLabel({ x, y, width, value }) {
   if (!value) return null
   return (
@@ -53,14 +53,12 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
   const income      = Array.isArray(financials.income)  ? financials.income  : []
   const expenses    = Array.isArray(financials.expenses) ? financials.expenses : []
 
-  // ── Savings pool: sum of asset balances (not investments) ──────────────────
   let savingsPool = assets.reduce((s, r) => s + (Number(r.amount) || 0), 0)
 
-  // ── Classify income rows ───────────────────────────────────────────────────
   const activeIncomeRows  = income.filter(r => r.id === 'gross-income' || r.id === 'bonus')
   const passiveIncomeRows = income.filter(r => !r.fixed)
 
-  const baseActiveAnnual = activeIncomeRows.reduce((s, r) => s + toAnnual(r.amount, r.frequency), 0)
+  const baseActiveAnnual  = activeIncomeRows.reduce((s, r) => s + toAnnual(r.amount, r.frequency), 0)
   const basePassiveAnnual = passiveIncomeRows.reduce((s, r) => s + toAnnual(r.amount, r.frequency), 0)
 
   const rows = []
@@ -69,8 +67,6 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
     const yearsFromNow = age - currentAge
     const inflMult = Math.pow(1 + inflationRate / 100, yearsFromNow)
 
-    // ── Annual expenses for this age ─────────────────────────────────────────
-    // inflationLinked defaults to true for backward-compat (old rows have no field)
     let annualExp = expenses
       .filter(e => (e.ageFrom ?? currentAge) <= age && age <= (e.ageTo ?? expectedAge))
       .reduce((s, e) => {
@@ -78,7 +74,6 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
         return s + toAnnual(e.amount, e.frequency) * factor
       }, 0)
 
-    // Add loan repayments (never inflation-adjusted — always nominal)
     liabilities.forEach(l => {
       const loanEndAge = (Number(l.startAge) || currentAge) + (Number(l.loanPeriod) || 360) / 12
       if ((Number(l.startAge) || currentAge) <= age && age < loanEndAge) {
@@ -86,36 +81,30 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
       }
     })
 
-    // ── Income for this age ───────────────────────────────────────────────────
     const activeIncome  = age < retirementAge ? baseActiveAnnual : 0
     const passiveIncome = basePassiveAnnual * inflMult
+    const totalIncome   = activeIncome + passiveIncome
 
-    const totalIncome = activeIncome + passiveIncome
-
-    // ── Coverage waterfall ────────────────────────────────────────────────────
     let remaining = annualExp
     const passiveCovered = Math.min(remaining, passiveIncome)
     remaining -= passiveCovered
     const activeCovered  = Math.min(remaining, activeIncome)
     remaining -= activeCovered
 
-    // Grow savings pool before this year's draw/deposit
     savingsPool *= (1 + growthRate / 100)
 
     let savingsDraw = 0
     let shortfall   = 0
+    let surplusAmt  = 0
 
-    let surplusAmt = 0
     if (remaining <= 0) {
-      // Surplus — income fully covers expenses; remainder accumulates in savings
-      surplusAmt = Math.round(totalIncome - annualExp)
+      surplusAmt  = Math.round(totalIncome - annualExp)
       savingsPool += surplusAmt
     } else {
-      // Need to draw from savings
-      const draw = Math.min(remaining, Math.max(0, savingsPool))
-      savingsDraw  = draw
-      shortfall    = remaining - draw
-      savingsPool  = Math.max(0, savingsPool - draw)
+      const draw  = Math.min(remaining, Math.max(0, savingsPool))
+      savingsDraw = draw
+      shortfall   = remaining - draw
+      savingsPool = Math.max(0, savingsPool - draw)
     }
 
     rows.push({
@@ -128,7 +117,6 @@ function projectCashFlow(financials, currentAge, retirementAge, expectedAge, gro
       pool:       Math.round(savingsPool),
       income:     Math.round(totalIncome),
       surplusAmt,
-      // Tiny marker value — drives the surplus dot label; transparent fill keeps bar invisible
       surplusDot: surplusAmt > 0 ? 1 : 0,
     })
   }
@@ -183,8 +171,8 @@ function CFTooltip({ active, payload, label }) {
         )}
         {isSurplus && (
           <div className="flex justify-between gap-4">
-            <span className="text-hig-green">Surplus to savings</span>
-            <span className="font-semibold tabular-nums text-hig-green">+{formatRMFull(d.surplusAmt)}</span>
+            <span style={{ color: '#32ADE6' }}>Saved to pool</span>
+            <span className="font-semibold tabular-nums" style={{ color: '#32ADE6' }}>+{formatRMFull(d.surplusAmt)}</span>
           </div>
         )}
         <div className="flex justify-between gap-4 pt-1 border-t border-hig-gray-5 mt-1">
@@ -197,8 +185,8 @@ function CFTooltip({ active, payload, label }) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function CashFlowTab({ financials, contact }) {
-  const currentAge    = useMemo(() => {
+export default function CashFlowTab({ financials, contact, onEditFinancialInfo = null }) {
+  const currentAge = useMemo(() => {
     if (!contact?.dob) return 30
     const d = new Date(contact.dob)
     const now = new Date()
@@ -207,11 +195,12 @@ export default function CashFlowTab({ financials, contact }) {
     return Math.max(18, a)
   }, [contact?.dob])
 
-  const [expectedAge,      setExpectedAge]      = useState(80)
-  const [growthRate,       setGrowthRate]       = useState(3.5)
-  const [inflationRate,    setInflationRate]    = useState(3.0)
-  const [showSettings,     setShowSettings]     = useState(false)
-  const [showCashSavings,  setShowCashSavings]  = useState(false)
+  const [expectedAge,        setExpectedAge]        = useState(80)
+  const [growthRate,         setGrowthRate]         = useState(3.5)
+  const [inflationRate,      setInflationRate]      = useState(3.0)
+  const [showSettings,       setShowSettings]       = useState(false)
+  const [showCashSavings,    setShowCashSavings]    = useState(false)
+  const [showSavingsLine,    setShowSavingsLine]    = useState(true)
   const [localRetirementAge, setLocalRetirementAge] = useState(() => contact?.retirementAge ?? 55)
 
   const retirementAge = localRetirementAge
@@ -221,7 +210,6 @@ export default function CashFlowTab({ financials, contact }) {
     return projectCashFlow(financials, currentAge, retirementAge, expectedAge, growthRate, inflationRate)
   }, [financials, currentAge, retirementAge, expectedAge, growthRate, inflationRate])
 
-  // ── Summary stats ──────────────────────────────────────────────────────────
   const summary = useMemo(() => {
     if (!data.length) return null
     const shortfallYears    = data.filter(d => d.shortfall > 0)
@@ -242,16 +230,21 @@ export default function CashFlowTab({ financials, contact }) {
           <Info size={26} className="text-hig-blue" />
         </div>
         <p className="text-hig-headline font-semibold mb-1">Cash Flow Projection</p>
-        <p className="text-hig-subhead text-hig-text-secondary text-center max-w-xs">
-          Add income and expenses in the Financial Info tab to generate a cash flow projection.
+        <p className="text-hig-subhead text-hig-text-secondary text-center max-w-xs mb-4">
+          Add income and expenses in Financial Info to generate a projection.
         </p>
+        {onEditFinancialInfo && (
+          <button onClick={onEditFinancialInfo} className="hig-btn-primary gap-1.5">
+            <Pencil size={14} /> Set up Financial Info
+          </button>
+        )}
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      {/* Header + Settings */}
+      {/* Header + Assumptions toggle */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-hig-headline">Cash Flow Projection</h3>
@@ -259,12 +252,16 @@ export default function CashFlowTab({ financials, contact }) {
             Age {currentAge} → {expectedAge} · Retirement at {retirementAge} · Growth {growthRate}% · Inflation {inflationRate}%
           </p>
         </div>
-        <button onClick={() => setShowSettings(s => !s)} className={`hig-btn-ghost gap-1.5 ${showSettings ? 'text-hig-blue' : ''}`}>
+        <button
+          onClick={() => setShowSettings(s => !s)}
+          className={`hig-btn-ghost gap-1.5 ${showSettings ? 'text-hig-blue' : ''}`}
+        >
           <Settings size={14} /> Assumptions
+          <ChevronDown size={12} className={`transition-transform duration-hig ${showSettings ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
-      {/* Settings panel */}
+      {/* Assumptions panel */}
       {showSettings && (
         <div className="hig-card p-4">
           <div className="grid grid-cols-4 gap-4">
@@ -305,10 +302,20 @@ export default function CashFlowTab({ financials, contact }) {
               />
             </div>
           </div>
-          <p className="text-hig-caption1 text-hig-text-secondary mt-3 flex items-center gap-1.5">
-            <Info size={12} />
-            Retirement age overrides contact profile for this session only. Investments excluded from savings pool.
-          </p>
+          <div className="flex items-center justify-between mt-3">
+            <p className="text-hig-caption1 text-hig-text-secondary flex items-center gap-1.5">
+              <Info size={12} />
+              Retirement age is session-only. Investments excluded from savings pool.
+            </p>
+            {onEditFinancialInfo && (
+              <button
+                onClick={onEditFinancialInfo}
+                className="flex items-center gap-1.5 text-hig-caption1 text-hig-blue hover:text-hig-blue/80 transition-colors"
+              >
+                <Pencil size={12} /> Edit Financial Info
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -357,35 +364,41 @@ export default function CashFlowTab({ financials, contact }) {
         </div>
       )}
 
-      {/* Main bar chart */}
+      {/* ── Main bar chart ── */}
       <div className="hig-card p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">Annual Expenses Coverage</p>
-          <div className="flex items-center gap-3">
-            {/* Cash Savings toggle */}
+          <p className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
+            Annual Expenses Coverage
+          </p>
+          <div className="flex items-center gap-2">
+            {/* Cash Savings stacked bar toggle */}
             <button
               onClick={() => setShowCashSavings(s => !s)}
               className={`flex items-center gap-1.5 text-hig-caption2 px-2.5 py-1 rounded-hig-sm border transition-colors
                 ${showCashSavings
-                  ? 'bg-violet-50 border-violet-200 text-violet-700'
+                  ? 'bg-cyan-50 border-cyan-300 text-cyan-700'
                   : 'bg-hig-gray-6 border-hig-gray-5 text-hig-text-secondary hover:border-hig-gray-3'
                 }`}
             >
               <svg width="8" height="8" viewBox="0 0 8 8">
-                <rect width="8" height="8" rx="1.5" fill={showCashSavings ? '#5856D6' : '#8E8E93'} opacity="0.5" />
+                <rect width="8" height="8" rx="1.5" fill={showCashSavings ? '#32ADE6' : '#8E8E93'} />
               </svg>
               Cash Savings
             </button>
-            <div className="flex items-center gap-1.5 text-hig-caption2 text-hig-text-secondary">
-              <svg width="10" height="10" viewBox="0 0 10 10">
-                <circle cx="5" cy="5" r="4" fill="#34C759" stroke="white" strokeWidth="1.5" />
-              </svg>
-              <span>Surplus year</span>
-            </div>
+            {/* Surplus dot legend (shown when Cash Savings bar is off) */}
+            {!showCashSavings && (
+              <div className="flex items-center gap-1.5 text-hig-caption2 text-hig-text-secondary">
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                  <circle cx="5" cy="5" r="4" fill="#34C759" stroke="white" strokeWidth="1.5" />
+                </svg>
+                <span>Surplus year</span>
+              </div>
+            )}
           </div>
         </div>
+
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data} margin={{ top: 4, right: showCashSavings ? 52 : 16, left: 8, bottom: 4 }} barCategoryGap="20%">
+          <BarChart data={data} margin={{ top: 14, right: 16, left: 8, bottom: 4 }} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
             <XAxis
               dataKey="age"
@@ -395,24 +408,12 @@ export default function CashFlowTab({ financials, contact }) {
               interval={4}
             />
             <YAxis
-              yAxisId="left"
               tickFormatter={fmtK}
               tick={{ fontSize: 11, fill: '#8E8E93' }}
               tickLine={false}
               axisLine={false}
               width={44}
             />
-            {showCashSavings && (
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tickFormatter={fmtK}
-                tick={{ fontSize: 11, fill: '#5856D6' }}
-                tickLine={false}
-                axisLine={false}
-                width={48}
-              />
-            )}
             <Tooltip content={<CFTooltip />} />
             <Legend
               wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
@@ -420,77 +421,98 @@ export default function CashFlowTab({ financials, contact }) {
             />
             {retirementAge <= expectedAge && (
               <ReferenceLine
-                yAxisId="left"
                 x={retirementAge}
                 stroke="#8E8E93"
                 strokeDasharray="4 3"
                 label={{ value: `Retire ${retirementAge}`, position: 'top', fontSize: 10, fill: '#8E8E93' }}
               />
             )}
-            {showCashSavings && (
+
+            {/* Expense coverage stack */}
+            <Bar dataKey="passive"   name="Passive Income"  stackId="a" fill="#30D158" radius={[0,0,0,0]} />
+            <Bar dataKey="active"    name="Active Income"   stackId="a" fill="#007AFF" radius={[0,0,0,0]} />
+            <Bar dataKey="savings"   name="Savings Draw"    stackId="a" fill="#FF9F0A" radius={[0,0,0,0]} />
+            <Bar dataKey="shortfall" name="Shortfall"       stackId="a" fill="#FF3B30" radius={[2,2,0,0]} />
+
+            {/* Cash Savings: either visible teal bar OR invisible dot marker */}
+            {showCashSavings ? (
               <Bar
-                dataKey="pool"
-                yAxisId="right"
+                dataKey="surplusAmt"
                 name="Cash Savings"
-                stackId="b"
-                fill="#5856D6"
-                opacity={0.28}
-                radius={[2, 2, 0, 0]}
+                stackId="a"
+                fill="#32ADE6"
+                radius={[2,2,0,0]}
                 isAnimationActive={false}
               />
+            ) : (
+              <Bar
+                dataKey="surplusDot"
+                stackId="a"
+                fill="transparent"
+                legendType="none"
+                isAnimationActive={false}
+                label={<SurplusDotLabel />}
+              />
             )}
-            <Bar dataKey="passive"    yAxisId="left" name="Passive Income"   stackId="a" fill="#30D158" radius={[0,0,0,0]} />
-            <Bar dataKey="active"     yAxisId="left" name="Active Income"    stackId="a" fill="#007AFF" radius={[0,0,0,0]} />
-            <Bar dataKey="savings"    yAxisId="left" name="Savings Draw"     stackId="a" fill="#FF9F0A" radius={[0,0,0,0]} />
-            <Bar dataKey="shortfall"  yAxisId="left" name="Shortfall"        stackId="a" fill="#FF3B30" radius={[2,2,0,0]} />
-            {/* Invisible marker bar — renders the green surplus dot above each surplus year */}
-            <Bar
-              dataKey="surplusDot"
-              yAxisId="left"
-              stackId="a"
-              fill="transparent"
-              legendType="none"
-              isAnimationActive={false}
-              label={<SurplusDotLabel />}
-            />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Savings pool balance line */}
+      {/* ── Savings pool balance line ── */}
       <div className="hig-card p-4">
-        <p className="text-hig-caption1 font-semibold text-hig-text-secondary mb-3 uppercase tracking-wide">Savings Pool Balance</p>
-        <ResponsiveContainer width="100%" height={160}>
-          <LineChart data={data} margin={{ top: 4, right: 16, left: 8, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
-            <XAxis
-              dataKey="age"
-              tick={{ fontSize: 11, fill: '#8E8E93' }}
-              tickLine={false}
-              axisLine={false}
-              interval={4}
-            />
-            <YAxis
-              tickFormatter={fmtK}
-              tick={{ fontSize: 11, fill: '#8E8E93' }}
-              tickLine={false}
-              axisLine={false}
-              width={44}
-            />
-            <Tooltip
-              formatter={(val) => [formatRMFull(val), 'Savings Balance']}
-              labelFormatter={(l) => `Age ${l}`}
-              contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E5EA' }}
-            />
-            <ReferenceLine y={0} stroke="#FF3B30" strokeDasharray="3 3" />
-            <Line
-              type="monotone" dataKey="pool"
-              stroke="#5856D6" strokeWidth={2}
-              dot={false}
-              name="Savings Balance"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
+            Savings Pool Balance
+          </p>
+          <button
+            onClick={() => setShowSavingsLine(s => !s)}
+            className={`flex items-center gap-1.5 text-hig-caption2 px-2.5 py-1 rounded-hig-sm border transition-colors
+              ${showSavingsLine
+                ? 'bg-violet-50 border-violet-200 text-violet-700'
+                : 'bg-hig-gray-6 border-hig-gray-5 text-hig-text-secondary hover:border-hig-gray-3'
+              }`}
+          >
+            <svg width="8" height="3" viewBox="0 0 8 3">
+              <line x1="0" y1="1.5" x2="8" y2="1.5" stroke={showSavingsLine ? '#5856D6' : '#8E8E93'} strokeWidth="2.5" />
+            </svg>
+            {showSavingsLine ? 'Hide Line' : 'Show Line'}
+          </button>
+        </div>
+        {showSavingsLine && (
+          <ResponsiveContainer width="100%" height={160}>
+            <LineChart data={data} margin={{ top: 4, right: 16, left: 8, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
+              <XAxis
+                dataKey="age"
+                tick={{ fontSize: 11, fill: '#8E8E93' }}
+                tickLine={false}
+                axisLine={false}
+                interval={4}
+              />
+              <YAxis
+                tickFormatter={fmtK}
+                tick={{ fontSize: 11, fill: '#8E8E93' }}
+                tickLine={false}
+                axisLine={false}
+                width={44}
+              />
+              <Tooltip
+                formatter={(val) => [formatRMFull(val), 'Savings Balance']}
+                labelFormatter={(l) => `Age ${l}`}
+                contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E5EA' }}
+              />
+              <ReferenceLine y={0} stroke="#FF3B30" strokeDasharray="3 3" />
+              <Line
+                type="monotone"
+                dataKey="pool"
+                stroke="#5856D6"
+                strokeWidth={2}
+                dot={false}
+                name="Savings Balance"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   )

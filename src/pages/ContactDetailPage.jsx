@@ -170,7 +170,11 @@ export default function ContactDetailPage() {
           </div>
           <div className="w-32" />
         </div>
-        <CashFlowTab financials={contact.financials} contact={contact} />
+        <CashFlowTab
+          financials={contact.financials}
+          contact={contact}
+          onEditFinancialInfo={() => { setShowCashFlow(false); setTab('finances') }}
+        />
 
         {/* Edit modal still accessible */}
         {showEditForm && <EditContactModal
