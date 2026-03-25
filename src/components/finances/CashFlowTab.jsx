@@ -1,518 +1,740 @@
 import { useState, useMemo } from 'react'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  Legend, ReferenceLine, ResponsiveContainer, LineChart, Line,
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer,
 } from 'recharts'
-import { Settings, Info, TrendingUp, Pencil, ChevronDown } from 'lucide-react'
-import { formatRMFull } from '../../lib/calculations'
+import {
+  Plus, Settings, ChevronDown, MoreVertical, Check, X,
+  Home, Activity, Heart, Shield, Lightbulb, BarChart2,
+  RefreshCw, Edit, TrendingUp, Zap, Star,
+} from 'lucide-react'
 
-// ─── Surplus dot label — renders on top of the surplusDot marker bar ─────────
-function SurplusDotLabel({ x, y, width, value }) {
-  if (!value) return null
-  return (
-    <g>
-      <circle
-        cx={x + width / 2}
-        cy={y - 6}
-        r={4}
-        fill="#34C759"
-        stroke="white"
-        strokeWidth={1.5}
-      />
-    </g>
-  )
+// ── Formatting ─────────────────────────────────────────────────────────────
+
+function fmtAxis(v) {
+  if (v >= 1_000_000) return `RM ${(v / 1_000_000).toFixed(2)}M`
+  if (v >= 1_000) return `RM ${(v / 1_000).toFixed(0)}K`
+  return `RM ${v}`
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+function fmtRM(v) {
+  if (v === undefined || v === null || isNaN(v)) return '—'
+  const abs = Math.abs(v)
+  const s =
+    abs >= 1_000_000
+      ? `RM ${(abs / 1_000_000).toFixed(2)}M`
+      : abs >= 1_000
+      ? `RM ${(abs / 1_000).toFixed(0)}K`
+      : `RM ${abs.toFixed(0)}`
+  return v < 0 ? `−${s}` : s
+}
+
 function toAnnual(amount, frequency) {
   const map = { Monthly: 12, Yearly: 1, Quarterly: 4, 'Semi-annually': 2, 'One-Time': 0 }
   return (Number(amount) || 0) * (map[frequency] ?? 12)
 }
 
-function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
-  const P = Number(principal) || 0
-  const r = (Number(interestRate) || 0) / 100 / 12
-  const n = Number(loanPeriod) || 1
-  if (P === 0) return 0
-  if (r === 0) return P / n
-  return P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
-}
+// ── Custom tooltip ─────────────────────────────────────────────────────────
 
-function fmtK(val) {
-  if (val === 0) return '0'
-  const abs = Math.abs(val)
-  if (abs >= 1_000_000) return `${(val / 1_000_000).toFixed(1)}M`
-  if (abs >= 1_000)     return `${(val / 1_000).toFixed(0)}K`
-  return String(Math.round(val))
-}
-
-// ─── Projection engine ────────────────────────────────────────────────────────
-function projectCashFlow(financials, currentAge, retirementAge, expectedAge, growthRate, inflationRate) {
-  const assets      = financials.assets      || []
-  const liabilities = financials.liabilities || []
-  const income      = Array.isArray(financials.income)  ? financials.income  : []
-  const expenses    = Array.isArray(financials.expenses) ? financials.expenses : []
-
-  let savingsPool = assets.reduce((s, r) => s + (Number(r.amount) || 0), 0)
-
-  const activeIncomeRows  = income.filter(r => r.id === 'gross-income' || r.id === 'bonus')
-  const passiveIncomeRows = income.filter(r => !r.fixed)
-
-  const baseActiveAnnual  = activeIncomeRows.reduce((s, r) => s + toAnnual(r.amount, r.frequency), 0)
-  const basePassiveAnnual = passiveIncomeRows.reduce((s, r) => s + toAnnual(r.amount, r.frequency), 0)
-
-  const rows = []
-
-  for (let age = currentAge; age <= expectedAge; age++) {
-    const yearsFromNow = age - currentAge
-    const inflMult = Math.pow(1 + inflationRate / 100, yearsFromNow)
-
-    let annualExp = expenses
-      .filter(e => (e.ageFrom ?? currentAge) <= age && age <= (e.ageTo ?? expectedAge))
-      .reduce((s, e) => {
-        const factor = e.inflationLinked === false ? 1 : inflMult
-        return s + toAnnual(e.amount, e.frequency) * factor
-      }, 0)
-
-    liabilities.forEach(l => {
-      const loanEndAge = (Number(l.startAge) || currentAge) + (Number(l.loanPeriod) || 360) / 12
-      if ((Number(l.startAge) || currentAge) <= age && age < loanEndAge) {
-        annualExp += calcMonthlyRepayment(l.principal, l.interestRate, l.loanPeriod) * 12
-      }
-    })
-
-    const activeIncome  = age < retirementAge ? baseActiveAnnual : 0
-    const passiveIncome = basePassiveAnnual * inflMult
-    const totalIncome   = activeIncome + passiveIncome
-
-    let remaining = annualExp
-    const passiveCovered = Math.min(remaining, passiveIncome)
-    remaining -= passiveCovered
-    const activeCovered  = Math.min(remaining, activeIncome)
-    remaining -= activeCovered
-
-    savingsPool *= (1 + growthRate / 100)
-
-    let savingsDraw = 0
-    let shortfall   = 0
-    let surplusAmt  = 0
-
-    if (remaining <= 0) {
-      surplusAmt  = Math.round(totalIncome - annualExp)
-      savingsPool += surplusAmt
-    } else {
-      const draw  = Math.min(remaining, Math.max(0, savingsPool))
-      savingsDraw = draw
-      shortfall   = remaining - draw
-      savingsPool = Math.max(0, savingsPool - draw)
-    }
-
-    rows.push({
-      age,
-      passive:    Math.round(passiveCovered),
-      active:     Math.round(activeCovered),
-      savings:    Math.round(savingsDraw),
-      shortfall:  Math.round(shortfall),
-      total:      Math.round(annualExp),
-      pool:       Math.round(savingsPool),
-      income:     Math.round(totalIncome),
-      surplusAmt,
-      surplusDot: surplusAmt > 0 ? 1 : 0,
-    })
-  }
-
-  return rows
-}
-
-// ─── Custom Tooltip ───────────────────────────────────────────────────────────
-function CFTooltip({ active, payload, label }) {
+function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
-  const d = payload[0]?.payload
-  if (!d) return null
-  const isSurplus = (d.surplusAmt || 0) > 0
+  const bars = payload.filter((p) => Number(p.value) > 0 && p.dataKey !== 'cashSavingsEOY')
+  const savings = payload.find((p) => p.dataKey === 'cashSavingsEOY')
   return (
-    <div className="bg-white border border-hig-gray-5 rounded-hig shadow-hig p-3 text-hig-caption1 min-w-[200px]">
-      <div className="flex items-center gap-2 mb-2">
-        <p className="text-hig-subhead font-semibold">Age {label}</p>
-        {isSurplus && (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-hig-green/15 text-hig-green rounded-full leading-none">
-            SURPLUS ✓
-          </span>
-        )}
-      </div>
-      <div className="space-y-1">
-        <div className="flex justify-between gap-4">
-          <span className="text-hig-text-secondary">Total Expenses</span>
-          <span className="font-medium tabular-nums">{formatRMFull(d.total)}</span>
+    <div className="rounded-xl border border-hig-gray-5 bg-white shadow-lg p-3 text-hig-caption2" style={{ minWidth: 185 }}>
+      <div className="font-semibold text-hig-subhead mb-2">Age {label}</div>
+      {bars.map((p) => (
+        <div key={p.dataKey} className="flex items-center justify-between gap-3 mb-1">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: p.color }} />
+            <span className="text-hig-text-secondary">{p.name}</span>
+          </div>
+          <span className="font-medium">{fmtRM(p.value)}</span>
         </div>
-        {d.passive > 0 && (
-          <div className="flex justify-between gap-4">
-            <span style={{ color: '#30D158' }}>Passive Income</span>
-            <span className="font-medium tabular-nums">{formatRMFull(d.passive)}</span>
+      ))}
+      {savings && Number(savings.value) > 0 && (
+        <div className="flex items-center justify-between gap-3 mt-1.5 pt-1.5 border-t border-hig-gray-5">
+          <div className="flex items-center gap-1.5">
+            <div className="flex-shrink-0 bg-gray-800 rounded-full" style={{ width: 18, height: 2 }} />
+            <span className="text-hig-text-secondary">Cash Savings (EOY)</span>
           </div>
-        )}
-        {d.active > 0 && (
-          <div className="flex justify-between gap-4">
-            <span style={{ color: '#007AFF' }}>Active Income</span>
-            <span className="font-medium tabular-nums">{formatRMFull(d.active)}</span>
-          </div>
-        )}
-        {d.savings > 0 && (
-          <div className="flex justify-between gap-4">
-            <span style={{ color: '#FF9F0A' }}>Savings Draw</span>
-            <span className="font-medium tabular-nums">{formatRMFull(d.savings)}</span>
-          </div>
-        )}
-        {d.shortfall > 0 && (
-          <div className="flex justify-between gap-4">
-            <span style={{ color: '#FF3B30' }}>Shortfall</span>
-            <span className="font-semibold tabular-nums text-hig-red">{formatRMFull(d.shortfall)}</span>
-          </div>
-        )}
-        {isSurplus && (
-          <div className="flex justify-between gap-4">
-            <span style={{ color: '#32ADE6' }}>Saved to pool</span>
-            <span className="font-semibold tabular-nums" style={{ color: '#32ADE6' }}>+{formatRMFull(d.surplusAmt)}</span>
-          </div>
-        )}
-        <div className="flex justify-between gap-4 pt-1 border-t border-hig-gray-5 mt-1">
-          <span className="text-hig-text-secondary">Savings Balance</span>
-          <span className={`font-medium tabular-nums ${d.pool > 0 ? '' : 'text-hig-red'}`}>{formatRMFull(d.pool)}</span>
+          <span className="font-medium">{fmtRM(savings.value)}</span>
         </div>
+      )}
+    </div>
+  )
+}
+
+// ── Small icon components ──────────────────────────────────────────────────
+
+function ScenarioIcon({ type, size = 14 }) {
+  const p = { size, strokeWidth: 1.5 }
+  if (type === 'heart') return <Heart {...p} className="text-pink-500" />
+  if (type === 'activity') return <Activity {...p} className="text-purple-500" />
+  if (type === 'shield') return <Shield {...p} className="text-indigo-500" />
+  return <Zap {...p} className="text-hig-text-secondary" />
+}
+
+function GoalIcon({ type, size = 14 }) {
+  const p = { size, strokeWidth: 1.5 }
+  if (type === 'home') return <Home {...p} className="text-green-600" />
+  if (type === 'trending') return <TrendingUp {...p} className="text-blue-500" />
+  if (type === 'star') return <Star {...p} className="text-amber-500" />
+  return <Zap {...p} className="text-hig-text-secondary" />
+}
+
+// ── Reusable panel header ──────────────────────────────────────────────────
+
+function PanelHeader({ title, actionLabel, onAction, onAdd }) {
+  return (
+    <div className="flex items-center justify-between mb-3">
+      <span className="text-hig-subhead font-semibold">{title}</span>
+      <div className="flex items-center gap-2">
+        {actionLabel && (
+          <button onClick={onAction} className="text-hig-caption2 text-hig-blue font-medium hover:opacity-70">
+            {actionLabel}
+          </button>
+        )}
+        <button
+          onClick={onAdd}
+          className="w-6 h-6 rounded-full bg-hig-blue text-white flex items-center justify-center hover:opacity-80"
+        >
+          <Plus size={12} strokeWidth={2.5} />
+        </button>
+        <button className="text-hig-text-secondary hover:opacity-70">
+          <MoreVertical size={14} />
+        </button>
       </div>
     </div>
   )
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ── Checkbox row ───────────────────────────────────────────────────────────
+
+function CheckRow({ active, onToggle, iconBg, icon, title, subtitle, onRemove }) {
+  return (
+    <div className="flex items-center gap-2.5 py-1.5">
+      <button
+        onClick={onToggle}
+        className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
+          active ? 'bg-hig-blue border-hig-blue' : 'border-hig-gray-4 bg-transparent'
+        }`}
+      >
+        {active && <Check size={10} strokeWidth={3} className="text-white" />}
+      </button>
+      <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-hig-footnote font-medium truncate">{title}</div>
+        {subtitle && (
+          <div className="text-hig-caption2 text-hig-text-secondary truncate">{subtitle}</div>
+        )}
+      </div>
+      {onRemove ? (
+        <button onClick={onRemove} className="text-hig-text-secondary hover:text-red-500 transition-colors">
+          <X size={13} />
+        </button>
+      ) : (
+        <button className="text-hig-text-secondary hover:opacity-70">
+          <MoreVertical size={13} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ── MAIN COMPONENT ─────────────────────────────────────────────────────────
+
 export default function CashFlowTab({ financials, contact, onEditFinancialInfo = null }) {
+
+  // ── Planning assumptions ────────────────────────────────────────────────
+  const [localRetirementAge, setLocalRetirementAge] = useState(contact?.retirementAge ?? 55)
+  const [expectedAge, setExpectedAge] = useState(85)
+  const [savingsRate, setSavingsRate] = useState(5.0)
+  const [inflationRate, setInflationRate] = useState(3.0)
+  const [showSettings, setShowSettings] = useState(false)
+
+  // ── Chart display toggles ───────────────────────────────────────────────
+  const [showCashSavings, setShowCashSavings] = useState(true)
+
+  // ── Current age + DOB display ───────────────────────────────────────────
   const currentAge = useMemo(() => {
     if (!contact?.dob) return 30
     const d = new Date(contact.dob)
     const now = new Date()
     let a = now.getFullYear() - d.getFullYear()
     if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) a--
-    return Math.max(18, a)
+    return a
   }, [contact?.dob])
 
-  const [expectedAge,        setExpectedAge]        = useState(80)
-  const [growthRate,         setGrowthRate]         = useState(3.5)
-  const [inflationRate,      setInflationRate]      = useState(3.0)
-  const [showSettings,       setShowSettings]       = useState(false)
-  const [showCashSavings,    setShowCashSavings]    = useState(false)
-  const [showSavingsLine,    setShowSavingsLine]    = useState(true)
-  const [localRetirementAge, setLocalRetirementAge] = useState(() => contact?.retirementAge ?? 55)
+  const dobStr = useMemo(() => {
+    if (!contact?.dob) return ''
+    return new Date(contact.dob).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  }, [contact?.dob])
 
-  const retirementAge = localRetirementAge
+  // ── Goals ───────────────────────────────────────────────────────────────
+  const [goals, setGoals] = useState([])
+  const [showAddGoal, setShowAddGoal] = useState(false)
+  const [newGoal, setNewGoal] = useState({ label: '', age: '', amount: '', icon: 'home' })
 
-  const data = useMemo(() => {
-    if (!financials || !Array.isArray(financials.assets)) return []
-    return projectCashFlow(financials, currentAge, retirementAge, expectedAge, growthRate, inflationRate)
-  }, [financials, currentAge, retirementAge, expectedAge, growthRate, inflationRate])
+  const toggleGoal = (id) => setGoals((g) => g.map((x) => (x.id === id ? { ...x, active: !x.active } : x)))
+  const removeGoal = (id) => setGoals((g) => g.filter((x) => x.id !== id))
 
-  const summary = useMemo(() => {
-    if (!data.length) return null
-    const shortfallYears    = data.filter(d => d.shortfall > 0)
-    const firstShortfall    = shortfallYears[0]
-    const totalShortfall    = shortfallYears.reduce((s, d) => s + d.shortfall, 0)
-    const savingsDepletedAt = data.find(d => d.pool === 0 && data[data.indexOf(d) - 1]?.pool > 0)
-    const surplusYears      = data.filter(d => (d.surplusAmt || 0) > 0)
-    const totalSurplus      = surplusYears.reduce((s, d) => s + (d.surplusAmt || 0), 0)
-    return { firstShortfall, totalShortfall, savingsDepletedAt, shortfallYears: shortfallYears.length, surplusYears: surplusYears.length, totalSurplus }
-  }, [data])
+  const addGoal = () => {
+    if (!newGoal.label || !newGoal.amount) return
+    setGoals((g) => [...g, { ...newGoal, id: `g-${Date.now()}`, age: Number(newGoal.age) || currentAge + 5, amount: Number(newGoal.amount), active: true }])
+    setShowAddGoal(false)
+    setNewGoal({ label: '', age: '', amount: '', icon: 'home' })
+  }
 
-  const hasData = data.length > 0 && data.some(d => d.total > 0)
+  // ── Scenarios ───────────────────────────────────────────────────────────
+  const [scenarios, setScenarios] = useState([
+    { id: 'ci',         label: 'Advanced Stage Critical Illness', icon: 'heart',    age: currentAge, active: false },
+    { id: 'disability', label: 'Disability',                      icon: 'activity', age: currentAge, active: false },
+    { id: 'death',      label: 'Death',                           icon: 'shield',   age: currentAge, active: false },
+  ])
 
-  if (!hasData) {
+  const toggleScenario = (id) =>
+    setScenarios((s) => s.map((x) => (x.id === id ? { ...x, active: !x.active } : x)))
+
+  // ── Plan toggles ────────────────────────────────────────────────────────
+  const [planStates, setPlanStates] = useState({})
+  const isPlanActive = (id) => planStates[id] !== false
+  const togglePlan = (id) => setPlanStates((s) => ({ ...s, [id]: !isPlanActive(id) }))
+  const deactivateAllPlans = () => {
+    const all = {}
+    ;(Array.isArray(financials?.insurance) ? financials.insurance : []).forEach((p) => { all[p.id] = false })
+    setPlanStates(all)
+  }
+
+  // ── Financial extraction ────────────────────────────────────────────────
+  const { annualIncome, annualExpenses, initialSavings } = useMemo(() => {
+    const fin = financials
+    if (!fin) return { annualIncome: 0, annualExpenses: 0, initialSavings: 0 }
+    const income   = Array.isArray(fin.income)   ? fin.income   : []
+    const expenses = Array.isArray(fin.expenses) ? fin.expenses : []
+    const assets   = Array.isArray(fin.assets)   ? fin.assets   : []
+    return {
+      annualIncome:   income.reduce((s, r) => s + toAnnual(r.amount, r.frequency), 0),
+      annualExpenses: expenses.reduce((s, r) => s + toAnnual(r.amount, r.frequency), 0),
+      initialSavings: Number(assets.find((a) => a.id === 'savings-cash')?.amount) || 0,
+    }
+  }, [financials])
+
+  // ── Chart data projection ───────────────────────────────────────────────
+  const chartData = useMemo(() => {
+    if (!annualIncome && !annualExpenses) return []
+    const ir = inflationRate / 100
+    const sr = savingsRate / 100
+    let pool = initialSavings
+
+    const ciSc   = scenarios.find((s) => s.id === 'ci'         && s.active)
+    const disSc  = scenarios.find((s) => s.id === 'disability' && s.active)
+    const deadSc = scenarios.find((s) => s.id === 'death'      && s.active)
+
+    const rows = []
+    for (let i = 0; i <= expectedAge - currentAge; i++) {
+      const age = currentAge + i
+      const retired = age >= localRetirementAge
+
+      // Income stops at retirement/disability/death
+      const incomeOff = retired || (disSc && age >= disSc.age) || (deadSc && age >= deadSc.age)
+      const income = incomeOff ? 0 : annualIncome
+
+      // Expenses (inflation) + goal lump sums + CI one-time
+      const goalLump = goals.filter((g) => g.active && g.age === age).reduce((s, g) => s + g.amount, 0)
+      const ciLump   = ciSc && age === ciSc.age ? annualIncome * 5 : 0
+      const expenses = annualExpenses * Math.pow(1 + ir, i) + goalLump + ciLump
+
+      let takeHomeIncomeUsed = 0
+      let cashUsed  = 0
+      let shortfall = 0
+
+      const surplus = income - expenses
+      if (surplus >= 0) {
+        takeHomeIncomeUsed = expenses
+        pool = pool * (1 + sr) + surplus
+      } else {
+        takeHomeIncomeUsed = income
+        const deficit = expenses - income
+        if (pool >= deficit) {
+          cashUsed = deficit
+          pool = pool * (1 + sr) - deficit
+        } else {
+          cashUsed  = pool
+          shortfall = deficit - pool
+          pool = 0
+        }
+      }
+
+      rows.push({
+        age,
+        takeHomeIncomeUsed: Math.round(takeHomeIncomeUsed),
+        cashUsed:           Math.round(cashUsed),
+        shortfall:          Math.round(shortfall),
+        cashSavingsEOY:     Math.round(pool),
+      })
+    }
+    return rows
+  }, [annualIncome, annualExpenses, initialSavings, currentAge, expectedAge, localRetirementAge, inflationRate, savingsRate, goals, scenarios])
+
+  // ── Shortfall summary ───────────────────────────────────────────────────
+  const shortfallSummary = useMemo(() => {
+    const sy = chartData.filter((d) => d.shortfall > 0)
+    if (!sy.length) return null
+    return { total: sy.reduce((s, d) => s + d.shortfall, 0), start: sy[0].age, end: sy[sy.length - 1].age }
+  }, [chartData])
+
+  // ── Recommendations (gap analysis) ─────────────────────────────────────
+  const recommendations = useMemo(() => {
+    const ins = Array.isArray(financials?.insurance) ? financials.insurance : []
+    const has = (...kws) => ins.some((p) => kws.some((kw) => (p.type ?? '').toLowerCase().includes(kw) || (p.name ?? '').toLowerCase().includes(kw)))
+    const recs = []
+    if (!has('life', 'term', 'death', 'wholelife', 'whole life'))   recs.push({ label: 'Life Coverage',              desc: 'Income replacement for dependants' })
+    if (!has('hospital', 'medical', 'h&s', 'surgical'))             recs.push({ label: 'Hospital & Surgical',         desc: 'Medical cost protection' })
+    if (!has('critical', 'ci'))                                      recs.push({ label: 'Critical Illness',            desc: 'Income replacement on CI diagnosis' })
+    if (!has('disability', 'tpd', 'income protection'))             recs.push({ label: 'Total Permanent Disability',  desc: 'Protection against loss of income' })
+    return recs
+  }, [financials?.insurance])
+
+  // ── Insurance plans list ────────────────────────────────────────────────
+  const insurancePlans = useMemo(() => {
+    return (Array.isArray(financials?.insurance) ? financials.insurance : []).map((p) => ({
+      id:       p.id,
+      name:     p.name     || 'Policy',
+      type:     p.type     || '',
+      insurer:  p.insurer  || '',
+      policyNo: p.policyNumber || '',
+    }))
+  }, [financials?.insurance])
+
+  // ── Empty state ─────────────────────────────────────────────────────────
+  if (!annualIncome && !annualExpenses) {
     return (
-      <div className="hig-card p-8 flex flex-col items-center justify-center min-h-[300px]">
-        <div className="w-14 h-14 rounded-2xl bg-hig-blue/10 flex items-center justify-center mb-4">
-          <Info size={26} className="text-hig-blue" />
+      <div className="hig-card p-16 text-center">
+        <div className="w-14 h-14 rounded-full bg-hig-gray-6 flex items-center justify-center mx-auto mb-4">
+          <BarChart2 size={22} className="text-hig-text-secondary" />
         </div>
-        <p className="text-hig-headline font-semibold mb-1">Cash Flow Projection</p>
-        <p className="text-hig-subhead text-hig-text-secondary text-center max-w-xs mb-4">
-          Add income and expenses in Financial Info to generate a projection.
-        </p>
+        <div className="text-hig-title3 font-semibold mb-2">No Financial Data</div>
+        <div className="text-hig-footnote text-hig-text-secondary mb-5">
+          Enter income and expenses to generate a cash flow projection.
+        </div>
         {onEditFinancialInfo && (
-          <button onClick={onEditFinancialInfo} className="hig-btn-primary gap-1.5">
-            <Pencil size={14} /> Set up Financial Info
+          <button onClick={onEditFinancialInfo} className="hig-btn-primary">
+            Set up Financial Info
           </button>
         )}
       </div>
     )
   }
 
-  return (
-    <div className="space-y-4">
-      {/* Header + Assumptions toggle */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-hig-headline">Cash Flow Projection</h3>
-          <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">
-            Age {currentAge} → {expectedAge} · Retirement at {retirementAge} · Growth {growthRate}% · Inflation {inflationRate}%
-          </p>
-        </div>
-        <button
-          onClick={() => setShowSettings(s => !s)}
-          className={`hig-btn-ghost gap-1.5 ${showSettings ? 'text-hig-blue' : ''}`}
-        >
-          <Settings size={14} /> Assumptions
-          <ChevronDown size={12} className={`transition-transform duration-hig ${showSettings ? 'rotate-180' : ''}`} />
-        </button>
-      </div>
+  const tickInterval = chartData.length > 50 ? 3 : chartData.length > 30 ? 2 : 1
 
-      {/* Assumptions panel */}
-      {showSettings && (
-        <div className="hig-card p-4">
-          <div className="grid grid-cols-4 gap-4">
-            <div>
-              <label className="hig-label">Retirement Age</label>
-              <input
-                type="number" min={currentAge + 1} max={80}
-                value={localRetirementAge}
-                onChange={e => setLocalRetirementAge(parseInt(e.target.value) || 55)}
-                className="hig-input"
-              />
+  // ── Render ──────────────────────────────────────────────────────────────
+  return (
+    <div className="flex gap-5 items-start">
+
+      {/* ══ LEFT COLUMN ══════════════════════════════════════════════════════ */}
+      <div className="flex-1 min-w-0 space-y-3.5">
+
+        {/* Contact strip */}
+        <div className="hig-card px-4 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-full bg-hig-blue flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+              {contact?.name?.[0]?.toUpperCase() ?? '?'}
             </div>
-            <div>
-              <label className="hig-label">Expected Age</label>
-              <input
-                type="number" min={currentAge + 1} max={120}
-                value={expectedAge}
-                onChange={e => setExpectedAge(parseInt(e.target.value) || 80)}
-                className="hig-input"
-              />
+            <div className="min-w-0">
+              <div className="text-hig-body font-semibold truncate">{contact?.name}</div>
+              <div className="text-hig-caption1 text-hig-text-secondary tracking-wide whitespace-nowrap">
+                AGE: {currentAge}&nbsp;&nbsp;·&nbsp;&nbsp;DOB: {dobStr}
+              </div>
             </div>
-            <div>
-              <label className="hig-label">Savings Growth Rate (%)</label>
-              <input
-                type="number" step="0.5" min="0" max="15"
-                value={growthRate}
-                onChange={e => setGrowthRate(parseFloat(e.target.value) || 0)}
-                className="hig-input"
-              />
-            </div>
-            <div>
-              <label className="hig-label">Inflation Rate (%)</label>
-              <input
-                type="number" step="0.5" min="0" max="15"
-                value={inflationRate}
-                onChange={e => setInflationRate(parseFloat(e.target.value) || 0)}
-                className="hig-input"
-              />
-            </div>
+            <ChevronDown size={14} className="text-hig-text-secondary flex-shrink-0" />
           </div>
-          <div className="flex items-center justify-between mt-3">
-            <p className="text-hig-caption1 text-hig-text-secondary flex items-center gap-1.5">
-              <Info size={12} />
-              Retirement age is session-only. Investments excluded from savings pool.
-            </p>
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-hig-footnote text-hig-text-secondary hover:bg-hig-gray-6 transition-colors whitespace-nowrap">
+              <BarChart2 size={13} />
+              Compare Charts
+            </button>
             {onEditFinancialInfo && (
               <button
                 onClick={onEditFinancialInfo}
-                className="flex items-center gap-1.5 text-hig-caption1 text-hig-blue hover:text-hig-blue/80 transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-hig-footnote text-hig-blue hover:bg-blue-50 transition-colors whitespace-nowrap"
               >
-                <Pencil size={12} /> Edit Financial Info
+                <Edit size={13} />
+                Add/Edit
               </button>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Summary chips */}
-      {summary && (
-        <div className="flex gap-3 flex-wrap">
-          {summary.firstShortfall ? (
-            <div className="px-3 py-2 rounded-hig-sm bg-hig-red/10 border border-hig-red/20">
-              <p className="text-hig-caption2 text-hig-red font-semibold">FIRST SHORTFALL</p>
-              <p className="text-hig-subhead font-bold text-hig-red">Age {summary.firstShortfall.age}</p>
-            </div>
-          ) : (
-            <div className="px-3 py-2 rounded-hig-sm bg-hig-green/10 border border-hig-green/20">
-              <p className="text-hig-caption2 text-hig-green font-semibold">NO SHORTFALL</p>
-              <p className="text-hig-subhead font-bold text-hig-green">Funded to age {expectedAge}</p>
-            </div>
-          )}
-          {summary.totalShortfall > 0 && (
-            <div className="px-3 py-2 rounded-hig-sm bg-hig-red/10 border border-hig-red/20">
-              <p className="text-hig-caption2 text-hig-red font-semibold">TOTAL SHORTFALL</p>
-              <p className="text-hig-subhead font-bold text-hig-red">{formatRMFull(summary.totalShortfall)}</p>
-            </div>
-          )}
-          {summary.savingsDepletedAt && (
-            <div className="px-3 py-2 rounded-hig-sm bg-orange-50 border border-orange-200">
-              <p className="text-hig-caption2 text-orange-600 font-semibold">SAVINGS DEPLETED</p>
-              <p className="text-hig-subhead font-bold text-orange-600">Age {summary.savingsDepletedAt.age}</p>
-            </div>
-          )}
-          {summary.surplusYears > 0 && (
-            <div className="px-3 py-2 rounded-hig-sm bg-hig-green/10 border border-hig-green/20 flex items-start gap-2">
-              <TrendingUp size={14} className="text-hig-green mt-0.5 shrink-0" />
-              <div>
-                <p className="text-hig-caption2 text-hig-green font-semibold">SURPLUS YEARS</p>
-                <p className="text-hig-subhead font-bold text-hig-green">{summary.surplusYears} yrs</p>
-                <p className="text-hig-caption2 text-hig-green/70">{formatRMFull(summary.totalSurplus)} added</p>
-              </div>
-            </div>
-          )}
-          <div className="px-3 py-2 rounded-hig-sm bg-hig-gray-6 border border-hig-gray-5">
-            <p className="text-hig-caption2 text-hig-text-secondary font-semibold">FINAL SAVINGS</p>
-            <p className={`text-hig-subhead font-bold ${data[data.length - 1]?.pool > 0 ? 'text-hig-text' : 'text-hig-red'}`}>
-              {formatRMFull(data[data.length - 1]?.pool ?? 0)}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Main bar chart ── */}
-      <div className="hig-card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
-            Annual Expenses Coverage
-          </p>
-          <div className="flex items-center gap-2">
-            {/* Cash Savings stacked bar toggle */}
             <button
-              onClick={() => setShowCashSavings(s => !s)}
-              className={`flex items-center gap-1.5 text-hig-caption2 px-2.5 py-1 rounded-hig-sm border transition-colors
-                ${showCashSavings
-                  ? 'bg-cyan-50 border-cyan-300 text-cyan-700'
-                  : 'bg-hig-gray-6 border-hig-gray-5 text-hig-text-secondary hover:border-hig-gray-3'
-                }`}
+              onClick={() => setShowSettings((s) => !s)}
+              className={`p-2 rounded-lg transition-colors ${showSettings ? 'bg-hig-gray-5 text-hig-blue' : 'text-hig-text-secondary hover:bg-hig-gray-6'}`}
             >
-              <svg width="8" height="8" viewBox="0 0 8 8">
-                <rect width="8" height="8" rx="1.5" fill={showCashSavings ? '#32ADE6' : '#8E8E93'} />
-              </svg>
-              Cash Savings
+              <Settings size={15} />
             </button>
-            {/* Surplus dot legend (shown when Cash Savings bar is off) */}
-            {!showCashSavings && (
-              <div className="flex items-center gap-1.5 text-hig-caption2 text-hig-text-secondary">
-                <svg width="10" height="10" viewBox="0 0 10 10">
-                  <circle cx="5" cy="5" r="4" fill="#34C759" stroke="white" strokeWidth="1.5" />
-                </svg>
-                <span>Surplus year</span>
-              </div>
-            )}
+            <button className="p-2 rounded-lg text-hig-text-secondary hover:bg-hig-gray-6 transition-colors">
+              <Lightbulb size={15} />
+            </button>
           </div>
         </div>
 
-        <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={data} margin={{ top: 14, right: 16, left: 8, bottom: 4 }} barCategoryGap="20%">
-            <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
-            <XAxis
-              dataKey="age"
-              tick={{ fontSize: 11, fill: '#8E8E93' }}
-              tickLine={false}
-              axisLine={false}
-              interval={4}
-            />
-            <YAxis
-              tickFormatter={fmtK}
-              tick={{ fontSize: 11, fill: '#8E8E93' }}
-              tickLine={false}
-              axisLine={false}
-              width={44}
-            />
-            <Tooltip content={<CFTooltip />} />
-            <Legend
-              wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
-              formatter={(val) => <span style={{ color: '#3C3C43' }}>{val}</span>}
-            />
-            {retirementAge <= expectedAge && (
-              <ReferenceLine
-                x={retirementAge}
-                stroke="#8E8E93"
-                strokeDasharray="4 3"
-                label={{ value: `Retire ${retirementAge}`, position: 'top', fontSize: 10, fill: '#8E8E93' }}
-              />
-            )}
+        {/* Settings/assumptions panel */}
+        {showSettings && (
+          <div className="hig-card p-4">
+            <div className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide mb-3">
+              Planning Assumptions
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              {[
+                { label: 'Retirement Age', value: localRetirementAge, set: setLocalRetirementAge, min: currentAge + 1, max: 80,  step: 1,   suffix: '' },
+                { label: 'Expected Age',   value: expectedAge,        set: setExpectedAge,        min: 60,            max: 100, step: 1,   suffix: '' },
+                { label: 'Savings Growth', value: savingsRate,        set: setSavingsRate,        min: 0,             max: 20,  step: 0.5, suffix: '%' },
+                { label: 'Inflation Rate', value: inflationRate,      set: setInflationRate,      min: 0,             max: 15,  step: 0.5, suffix: '%' },
+              ].map(({ label, value, set, min, max, step, suffix }) => (
+                <div key={label}>
+                  <label className="hig-label">{label}</label>
+                  <div className="relative mt-1">
+                    <input
+                      type="number"
+                      className="hig-input w-full"
+                      value={value}
+                      min={min} max={max} step={step}
+                      onChange={(e) => set(Number(e.target.value))}
+                    />
+                    {suffix && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-footnote text-hig-text-secondary pointer-events-none">
+                        {suffix}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-            {/* Expense coverage stack */}
-            <Bar dataKey="passive"   name="Passive Income"  stackId="a" fill="#30D158" radius={[0,0,0,0]} />
-            <Bar dataKey="active"    name="Active Income"   stackId="a" fill="#007AFF" radius={[0,0,0,0]} />
-            <Bar dataKey="savings"   name="Savings Draw"    stackId="a" fill="#FF9F0A" radius={[0,0,0,0]} />
-            <Bar dataKey="shortfall" name="Shortfall"       stackId="a" fill="#FF3B30" radius={[2,2,0,0]} />
+        {/* Chart card */}
+        <div className="hig-card p-4">
 
-            {/* Cash Savings: either visible teal bar OR invisible dot marker */}
-            {showCashSavings ? (
-              <Bar
-                dataKey="surplusAmt"
-                name="Cash Savings"
-                stackId="a"
-                fill="#32ADE6"
-                radius={[2,2,0,0]}
-                isAnimationActive={false}
-              />
+          {/* Breadcrumb + chart controls */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1 text-hig-subhead">
+              <span className="text-hig-text-secondary font-normal">Planner</span>
+              <span className="text-hig-text-secondary mx-0.5">/</span>
+              <button className="flex items-center gap-1.5 font-semibold hover:opacity-70">
+                <BarChart2 size={14} className="text-hig-blue" />
+                GoalsMapper Chart
+                <ChevronDown size={13} className="text-hig-text-secondary" />
+              </button>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Cash Savings toggle */}
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <div
+                  onClick={() => setShowCashSavings((s) => !s)}
+                  className="relative rounded-full transition-colors cursor-pointer"
+                  style={{
+                    width: 40, height: 22,
+                    background: showCashSavings ? '#007AFF' : '#C7C7CC',
+                  }}
+                >
+                  <div
+                    className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform"
+                    style={{ transform: showCashSavings ? 'translateX(19px)' : 'translateX(2px)' }}
+                  />
+                </div>
+                <span className="text-hig-footnote text-hig-text-secondary whitespace-nowrap">Cash Savings</span>
+              </label>
+              <div className="flex items-center gap-0.5">
+                <button className="p-1.5 rounded-lg hover:bg-hig-gray-6 text-hig-text-secondary transition-colors"><BarChart2 size={14} /></button>
+                <button className="p-1.5 rounded-lg hover:bg-hig-gray-6 text-hig-text-secondary transition-colors"><RefreshCw size={14} /></button>
+                <button
+                  onClick={() => setShowSettings((s) => !s)}
+                  className={`p-1.5 rounded-lg text-hig-text-secondary transition-colors ${showSettings ? 'bg-hig-gray-5 text-hig-blue' : 'hover:bg-hig-gray-6'}`}
+                >
+                  <Settings size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Shortfall / surplus pill */}
+          <div className="flex justify-end mb-2">
+            {shortfallSummary ? (
+              <div className="flex items-stretch rounded-xl overflow-hidden border border-red-200">
+                <div className="bg-red-50 px-3 py-1.5 flex flex-col justify-center">
+                  <div className="text-hig-caption2 text-red-400 leading-none mb-0.5">Shortfall</div>
+                  <div className="text-hig-caption1 text-red-600 font-semibold leading-none">
+                    {shortfallSummary.start} to {shortfallSummary.end}
+                  </div>
+                </div>
+                <button className="flex items-center gap-1 bg-red-500 text-white px-3 text-hig-caption1 font-semibold whitespace-nowrap hover:bg-red-600 transition-colors">
+                  {fmtRM(shortfallSummary.total)} <ChevronDown size={12} />
+                </button>
+              </div>
             ) : (
-              <Bar
-                dataKey="surplusDot"
-                stackId="a"
-                fill="transparent"
-                legendType="none"
-                isAnimationActive={false}
-                label={<SurplusDotLabel />}
-              />
+              <div className="flex items-center gap-1.5 rounded-xl border border-green-200 bg-green-50 px-3 py-1.5">
+                <Check size={13} className="text-green-600" strokeWidth={2.5} />
+                <span className="text-hig-caption2 text-green-700 font-semibold">No Shortfall</span>
+              </div>
             )}
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+          </div>
 
-      {/* ── Savings pool balance line ── */}
-      <div className="hig-card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
-            Savings Pool Balance
-          </p>
-          <button
-            onClick={() => setShowSavingsLine(s => !s)}
-            className={`flex items-center gap-1.5 text-hig-caption2 px-2.5 py-1 rounded-hig-sm border transition-colors
-              ${showSavingsLine
-                ? 'bg-violet-50 border-violet-200 text-violet-700'
-                : 'bg-hig-gray-6 border-hig-gray-5 text-hig-text-secondary hover:border-hig-gray-3'
-              }`}
-          >
-            <svg width="8" height="3" viewBox="0 0 8 3">
-              <line x1="0" y1="1.5" x2="8" y2="1.5" stroke={showSavingsLine ? '#5856D6' : '#8E8E93'} strokeWidth="2.5" />
-            </svg>
-            {showSavingsLine ? 'Hide Line' : 'Show Line'}
-          </button>
-        </div>
-        {showSavingsLine && (
-          <ResponsiveContainer width="100%" height={160}>
-            <LineChart data={data} margin={{ top: 4, right: 16, left: 8, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F2F2F7" vertical={false} />
+          {/* Recharts ComposedChart */}
+          <ResponsiveContainer width="100%" height={260}>
+            <ComposedChart
+              data={chartData}
+              margin={{ top: 4, right: showCashSavings ? 76 : 8, bottom: 0, left: 8 }}
+              barCategoryGap="30%"
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E5EA" vertical={false} />
               <XAxis
                 dataKey="age"
                 tick={{ fontSize: 11, fill: '#8E8E93' }}
                 tickLine={false}
                 axisLine={false}
-                interval={4}
+                interval={tickInterval}
               />
               <YAxis
-                tickFormatter={fmtK}
-                tick={{ fontSize: 11, fill: '#8E8E93' }}
+                yAxisId="left"
+                tick={{ fontSize: 10, fill: '#8E8E93' }}
                 tickLine={false}
                 axisLine={false}
-                width={44}
+                tickFormatter={fmtAxis}
+                label={{ value: 'Expenses', angle: -90, position: 'insideLeft', offset: 16, style: { fontSize: 10, fill: '#8E8E93' } }}
+                width={74}
               />
-              <Tooltip
-                formatter={(val) => [formatRMFull(val), 'Savings Balance']}
-                labelFormatter={(l) => `Age ${l}`}
-                contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E5EA' }}
-              />
-              <ReferenceLine y={0} stroke="#FF3B30" strokeDasharray="3 3" />
-              <Line
-                type="monotone"
-                dataKey="pool"
-                stroke="#5856D6"
-                strokeWidth={2}
-                dot={false}
-                name="Savings Balance"
-              />
-            </LineChart>
+              {showCashSavings && (
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fontSize: 10, fill: '#8E8E93' }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={fmtAxis}
+                  label={{ value: 'Cash Savings (End of year)', angle: 90, position: 'insideRight', offset: 20, style: { fontSize: 10, fill: '#8E8E93' } }}
+                  width={76}
+                />
+              )}
+              <Tooltip content={<ChartTooltip />} />
+
+              <Bar yAxisId="left" dataKey="takeHomeIncomeUsed" name="Take-home Income Used" stackId="a" fill="#5AC8FA" isAnimationActive={false} />
+              <Bar yAxisId="left" dataKey="cashUsed"           name="Cash Used"             stackId="a" fill="#FF9F0A" isAnimationActive={false} />
+              <Bar yAxisId="left" dataKey="shortfall"          name="Shortfall"             stackId="a" fill="#FF3B30" radius={[2, 2, 0, 0]} isAnimationActive={false} />
+
+              {showCashSavings && (
+                <Line
+                  yAxisId="right"
+                  dataKey="cashSavingsEOY"
+                  name="Cash Savings (End of year)"
+                  stroke="#1C1C1E"
+                  strokeWidth={1.5}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              )}
+            </ComposedChart>
           </ResponsiveContainer>
-        )}
+
+          {/* Legend */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 justify-center">
+            {[
+              { color: '#FF3B30', label: 'Shortfall' },
+              { color: '#FF9F0A', label: 'Cash Used' },
+              { color: '#5AC8FA', label: 'Take-home Income Used' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
+                <span className="text-hig-caption2 text-hig-text-secondary">{item.label}</span>
+              </div>
+            ))}
+            {showCashSavings && (
+              <div className="flex items-center gap-1.5">
+                <div style={{ width: 18, height: 2, background: '#1C1C1E', borderRadius: 1 }} />
+                <span className="text-hig-caption2 text-hig-text-secondary">Cash Savings (End of year)</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Goals + Scenarios grid */}
+        <div className="grid grid-cols-2 gap-4">
+
+          {/* Goals */}
+          <div className="hig-card p-4">
+            <PanelHeader
+              title="Goals"
+              actionLabel={goals.length ? 'Activate all' : null}
+              onAction={() => setGoals((g) => g.map((x) => ({ ...x, active: true })))}
+              onAdd={() => setShowAddGoal(true)}
+            />
+
+            {showAddGoal && (
+              <div className="bg-hig-gray-6 rounded-xl p-3 mb-3 space-y-2">
+                <input
+                  autoFocus
+                  className="hig-input w-full text-hig-footnote"
+                  placeholder="Goal (e.g. Buy Property)"
+                  value={newGoal.label}
+                  onChange={(e) => setNewGoal((g) => ({ ...g, label: e.target.value }))}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="hig-label">Age</label>
+                    <input type="number" className="hig-input w-full mt-1 text-hig-footnote"
+                      placeholder="e.g. 42" value={newGoal.age}
+                      onChange={(e) => setNewGoal((g) => ({ ...g, age: e.target.value }))}
+                      min={currentAge} max={expectedAge}
+                    />
+                  </div>
+                  <div>
+                    <label className="hig-label">Amount (RM)</label>
+                    <input type="number" className="hig-input w-full mt-1 text-hig-footnote"
+                      placeholder="e.g. 500000" value={newGoal.amount}
+                      onChange={(e) => setNewGoal((g) => ({ ...g, amount: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <select
+                  className="hig-input w-full text-hig-caption2"
+                  value={newGoal.icon}
+                  onChange={(e) => setNewGoal((g) => ({ ...g, icon: e.target.value }))}
+                >
+                  <option value="home">🏠 Property</option>
+                  <option value="trending">📈 Investment</option>
+                  <option value="star">⭐ Other</option>
+                </select>
+                <div className="flex gap-2 pt-0.5">
+                  <button onClick={addGoal} className="hig-btn-primary flex-1 py-1.5 text-hig-footnote">Add</button>
+                  <button onClick={() => setShowAddGoal(false)} className="hig-btn-ghost flex-1 py-1.5 text-hig-footnote">Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {goals.length === 0 ? (
+              <div className="text-center py-5">
+                <div className="text-hig-caption1 text-hig-text-secondary mb-2">No goals added</div>
+                <button onClick={() => setShowAddGoal(true)} className="text-hig-caption2 text-hig-blue hover:opacity-70">
+                  + Add your first goal
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {goals.map((goal) => (
+                  <CheckRow
+                    key={goal.id}
+                    active={goal.active}
+                    onToggle={() => toggleGoal(goal.id)}
+                    iconBg="bg-green-100"
+                    icon={<GoalIcon type={goal.icon} size={13} />}
+                    title={goal.label}
+                    subtitle={`@ ${goal.age} yo. · ${fmtRM(goal.amount)}`}
+                    onRemove={() => removeGoal(goal.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Scenarios */}
+          <div className="hig-card p-4">
+            <PanelHeader
+              title="Scenarios"
+              actionLabel="Activate all"
+              onAction={() => setScenarios((s) => s.map((x) => ({ ...x, active: true })))}
+              onAdd={() => {}}
+            />
+            <div className="space-y-0">
+              {scenarios.map((sc) => (
+                <CheckRow
+                  key={sc.id}
+                  active={sc.active}
+                  onToggle={() => toggleScenario(sc.id)}
+                  iconBg={sc.icon === 'heart' ? 'bg-pink-100' : sc.icon === 'activity' ? 'bg-purple-100' : 'bg-indigo-100'}
+                  icon={<ScenarioIcon type={sc.icon} size={13} />}
+                  title={sc.label}
+                  subtitle={`@ ${sc.age} yo.`}
+                />
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ══ RIGHT COLUMN ═════════════════════════════════════════════════════ */}
+      <div className="w-72 flex-shrink-0 space-y-3.5">
+
+        {/* Recommendations */}
+        <div className="hig-card p-4">
+          <PanelHeader title="Recommendations" actionLabel="Activate all" onAdd={() => {}} />
+          {recommendations.length === 0 ? (
+            <div className="text-center py-4">
+              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
+                <Check size={15} className="text-green-600" strokeWidth={2.5} />
+              </div>
+              <div className="text-hig-footnote text-hig-text-secondary">All key coverages in place</div>
+            </div>
+          ) : (
+            <>
+              <button className="flex items-center gap-1.5 text-hig-footnote text-hig-blue mb-3 hover:opacity-70">
+                <Plus size={13} />
+                Add New Recommendations
+              </button>
+              <div className="space-y-0">
+                {recommendations.map((rec) => (
+                  <div key={rec.label} className="flex items-center gap-2.5 py-1.5">
+                    <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <Lightbulb size={13} className="text-amber-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-hig-footnote font-medium">{rec.label}</div>
+                      <div className="text-hig-caption2 text-hig-text-secondary leading-snug">{rec.desc}</div>
+                    </div>
+                    <button className="text-hig-text-secondary hover:opacity-70 flex-shrink-0">
+                      <MoreVertical size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Existing Plans */}
+        <div className="hig-card p-4">
+          <PanelHeader
+            title="Existing Plans"
+            actionLabel={insurancePlans.length ? 'Deactivate All' : null}
+            onAction={deactivateAllPlans}
+            onAdd={() => onEditFinancialInfo?.()}
+          />
+          {insurancePlans.length === 0 ? (
+            <div className="text-center py-4">
+              <div className="text-hig-footnote text-hig-text-secondary mb-2">No insurance plans added</div>
+              {onEditFinancialInfo && (
+                <button onClick={onEditFinancialInfo} className="text-hig-caption2 text-hig-blue hover:opacity-70">
+                  + Add plans
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-0">
+              {insurancePlans.map((plan) => (
+                <CheckRow
+                  key={plan.id}
+                  active={isPlanActive(plan.id)}
+                  onToggle={() => togglePlan(plan.id)}
+                  iconBg="bg-green-100"
+                  icon={<Shield size={13} className="text-green-600" strokeWidth={1.5} />}
+                  title={plan.name}
+                  subtitle={[plan.type, plan.insurer, plan.policyNo].filter(Boolean).join(' | ')}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   )
