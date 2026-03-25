@@ -7,6 +7,7 @@ function parseContact(row) {
     dob: row.dob || '',
     mobile: row.mobile || '',
     employment: row.employment || 'Employed',
+    retirementAge: Number(row.retirement_age) || 55,
     reviewDate: row.review_date || '',
     reviewFrequency: row.review_frequency || 'Annually',
     notes: row.notes || '',
@@ -16,6 +17,7 @@ function parseContact(row) {
     activities: JSON.parse(row.activities || '[]'),
     retirementPlan: row.retirement_plan ? JSON.parse(row.retirement_plan) : null,
     protectionPlan: row.protection_plan ? JSON.parse(row.protection_plan) : null,
+    financials: row.financials ? JSON.parse(row.financials) : null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -49,9 +51,11 @@ export async function onRequestPut({ request, env, params }) {
     await env.DB.prepare(`
       UPDATE contacts SET
         name = ?, dob = ?, mobile = ?, employment = ?,
+        retirement_age = ?,
         review_date = ?, review_frequency = ?, notes = ?,
         tags = ?, interactions = ?, tasks = ?, activities = ?,
         retirement_plan = ?, protection_plan = ?,
+        financials = ?,
         updated_at = datetime('now')
       WHERE id = ? AND agent_code = ?
     `).bind(
@@ -59,6 +63,7 @@ export async function onRequestPut({ request, env, params }) {
       data.dob || '',
       data.mobile || '',
       data.employment || 'Employed',
+      Number(data.retirementAge) || 55,
       data.reviewDate || '',
       data.reviewFrequency || 'Annually',
       data.notes || '',
@@ -68,6 +73,7 @@ export async function onRequestPut({ request, env, params }) {
       JSON.stringify(data.activities || []),
       data.retirementPlan ? JSON.stringify(data.retirementPlan) : null,
       data.protectionPlan ? JSON.stringify(data.protectionPlan) : null,
+      data.financials ? JSON.stringify(data.financials) : null,
       params.id,
       agent.sub,
     ).run()

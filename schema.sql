@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS contacts (
   activities        TEXT DEFAULT '[]',
   retirement_plan   TEXT,
   protection_plan   TEXT,
+  financials        TEXT,
+  retirement_age    INTEGER DEFAULT 55,
   created_at        TEXT DEFAULT (datetime('now')),
   updated_at        TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (agent_code) REFERENCES agents(code)

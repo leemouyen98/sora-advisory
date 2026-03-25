@@ -7,6 +7,7 @@ function parseContact(row) {
     dob: row.dob || '',
     mobile: row.mobile || '',
     employment: row.employment || 'Employed',
+    retirementAge: Number(row.retirement_age) || 55,
     reviewDate: row.review_date || '',
     reviewFrequency: row.review_frequency || 'Annually',
     notes: row.notes || '',
@@ -16,6 +17,7 @@ function parseContact(row) {
     activities: JSON.parse(row.activities || '[]'),
     retirementPlan: row.retirement_plan ? JSON.parse(row.retirement_plan) : null,
     protectionPlan: row.protection_plan ? JSON.parse(row.protection_plan) : null,
+    financials: row.financials ? JSON.parse(row.financials) : null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -56,9 +58,11 @@ export async function onRequestPost({ request, env }) {
 
     await env.DB.prepare(`
       INSERT INTO contacts
-        (id, agent_code, name, dob, mobile, employment, review_date, review_frequency,
-         notes, tags, interactions, tasks, activities, retirement_plan, protection_plan)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, agent_code, name, dob, mobile, employment, retirement_age,
+         review_date, review_frequency,
+         notes, tags, interactions, tasks, activities,
+         retirement_plan, protection_plan, financials)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       data.id,
       agent.sub,
@@ -66,6 +70,7 @@ export async function onRequestPost({ request, env }) {
       data.dob || '',
       data.mobile || '',
       data.employment || 'Employed',
+      Number(data.retirementAge) || 55,
       data.reviewDate || '',
       data.reviewFrequency || 'Annually',
       data.notes || '',
@@ -75,6 +80,7 @@ export async function onRequestPost({ request, env }) {
       JSON.stringify(data.activities || []),
       data.retirementPlan ? JSON.stringify(data.retirementPlan) : null,
       data.protectionPlan ? JSON.stringify(data.protectionPlan) : null,
+      data.financials ? JSON.stringify(data.financials) : null,
     ).run()
 
     const row = await env.DB.prepare('SELECT * FROM contacts WHERE id = ?').bind(data.id).first()
