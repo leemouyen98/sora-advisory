@@ -7,17 +7,20 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useLanguage } from '../../hooks/useLanguage'
 import ProtectedImg from '../ui/ProtectedImg'
+import AboutSoraModal from './AboutSoraModal'
 
 export default function Sidebar({ expanded, onToggle }) {
   const location  = useLocation()
   const navigate  = useNavigate()
   const { isAdmin } = useAuth()
   const { t } = useLanguage()
-  const [hovered, setHovered] = useState(false)
+  const [hovered, setHovered]     = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
   const hoverTimer = useRef(null)
 
   const isOpen = expanded || hovered
@@ -169,6 +172,22 @@ export default function Sidebar({ expanded, onToggle }) {
               </button>
             )
           })}
+          {/* About Sora */}
+          <button
+            onClick={() => setShowAbout(true)}
+            className={`
+              w-full flex items-center gap-3 min-h-touch
+              px-5 py-2.5 transition-all duration-hig text-left cursor-pointer
+              text-hig-text-secondary hover:bg-hig-gray-6 hover:text-hig-text
+            `}
+            title="About Sora"
+          >
+            <Sparkles size={18} strokeWidth={1.8} />
+            {isOpen && (
+              <span className="text-hig-subhead truncate">About Sora</span>
+            )}
+          </button>
+
           <button
             onClick={onToggle}
             className="w-full h-10 flex items-center justify-center
@@ -179,6 +198,9 @@ export default function Sidebar({ expanded, onToggle }) {
           </button>
         </div>
       </aside>
+
+      {/* About Sora modal */}
+      {showAbout && <AboutSoraModal onClose={() => setShowAbout(false)} />}
     </>
   )
 }
