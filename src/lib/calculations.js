@@ -309,22 +309,18 @@ export function generateRetirementProjection({
       // EPF: contributions until retirement age, then grows at post-retirement return.
       // Rate: 23% if monthly salary > RM5,000 (11% employee + 12% employer),
       //       24% if monthly salary ≤ RM5,000 (11% employee + 13% employer).
+      // EPF: annual contributions at salary-dependent rate, grows at EPF dividend rate.
+      // (isPreRetirement guarantees age < retirementAge — no else branch needed.)
       if (includeEPF) {
-        if (age < retirementAge) {
-          const epfRate = getEPFRate(epfIncome)
-          const contribution = epfIncome * epfRate
-          epfBal = (epfBal + contribution) * (1 + (epfGrowthRate || 6) / 100)
-          epfIncome *= (1 + (incomeGrowthRate || 0) / 100)
-          // Mirror for no-rec scenario
-          const epfRateNoRec = getEPFRate(epfIncomeNoRec)
-          const contribNoRec = epfIncomeNoRec * epfRateNoRec
-          epfBalNoRec = (epfBalNoRec + contribNoRec) * (1 + (epfGrowthRate || 6) / 100)
-          epfIncomeNoRec *= (1 + (incomeGrowthRate || 0) / 100)
-        } else {
-          // After retirement age, parked at post-retirement return
-          epfBal *= (1 + postRetirementReturn / 100)
-          epfBalNoRec *= (1 + postRetirementReturn / 100)
-        }
+        const epfRate = getEPFRate(epfIncome)
+        const contribution = epfIncome * epfRate
+        epfBal = (epfBal + contribution) * (1 + (epfGrowthRate || 6) / 100)
+        epfIncome *= (1 + (incomeGrowthRate || 0) / 100)
+        // Mirror for no-rec scenario
+        const epfRateNoRec = getEPFRate(epfIncomeNoRec)
+        const contribNoRec = epfIncomeNoRec * epfRateNoRec
+        epfBalNoRec = (epfBalNoRec + contribNoRec) * (1 + (epfGrowthRate || 6) / 100)
+        epfIncomeNoRec *= (1 + (incomeGrowthRate || 0) / 100)
       }
 
       // Provisions: add recurring contributions, then grow
@@ -368,9 +364,10 @@ export function generateRetirementProjection({
       const avgProvReturn = (provisions || []).length > 0
         ? provisions.reduce((s, p) => s + (p.preRetirementReturn || 1), 0) / provisions.length
         : 1
+      // EPF still earns its dividend rate in the retirement year (not yet withdrawn)
       if (includeEPF) {
-        epfBal *= (1 + postRetirementReturn / 100)
-        epfBalNoRec *= (1 + postRetirementReturn / 100)
+        epfBal *= (1 + (epfGrowthRate || 6) / 100)
+        epfBalNoRec *= (1 + (epfGrowthRate || 6) / 100)
       }
       provBal *= (1 + avgProvReturn / 100)
       provBalNoRec *= (1 + avgProvReturn / 100)

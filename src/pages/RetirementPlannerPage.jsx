@@ -108,7 +108,7 @@ export default function RetirementPlannerPage() {
 
       {/* Planning Assumptions — always visible */}
       <button
-        onClick={() => step === 3 ? setShowAssumptions(true) : setStep(1)}
+        onClick={() => { setStep(3); setShowAssumptions(true) }}
         className="flex items-center gap-1.5 text-hig-caption1 font-medium text-hig-blue hover:text-blue-700 transition-colors"
       >
         <Settings size={14} /> Planning Assumptions
@@ -149,6 +149,7 @@ export default function RetirementPlannerPage() {
           plan={plan}
           currentAge={currentAge}
           contactName={contact.name}
+          linkedGrossMonthly={linkedGrossMonthly}
           onChange={updatePlan}
           onEditAssumptions={() => setStep(1)}
           showAssumptions={showAssumptions}

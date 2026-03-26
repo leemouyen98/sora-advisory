@@ -8,7 +8,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
 const PROVISION_FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
 
-export default function RetirementPlanner({ plan, currentAge, contactName, onChange, onEditAssumptions, showAssumptions, onToggleAssumptions, activeTab, onActiveTabChange }) {
+export default function RetirementPlanner({ plan, currentAge, contactName, linkedGrossMonthly = 0, onChange, onEditAssumptions, showAssumptions, onToggleAssumptions, activeTab, onActiveTabChange }) {
   const setActiveTab = onActiveTabChange
   const [expandedRec, setExpandedRec] = useState(null)
   const [showBreakdown, setShowBreakdown] = useState(null)
@@ -41,7 +41,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
         includeEPF: plan.includeEPF || false,
         epfBalance: plan.epfBalance || 0,
         epfGrowthRate: plan.epfGrowthRate ?? 6,
-        annualIncome: plan.annualIncome || 0,
+        annualIncome: Math.max(plan.annualIncome || 0, linkedGrossMonthly * 12),
         incomeGrowthRate: plan.incomeGrowthRate ?? 3,
         provisions: plan.provisions || [],
         recommendations: plan.recommendations || [],
@@ -134,11 +134,14 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
   // Preset suggestions — wrapped in try/catch since TVM can produce NaN with edge inputs
   const shortfallAmount = projection.shortfall || 0
   let suggestedMonthly10 = 0, suggestedMonthly20 = 0, suggestedLumpSum = 0
+  let period10 = 10, period20 = 20
   try {
     const yearsToRet = Math.max(1, (plan.retirementAge || 55) - currentAge)
+    period10 = Math.min(10, yearsToRet)
+    period20 = Math.min(20, yearsToRet)
     if (shortfallAmount > 0) {
-      suggestedMonthly10 = Math.round(tvmSolve({ fv: shortfallAmount, pv: 0, rate: 5, n: Math.min(10, yearsToRet), frequency: 12 }, 'pmt')) || 0
-      suggestedMonthly20 = Math.round(tvmSolve({ fv: shortfallAmount, pv: 0, rate: 5, n: Math.min(20, yearsToRet), frequency: 12 }, 'pmt')) || 0
+      suggestedMonthly10 = Math.round(tvmSolve({ fv: shortfallAmount, pv: 0, rate: 5, n: period10, frequency: 12 }, 'pmt')) || 0
+      suggestedMonthly20 = Math.round(tvmSolve({ fv: shortfallAmount, pv: 0, rate: 5, n: period20, frequency: 12 }, 'pmt')) || 0
       suggestedLumpSum = Math.round(tvmSolve({ fv: shortfallAmount, pmt: 0, rate: 5, n: yearsToRet, frequency: 12 }, 'pv')) || 0
     }
   } catch (e) {
@@ -341,20 +344,20 @@ export default function RetirementPlanner({ plan, currentAge, contactName, onCha
                 <div className="space-y-2">
                   {suggestedMonthly10 > 0 && (
                     <button
-                      onClick={() => addPresetRecommendation(suggestedMonthly10, 10)}
+                      onClick={() => addPresetRecommendation(suggestedMonthly10, period10)}
                       className="w-full text-left p-3 rounded-hig-sm border border-hig-gray-4 hover:border-hig-blue hover:bg-blue-50/30 transition-colors"
                     >
                       <p className="text-hig-subhead font-medium">Invest {formatRMFull(suggestedMonthly10)}/mth</p>
-                      <p className="text-hig-caption1 text-hig-text-secondary">for 10 years</p>
+                      <p className="text-hig-caption1 text-hig-text-secondary">for {period10} year{period10 !== 1 ? 's' : ''}</p>
                     </button>
                   )}
                   {suggestedMonthly20 > 0 && (
                     <button
-                      onClick={() => addPresetRecommendation(suggestedMonthly20, 20)}
+                      onClick={() => addPresetRecommendation(suggestedMonthly20, period20)}
                       className="w-full text-left p-3 rounded-hig-sm border border-hig-gray-4 hover:border-hig-blue hover:bg-blue-50/30 transition-colors"
                     >
                       <p className="text-hig-subhead font-medium">Invest {formatRMFull(suggestedMonthly20)}/mth</p>
-                      <p className="text-hig-caption1 text-hig-text-secondary">for 20 years</p>
+                      <p className="text-hig-caption1 text-hig-text-secondary">for {period20} year{period20 !== 1 ? 's' : ''}</p>
                     </button>
                   )}
                   {suggestedLumpSum > 0 && (

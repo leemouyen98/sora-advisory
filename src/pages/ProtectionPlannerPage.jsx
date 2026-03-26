@@ -158,7 +158,7 @@ export default function ProtectionPlannerPage() {
 
       {/* Planning Assumptions — always visible */}
       <button
-        onClick={() => step === 3 ? setShowAssumptions(true) : setStep(1)}
+        onClick={() => { setStep(3); setShowAssumptions(true) }}
         className="flex items-center gap-1.5 text-hig-caption1 font-medium text-hig-blue hover:text-blue-700 transition-colors"
       >
         <Settings size={14} /> Planning Assumptions
@@ -693,45 +693,6 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
     <>
       {/* ── Overview Panel ── */}
       <OverviewPanel summary={summary} activeRisk={activeRisk} onSelect={setActiveRisk} contactName={contactName} />
-
-      {/* Risk tabs — gap-closed state shows green flash + checkmark */}
-      <div className="flex bg-hig-gray-6 rounded-hig-sm p-1 mb-4">
-        {RISKS.map((risk) => {
-          const s = summary.find((x) => x.risk === risk)
-          const isActive = activeRisk === risk
-          const pct = s?.coveragePercent ?? 0
-          const isClosed = pct >= 100 && (s?.targetCoverage ?? 0) > 0
-          const pctColour = isClosed ? '#34C759' : pct >= 50 ? '#FF9500' : '#FF3B30'
-
-          return (
-            <button
-              key={risk}
-              onClick={() => setActiveRisk(risk)}
-              className={`flex-1 py-2 rounded-hig-sm transition-all duration-300 flex flex-col items-center gap-0.5
-                ${isActive
-                  ? isClosed
-                    ? 'bg-hig-green/15 shadow-sm text-hig-green'
-                    : 'bg-white shadow-sm text-hig-text'
-                  : isClosed
-                    ? 'text-hig-green hover:bg-hig-green/10'
-                    : 'text-hig-text-secondary'
-                }`}
-            >
-              <div className="flex items-center gap-1">
-                {isClosed
-                  ? <CheckCircle size={11} className="text-hig-green shrink-0" />
-                  : <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: isActive ? RISK_COLOUR[risk] : pctColour }} />
-                }
-                <span className="text-hig-subhead font-medium">{RISK_SHORT[risk]}</span>
-              </div>
-              {isClosed
-                ? <span className="text-[10px] font-bold leading-none text-hig-green">Closed ✓</span>
-                : <span className="text-[10px] font-bold leading-none" style={{ color: pctColour }}>{pct}%</span>
-              }
-            </button>
-          )
-        })}
-      </div>
 
       {/* Main layout */}
       <div className="flex gap-4 items-start">
