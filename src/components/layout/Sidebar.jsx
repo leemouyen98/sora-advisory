@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useLanguage } from '../../hooks/useLanguage'
+import ProtectedImg from '../ui/ProtectedImg'
 
 export default function Sidebar({ expanded, onToggle }) {
   const location  = useLocation()
@@ -69,16 +70,18 @@ export default function Sidebar({ expanded, onToggle }) {
         {/* Logo area */}
         <div className="h-16 flex items-center justify-center border-b border-hig-gray-5 px-3">
           {isOpen ? (
-            <img
+            <ProtectedImg
               src="/assets/colourful-llh-logo.jpg"
               alt="LLH Group"
-              className="h-10 w-auto max-w-full object-contain shrink-0"
+              className="h-10 w-auto max-w-full object-contain"
+              wrapperClassName="shrink-0"
             />
           ) : (
-            <img
+            <ProtectedImg
               src="/assets/colourful-llh-favicon.png"
               alt="LLH"
-              className="w-8 h-8 object-contain rounded-lg shrink-0"
+              className="w-8 h-8 object-contain rounded-lg"
+              wrapperClassName="shrink-0"
             />
           )}
         </div>

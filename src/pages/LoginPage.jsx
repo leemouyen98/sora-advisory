@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'
+import ProtectedImg from '../components/ui/ProtectedImg'
 
 export default function LoginPage() {
   const { login, loading, error: authError } = useAuth()
@@ -112,13 +113,12 @@ export default function LoginPage() {
               marginBottom: 40,
               boxShadow: '0 12px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05)',
             }}>
-              <img
+              <ProtectedImg
                 src="/assets/colourful-hla-logo.jpg"
                 alt="Henry Lee Advisory"
                 style={{
                   height: 68, width: 'auto',
                   maxWidth: 300, objectFit: 'contain',
-                  display: 'block',
                 }}
               />
             </div>
@@ -198,10 +198,10 @@ export default function LoginPage() {
             boxShadow: '0 2px 14px rgba(0,0,0,0.09)',
             marginBottom: 10,
           }}>
-            <img
+            <ProtectedImg
               src="/assets/colourful-hla-logo.jpg"
               alt="Henry Lee Advisory"
-              style={{ height: 50, width: 'auto', maxWidth: 220, objectFit: 'contain', display: 'block' }}
+              style={{ height: 50, width: 'auto', maxWidth: 220, objectFit: 'contain' }}
             />
           </div>
           <p style={{ color: '#AEAEB2', fontSize: 13 }}>Agent Portal</p>
@@ -387,7 +387,7 @@ export default function LoginPage() {
                 borderRadius: 8, padding: '5px 10px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
               }}>
-                <img
+                <ProtectedImg
                   src="/assets/colourful-llh-favicon.png"
                   alt="LLH"
                   style={{ width: 16, height: 16, objectFit: 'contain', borderRadius: 3 }}
