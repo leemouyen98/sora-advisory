@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { getAge } from '../lib/formatters'
 import { formatRMFull, protectionNeed, generateProtectionSummary } from '../lib/calculations'
-import { ArrowLeft, ArrowRight, X, Plus, Trash2, Settings, ChevronDown, ChevronUp, AlertTriangle, CheckCircle, TrendingDown, ShieldAlert } from 'lucide-react'
+import { ArrowLeft, X, Plus, Trash2, Settings, ChevronDown, ChevronUp, AlertTriangle, CheckCircle, TrendingDown, ShieldAlert } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
@@ -199,7 +199,6 @@ export default function ProtectionPlannerPage() {
           showAssumptions={showAssumptions}
           onToggleAssumptions={setShowAssumptions}
           onBack={() => setStep(2)}
-          onNext={() => navigate(`/contacts/${id}`)}
           insuranceTotals={insuranceTotals}
         />
       )}
@@ -612,7 +611,7 @@ function buildUrgencyNarrative({ risk, active, plan, monthlyIncome, contactName 
 
 // ─── Step 3: Protection Planner ───────────────────────────────────────────────
 
-function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updatePlan, showAssumptions, onToggleAssumptions, onBack, onNext, insuranceTotals = {} }) {
+function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updatePlan, showAssumptions, onToggleAssumptions, onBack, insuranceTotals = {} }) {
   const [activeRisk, setActiveRisk] = useState('death')
   const [activeTab, setActiveTab] = useState('recommendations')
   const [expandedRecId, setExpandedRecId] = useState(null)
@@ -788,16 +787,11 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
             />
           )}
 
-          {/* Back / Next navigation */}
-          <div className="flex items-center justify-between mt-2">
+          {/* Back navigation */}
+          <div className="flex">
             <button onClick={onBack} className="hig-btn-ghost gap-1.5">
               <ArrowLeft size={16} /> Back to Existing Coverage
             </button>
-            {onNext && (
-              <button onClick={onNext} className="hig-btn-primary gap-2">
-                Next: Cash Flow Planner <ArrowRight size={16} />
-              </button>
-            )}
           </div>
         </div>
 
