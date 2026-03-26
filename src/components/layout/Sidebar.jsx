@@ -60,8 +60,9 @@ export default function Sidebar({ expanded, onToggle }) {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={`
+          hidden md:flex flex-col
           fixed lg:relative z-30 h-full bg-white border-r border-hig-gray-5
-          flex flex-col transition-all duration-300 ease-in-out
+          transition-all duration-300 ease-in-out
           ${isOpen ? 'w-60' : 'w-[60px]'}
         `}
       >

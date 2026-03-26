@@ -208,7 +208,7 @@ export default function FinancialRatios({ financials, contact }) {
       </div>
 
       {/* Ratio Cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {scores.map((s) => {
           const config = STATUS_CONFIG[s.status]
           const Icon = config.icon

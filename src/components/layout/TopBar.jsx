@@ -56,10 +56,10 @@ export default function TopBar({ onMenuToggle }) {
 
   return (
     <header className="h-14 bg-white border-b border-hig-gray-5 flex items-center px-4 gap-4 shrink-0">
-      {/* Menu toggle (mobile/tablet) */}
+      {/* Menu toggle — tablet only (mobile uses bottom nav, desktop always visible) */}
       <button
         onClick={onMenuToggle}
-        className="lg:hidden min-w-touch min-h-touch flex items-center justify-center
+        className="hidden md:flex lg:hidden min-w-touch min-h-touch items-center justify-center
                    text-hig-text-secondary hover:text-hig-text rounded-hig-sm
                    hover:bg-hig-gray-6 transition-colors duration-hig"
       >
@@ -89,6 +89,12 @@ export default function TopBar({ onMenuToggle }) {
         </div>
       ) : (
         <div className="flex-1" />
+      )}
+
+      {/* Mobile page title (shown when not on search pages) */}
+      {!showSearch && (
+        <span className="md:hidden absolute left-1/2 -translate-x-1/2
+                         text-hig-subhead font-semibold text-hig-text pointer-events-none" />
       )}
 
       {/* Profile */}

@@ -126,7 +126,7 @@ export default function InsuranceTab({ financials, onSave }) {
           </div>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="hig-label">Policy No.</label>
                 <input value={form.policyNo} onChange={(e) => updateForm('policyNo', e.target.value)} className="hig-input" placeholder="e.g. TML-123456" />
@@ -140,7 +140,7 @@ export default function InsuranceTab({ financials, onSave }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="hig-label">Policy Type</label>
                 <select value={form.type} onChange={(e) => updateForm('type', e.target.value)} className="hig-input">
@@ -154,13 +154,13 @@ export default function InsuranceTab({ financials, onSave }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <RMInput label="Sum Assured" value={form.sumAssured} onChange={(v) => updateForm('sumAssured', v)} />
               <RMInput label="Annual Premium" value={form.annualPremium} onChange={(v) => updateForm('annualPremium', v)} />
               <RMInput label="Monthly Premium" value={form.monthlyPremium} onChange={(v) => updateForm('monthlyPremium', v)} />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="hig-label">Commencement</label>
                 <input type="date" value={form.commencementDate} onChange={(e) => updateForm('commencementDate', e.target.value)} className="hig-input" />
@@ -183,7 +183,7 @@ export default function InsuranceTab({ financials, onSave }) {
             {/* Coverage Breakdown */}
             <div>
               <h4 className="text-hig-headline mb-2">Coverage Breakdown</h4>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <RMInput label="Death" value={form.coverageDetails?.death} onChange={(v) => updateCoverage('death', v)} />
                 <RMInput label="TPD" value={form.coverageDetails?.tpd} onChange={(v) => updateCoverage('tpd', v)} />
                 <RMInput label="Critical Illness" value={form.coverageDetails?.ci} onChange={(v) => updateCoverage('ci', v)} />
@@ -231,7 +231,7 @@ export default function InsuranceTab({ financials, onSave }) {
   return (
     <div className="space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         {[
           { label: 'Annual Premium', value: totalAnnualPremium, color: 'text-hig-blue' },
           { label: 'Death', value: totalDeath, color: 'text-hig-text' },
@@ -279,7 +279,7 @@ export default function InsuranceTab({ financials, onSave }) {
 
           {expandedIdx === idx && (
             <div className="px-4 pb-4 pt-0 border-t border-hig-gray-5 mt-0">
-              <div className="grid grid-cols-3 gap-3 mt-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
                 {[
                   { label: 'Death', value: p.coverageDetails?.death },
                   { label: 'TPD', value: p.coverageDetails?.tpd },

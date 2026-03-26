@@ -155,8 +155,11 @@ export default function ContactsPage() {
 
       {/* Contact List */}
       <div className="hig-card overflow-hidden">
-        {/* Table header */}
-        <div className="grid grid-cols-[1fr_130px_60px_120px_80px] items-center px-4 py-3 bg-hig-gray-6 border-b border-hig-gray-5 text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
+
+        {/* ── Table header (tablet+) ── */}
+        <div className="hidden md:grid grid-cols-[1fr_130px_60px_120px_48px] items-center
+                        px-4 py-3 bg-hig-gray-6 border-b border-hig-gray-5
+                        text-hig-caption1 font-semibold text-hig-text-secondary uppercase tracking-wide">
           <span>Name</span>
           <span>Last Activity</span>
           <span className="text-center">Plans</span>
@@ -164,7 +167,7 @@ export default function ContactsPage() {
           <span></span>
         </div>
 
-        {/* Rows */}
+        {/* State: error / loading / empty */}
         {contactsError ? (
           <div className="px-4 py-10 flex flex-col items-center gap-3 text-center">
             <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,59,48,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -181,17 +184,52 @@ export default function ContactsPage() {
           <div className="px-4 py-12 text-center text-hig-subhead text-hig-text-secondary">
             {search ? 'No contacts match your search.' : 'No contacts yet. Add your first client.'}
           </div>
-        ) : (
-          filtered.map((c) => {
-            const lastActivity = getLastActivity(c)
-            return (
-              <div
-                key={c.id}
-                className="grid grid-cols-[1fr_130px_60px_120px_80px] items-center px-4 py-3
-                           border-b border-hig-gray-5 last:border-b-0 hover:bg-hig-gray-6/50
-                           transition-colors cursor-pointer"
-                onClick={() => navigate(`/contacts/${c.id}`)}
-              >
+        ) : filtered.map((c) => {
+          const lastActivity = getLastActivity(c)
+          return (
+            <div
+              key={c.id}
+              className="border-b border-hig-gray-5 last:border-b-0 hover:bg-hig-gray-6/50
+                         transition-colors cursor-pointer"
+              onClick={() => navigate(`/contacts/${c.id}`)}
+            >
+              {/* ── Mobile card view ── */}
+              <div className="md:hidden flex items-center gap-3 px-4 py-3">
+                {/* Avatar */}
+                <div className="w-10 h-10 rounded-full bg-hig-blue/10 text-hig-blue
+                                flex items-center justify-center text-hig-caption1 font-bold shrink-0">
+                  {c.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-hig-subhead font-semibold text-hig-text truncate">{c.name}</p>
+                    {c.tags.map((t) => (
+                      <span key={t} className={`text-hig-caption2 px-1.5 py-0 rounded-full font-medium shrink-0 ${TAG_COLORS[t] || 'bg-hig-gray-6 text-hig-text-secondary'}`}>
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5 text-hig-caption1 text-hig-text-secondary">
+                    <span>Age {getAge(c.dob)}</span>
+                    {c.mobile && <><span>·</span><span className="flex items-center gap-0.5"><Phone size={10} /> {c.mobile}</span></>}
+                    {lastActivity && <><span>·</span><span>{lastActivity.toLocaleDateString('en-MY', { day: 'numeric', month: 'short' })}</span></>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {c.retirementPlan
+                    ? <CheckCircle2 size={13} className="text-hig-blue" />
+                    : <Target size={13} className="text-hig-gray-3" />
+                  }
+                  {c.protectionPlan
+                    ? <CheckCircle2 size={13} className="text-hig-green" />
+                    : <Shield size={13} className="text-hig-gray-3" />
+                  }
+                  <ChevronRight size={15} className="text-hig-text-secondary ml-1" />
+                </div>
+              </div>
+
+              {/* ── Tablet+ table row ── */}
+              <div className="hidden md:grid grid-cols-[1fr_130px_60px_120px_48px] items-center px-4 py-3">
                 <div>
                   <p className="text-hig-subhead font-medium text-hig-text">{c.name}</p>
                   <p className="text-hig-caption1 text-hig-text-secondary">
@@ -225,9 +263,9 @@ export default function ContactsPage() {
                   <ChevronRight size={16} className="text-hig-text-secondary" />
                 </div>
               </div>
-            )
-          })
-        )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Add Contact Modal */}
@@ -252,7 +290,7 @@ export default function ContactsPage() {
               <label className="hig-label">Mobile</label>
               <input value={form.mobile} onChange={(e) => setForm({...form, mobile: e.target.value})} className="hig-input" placeholder="012-3456789" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="hig-label">Employment Status</label>
                 <select value={form.employment} onChange={(e) => setForm({...form, employment: e.target.value})} className="hig-input">
@@ -274,7 +312,7 @@ export default function ContactsPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="hig-label">Review Date</label>
                 <input type="date" value={form.reviewDate} onChange={(e) => setForm({...form, reviewDate: e.target.value})} className="hig-input" />

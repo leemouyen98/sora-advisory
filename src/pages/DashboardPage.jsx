@@ -256,7 +256,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Stats ───────────────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 12, marginBottom: 24 }}>
           <StatCard
             icon={Users} label="Contacts" color="#007AFF" loading={contactsLoading}
             value={stats.total}
@@ -285,7 +285,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Body: Feed + Sidebar ─────────────────────────────────────────── */}
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+        <div className="flex flex-col lg:flex-row" style={{ gap: 16, alignItems: 'flex-start' }}>
 
           {/* Left: Unified feed */}
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -406,12 +406,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Right: Sidebar */}
-          <div style={{ width: 240, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="lg:w-60 lg:shrink-0 w-full" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* Quick Links — 2-column grid */}
+            {/* Quick Links — responsive grid */}
             <div>
               <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E', marginBottom: 12 }}>Quick Links</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div className="grid grid-cols-4 lg:grid-cols-2" style={{ gap: 8 }}>
                 {QUICK_LINKS.map(({ label, icon: Icon, url, color }) => (
                   <a
                     key={label}

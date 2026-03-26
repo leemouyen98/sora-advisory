@@ -6,18 +6,37 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
 // ─── Type constants ───────────────────────────────────────────────────────────
 const ASSET_DYNAMIC_TYPES = ['Property', 'Automobile', 'Others']
-const INVESTMENT_TYPES    = ['ETFs', 'Stocks & Shares', 'Unit Trusts', 'Bonds', 'Other Investment']
+
+// Core investment types (always shown first)
+const INVESTMENT_TYPES_CORE     = ['Exchange Traded Funds (ETF)', 'Stocks & Shares', 'Unit Trusts', 'Bonds']
+// Optional investment types
+const INVESTMENT_TYPES_OPTIONAL = ['Fixed Deposits', 'Foreign Exchange', 'Money Market', 'Cryptocurrency', 'Others']
+const INVESTMENT_TYPES          = [...INVESTMENT_TYPES_CORE, ...INVESTMENT_TYPES_OPTIONAL]
+
+// Realistic annual return defaults per investment type
+const INVESTMENT_DEFAULT_RETURN = {
+  'Exchange Traded Funds (ETF)': 7.5,
+  'Stocks & Shares':             8.0,
+  'Unit Trusts':                 6.5,
+  'Bonds':                       4.0,
+  'Fixed Deposits':              3.7,
+  'Foreign Exchange':            3.0,
+  'Money Market':                3.5,
+  'Cryptocurrency':             15.0,
+  'Others':                      5.0,
+}
 const PAYMENT_MODES       = ['Monthly', 'Yearly', 'Quarterly', 'Semi-annually', 'Lump Sum']
 const LIABILITY_TYPES     = ['Home Loan', 'Car Loan', 'Study Loan', 'Personal Loan', 'Credit Card', 'Business Loan', 'Other']
 const INCOME_DYNAMIC_TYPES= ['Rental', 'Business', 'Dividends', 'Insurance Payout', 'Other Income']
-const EXPENSE_TYPES       = [
-  'All-Personal', 'All-Transport', 'All-Household', 'All-Dependants', 'All-Miscellaneous',
-  'Vacation/Travel', 'Dependant Allowances', 'Parent Allowance', 'Medical Cost', 'Rental Expense',
-]
+
+// Core expense types (default grouping)
+const EXPENSE_TYPES_CORE     = ['All - Personal', 'All - Transport', 'All - Household', 'All - Dependents', 'All - Miscellaneous', 'Vacation/Travel']
+// Optional / specific expense types
+const EXPENSE_TYPES_OPTIONAL = ['Dependent Allowances', 'Parent Allowance', 'Medical Cost', 'Rental Expenses', 'Others']
+const EXPENSE_TYPES          = [...EXPENSE_TYPES_CORE, ...EXPENSE_TYPES_OPTIONAL]
 const FREQUENCIES = ['Monthly', 'Yearly', 'Quarterly', 'Semi-annually', 'One-Time']
 
 const TABS = [
-  { key: 'overview',    label: 'Overview'    },
   { key: 'assets',      label: 'Assets'      },
   { key: 'investments', label: 'Investments' },
   { key: 'liabilities', label: 'Liabilities' },
@@ -43,71 +62,132 @@ function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
 // ─── Default data helpers ─────────────────────────────────────────────────────
 function getDefaultFixedAssets() {
   return [
-    { id: 'savings-cash',  fixed: true, type: 'Savings Cash',  description: 'Savings / Cash',       growthRate: 0.25, amount: 0 },
-    { id: 'epf-persaraan', fixed: true, type: 'EPF Persaraan', description: 'EPF Akaun Persaraan',  growthRate: 5.2,  amount: 0 },
-    { id: 'epf-sejahtera', fixed: true, type: 'EPF Sejahtera', description: 'EPF Akaun Sejahtera',  growthRate: 5.2,  amount: 0 },
-    { id: 'epf-fleksibel', fixed: true, type: 'EPF Fleksibel', description: 'EPF Akaun Fleksibel',  growthRate: 5.2,  amount: 0 },
+    { id: 'savings-cash', fixed: true, type: 'Savings Cash',       description: 'Savings (Cash)',        growthRate: 0.25, amount: 0 },
+    { id: 'epf-all',      fixed: true, type: 'EPF (All Accounts)', description: 'EPF Combined Balance',  growthRate: 5.2,  amount: 0 },
+    { id: 'property',     fixed: true, type: 'Property',           description: 'Property',              growthRate: 3.0,  amount: 0 },
+    { id: 'automobile',   fixed: true, type: 'Automobile',         description: 'Automobile',            growthRate: -5.0, amount: 0 },
   ]
+}
+
+// Migrate existing data that still has 3 separate EPF rows → single epf-all row
+function migrateEpfRows(assets) {
+  const OLD_EPF = ['epf-persaraan', 'epf-sejahtera', 'epf-fleksibel']
+  const hasOld = assets.some(a => OLD_EPF.includes(a.id))
+  const hasNew = assets.some(a => a.id === 'epf-all')
+  if (!hasOld || hasNew) return assets
+  const epfTotal = assets.filter(a => OLD_EPF.includes(a.id)).reduce((s, a) => s + (Number(a.amount) || 0), 0)
+  const rest = assets.filter(a => !OLD_EPF.includes(a.id))
+  const insertAt = rest.findIndex(a => a.id === 'savings-cash')
+  const newRow = { id: 'epf-all', fixed: true, type: 'EPF (All Accounts)', description: 'EPF Combined Balance', growthRate: 5.2, amount: epfTotal }
+  if (insertAt >= 0) { rest.splice(insertAt + 1, 0, newRow); return rest }
+  return [newRow, ...rest]
 }
 
 function getDefaultFixedIncome() {
   return [
-    { id: 'gross-income', fixed: true, type: 'Employment', description: 'Gross Income', frequency: 'Monthly', amount: 0 },
-    { id: 'bonus',        fixed: true, type: 'Employment', description: 'Bonus',        frequency: 'Yearly',  amount: 0 },
+    { id: 'gross-income', fixed: true, type: 'Employment', description: 'Gross Income', frequency: 'Monthly', amount: 0, epfApplicable: true },
+    { id: 'bonus',        fixed: true, type: 'Employment', description: 'Bonus',        frequency: 'Yearly',  amount: 0, epfApplicable: true },
+  ]
+}
+
+function getDefaultFixedInvestments(currentAge = 30) {
+  return [
+    { id: 'inv-etf',    fixed: true, type: 'Exchange Traded Funds (ETF)', description: 'Wahed, Stashaway, Maybank ETF, Bursa ETFs', planName: '', paymentMode: 'Monthly', ageFrom: currentAge, ageTo: 99, growthRate: 7.5, currentValue: 0 },
+    { id: 'inv-stocks', fixed: true, type: 'Stocks & Shares',             description: 'Bursa-listed equities, blue chips, growth stocks', planName: '', paymentMode: 'Monthly', ageFrom: currentAge, ageTo: 99, growthRate: 8.0, currentValue: 0 },
+    { id: 'inv-ut',     fixed: true, type: 'Unit Trusts',                  description: 'Public Mutual, Principal, Eastspring, KAF',        planName: '', paymentMode: 'Monthly', ageFrom: currentAge, ageTo: 99, growthRate: 6.5, currentValue: 0 },
+    { id: 'inv-bonds',  fixed: true, type: 'Bonds',                        description: 'ASNB, Sukuk, fixed income instruments',             planName: '', paymentMode: 'Monthly', ageFrom: currentAge, ageTo: 99, growthRate: 4.0, currentValue: 0 },
+  ]
+}
+
+function getDefaultFixedLiabilities(currentAge = 30) {
+  return [
+    { id: 'liab-home', fixed: true, type: 'Home Loan', description: 'Home Loan', principal: 0, startAge: currentAge, interestRate: 4.5, loanPeriod: 360 },
+    { id: 'liab-car',  fixed: true, type: 'Car Loan',  description: 'Car Loan',  principal: 0, startAge: currentAge, interestRate: 3.0, loanPeriod: 84  },
+  ]
+}
+
+function getDefaultFixedExpenses(currentAge = 30) {
+  return [
+    { id: 'exp-personal',      fixed: true, type: 'All - Personal',      description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: 0, inflationLinked: true },
+    { id: 'exp-transport',     fixed: true, type: 'All - Transport',     description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: 0, inflationLinked: true },
+    { id: 'exp-household',     fixed: true, type: 'All - Household',     description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: 0, inflationLinked: true },
+    { id: 'exp-dependents',    fixed: true, type: 'All - Dependents',    description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: 0, inflationLinked: true },
+    { id: 'exp-miscellaneous', fixed: true, type: 'All - Miscellaneous', description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: 0, inflationLinked: true },
+    { id: 'exp-vacation',      fixed: true, type: 'Vacation/Travel',     description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Yearly',  amount: 0, inflationLinked: true },
   ]
 }
 
 function normalizeFinancials(fin, currentAge = 30) {
   if (!fin) {
-    return { assets: getDefaultFixedAssets(), investments: [], liabilities: [], income: getDefaultFixedIncome(), expenses: [], insurance: [] }
+    return {
+      assets:      getDefaultFixedAssets(),
+      investments: getDefaultFixedInvestments(currentAge),
+      liabilities: getDefaultFixedLiabilities(currentAge),
+      income:      getDefaultFixedIncome(),
+      expenses:    getDefaultFixedExpenses(currentAge),
+      insurance:   [],
+    }
   }
   if (Array.isArray(fin.assets)) {
     const ensureFixed = (rows, defaults) =>
       rows.some(r => r.fixed) ? rows : [...defaults, ...rows]
     const income = Array.isArray(fin.income) ? fin.income : getDefaultFixedIncome()
+    const migratedAssets = migrateEpfRows(fin.assets)
     return {
-      assets:      ensureFixed(fin.assets, getDefaultFixedAssets()),
-      investments: fin.investments || [],
-      liabilities: fin.liabilities || [],
+      assets:      ensureFixed(migratedAssets, getDefaultFixedAssets()),
+      investments: ensureFixed(fin.investments || [], getDefaultFixedInvestments(currentAge)),
+      liabilities: ensureFixed(fin.liabilities || [], getDefaultFixedLiabilities(currentAge)),
       income:      ensureFixed(income, getDefaultFixedIncome()),
-      expenses:    fin.expenses    || [],
-      insurance:   fin.insurance   || [],
+      expenses:    ensureFixed(fin.expenses || [], getDefaultFixedExpenses(currentAge)),
+      insurance:   fin.insurance || [],
     }
   }
   // Migrate legacy object format
   const oldA = fin.assets || {}, oldL = fin.liabilities || {}, oldI = fin.income || {}, oldE = fin.expenses || {}
   const assets = [
-    { id: 'savings-cash',  fixed: true, type: 'Savings Cash',  description: 'Savings / Cash',       growthRate: 0.25, amount: Number(oldA.savings)      || 0 },
-    { id: 'epf-persaraan', fixed: true, type: 'EPF Persaraan', description: 'EPF Akaun Persaraan',  growthRate: 5.2,  amount: Number(oldA.epfPersaraan) || 0 },
-    { id: 'epf-sejahtera', fixed: true, type: 'EPF Sejahtera', description: 'EPF Akaun Sejahtera',  growthRate: 5.2,  amount: Number(oldA.epfSejahtera) || 0 },
-    { id: 'epf-fleksibel', fixed: true, type: 'EPF Fleksibel', description: 'EPF Akaun Fleksibel',  growthRate: 5.2,  amount: Number(oldA.epfFleksibel) || 0 },
+    { id: 'savings-cash', fixed: true, type: 'Savings Cash',       description: 'Savings (Cash)',       growthRate: 0.25, amount: Number(oldA.savings) || 0 },
+    { id: 'epf-all',      fixed: true, type: 'EPF (All Accounts)', description: 'EPF Combined Balance', growthRate: 5.2,  amount: (Number(oldA.epfPersaraan) || 0) + (Number(oldA.epfSejahtera) || 0) + (Number(oldA.epfFleksibel) || 0) },
+    { id: 'property',     fixed: true, type: 'Property',           description: 'Property',             growthRate: 3.0,  amount: 0 },
+    { id: 'automobile',   fixed: true, type: 'Automobile',         description: 'Automobile',           growthRate: -5.0, amount: 0 },
     ...(Number(oldA.unitTrusts)      > 0 ? [{ id: uid(), fixed: false, type: 'Others', description: 'Unit Trusts',      growthRate: 6, amount: Number(oldA.unitTrusts)      }] : []),
     ...(Number(oldA.otherInvestment) > 0 ? [{ id: uid(), fixed: false, type: 'Others', description: 'Other Investment', growthRate: 5, amount: Number(oldA.otherInvestment) }] : []),
   ]
   const liabilities = [
-    ...(Number(oldL.homeLoan)  > 0 ? [{ id: uid(), type: 'Home Loan',     description: 'Home Loan', principal: Number(oldL.homeLoan),  startAge: currentAge - 5, interestRate: 4.5, loanPeriod: 360 }] : []),
-    ...(Number(oldL.carLoan)   > 0 ? [{ id: uid(), type: 'Car Loan',      description: 'Car Loan',  principal: Number(oldL.carLoan),   startAge: currentAge - 2, interestRate: 3.0, loanPeriod: 84  }] : []),
+    { id: 'liab-home', fixed: true, type: 'Home Loan', description: 'Home Loan', principal: Number(oldL.homeLoan)  || 0, startAge: currentAge - 5, interestRate: 4.5, loanPeriod: 360 },
+    { id: 'liab-car',  fixed: true, type: 'Car Loan',  description: 'Car Loan',  principal: Number(oldL.carLoan)   || 0, startAge: currentAge - 2, interestRate: 3.0, loanPeriod: 84  },
     ...(Number(oldL.studyLoan) > 0 ? [{ id: uid(), type: 'Study Loan',    description: 'PTPTN',     principal: Number(oldL.studyLoan), startAge: currentAge - 5, interestRate: 1.0, loanPeriod: 120 }] : []),
     ...(Number(oldL.otherLoan) > 0 ? [{ id: uid(), type: 'Personal Loan', description: 'Other',     principal: Number(oldL.otherLoan), startAge: currentAge,     interestRate: 5.0, loanPeriod: 60  }] : []),
   ]
   const income = [
-    { id: 'gross-income', fixed: true, type: 'Employment', description: 'Gross Income', frequency: 'Monthly', amount: Number(oldI.grossIncome) || 0 },
-    { id: 'bonus',        fixed: true, type: 'Employment', description: 'Bonus',        frequency: 'Yearly',  amount: Number(oldI.bonus)       || 0 },
+    { id: 'gross-income', fixed: true, type: 'Employment', description: 'Gross Income', frequency: 'Monthly', amount: Number(oldI.grossIncome) || 0, epfApplicable: true },
+    { id: 'bonus',        fixed: true, type: 'Employment', description: 'Bonus',        frequency: 'Yearly',  amount: Number(oldI.bonus)       || 0, epfApplicable: true },
   ]
   const expMap = [
-    { key: 'household',           type: 'All-Household',     desc: 'Household'          },
-    { key: 'personal',            type: 'All-Personal',      desc: 'Personal'           },
-    { key: 'petrol',              type: 'All-Transport',     desc: 'Petrol'             },
-    { key: 'carLoanRepayment',    type: 'All-Transport',     desc: 'Car Loan Repayment' },
-    { key: 'loanRepayment',       type: 'All-Miscellaneous', desc: 'Loan Repayment'     },
-    { key: 'carInsurance',        type: 'All-Transport',     desc: 'Car Insurance'      },
-    { key: 'roadTax',             type: 'All-Transport',     desc: 'Road Tax'           },
-    { key: 'incomeTax',           type: 'All-Miscellaneous', desc: 'Income Tax'         },
-    { key: 'insuranceProtection', type: 'All-Miscellaneous', desc: 'Insurance Premium'  },
+    { key: 'household',           type: 'All - Household',     desc: 'Household'          },
+    { key: 'personal',            type: 'All - Personal',      desc: 'Personal'           },
+    { key: 'petrol',              type: 'All - Transport',     desc: 'Petrol'             },
+    { key: 'carLoanRepayment',    type: 'All - Transport',     desc: 'Car Loan Repayment' },
+    { key: 'loanRepayment',       type: 'All - Miscellaneous', desc: 'Loan Repayment'     },
+    { key: 'carInsurance',        type: 'All - Transport',     desc: 'Car Insurance'      },
+    { key: 'roadTax',             type: 'All - Transport',     desc: 'Road Tax'           },
+    { key: 'incomeTax',           type: 'All - Miscellaneous', desc: 'Income Tax'         },
+    { key: 'insuranceProtection', type: 'All - Miscellaneous', desc: 'Insurance Premium'  },
   ]
-  const expenses = expMap
-    .filter(m => Number(oldE[m.key]) > 0)
-    .map(m => ({ id: uid(), type: m.type, description: m.desc, ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: Number(oldE[m.key]) }))
+  // Seed fixed expense rows; overlay old legacy amounts where type matches
+  const legacyAmounts = {}
+  expMap.filter(m => Number(oldE[m.key]) > 0).forEach(m => {
+    legacyAmounts[m.type] = (legacyAmounts[m.type] || 0) + Number(oldE[m.key])
+  })
+  const fixedExpenses = getDefaultFixedExpenses(currentAge).map(r => ({
+    ...r,
+    amount: legacyAmounts[r.type] || 0,
+  }))
+  // Any legacy types not covered by fixed rows become dynamic rows
+  const coveredTypes = new Set(fixedExpenses.map(r => r.type))
+  const extraExpenses = expMap
+    .filter(m => Number(oldE[m.key]) > 0 && !coveredTypes.has(m.type))
+    .map(m => ({ id: uid(), type: m.type, description: m.desc, ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: Number(oldE[m.key]) }))
+  const expenses = [...fixedExpenses, ...extraExpenses]
   return { assets, investments: fin.investments || [], liabilities, income, expenses, insurance: fin.insurance || [] }
 }
 
@@ -118,7 +198,8 @@ function computeSummary(data) {
   const monthlyIncome    = (data.income      || []).reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
   const monthlyExpenses  = (data.expenses    || []).reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
   const grossRow         = (data.income      || []).find(r => r.id === 'gross-income')
-  const epfContribution  = (Number(grossRow?.amount) || 0) * 0.11
+  const grossEpfOn       = grossRow?.epfApplicable !== false
+  const epfContribution  = grossEpfOn ? (Number(grossRow?.amount) || 0) * 0.11 : 0
   return {
     totalAssets, totalInvestments, totalLiabilities,
     netWorth:        totalAssets + totalInvestments - totalLiabilities,
@@ -181,7 +262,7 @@ function AssetModal({ row, onSave, onClose }) {
       onSave={() => onSave(form)}
       saveLabel={isNew ? 'Add Asset' : 'Save Changes'}
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Type</label>
           <select value={form.type} onChange={e => set('type', e.target.value)} className="hig-input">
@@ -193,7 +274,7 @@ function AssetModal({ row, onSave, onClose }) {
           <input value={form.description} onChange={e => set('description', e.target.value)} className="hig-input" placeholder="e.g. Taman Desa House" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Growth Rate (% p.a.)</label>
           <input type="number" step="0.5" min="0" value={form.growthRate} onChange={e => set('growthRate', parseFloat(e.target.value) || 0)} className="hig-input" />
@@ -207,11 +288,25 @@ function AssetModal({ row, onSave, onClose }) {
 function InvModal({ row, currentAge, onSave, onClose }) {
   const isNew = !row.id
   const [form, setForm] = useState({
-    type: 'Unit Trusts', planName: '', paymentMode: 'Monthly',
-    ageFrom: currentAge, ageTo: 55, growthRate: 6, currentValue: 0,
+    type: 'Exchange Traded Funds (ETF)', planName: '', paymentMode: 'Monthly',
+    ageFrom: currentAge, ageTo: 99,
+    growthRate: INVESTMENT_DEFAULT_RETURN['Exchange Traded Funds (ETF)'],
+    currentValue: 0,
     ...row,
   })
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleTypeChange = (newType) => {
+    const defaultRate = INVESTMENT_DEFAULT_RETURN[newType] ?? 5.0
+    // Only auto-fill rate if this is a new entry, or if the current rate matches a known default (user hasn't customised it)
+    const currentRateIsDefault = Object.values(INVESTMENT_DEFAULT_RETURN).includes(form.growthRate)
+    setForm(f => ({
+      ...f,
+      type: newType,
+      growthRate: (isNew || currentRateIsDefault) ? defaultRate : f.growthRate,
+    }))
+  }
+
   return (
     <ModalShell
       title={isNew ? 'Add Investment' : 'Edit Investment'}
@@ -219,19 +314,24 @@ function InvModal({ row, currentAge, onSave, onClose }) {
       onSave={() => onSave(form)}
       saveLabel={isNew ? 'Add Investment' : 'Save Changes'}
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Type</label>
-          <select value={form.type} onChange={e => set('type', e.target.value)} className="hig-input">
-            {INVESTMENT_TYPES.map(t => <option key={t}>{t}</option>)}
+          <select value={form.type} onChange={e => handleTypeChange(e.target.value)} className="hig-input">
+            <optgroup label="Core">
+              {INVESTMENT_TYPES_CORE.map(t => <option key={t}>{t}</option>)}
+            </optgroup>
+            <optgroup label="Others">
+              {INVESTMENT_TYPES_OPTIONAL.map(t => <option key={t}>{t}</option>)}
+            </optgroup>
           </select>
         </div>
         <div>
-          <label className="hig-label">Plan Name</label>
-          <input value={form.planName || ''} onChange={e => set('planName', e.target.value)} className="hig-input" placeholder="e.g. Public Mutual Growth" />
+          <label className="hig-label">Description</label>
+          <input value={form.planName || ''} onChange={e => set('planName', e.target.value)} className="hig-input" placeholder="e.g. fund name, provider" />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div>
           <label className="hig-label">Payment Mode</label>
           <select value={form.paymentMode || 'Monthly'} onChange={e => set('paymentMode', e.target.value)} className="hig-input">
@@ -244,13 +344,13 @@ function InvModal({ row, currentAge, onSave, onClose }) {
         </div>
         <div>
           <label className="hig-label">Age To</label>
-          <input type="number" min={18} max={120} value={form.ageTo ?? 55} onChange={e => set('ageTo', parseInt(e.target.value) || 55)} className="hig-input" />
+          <input type="number" min={18} max={120} value={form.ageTo ?? 99} onChange={e => set('ageTo', parseInt(e.target.value) || 99)} className="hig-input" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Expected Return (% p.a.)</label>
-          <input type="number" step="0.5" min="0" value={form.growthRate || 0} onChange={e => set('growthRate', parseFloat(e.target.value) || 0)} className="hig-input" />
+          <input type="number" step="0.1" min="0" value={form.growthRate ?? 0} onChange={e => set('growthRate', parseFloat(e.target.value) || 0)} className="hig-input" />
         </div>
         <RMField label="Current Value (RM)" value={form.currentValue} onChange={v => set('currentValue', v)} />
       </div>
@@ -272,7 +372,7 @@ function IncomeModal({ row, onSave, onClose }) {
       onSave={() => onSave(form)}
       saveLabel={isNew ? 'Add Income' : 'Save Changes'}
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Type</label>
           <select value={form.type} onChange={e => set('type', e.target.value)} className="hig-input">
@@ -284,7 +384,7 @@ function IncomeModal({ row, onSave, onClose }) {
           <input value={form.description} onChange={e => set('description', e.target.value)} className="hig-input" placeholder="e.g. Taman Desa Rental" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Frequency</label>
           <select value={form.frequency} onChange={e => set('frequency', e.target.value)} className="hig-input">
@@ -300,7 +400,7 @@ function IncomeModal({ row, onSave, onClose }) {
 function ExpenseModal({ row, currentAge, onSave, onClose }) {
   const isNew = !row.id
   const [form, setForm] = useState({
-    type: 'All-Personal', description: '', ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: 0,
+    type: 'All - Personal', description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: 0,
     inflationLinked: true,   // default: expenses rise with inflation
     ...row,
   })
@@ -312,29 +412,34 @@ function ExpenseModal({ row, currentAge, onSave, onClose }) {
       onSave={() => onSave(form)}
       saveLabel={isNew ? 'Add Expense' : 'Save Changes'}
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Type</label>
           <select value={form.type} onChange={e => set('type', e.target.value)} className="hig-input">
-            {EXPENSE_TYPES.map(t => <option key={t}>{t}</option>)}
+            <optgroup label="Default">
+              {EXPENSE_TYPES_CORE.map(t => <option key={t}>{t}</option>)}
+            </optgroup>
+            <optgroup label="Others">
+              {EXPENSE_TYPES_OPTIONAL.map(t => <option key={t}>{t}</option>)}
+            </optgroup>
           </select>
         </div>
         <div>
           <label className="hig-label">Description</label>
-          <input value={form.description} onChange={e => set('description', e.target.value)} className="hig-input" placeholder="e.g. Grocery" />
+          <input value={form.description} onChange={e => set('description', e.target.value)} className="hig-input" placeholder="e.g. Grocery, Petrol" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Age From</label>
           <input type="number" min={18} max={100} value={form.ageFrom ?? currentAge} onChange={e => set('ageFrom', parseInt(e.target.value) || currentAge)} className="hig-input" />
         </div>
         <div>
           <label className="hig-label">Age To</label>
-          <input type="number" min={18} max={120} value={form.ageTo ?? 55} onChange={e => set('ageTo', parseInt(e.target.value) || 55)} className="hig-input" />
+          <input type="number" min={18} max={120} value={form.ageTo ?? 99} onChange={e => set('ageTo', parseInt(e.target.value) || 99)} className="hig-input" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Frequency</label>
           <select value={form.frequency} onChange={e => set('frequency', e.target.value)} className="hig-input">
@@ -388,7 +493,7 @@ function LiabilityModal({ initial, currentAge, onSave, onClose }) {
       onSave={() => onSave(form)}
       saveLabel={form.id ? 'Save Changes' : 'Add Liability'}
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="hig-label">Type</label>
           <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} className="hig-input">
@@ -407,7 +512,7 @@ function LiabilityModal({ initial, currentAge, onSave, onClose }) {
           <input type="number" min="0" step="1000" value={form.principal || ''} onChange={set('principal')} className="hig-input pl-10" placeholder="0" />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div>
           <label className="hig-label">Start Age</label>
           <input type="number" min={18} max={90} value={form.startAge || currentAge} onChange={set('startAge')} className="hig-input" />
@@ -437,7 +542,7 @@ function LiabilityModal({ initial, currentAge, onSave, onClose }) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('assets')
   const [modal, setModal] = useState(null) // { section, row } | null
   const [showImport, setShowImport] = useState(false)
   const [data, setData] = useState(() => normalizeFinancials(financials, currentAge))
@@ -484,10 +589,6 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
         ))}
       </div>
 
-      {activeTab === 'overview' && (
-        <OverviewTab summary={summary} onNavigate={setActiveTab} onImport={() => setShowImport(true)} />
-      )}
-
       {activeTab === 'assets' && (
         <AssetsTab
           rows={data.assets}
@@ -502,15 +603,17 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
         <InvTab
           rows={data.investments}
           currentAge={currentAge}
+          onUpdateFixed={(id, u) => updateRow('investments', id, u)}
           onEdit={(row) => openEdit('investments', row)}
           onRemove={(id) => removeRow('investments', id)}
-          onAdd={() => openAdd('investments', { type: 'Unit Trusts', planName: '', paymentMode: 'Monthly', ageFrom: currentAge, ageTo: 55, growthRate: 6, currentValue: 0 })}
+          onAdd={() => openAdd('investments', { type: 'Exchange Traded Funds (ETF)', planName: '', paymentMode: 'Monthly', ageFrom: currentAge, ageTo: 99, growthRate: INVESTMENT_DEFAULT_RETURN['Exchange Traded Funds (ETF)'], currentValue: 0 })}
         />
       )}
 
       {activeTab === 'liabilities' && (
         <LiabTab
           rows={data.liabilities}
+          onUpdateFixed={(id, u) => updateRow('liabilities', id, u)}
           onAdd={() => setModal({ section: 'liabilities', row: { type: 'Home Loan', description: '', principal: 0, startAge: currentAge, interestRate: 4.5, loanPeriod: 360 } })}
           onEdit={(row) => setModal({ section: 'liabilities', row: { ...row } })}
           onRemove={(id) => removeRow('liabilities', id)}
@@ -531,9 +634,10 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
         <ExpTab
           rows={data.expenses}
           currentAge={currentAge}
+          onUpdateFixed={(id, u) => updateRow('expenses', id, u)}
           onEdit={(row) => openEdit('expenses', row)}
           onRemove={(id) => removeRow('expenses', id)}
-          onAdd={() => openAdd('expenses', { type: 'All-Personal', description: '', ageFrom: currentAge, ageTo: 55, frequency: 'Monthly', amount: 0, inflationLinked: true })}
+          onAdd={() => openAdd('expenses', { type: 'All - Personal', description: '', ageFrom: currentAge, ageTo: 99, frequency: 'Monthly', amount: 0, inflationLinked: true })}
         />
       )}
 
@@ -578,9 +682,7 @@ function QuickImportModal({ data, onSave, onClose }) {
     grossIncome:   (data.income || []).find(r => r.id === 'gross-income')?.amount || 0,
     bonus:         (data.income || []).find(r => r.id === 'bonus')?.amount || 0,
     savingsCash:   (data.assets || []).find(r => r.id === 'savings-cash')?.amount || 0,
-    epfPersaraan:  (data.assets || []).find(r => r.id === 'epf-persaraan')?.amount || 0,
-    epfSejahtera:  (data.assets || []).find(r => r.id === 'epf-sejahtera')?.amount || 0,
-    epfFleksibel:  (data.assets || []).find(r => r.id === 'epf-fleksibel')?.amount || 0,
+    epfAll:        (data.assets || []).find(r => r.id === 'epf-all')?.amount || 0,
   })
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -591,10 +693,8 @@ function QuickImportModal({ data, onSave, onClose }) {
       return r
     })
     const updatedAssets = (data.assets || []).map(r => {
-      if (r.id === 'savings-cash')  return { ...r, amount: Number(form.savingsCash)  || 0 }
-      if (r.id === 'epf-persaraan') return { ...r, amount: Number(form.epfPersaraan) || 0 }
-      if (r.id === 'epf-sejahtera') return { ...r, amount: Number(form.epfSejahtera) || 0 }
-      if (r.id === 'epf-fleksibel') return { ...r, amount: Number(form.epfFleksibel) || 0 }
+      if (r.id === 'savings-cash') return { ...r, amount: Number(form.savingsCash) || 0 }
+      if (r.id === 'epf-all')      return { ...r, amount: Number(form.epfAll)      || 0 }
       return r
     })
     onSave({ ...data, income: updatedIncome, assets: updatedAssets })
@@ -617,7 +717,7 @@ function QuickImportModal({ data, onSave, onClose }) {
           <div className="flex items-center gap-2 mb-3">
             <span className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Employment Income</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <RMField label="Gross Monthly Income" value={form.grossIncome} onChange={v => set('grossIncome', v)} />
             <RMField label="Annual Bonus" value={form.bonus} onChange={v => set('bonus', v)} />
           </div>
@@ -635,11 +735,9 @@ function QuickImportModal({ data, onSave, onClose }) {
           <div className="flex items-center gap-2 mb-3">
             <span className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Savings & EPF Balances</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <RMField label="Savings / Cash" value={form.savingsCash} onChange={v => set('savingsCash', v)} />
-            <RMField label="EPF Akaun Persaraan" value={form.epfPersaraan} onChange={v => set('epfPersaraan', v)} />
-            <RMField label="EPF Akaun Sejahtera" value={form.epfSejahtera} onChange={v => set('epfSejahtera', v)} />
-            <RMField label="EPF Akaun Fleksibel" value={form.epfFleksibel} onChange={v => set('epfFleksibel', v)} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <RMField label="Savings / Cash"       value={form.savingsCash} onChange={v => set('savingsCash', v)} />
+            <RMField label="EPF (All Accounts)"   value={form.epfAll}      onChange={v => set('epfAll', v)} />
           </div>
         </div>
 
@@ -679,7 +777,7 @@ function OverviewTab({ summary, onNavigate, onImport }) {
           <Upload size={14} /> Import Financial Data
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="hig-card p-5">
           <p className="text-hig-caption1 text-hig-text-secondary font-medium mb-1">Net Worth</p>
           <p className={`text-hig-title2 font-bold ${summary.netWorth >= 0 ? 'text-hig-text' : 'text-hig-red'}`}>
@@ -699,7 +797,7 @@ function OverviewTab({ summary, onNavigate, onImport }) {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {cats.map(c => (
           <button key={c.key} onClick={() => onNavigate(c.key)}
             className="hig-card p-4 text-left hover:shadow-md transition-shadow flex items-center justify-between">
@@ -751,7 +849,8 @@ function AssetsTab({ rows, onUpdateFixed, onEdit, onRemove, onAdd }) {
         <div className="px-4 py-2 bg-hig-gray-6 border-b border-hig-gray-5">
           <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Fixed Accounts</p>
         </div>
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px]">
           <thead>
             <tr className="border-b border-hig-gray-5">
               <th className="text-left px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Account</th>
@@ -790,6 +889,7 @@ function AssetsTab({ rows, onUpdateFixed, onEdit, onRemove, onAdd }) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Dynamic rows — card-style */}
@@ -828,8 +928,10 @@ function AssetsTab({ rows, onUpdateFixed, onEdit, onRemove, onAdd }) {
 }
 
 // ─── Investments Tab ──────────────────────────────────────────────────────────
-function InvTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
-  const total = rows.reduce((s, r) => s + (Number(r.currentValue) || 0), 0)
+function InvTab({ rows, currentAge, onUpdateFixed, onEdit, onRemove, onAdd }) {
+  const total   = rows.reduce((s, r) => s + (Number(r.currentValue) || 0), 0)
+  const fixed   = rows.filter(r =>  r.fixed)
+  const dynamic = rows.filter(r => !r.fixed)
 
   return (
     <div className="space-y-3">
@@ -841,15 +943,80 @@ function InvTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
         <button onClick={onAdd} className="hig-btn-primary gap-1.5"><Plus size={14} /> Add Investment</button>
       </div>
 
-      {rows.length === 0 ? (
-        <div className="hig-card p-8 text-center">
-          <p className="text-hig-subhead text-hig-text-secondary mb-3">No investments recorded.</p>
-          <button onClick={onAdd} className="hig-btn-primary">Add Investment</button>
+      {/* Fixed rows — inline editable */}
+      <div className="hig-card overflow-hidden">
+        <div className="px-4 py-2 bg-hig-gray-6 border-b border-hig-gray-5">
+          <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Core Holdings</p>
         </div>
-      ) : (
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px]">
+          <thead>
+            <tr className="border-b border-hig-gray-5">
+              <th className="text-left px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Type</th>
+              <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Description</th>
+              <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-24">Return %</th>
+              <th className="text-right px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-44">Current Value (RM)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fixed.map(r => (
+              <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                <td className="px-4 py-2.5">
+                  <p className="text-hig-subhead font-medium whitespace-nowrap">{r.type}</p>
+                  {r.description && (
+                    <p className="text-hig-caption2 text-hig-text-secondary mt-0.5">{r.description}</p>
+                  )}
+                </td>
+                <td className="px-3 py-2.5">
+                  <input
+                    type="text"
+                    value={r.planName || ''}
+                    onChange={e => onUpdateFixed(r.id, { planName: e.target.value })}
+                    className="hig-input py-1.5 w-full"
+                    placeholder={
+                      r.type === 'Exchange Traded Funds (ETF)' ? 'e.g. Wahed, Stashaway, Maybank ETF' :
+                      r.type === 'Stocks & Shares'             ? 'e.g. Top Glove, CIMB, Maybank' :
+                      r.type === 'Unit Trusts'                  ? 'e.g. Public Mutual, Principal, Eastspring' :
+                      r.type === 'Bonds'                        ? 'e.g. ASNB, Sukuk, PNB funds' :
+                      'e.g. fund name, provider'
+                    }
+                  />
+                </td>
+                <td className="px-3 py-2.5">
+                  <input
+                    type="number" step="0.1" min="0"
+                    value={r.growthRate}
+                    onChange={e => onUpdateFixed(r.id, { growthRate: parseFloat(e.target.value) || 0 })}
+                    className="hig-input text-right py-1.5 tabular-nums w-full"
+                  />
+                </td>
+                <td className="px-4 py-2.5">
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                    <input
+                      type="number" min="0" step="100"
+                      value={r.currentValue || ''}
+                      onChange={e => onUpdateFixed(r.id, { currentValue: parseFloat(e.target.value) || 0 })}
+                      className="hig-input text-right py-1.5 pl-8 tabular-nums"
+                      placeholder="0"
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      {/* Dynamic rows */}
+      {dynamic.length > 0 && (
         <div className="hig-card overflow-hidden">
-          {rows.map((r, i) => (
-            <div key={r.id} className={`flex items-center gap-4 px-4 py-3 ${i < rows.length - 1 ? 'border-b border-hig-gray-5' : ''}`}>
+          <div className="px-4 py-2 bg-hig-gray-6 border-b border-hig-gray-5">
+            <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Other Investments</p>
+          </div>
+          {dynamic.map((r, i) => (
+            <div key={r.id} className={`flex items-center gap-4 px-4 py-3 ${i < dynamic.length - 1 ? 'border-b border-hig-gray-5' : ''}`}>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-hig-caption2 px-2 py-0.5 bg-hig-blue/10 text-hig-blue rounded-full">{r.type}</span>
@@ -857,7 +1024,7 @@ function InvTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
                 </div>
                 <div className="flex flex-wrap gap-3 text-hig-caption1 text-hig-text-secondary">
                   <span>{r.paymentMode}</span>
-                  <span>Age {r.ageFrom ?? currentAge} → {r.ageTo ?? 55}</span>
+                  <span>Age {r.ageFrom ?? currentAge} → {r.ageTo ?? 99}</span>
                   <span>Return: {r.growthRate}% p.a.</span>
                   <span>Value: <span className="tabular-nums font-medium text-hig-text">{formatRMFull(r.currentValue)}</span></span>
                 </div>
@@ -868,20 +1035,24 @@ function InvTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
               </div>
             </div>
           ))}
-          <div className="flex justify-between px-4 py-2.5 bg-hig-gray-6 border-t border-hig-gray-5">
-            <span className="text-hig-subhead font-semibold">Total Value</span>
-            <span className="text-hig-subhead font-semibold tabular-nums">{formatRMFull(total)}</span>
-          </div>
         </div>
       )}
+
+      {/* Total footer */}
+      <div className="flex justify-between px-4 py-2.5 bg-hig-gray-6 rounded-hig-sm">
+        <span className="text-hig-subhead font-semibold">Total Investment Value</span>
+        <span className="text-hig-subhead font-semibold tabular-nums">{formatRMFull(total)}</span>
+      </div>
     </div>
   )
 }
 
 // ─── Liabilities Tab ──────────────────────────────────────────────────────────
-function LiabTab({ rows, onAdd, onEdit, onRemove }) {
+function LiabTab({ rows, onUpdateFixed, onAdd, onEdit, onRemove }) {
   const totalPrincipal = rows.reduce((s, r) => s + (Number(r.principal) || 0), 0)
   const totalMonthly   = rows.reduce((s, r) => s + calcMonthlyRepayment(r.principal, r.interestRate, r.loanPeriod), 0)
+  const fixed   = rows.filter(r =>  r.fixed)
+  const dynamic = rows.filter(r => !r.fixed)
 
   return (
     <div className="space-y-3">
@@ -892,17 +1063,91 @@ function LiabTab({ rows, onAdd, onEdit, onRemove }) {
             Outstanding: {formatRMFull(totalPrincipal)} · Repayment: {formatRMFull(totalMonthly)}/mth
           </p>
         </div>
-        <button onClick={onAdd} className="hig-btn-primary gap-1.5"><Plus size={14} /> New Liability</button>
+        <button onClick={onAdd} className="hig-btn-primary gap-1.5"><Plus size={14} /> Add Liability</button>
       </div>
 
-      {rows.length === 0 ? (
-        <div className="hig-card p-8 text-center">
-          <p className="text-hig-subhead text-hig-text-secondary mb-3">No liabilities recorded.</p>
-          <button onClick={onAdd} className="hig-btn-primary">Add Liability</button>
+      {/* Fixed rows — inline editable */}
+      <div className="hig-card overflow-hidden">
+        <div className="px-4 py-2 bg-hig-gray-6 border-b border-hig-gray-5">
+          <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Common Loans</p>
         </div>
-      ) : (
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px]">
+          <thead>
+            <tr className="border-b border-hig-gray-5">
+              <th className="text-left px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Type</th>
+              <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Description</th>
+              <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-40">Outstanding (RM)</th>
+              <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-20">Rate %</th>
+              <th className="text-right px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-24">Term (mths)</th>
+              <th className="text-right px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-32">Monthly</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fixed.map(r => {
+              const monthly = calcMonthlyRepayment(r.principal, r.interestRate, r.loanPeriod)
+              return (
+                <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                  <td className="px-4 py-2.5">
+                    <p className="text-hig-subhead font-medium whitespace-nowrap">{r.type}</p>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <input
+                      type="text"
+                      value={r.description || ''}
+                      onChange={e => onUpdateFixed(r.id, { description: e.target.value })}
+                      className="hig-input py-1.5 w-full"
+                      placeholder="e.g. Maybank Home Loan"
+                    />
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <div className="relative">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                      <input
+                        type="number" min="0" step="1000"
+                        value={r.principal || ''}
+                        onChange={e => onUpdateFixed(r.id, { principal: parseFloat(e.target.value) || 0 })}
+                        className="hig-input text-right py-1.5 pl-8 tabular-nums"
+                        placeholder="0"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <input
+                      type="number" step="0.1" min="0" max="30"
+                      value={r.interestRate}
+                      onChange={e => onUpdateFixed(r.id, { interestRate: parseFloat(e.target.value) || 0 })}
+                      className="hig-input text-right py-1.5 tabular-nums w-full"
+                    />
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <input
+                      type="number" step="12" min="1" max="600"
+                      value={r.loanPeriod}
+                      onChange={e => onUpdateFixed(r.id, { loanPeriod: parseInt(e.target.value) || 12 })}
+                      className="hig-input text-right py-1.5 tabular-nums w-full"
+                    />
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <span className={`text-hig-subhead font-semibold tabular-nums ${monthly > 0 ? 'text-hig-red' : 'text-hig-text-secondary'}`}>
+                      {monthly > 0 ? formatRMFull(monthly) : '—'}
+                    </span>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      {/* Dynamic rows */}
+      {dynamic.length > 0 && (
         <div className="space-y-2">
-          {rows.map(r => {
+          <div className="px-1">
+            <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Other Liabilities</p>
+          </div>
+          {dynamic.map(r => {
             const monthly = calcMonthlyRepayment(r.principal, r.interestRate, r.loanPeriod)
             return (
               <div key={r.id} className="hig-card p-4 flex items-center gap-4">
@@ -925,12 +1170,14 @@ function LiabTab({ rows, onAdd, onEdit, onRemove }) {
               </div>
             )
           })}
-          <div className="flex justify-between px-4 py-2.5 bg-hig-gray-6 rounded-hig-sm">
-            <span className="text-hig-subhead font-semibold">Total Monthly Repayment</span>
-            <span className="text-hig-subhead font-semibold text-hig-red tabular-nums">{formatRMFull(totalMonthly)}/mth</span>
-          </div>
         </div>
       )}
+
+      {/* Total footer */}
+      <div className="flex justify-between px-4 py-2.5 bg-hig-gray-6 rounded-hig-sm">
+        <span className="text-hig-subhead font-semibold">Total Monthly Repayment</span>
+        <span className="text-hig-subhead font-semibold text-hig-red tabular-nums">{formatRMFull(totalMonthly)}/mth</span>
+      </div>
     </div>
   )
 }
@@ -957,7 +1204,8 @@ function IncomeTab({ rows, onUpdateFixed, onEdit, onRemove, onAdd }) {
         <div className="px-4 py-2 bg-hig-gray-6 border-b border-hig-gray-5">
           <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Employment Income</p>
         </div>
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px]">
           <thead>
             <tr className="border-b border-hig-gray-5">
               <th className="text-left px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Source</th>
@@ -967,31 +1215,55 @@ function IncomeTab({ rows, onUpdateFixed, onEdit, onRemove, onAdd }) {
             </tr>
           </thead>
           <tbody>
-            {fixed.map(r => (
-              <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
-                <td className="px-4 py-2.5">
-                  <p className="text-hig-subhead font-medium">{r.description}</p>
-                </td>
-                <td className="px-3 py-2.5 text-hig-caption1 text-hig-text-secondary">{r.frequency}</td>
-                <td className="px-4 py-2.5">
-                  <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
-                    <input
-                      type="number" min="0" step="100"
-                      value={r.amount || ''}
-                      onChange={e => onUpdateFixed(r.id, { amount: parseFloat(e.target.value) || 0 })}
-                      className="hig-input text-right py-1.5 pl-8 tabular-nums"
-                      placeholder="0"
-                    />
-                  </div>
-                </td>
-                <td className="px-3 py-2.5 text-right text-hig-caption1 text-hig-text-secondary tabular-nums">
-                  {formatRMFull(toMonthly(r.amount, r.frequency))}
-                </td>
-              </tr>
-            ))}
+            {fixed.map(r => {
+              const epfOn = r.epfApplicable !== false
+              return (
+                <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                  <td className="px-4 py-2.5">
+                    <p className="text-hig-subhead font-medium">{r.description}</p>
+                    <button
+                      onClick={() => onUpdateFixed(r.id, { epfApplicable: !epfOn })}
+                      style={{
+                        marginTop: 4,
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                        padding: '2px 8px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                        fontSize: 11, fontWeight: 600, lineHeight: '16px',
+                        background: epfOn ? 'rgba(0,122,255,0.10)' : 'rgba(142,142,147,0.12)',
+                        color: epfOn ? '#007AFF' : '#8E8E93',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      <span style={{
+                        width: 8, height: 8, borderRadius: '50%',
+                        background: epfOn ? '#007AFF' : '#C7C7CC',
+                        flexShrink: 0,
+                        transition: 'background 0.15s',
+                      }} />
+                      {epfOn ? 'EPF' : 'No EPF'}
+                    </button>
+                  </td>
+                  <td className="px-3 py-2.5 text-hig-caption1 text-hig-text-secondary">{r.frequency}</td>
+                  <td className="px-4 py-2.5">
+                    <div className="relative">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                      <input
+                        type="number" min="0" step="100"
+                        value={r.amount || ''}
+                        onChange={e => onUpdateFixed(r.id, { amount: parseFloat(e.target.value) || 0 })}
+                        className="hig-input text-right py-1.5 pl-8 tabular-nums"
+                        placeholder="0"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-3 py-2.5 text-right text-hig-caption1 text-hig-text-secondary tabular-nums">
+                    {formatRMFull(toMonthly(r.amount, r.frequency))}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Dynamic rows */}
@@ -1026,22 +1298,37 @@ function IncomeTab({ rows, onUpdateFixed, onEdit, onRemove, onAdd }) {
         <span className="text-hig-subhead font-semibold">Monthly Total</span>
         <span className="text-hig-subhead font-semibold text-hig-green tabular-nums">{formatRMFull(totalMonthly)}/mth</span>
       </div>
-      {grossRow && Number(grossRow.amount) > 0 && (
-        <div className="bg-hig-blue/5 border border-hig-blue/20 rounded-hig-sm p-3 flex items-start gap-2">
-          <Info size={13} className="text-hig-blue mt-0.5 shrink-0" />
-          <p className="text-hig-caption1 text-hig-blue">
-            EPF employee (11%): {formatRMFull(Number(grossRow.amount) * 0.11)}/mth
-            · Employer: {Number(grossRow.amount) > 5000 ? '12%' : '13%'}
-          </p>
-        </div>
-      )}
+      {(() => {
+        const epfRows = rows.filter(r => r.fixed && r.epfApplicable !== false && Number(r.amount) > 0)
+        if (!epfRows.length) return null
+        const grossAmt  = epfRows.find(r => r.id === 'gross-income')?.amount || 0
+        const bonusAmt  = epfRows.find(r => r.id === 'bonus')?.amount || 0
+        const empRate   = grossAmt > 5000 ? 0.12 : 0.13
+        const empEPF    = grossAmt * empRate + bonusAmt * empRate
+        const eeEPF     = grossAmt * 0.11 + bonusAmt * 0.11
+        const lines = []
+        if (grossAmt > 0) lines.push(`Gross: employee ${formatRMFull(grossAmt * 0.11)}/mth · employer ${formatRMFull(grossAmt * empRate)}/mth (${empRate * 100}%)`)
+        if (bonusAmt > 0) lines.push(`Bonus: employee ${formatRMFull(bonusAmt * 0.11)} · employer ${formatRMFull(bonusAmt * empRate)} (annual)`)
+        return (
+          <div className="bg-hig-blue/5 border border-hig-blue/20 rounded-hig-sm p-3 flex items-start gap-2">
+            <Info size={13} className="text-hig-blue mt-0.5 shrink-0" />
+            <div>
+              {lines.map((l, i) => (
+                <p key={i} className="text-hig-caption1 text-hig-blue">{l}</p>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
 
 // ─── Expenses Tab ─────────────────────────────────────────────────────────────
-function ExpTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
+function ExpTab({ rows, currentAge, onUpdateFixed, onEdit, onRemove, onAdd }) {
   const totalMonthly = rows.reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
+  const fixed   = rows.filter(r =>  r.fixed)
+  const dynamic = rows.filter(r => !r.fixed)
 
   return (
     <div className="space-y-3">
@@ -1053,27 +1340,81 @@ function ExpTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
         <button onClick={onAdd} className="hig-btn-primary gap-1.5"><Plus size={14} /> Add Expense</button>
       </div>
 
-      {rows.length === 0 ? (
-        <div className="hig-card p-8 text-center">
-          <p className="text-hig-subhead text-hig-text-secondary mb-3">No expenses recorded.</p>
-          <button onClick={onAdd} className="hig-btn-primary">Add Expense</button>
+      {/* Fixed rows — inline editable */}
+      <div className="hig-card overflow-hidden">
+        <div className="px-4 py-2 bg-hig-gray-6 border-b border-hig-gray-5">
+          <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Monthly Expenses</p>
         </div>
-      ) : (
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px]">
+          <thead>
+            <tr className="border-b border-hig-gray-5">
+              <th className="text-left px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold">Category</th>
+              <th className="text-left px-3 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-28">Frequency</th>
+              <th className="text-right px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-44">Amount (RM)</th>
+              <th className="text-right px-4 py-2.5 text-hig-caption1 text-hig-text-secondary font-semibold w-36">Monthly Eq.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fixed.map(r => {
+              const monthly = toMonthly(r.amount, r.frequency)
+              return (
+                <tr key={r.id} className="border-b border-hig-gray-5 last:border-b-0">
+                  <td className="px-4 py-2.5">
+                    <p className="text-hig-subhead font-medium">{r.type}</p>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <select
+                      value={r.frequency}
+                      onChange={e => onUpdateFixed(r.id, { frequency: e.target.value })}
+                      className="hig-input py-1.5 w-full"
+                    >
+                      {FREQUENCIES.map(f => <option key={f}>{f}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div className="relative">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-caption1 text-hig-text-secondary">RM</span>
+                      <input
+                        type="number" min="0" step="100"
+                        value={r.amount || ''}
+                        onChange={e => onUpdateFixed(r.id, { amount: parseFloat(e.target.value) || 0 })}
+                        className="hig-input text-right py-1.5 pl-8 tabular-nums"
+                        placeholder="0"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <span className={`text-hig-subhead font-semibold tabular-nums ${monthly > 0 ? 'text-hig-red' : 'text-hig-text-secondary'}`}>
+                      {monthly > 0 ? formatRMFull(monthly) : '—'}
+                    </span>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      {/* Dynamic rows */}
+      {dynamic.length > 0 && (
         <div className="hig-card overflow-hidden">
-          {rows.map((r, i) => (
-            <div key={r.id} className={`flex items-center gap-4 px-4 py-3 ${i < rows.length - 1 ? 'border-b border-hig-gray-5' : ''}`}>
+          <div className="px-4 py-2 bg-hig-gray-6 border-b border-hig-gray-5">
+            <p className="text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide">Other Expenses</p>
+          </div>
+          {dynamic.map((r, i) => (
+            <div key={r.id} className={`flex items-center gap-4 px-4 py-3 ${i < dynamic.length - 1 ? 'border-b border-hig-gray-5' : ''}`}>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <span className="text-hig-caption2 px-2 py-0.5 bg-hig-gray-6 text-hig-text-secondary rounded-full">{r.type}</span>
                   <span className="text-hig-subhead font-medium">{r.description || '—'}</span>
                   {r.inflationLinked === false && (
-                    <span className="text-hig-caption2 px-1.5 py-0.5 bg-hig-gray-5 text-hig-text-secondary rounded font-medium leading-none">
-                      Fixed
-                    </span>
+                    <span className="text-hig-caption2 px-1.5 py-0.5 bg-hig-gray-5 text-hig-text-secondary rounded font-medium leading-none">Fixed</span>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-3 text-hig-caption1 text-hig-text-secondary">
-                  <span>Age {r.ageFrom ?? currentAge} → {r.ageTo ?? 55}</span>
+                  <span>Age {r.ageFrom ?? currentAge} → {r.ageTo ?? 99}</span>
                   <span>{r.frequency}</span>
                   <span><span className="tabular-nums font-medium text-hig-text">{formatRMFull(r.amount)}</span></span>
                   <span>({formatRMFull(toMonthly(r.amount, r.frequency))}/mth)</span>
@@ -1085,12 +1426,14 @@ function ExpTab({ rows, currentAge, onEdit, onRemove, onAdd }) {
               </div>
             </div>
           ))}
-          <div className="flex justify-between px-4 py-2.5 bg-hig-gray-6 border-t border-hig-gray-5">
-            <span className="text-hig-subhead font-semibold">Monthly Total</span>
-            <span className="text-hig-subhead font-semibold text-hig-red tabular-nums">{formatRMFull(totalMonthly)}/mth</span>
-          </div>
         </div>
       )}
+
+      {/* Total footer */}
+      <div className="flex justify-between px-4 py-2.5 bg-hig-gray-6 rounded-hig-sm">
+        <span className="text-hig-subhead font-semibold">Total Monthly Expenses</span>
+        <span className="text-hig-subhead font-semibold text-hig-red tabular-nums">{formatRMFull(totalMonthly)}/mth</span>
+      </div>
     </div>
   )
 }
