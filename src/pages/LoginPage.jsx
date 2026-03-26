@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { Eye, EyeOff, Loader2, Target, Shield, Users } from 'lucide-react'
+import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
   const { login, loading, error: authError } = useAuth()
   const navigate = useNavigate()
   const [agentCode, setAgentCode] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [shake, setShake] = useState(false)
+  const [password, setPassword]   = useState('')
+  const [showPw, setShowPw]       = useState(false)
+  const [shake, setShake]         = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -22,191 +22,299 @@ export default function LoginPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen flex" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+  const canSubmit = agentCode.length === 6 && password.length > 0 && !loading
 
-      {/* ── Left Panel: Branding ────────────────────────────────────── */}
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+    }}>
+      <style>{`
+        @keyframes shake {
+          0%,100% { transform: translateX(0); }
+          20%      { transform: translateX(-7px); }
+          40%      { transform: translateX(7px); }
+          60%      { transform: translateX(-4px); }
+          80%      { transform: translateX(4px); }
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .lp-f1 { animation: fadeUp 0.5s ease both; }
+        .lp-f2 { animation: fadeUp 0.5s 0.08s ease both; }
+        .lp-f3 { animation: fadeUp 0.5s 0.16s ease both; }
+        .lp-input { border: none; background: transparent; outline: none; width: 100%; color: #1C1C1E; }
+        .lp-input::placeholder { color: #C7C7CC; }
+        .lp-btn { transition: all 0.15s ease; }
+        .lp-btn:not(:disabled):hover  { opacity: 0.91; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,122,255,0.32); }
+        .lp-btn:not(:disabled):active { transform: translateY(0); }
+        .lp-card:focus-within { box-shadow: 0 0 0 2px rgba(0,122,255,0.25), 0 1px 4px rgba(0,0,0,0.06) !important; }
+      `}</style>
+
+      {/* ── Left: Branding ──────────────────────────────────────────────── */}
       <div
-        className="hidden lg:flex lg:w-[44%] xl:w-[42%] flex-col justify-between p-12 relative overflow-hidden"
+        className="hidden lg:flex"
         style={{
-          background: 'linear-gradient(145deg, #0A1628 0%, #0D2247 40%, #0A3D7A 75%, #007AFF 100%)',
+          width: '46%',
+          flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden',
+          background: 'linear-gradient(155deg, #05101F 0%, #0A1C35 45%, #0D2450 100%)',
         }}
       >
-        {/* Decorative circles */}
+        {/* Grid texture */}
         <div style={{
-          position: 'absolute', top: -120, right: -120,
-          width: 480, height: 480, borderRadius: '50%',
-          background: 'rgba(0,122,255,0.15)', pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: -80, left: -80,
-          width: 360, height: 360, borderRadius: '50%',
-          background: 'rgba(0,122,255,0.10)', pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute', top: '40%', left: '60%',
-          width: 200, height: 200, borderRadius: '50%',
-          background: 'rgba(255,255,255,0.03)', pointerEvents: 'none',
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px)
+          `,
+          backgroundSize: '52px 52px',
         }} />
 
-        {/* Logo + wordmark */}
-        <div className="relative z-10">
+        {/* Blue glow */}
+        <div style={{
+          position: 'absolute', top: '-20%', right: '-10%',
+          width: 560, height: 560, borderRadius: '50%', pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(0,122,255,0.13) 0%, transparent 65%)',
+        }} />
+        {/* Warm glow — echoes logo colours */}
+        <div style={{
+          position: 'absolute', bottom: '0%', left: '-8%',
+          width: 420, height: 420, borderRadius: '50%', pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(255,90,0,0.07) 0%, transparent 65%)',
+        }} />
+
+        <div style={{
+          position: 'relative', zIndex: 10,
+          display: 'flex', flexDirection: 'column',
+          height: '100%', padding: '48px 52px',
+        }}>
+
+          <div />
+
+          {/* Centre content */}
           <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            background: 'white', borderRadius: 16, padding: '12px 20px',
+            flex: 1,
+            display: 'flex', flexDirection: 'column',
+            justifyContent: 'center',
           }}>
-            <img
-              src="/assets/colourful-llh-logo.jpg"
-              alt="LLH Group"
-              style={{ height: 56, width: 'auto', maxWidth: 260, objectFit: 'contain' }}
-            />
-          </div>
-        </div>
 
-        {/* Headline */}
-        <div className="relative z-10 flex-1 flex flex-col justify-center py-12">
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>
-            Financial Planning Suite
-          </p>
-          <h1 style={{ color: 'white', fontSize: 36, fontWeight: 700, lineHeight: 1.15, letterSpacing: -0.5, marginBottom: 20 }}>
-            Plan smarter.<br />Retire confident.
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 16, lineHeight: 1.6, maxWidth: 340 }}>
-            A complete suite for financial advisors to manage clients, run retirement projections, and build wealth protection strategies.
-          </p>
+            {/* HLA Logo — hero element */}
+            <div style={{
+              background: 'white',
+              borderRadius: 20,
+              padding: '22px 30px',
+              display: 'inline-block',
+              marginBottom: 40,
+              boxShadow: '0 12px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05)',
+            }}>
+              <img
+                src="/assets/colourful-hla-logo.jpg"
+                alt="Henry Lee Advisory"
+                style={{
+                  height: 68, width: 'auto',
+                  maxWidth: 300, objectFit: 'contain',
+                  display: 'block',
+                }}
+              />
+            </div>
 
-          {/* Feature list */}
-          <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {[
-              { icon: Users, label: 'Client CRM', desc: 'Contacts, notes, tasks & activity tracking' },
-              { icon: Target, label: 'Retirement Planner', desc: 'Goal-based projections with EPF integration' },
-              { icon: Shield, label: 'Wealth Protection', desc: 'Death, TPD, CI needs analysis & recommendations' },
-            ].map(({ icon: Icon, label, desc }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: 10, flexShrink: 0, marginTop: 1,
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon size={16} color="rgba(255,255,255,0.8)" />
+            {/* Tagline */}
+            <h1 style={{
+              color: 'white',
+              fontSize: 32, fontWeight: 700,
+              lineHeight: 1.22, letterSpacing: -0.5,
+              marginBottom: 16, maxWidth: 320,
+            }}>
+              Every client's<br />future, mapped.
+            </h1>
+
+            <p style={{
+              color: 'rgba(255,255,255,0.38)',
+              fontSize: 15, lineHeight: 1.7,
+              maxWidth: 310,
+            }}>
+              A private planning suite for financial advisors — retirement projections, protection analysis, and client management in one place.
+            </p>
+
+            {/* Accent rule */}
+            <div style={{
+              width: 36, height: 2, borderRadius: 2,
+              background: 'linear-gradient(90deg, #007AFF, transparent)',
+              margin: '32px 0',
+            }} />
+
+            {/* Three pillars */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[
+                { dot: '#007AFF', label: 'Client CRM',           desc: 'Contacts, tasks & activity tracking' },
+                { dot: '#34C759', label: 'Retirement Planner',   desc: 'Goal-based projections with EPF' },
+                { dot: '#FF9500', label: 'Wealth Protection',    desc: 'Death, TPD & CI needs analysis' },
+              ].map(({ dot, label, desc }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{
+                    width: 7, height: 7, borderRadius: '50%',
+                    background: dot, flexShrink: 0,
+                    boxShadow: `0 0 8px ${dot}`,
+                  }} />
+                  <div>
+                    <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600 }}>
+                      {label}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>
+                      {' '}— {desc}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{label}</p>
-                  <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="relative z-10">
-          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: 12 }}>
+          {/* Footer */}
+          <p style={{ color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>
             © {new Date().getFullYear()} Henry Lee Advisory · Private &amp; Confidential
           </p>
         </div>
       </div>
 
-      {/* ── Right Panel: Login Form ─────────────────────────────────── */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-hig-bg px-6 py-12">
+      {/* ── Right: Form ─────────────────────────────────────────────────── */}
+      <div style={{
+        flex: 1,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        background: '#F2F2F7',
+        padding: '48px 24px',
+      }}>
 
-        {/* Mobile-only logo */}
-        <div className="lg:hidden text-center mb-10">
-          <img
-            src="/assets/colourful-llh-logo.jpg"
-            alt="LLH Group"
-            className="h-14 w-auto max-w-[280px] object-contain mx-auto mb-2"
-          />
-          <p className="text-hig-subhead text-hig-text-secondary mt-1">Financial Planning Suite</p>
+        {/* Mobile logo */}
+        <div className="lg:hidden lp-f1" style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{
+            background: 'white', borderRadius: 16,
+            padding: '14px 22px', display: 'inline-block',
+            boxShadow: '0 2px 14px rgba(0,0,0,0.09)',
+            marginBottom: 10,
+          }}>
+            <img
+              src="/assets/colourful-hla-logo.jpg"
+              alt="Henry Lee Advisory"
+              style={{ height: 50, width: 'auto', maxWidth: 220, objectFit: 'contain', display: 'block' }}
+            />
+          </div>
+          <p style={{ color: '#AEAEB2', fontSize: 13 }}>Agent Portal</p>
         </div>
 
-        <div className="w-full max-w-sm">
+        <div style={{ width: '100%', maxWidth: 364, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
+
           {/* Heading */}
-          <div className="mb-8">
-            <h2 className="text-hig-title2 text-hig-text">Welcome back</h2>
-            <p className="text-hig-subhead text-hig-text-secondary mt-1">Sign in to your agent account</p>
+          <div className="lp-f1" style={{ marginBottom: 26 }}>
+            <h2 style={{
+              fontSize: 24, fontWeight: 700,
+              color: '#1C1C1E', letterSpacing: -0.3, marginBottom: 4,
+            }}>
+              Welcome back
+            </h2>
+            <p style={{ fontSize: 15, color: '#8E8E93' }}>
+              Sign in to your agent account
+            </p>
           </div>
 
-          {/* Form card */}
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              animation: shake ? 'shake 0.45s ease' : undefined,
-            }}
-          >
-            <style>{`
-              @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                15% { transform: translateX(-6px); }
-                30% { transform: translateX(6px); }
-                45% { transform: translateX(-5px); }
-                60% { transform: translateX(5px); }
-                75% { transform: translateX(-3px); }
-                90% { transform: translateX(3px); }
-              }
-            `}</style>
+          <form onSubmit={handleSubmit} style={{ animation: shake ? 'shake 0.45s ease' : undefined }}>
+            <div className="lp-f2" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-            <div className="hig-card p-6 space-y-5">
               {/* Agent Code */}
-              <div>
-                <label className="hig-label">Agent Code</label>
-                <div className="relative">
+              <div
+                className="lp-card"
+                style={{
+                  background: 'white', borderRadius: 16,
+                  padding: '15px 20px 13px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05)',
+                  transition: 'box-shadow 0.15s',
+                }}
+              >
+                <label style={{
+                  display: 'block',
+                  fontSize: 10, fontWeight: 700,
+                  color: '#AEAEB2', letterSpacing: '1px',
+                  textTransform: 'uppercase', marginBottom: 9,
+                }}>
+                  Agent Code
+                </label>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                   <input
+                    className="lp-input"
                     type="text"
                     inputMode="numeric"
                     maxLength={6}
-                    placeholder="· · · · · ·"
                     value={agentCode}
-                    onChange={(e) => setAgentCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className="hig-input text-center font-mono"
-                    style={{ fontSize: 22, letterSpacing: '0.35em', paddingRight: agentCode ? '2.5rem' : undefined }}
+                    onChange={e => setAgentCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     autoFocus
                     autoComplete="username"
+                    placeholder="· · · · · ·"
+                    style={{
+                      fontSize: 26, fontWeight: 600,
+                      letterSpacing: '0.5em',
+                      fontFamily: 'ui-monospace, monospace',
+                      caretColor: '#007AFF',
+                      paddingRight: 52,
+                    }}
                   />
-                  {/* Code length indicator dots */}
-                  {agentCode.length > 0 && agentCode.length < 6 && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <span
-                          key={i}
-                          style={{
-                            width: 5, height: 5, borderRadius: '50%',
-                            background: i < agentCode.length ? '#007AFF' : '#D1D1D6',
-                            transition: 'background 0.15s',
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  {agentCode.length === 6 && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <span style={{ fontSize: 18 }}>✓</span>
-                    </div>
-                  )}
+                  <div style={{ position: 'absolute', right: 0, display: 'flex', gap: 3.5 }}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <span key={i} style={{
+                        width: 6, height: 6, borderRadius: '50%',
+                        transition: 'background 0.2s',
+                        background: i < agentCode.length
+                          ? (agentCode.length === 6 ? '#34C759' : '#007AFF')
+                          : '#E5E5EA',
+                      }} />
+                    ))}
+                  </div>
                 </div>
-                <p className="text-hig-caption1 text-hig-text-secondary mt-1.5">Your 6-digit agent code</p>
               </div>
 
               {/* Password */}
-              <div>
-                <label className="hig-label">Password</label>
-                <div className="relative">
+              <div
+                className="lp-card"
+                style={{
+                  background: 'white', borderRadius: 16,
+                  padding: '15px 20px 13px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05)',
+                  transition: 'box-shadow 0.15s',
+                }}
+              >
+                <label style={{
+                  display: 'block',
+                  fontSize: 10, fontWeight: 700,
+                  color: '#AEAEB2', letterSpacing: '1px',
+                  textTransform: 'uppercase', marginBottom: 9,
+                }}>
+                  Password
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    className="lp-input"
+                    type={showPw ? 'text' : 'password'}
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="hig-input pr-12"
+                    onChange={e => setPassword(e.target.value)}
                     autoComplete="current-password"
+                    style={{ fontSize: 16 }}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary hover:text-hig-text transition-colors p-1"
                     tabIndex={-1}
+                    onClick={() => setShowPw(s => !s)}
+                    style={{
+                      background: 'none', border: 'none',
+                      cursor: 'pointer', padding: 4, flexShrink: 0,
+                      color: '#C7C7CC', display: 'flex',
+                    }}
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
               </div>
@@ -214,39 +322,83 @@ export default function LoginPage() {
               {/* Error */}
               {authError && (
                 <div style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
+                  display: 'flex', alignItems: 'flex-start', gap: 10,
                   background: 'rgba(255,59,48,0.06)',
-                  border: '1px solid rgba(255,59,48,0.2)',
-                  borderRadius: 8, padding: '10px 14px',
+                  border: '1px solid rgba(255,59,48,0.18)',
+                  borderRadius: 12, padding: '12px 16px',
                 }}>
-                  <span style={{ fontSize: 16 }}>⚠️</span>
-                  <span style={{ fontSize: 14, color: '#FF3B30', lineHeight: 1.4 }}>{authError}</span>
+                  <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>⚠️</span>
+                  <span style={{ fontSize: 14, color: '#FF3B30', lineHeight: 1.45 }}>{authError}</span>
                 </div>
               )}
 
               {/* Submit */}
               <button
                 type="submit"
-                disabled={agentCode.length !== 6 || !password || loading}
-                className="hig-btn-primary w-full text-hig-body"
-                style={{ height: 50, fontSize: 16, fontWeight: 600, borderRadius: 10 }}
+                disabled={!canSubmit}
+                className="lp-btn"
+                style={{
+                  marginTop: 4,
+                  width: '100%', height: 54,
+                  borderRadius: 16, border: 'none',
+                  background: canSubmit
+                    ? 'linear-gradient(135deg, #007AFF 0%, #005FCC 100%)'
+                    : '#D1D1D6',
+                  color: 'white',
+                  fontSize: 16, fontWeight: 600,
+                  cursor: canSubmit ? 'pointer' : 'not-allowed',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  boxShadow: canSubmit ? '0 4px 18px rgba(0,122,255,0.22)' : 'none',
+                }}
               >
                 {loading ? (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Loader2 size={18} className="animate-spin" />
+                  <>
+                    <Loader2 size={18} style={{ animation: 'spin 0.7s linear infinite' }} />
                     Signing in…
-                  </span>
+                  </>
                 ) : (
-                  'Sign In'
+                  <>
+                    Sign In
+                    <ArrowRight size={17} />
+                  </>
                 )}
               </button>
             </div>
           </form>
 
-          {/* Footer help text */}
-          <p className="text-center text-hig-caption1 text-hig-text-secondary mt-6">
-            Forgotten your credentials? Contact your agency administrator.
-          </p>
+          {/* Help + Powered by */}
+          <div className="lp-f3" style={{ marginTop: 28 }}>
+            <p style={{ fontSize: 13, color: '#C7C7CC', textAlign: 'center', marginBottom: 20 }}>
+              Forgotten your credentials?{' '}
+              <span style={{ color: '#AEAEB2' }}>Contact your administrator.</span>
+            </p>
+
+            {/* Powered by LLH Group */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              paddingTop: 20,
+              borderTop: '1px solid #E5E5EA',
+            }}>
+              <span style={{ fontSize: 12, color: '#C7C7CC' }}>Powered by</span>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'white',
+                border: '1px solid #E5E5EA',
+                borderRadius: 8, padding: '5px 10px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              }}>
+                <img
+                  src="/assets/colourful-llh-favicon.png"
+                  alt="LLH"
+                  style={{ width: 16, height: 16, objectFit: 'contain', borderRadius: 3 }}
+                />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1C1C1E', letterSpacing: 0.2 }}>
+                  LLH Group
+                </span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

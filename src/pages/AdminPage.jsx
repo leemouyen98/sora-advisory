@@ -606,7 +606,7 @@ export default function AdminPage() {
       <p className="text-hig-caption text-hig-text-tertiary text-center">
         To set the first admin, run:{' '}
         <code className="bg-hig-gray-6 px-1.5 py-0.5 rounded text-hig-text font-mono">
-          wrangler d1 execute goalsmapping-db --command="UPDATE agents SET role='admin' WHERE code='YOUR_CODE'" --remote
+          wrangler d1 execute hla-db --command="UPDATE agents SET role='admin' WHERE code='YOUR_CODE'" --remote
         </code>
       </p>
 

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
 import { formatRMFull, formatPercent, retirementCorpusNeeded, projectEPF, getEPFRate } from '../../lib/calculations'
 import { Info, ExternalLink } from 'lucide-react'
+import NumberInput from '../ui/NumberInput'
 
 export default function BasicInfo({
   plan, currentAge, contactName, onChange, onContinue,
@@ -91,11 +92,9 @@ export default function BasicInfo({
               <label className="hig-label">Monthly Expenses (today's value)</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  value={plan.monthlyExpenses || ''}
-                  onChange={set('monthlyExpenses')}
+                <NumberInput
+                  value={plan.monthlyExpenses}
+                  onChange={(num) => onChange({ monthlyExpenses: num })}
                   className="hig-input pl-10"
                   placeholder="3,000"
                 />
@@ -153,7 +152,7 @@ export default function BasicInfo({
                 <label className="hig-label">Current EPF Balance</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-                  <input type="number" value={plan.epfBalance || ''} onChange={set('epfBalance')} className="hig-input pl-10" placeholder="50,000" />
+                  <NumberInput value={plan.epfBalance} onChange={(num) => onChange({ epfBalance: num })} className="hig-input pl-10" placeholder="50,000" />
                 </div>
               </div>
               <div>
@@ -196,7 +195,7 @@ export default function BasicInfo({
                   /* ── Manual input — no Financial Info data ── */
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-                    <input type="number" value={plan.annualIncome || ''} onChange={set('annualIncome')} className="hig-input pl-10" placeholder="60,000" />
+                    <NumberInput value={plan.annualIncome} onChange={(num) => onChange({ annualIncome: num })} className="hig-input pl-10" placeholder="60,000" />
                   </div>
                 )}
 

@@ -1,5 +1,5 @@
 /**
- * Utility formatters for GoalsMapping
+ * Utility formatters for HLA
  */
 
 export function formatDate(dateStr) {

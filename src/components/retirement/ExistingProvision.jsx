@@ -3,6 +3,7 @@ import { useLanguage } from '../../hooks/useLanguage'
 import { formatRMFull } from '../../lib/calculations'
 import { projectProvision } from '../../lib/calculations'
 import { Plus, Trash2, ArrowLeft } from 'lucide-react'
+import NumberInput from '../ui/NumberInput'
 
 const FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
 const PROVISION_TYPES = ['Unit Trust', 'Fixed Deposit', 'ASNB', 'Cash Savings', 'Insurance', 'EPF Voluntary', 'Private Pension', 'Other']
@@ -104,10 +105,9 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                     </div>
                     <div>
                       <label className="hig-label">Current Balance (RM)</label>
-                      <input
-                        type="number"
-                        value={p.currentBalance || ''}
-                        onChange={(e) => updateProvision(idx, { currentBalance: parseFloat(e.target.value) || 0 })}
+                      <NumberInput
+                        value={p.currentBalance}
+                        onChange={(num) => updateProvision(idx, { currentBalance: num })}
                         className="hig-input"
                         placeholder="0"
                       />
@@ -124,10 +124,9 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                     </div>
                     <div>
                       <label className="hig-label">Contribution Amount (RM)</label>
-                      <input
-                        type="number"
-                        value={p.amount || ''}
-                        onChange={(e) => updateProvision(idx, { amount: parseFloat(e.target.value) || 0 })}
+                      <NumberInput
+                        value={p.amount}
+                        onChange={(num) => updateProvision(idx, { amount: num })}
                         className="hig-input"
                         placeholder="500"
                       />

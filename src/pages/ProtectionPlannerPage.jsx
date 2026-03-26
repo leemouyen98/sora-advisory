@@ -5,6 +5,7 @@ import { useLanguage } from '../hooks/useLanguage'
 import { getAge } from '../lib/formatters'
 import { formatRMFull, protectionNeed, generateProtectionSummary } from '../lib/calculations'
 import { ArrowLeft, X, Plus, Trash2, Settings, ChevronDown, ChevronUp, AlertTriangle, CheckCircle, TrendingDown, ShieldAlert } from 'lucide-react'
+import NumberInput from '../components/ui/NumberInput'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
@@ -255,20 +256,18 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue }) {
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="hig-label">Lump Sum (RM)</label>
-                    <input
-                      type="number"
-                      value={plan.needs[risk].lumpSum || ''}
-                      onChange={(e) => setNeed(risk, 'lumpSum', e.target.value)}
+                    <NumberInput
+                      value={plan.needs[risk].lumpSum}
+                      onChange={(num) => setNeed(risk, 'lumpSum', num)}
                       className="hig-input"
                       placeholder="0"
                     />
                   </div>
                   <div>
                     <label className="hig-label">Monthly Expenses (RM)</label>
-                    <input
-                      type="number"
-                      value={plan.needs[risk].monthly || ''}
-                      onChange={(e) => setNeed(risk, 'monthly', e.target.value)}
+                    <NumberInput
+                      value={plan.needs[risk].monthly}
+                      onChange={(num) => setNeed(risk, 'monthly', num)}
                       className="hig-input"
                       placeholder="0"
                     />
@@ -459,10 +458,9 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
 
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-                    <input
-                      type="number"
-                      value={plan.existing[risk] || ''}
-                      onChange={(e) => setExisting(risk, e.target.value)}
+                    <NumberInput
+                      value={plan.existing[risk]}
+                      onChange={(num) => setExisting(risk, num)}
                       className="hig-input pl-10"
                       placeholder="0"
                     />

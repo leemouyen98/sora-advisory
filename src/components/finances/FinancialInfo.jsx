@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Plus, Trash2, X, ChevronRight, Info, Pencil, Upload } from 'lucide-react'
 import { formatRMFull } from '../../lib/calculations'
+import NumberInput from '../ui/NumberInput'
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
@@ -234,10 +235,9 @@ function RMField({ label, value, onChange, placeholder = '0' }) {
       <label className="hig-label">{label}</label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-        <input
-          type="number" min="0" step="100"
-          value={value || ''}
-          onChange={e => onChange(parseFloat(e.target.value) || 0)}
+        <NumberInput
+          value={value}
+          onChange={onChange}
           className="hig-input pl-10 tabular-nums"
           placeholder={placeholder}
         />
@@ -509,7 +509,12 @@ function LiabilityModal({ initial, currentAge, onSave, onClose }) {
         <label className="hig-label">Outstanding Principal (RM)</label>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-          <input type="number" min="0" step="1000" value={form.principal || ''} onChange={set('principal')} className="hig-input pl-10" placeholder="0" />
+          <NumberInput
+            value={form.principal}
+            onChange={(num) => setForm(f => ({ ...f, principal: num }))}
+            className="hig-input pl-10"
+            placeholder="0"
+          />
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

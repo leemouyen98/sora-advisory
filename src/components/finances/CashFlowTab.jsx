@@ -9,6 +9,7 @@ import {
   Home, Activity, Heart, Shield, Lightbulb, BarChart2,
   RefreshCw, Edit, TrendingUp, Zap, Star, CheckCircle2,
 } from 'lucide-react'
+import NumberInput from '../ui/NumberInput'
 
 // ── Formatting ─────────────────────────────────────────────────────────────
 
@@ -656,9 +657,11 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
                   </div>
                   <div>
                     <label className="hig-label">Lump Sum (RM)</label>
-                    <input type="number" className="hig-input w-full mt-1 text-hig-footnote"
-                      placeholder="e.g. 60000" value={newGoal.amount}
-                      onChange={(e) => setNewGoal((g) => ({ ...g, amount: e.target.value }))}
+                    <NumberInput
+                      value={Number(newGoal.amount) || 0}
+                      onChange={(num) => setNewGoal((g) => ({ ...g, amount: num }))}
+                      className="hig-input w-full mt-1 text-hig-footnote"
+                      placeholder="e.g. 60,000"
                     />
                   </div>
                 </div>
