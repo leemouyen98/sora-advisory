@@ -130,17 +130,17 @@ export default function LoginPage() {
         }}>
 
           {/* Logo — alignSelf keeps it from stretching full-width */}
-          <div style={{ alignSelf: 'flex-start', marginBottom: 64 }}>
+          <div style={{ alignSelf: 'flex-start', marginBottom: 60 }}>
             <div style={{
               background: 'white',
               borderRadius: 14,
-              padding: '14px 22px',
+              padding: '12px 18px',
               boxShadow: '0 8px 36px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.12)',
             }}>
               <ProtectedImg
                 src="/assets/sora-logo.png"
                 alt="Sora Advisory"
-                style={{ width: 216, height: 'auto', display: 'block' }}
+                style={{ width: 234, height: 'auto', display: 'block' }}
               />
             </div>
           </div>
@@ -226,7 +226,7 @@ export default function LoginPage() {
             <ProtectedImg
               src="/assets/sora-logo.png"
               alt="Sora Advisory"
-              style={{ width: 200, height: 'auto', display: 'block' }}
+              style={{ width: 190, height: 'auto', display: 'block' }}
             />
           </div>
         </div>
