@@ -4,6 +4,7 @@ import { Plus, ChevronDown, ChevronUp, Trash2, CheckCircle2, AlertTriangle, XCir
 import RetirementChart from './RetirementChart'
 import PlanningAssumptions from './PlanningAssumptions'
 import { useLanguage } from '../../hooks/useLanguage'
+import { RetirementExportButton } from '../pdf/RetirementReportPDF'
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
@@ -179,8 +180,13 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
                 </p>
               </div>
             </div>
-            {/* Progress badge */}
+            {/* Progress badge + Export */}
             <div className="flex items-center gap-2 shrink-0">
+              <RetirementExportButton
+                plan={plan}
+                projection={projection}
+                contact={{ name: contactName, currentAge }}
+              />
               <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-hig-subhead"
                 style={{ backgroundColor: projection.isFullyFunded ? '#34C759' : projection.coveragePercent >= 75 ? '#FF9500' : '#FF3B30' }}
               >

@@ -10,6 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from 'recharts'
+import { ProtectionExportButton } from '../components/pdf/ProtectionReportPDF'
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 const RISKS = ['death', 'tpd', 'aci', 'eci']
@@ -730,8 +731,13 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                 </div>
               </div>
 
-              {/* Progress badge */}
+              {/* Progress badge + Export */}
               <div className="flex items-center gap-2 shrink-0">
+                <ProtectionExportButton
+                  plan={plan}
+                  summaryData={summary}
+                  contact={{ name: contactName, currentAge }}
+                />
                 <div
                   className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-hig-caption1"
                   style={{
