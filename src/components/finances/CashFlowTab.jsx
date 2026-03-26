@@ -6,7 +6,7 @@ import {
 import {
   Plus, Settings, ChevronDown, MoreVertical, Check, X,
   Home, Activity, Heart, Shield, Lightbulb, BarChart2,
-  RefreshCw, Edit, TrendingUp, Zap, Star,
+  RefreshCw, Edit, TrendingUp, Zap, Star, CheckCircle2,
 } from 'lucide-react'
 
 // ── Formatting ─────────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ function CheckRow({ active, onToggle, iconBg, icon, title, subtitle, onRemove })
 
 // ── MAIN COMPONENT ─────────────────────────────────────────────────────────
 
-export default function CashFlowTab({ financials, contact, onEditFinancialInfo = null }) {
+export default function CashFlowTab({ financials, contact, onEditFinancialInfo = null, onDone = null }) {
 
   // ── Planning assumptions ────────────────────────────────────────────────
   const [localRetirementAge, setLocalRetirementAge] = useState(contact?.retirementAge ?? 55)
@@ -876,6 +876,15 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
         </div>
 
       </div>
+
+      {/* Done button */}
+      {onDone && (
+        <div className="flex justify-end mt-4">
+          <button onClick={onDone} className="hig-btn-primary gap-2">
+            <CheckCircle2 size={16} /> Done
+          </button>
+        </div>
+      )}
     </div>
   )
 }

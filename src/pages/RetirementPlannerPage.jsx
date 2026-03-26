@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { getAge } from '../lib/formatters'
-import { ArrowLeft, Settings } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Settings } from 'lucide-react'
 import BasicInfo from '../components/retirement/BasicInfo'
 import ExistingProvision from '../components/retirement/ExistingProvision'
 import RetirementPlanner from '../components/retirement/RetirementPlanner'
@@ -145,18 +145,28 @@ export default function RetirementPlannerPage() {
       )}
 
       {step === 3 && (
-        <RetirementPlanner
-          plan={plan}
-          currentAge={currentAge}
-          contactName={contact.name}
-          linkedGrossMonthly={linkedGrossMonthly}
-          onChange={updatePlan}
-          onEditAssumptions={() => setStep(1)}
-          showAssumptions={showAssumptions}
-          onToggleAssumptions={setShowAssumptions}
-          activeTab={activeTab}
-          onActiveTabChange={setActiveTab}
-        />
+        <>
+          <RetirementPlanner
+            plan={plan}
+            currentAge={currentAge}
+            contactName={contact.name}
+            linkedGrossMonthly={linkedGrossMonthly}
+            onChange={updatePlan}
+            onEditAssumptions={() => setStep(1)}
+            showAssumptions={showAssumptions}
+            onToggleAssumptions={setShowAssumptions}
+            activeTab={activeTab}
+            onActiveTabChange={setActiveTab}
+          />
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => navigate(`/contacts/${id}/protection`)}
+              className="hig-btn-primary gap-2"
+            >
+              Next: Protection Planner <ArrowRight size={16} />
+            </button>
+          </div>
+        </>
       )}
     </div>
   )

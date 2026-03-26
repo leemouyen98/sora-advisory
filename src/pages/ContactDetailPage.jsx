@@ -213,6 +213,7 @@ export default function ContactDetailPage() {
           financials={contact.financials}
           contact={contact}
           onEditFinancialInfo={() => { setShowCashFlow(false); setTab('finances') }}
+          onDone={() => setShowCashFlow(false)}
         />
 
         {/* Edit modal still accessible */}
