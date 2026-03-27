@@ -18,6 +18,38 @@ const RISK_SHORT = { death: 'Death', tpd: 'TPD', aci: 'ACI', eci: 'ECI' }
 const RISK_COLOUR = { death: '#007AFF', tpd: '#FF9500', aci: '#AF52DE', eci: '#FF3B30' }
 const roundUp50K = (val) => Math.ceil(Math.max(val, 1) / 50000) * 50000
 
+const ASSUMPTION_PRESETS = [
+  { key: 'balanced', label: 'Balanced', inflationRate: 4, returnRate: 1, helper: 'Base case for most client conversations.' },
+  { key: 'protective', label: 'Protective', inflationRate: 5, returnRate: 1, helper: 'Use when medical inflation and family dependency are a concern.' },
+  { key: 'lean', label: 'Lean', inflationRate: 3, returnRate: 2, helper: 'Use only when you want a tighter, more budget-aware estimate.' },
+]
+
+const PREMIUM_RATIO_GUIDE = { green: 10, amber: 15 }
+
+function getPremiumAffordability(monthlyPremium, monthlyIncome) {
+  if (!monthlyIncome || monthlyIncome <= 0) {
+    return { ratio: null, status: 'unknown', label: 'No income data', helper: 'Add gross monthly income in Financial Info to judge premium affordability properly.' }
+  }
+
+  const ratio = (monthlyPremium / monthlyIncome) * 100
+  if (ratio <= PREMIUM_RATIO_GUIDE.green) {
+    return { ratio, status: 'good', label: 'Comfortable', helper: 'Premium load is within a generally manageable range of monthly income.' }
+  }
+  if (ratio <= PREMIUM_RATIO_GUIDE.amber) {
+    return { ratio, status: 'watch', label: 'Watch affordability', helper: 'This can still work, but it needs client buy-in and cash flow discipline.' }
+  }
+  return { ratio, status: 'high', label: 'Heavy premium load', helper: 'Premiums are likely too aggressive unless the client is intentionally prioritising protection.' }
+}
+
+function getSuggestedPolicyMix(summary) {
+  const gaps = [...summary].filter((item) => item.shortfall > 0).sort((a, b) => b.shortfall - a.shortfall)
+  return gaps.slice(0, 2).map((item, index) => ({
+    risk: item.risk,
+    amount: roundUp50K(item.shortfall),
+    priority: index === 0 ? 'Primary priority' : 'Next priority',
+  }))
+}
+
 export default function ProtectionPlannerPage() {
   const { t } = useLanguage()
   const { id } = useParams()
@@ -168,6 +200,7 @@ export default function ProtectionPlannerPage() {
           plan={plan}
           updatePlan={updatePlan}
           setNeed={setNeed}
+          monthlyIncome={monthlyIncomeFromFinancials}
           onContinue={() => setStep(2)}
         />
       )}
@@ -200,7 +233,7 @@ export default function ProtectionPlannerPage() {
 
 // ─── Step 1: Needs Analysis ───────────────────────────────────────────────────
 
-function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue }) {
+function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyIncome = 0 }) {
   const { t } = useLanguage()
   const riskLabels = {
     death: t('protection.deathFull'),
@@ -231,6 +264,11 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue }) {
 
   const grandTotal = needsSummary.reduce((s, x) => s + x.total, 0)
   const anyFilled = RISKS.some((r) => plan.needs[r].lumpSum > 0 || plan.needs[r].monthly > 0)
+  const expenseRatio = monthlyIncome > 0 ? Math.round(((plan.needs.death?.monthly || 0) / monthlyIncome) * 100) : null
+
+  const applyPreset = (preset) => {
+    updatePlan({ inflationRate: preset.inflationRate, returnRate: preset.returnRate })
+  }
 
   return (
     <div className="flex gap-6">
@@ -290,10 +328,47 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue }) {
 
         {/* Planning Parameters */}
         <div className="hig-card p-5">
-          <h3 className="text-hig-headline mb-1">{t('protection.planningParamsTitle')}</h3>
-          <p className="text-hig-subhead text-hig-text-secondary mb-4">
-            {t('protection.planningParamsDesc')}
-          </p>
+          <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+            <div>
+              <h3 className="text-hig-headline mb-1">{t('protection.planningParamsTitle')}</h3>
+              <p className="text-hig-subhead text-hig-text-secondary">
+                {t('protection.planningParamsDesc')}
+              </p>
+            </div>
+            <div className="text-right min-w-[220px]">
+              <p className="text-hig-caption1 text-hig-text-secondary font-medium">Income replacement sense-check</p>
+              {expenseRatio !== null ? (
+                <>
+                  <p className="text-hig-title3">{expenseRatio}%</p>
+                  <p className="text-hig-caption2 text-hig-text-secondary">Death monthly need vs gross monthly income</p>
+                </>
+              ) : (
+                <p className="text-hig-caption2 text-hig-text-secondary">Add gross monthly income in Financial Info for a cleaner protection benchmark.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            {ASSUMPTION_PRESETS.map((preset) => {
+              const isActive = plan.inflationRate === preset.inflationRate && plan.returnRate === preset.returnRate
+              return (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                  className={`text-left rounded-hig-sm border p-3 transition-colors ${isActive ? 'border-hig-blue bg-hig-blue/5' : 'border-hig-gray-5 hover:border-hig-gray-4'}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-hig-subhead font-semibold">{preset.label}</span>
+                    {isActive && <span className="text-[10px] font-bold uppercase tracking-wide text-hig-blue">Active</span>}
+                  </div>
+                  <p className="text-hig-caption2 text-hig-text-secondary mt-1">{preset.helper}</p>
+                  <p className="text-hig-caption2 text-hig-text-secondary mt-2">Inflation {preset.inflationRate}% · Return {preset.returnRate}%</p>
+                </button>
+              )
+            })}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="hig-label">{t('protection.inflationRatePct')}</label>
@@ -647,6 +722,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
 
   const active = summary.find((s) => s.risk === activeRisk) || summary[0]
   const allRecs = plan.recommendations || []
+  const policyMix = useMemo(() => getSuggestedPolicyMix(summary), [summary])
 
   const addRecommendation = () => {
     const rec = {
@@ -699,6 +775,32 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
         return sum + (r.premiumAmount || 0) * (freq[r.frequency] || 1)
       }, 0)
   }, [plan.recommendations])
+
+  const affordability = getPremiumAffordability(totalMonthlyPremium, monthlyIncome)
+
+  const addSuggestedGapRecommendation = () => {
+    const template = { death: 0, tpd: 0, aci: 0, eci: 0 }
+    policyMix.forEach((item) => {
+      template[item.risk] = item.amount
+    })
+    const rec = {
+      id: uid(),
+      name: 'Suggested protection mix',
+      policyType: 'Term Life',
+      termYears: '',
+      death: template.death,
+      tpd: template.tpd,
+      aci: template.aci,
+      eci: template.eci,
+      premiumAmount: 0,
+      frequency: 'Monthly',
+      periodYears: 20,
+      isSelected: true,
+    }
+    updatePlan({ recommendations: [...(plan.recommendations || []), rec] })
+    setExpandedRecId(rec.id)
+    flashSaved()
+  }
 
   return (
     <>
@@ -848,6 +950,45 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                       <CheckCircle size={13} /> {t('retirement.savedFlash')}
                     </span>
                   )}
+                </div>
+
+                {policyMix.length > 0 && (
+                  <div className="rounded-hig-sm border border-hig-blue/20 bg-hig-blue/5 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-hig-caption1 text-hig-blue font-semibold">Suggested protection focus</p>
+                        <div className="mt-1 space-y-1">
+                          {policyMix.map((item) => (
+                            <p key={item.risk} className="text-hig-caption2 text-hig-text-secondary">
+                              <span className="font-medium text-hig-text">{item.priority}:</span> {RISK_SHORT[item.risk]} {formatRMFull(item.amount)}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                      <button onClick={addSuggestedGapRecommendation} className="hig-btn-ghost border border-hig-blue/30 text-hig-blue text-hig-caption1 whitespace-nowrap">
+                        Add suggested mix
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className={`rounded-hig-sm border p-3 ${affordability.status === 'good' ? 'border-hig-green/30 bg-hig-green/5' : affordability.status === 'watch' ? 'border-amber-200 bg-amber-50' : affordability.status === 'high' ? 'border-hig-red/25 bg-red-50' : 'border-hig-gray-5 bg-hig-gray-6/60'}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-hig-caption1 font-semibold">Premium affordability</p>
+                      <p className="text-hig-caption2 text-hig-text-secondary mt-1">{affordability.helper}</p>
+                    </div>
+                    {affordability.ratio !== null ? (
+                      <div className="text-right">
+                        <p className="text-hig-title3">{affordability.ratio.toFixed(1)}%</p>
+                        <p className="text-hig-caption2 text-hig-text-secondary">of monthly income</p>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between gap-3 text-hig-caption1">
+                    <span className="font-medium">{affordability.label}</span>
+                    <span className="text-hig-text-secondary">Selected premiums: {formatRMFull(totalMonthlyPremium)}/mo</span>
+                  </div>
                 </div>
 
                 {allRecs.length === 0 && (
