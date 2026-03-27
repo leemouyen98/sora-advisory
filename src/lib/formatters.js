@@ -28,3 +28,7 @@ export function getAge(dob) {
 export function clamp(val, min, max) {
   return Math.min(Math.max(val, min), max)
 }
+
+/** Unique ID — single source of truth shared across all planners */
+export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+

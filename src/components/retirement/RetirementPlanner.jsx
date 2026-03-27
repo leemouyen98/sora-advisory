@@ -5,8 +5,7 @@ import RetirementChart from './RetirementChart'
 import PlanningAssumptions from './PlanningAssumptions'
 import { useLanguage } from '../../hooks/useLanguage'
 import { RetirementExportButton } from '../pdf/RetirementReportPDF'
-
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+import { uid } from '../../lib/formatters'
 
 const PROVISION_FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
 
@@ -35,7 +34,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
     try {
       return generateRetirementProjection({
         currentAge,
-        retirementAge: plan.retirementAge || 55,
+        retirementAge: plan.retirementAge || 60,
         lifeExpectancy: plan.lifeExpectancy || 80,
         monthlyExpenses: plan.monthlyExpenses || 0,
         inflationRate: plan.inflationRate ?? 4,
@@ -141,7 +140,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
   const selectedRecs = (plan.recommendations || []).filter((r) => r.isSelected)
 
   const recommendationTiers = useMemo(() => {
-    const yearsToRet = Math.max(1, (plan.retirementAge || 55) - currentAge)
+    const yearsToRet = Math.max(1, (plan.retirementAge || 60) - currentAge)
     const moderateYears = Math.min(12, yearsToRet)
     const comfortYears = Math.min(20, yearsToRet)
     const accumulationRate = Number(plan.preRetirementReturn ?? 5)
@@ -186,7 +185,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
 
   const sensitivityCards = useMemo(() => {
     const scenarios = [
-      { label: 'Retire 2 years later', overrides: { retirementAge: Math.min((plan.retirementAge || 55) + 2, plan.lifeExpectancy - 1) } },
+      { label: 'Retire 2 years later', overrides: { retirementAge: Math.min((plan.retirementAge || 60) + 2, plan.lifeExpectancy - 1) } },
       { label: 'Inflation +1%', overrides: { inflationRate: Number(plan.inflationRate || 0) + 1 } },
       { label: 'Return -1%', overrides: { preRetirementReturn: Math.max(0, Number(plan.preRetirementReturn || 0) - 1), postRetirementReturn: Math.max(0, Number(plan.postRetirementReturn || 0) - 1) } },
     ]
@@ -555,7 +554,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
 function ProvisionPanel({ plan, currentAge, onChange }) {
   const { t } = useLanguage()
   const provisions = plan.provisions || []
-  const yearsToRetirement = (plan.retirementAge || 55) - currentAge
+  const yearsToRetirement = (plan.retirementAge || 60) - currentAge
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', amount: 0, frequency: 'Monthly', preRetirementReturn: 5 })
 

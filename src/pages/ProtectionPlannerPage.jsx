@@ -12,7 +12,7 @@ import {
 } from 'recharts'
 import { ProtectionExportButton } from '../components/pdf/ProtectionReportPDF'
 
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+import { uid } from '../lib/formatters'
 const RISKS = ['death', 'tpd', 'aci', 'eci']
 const RISK_SHORT = { death: 'Death', tpd: 'TPD', aci: 'ACI', eci: 'ECI' }
 const RISK_COLOUR = { death: '#007AFF', tpd: '#FF9500', aci: '#AF52DE', eci: '#FF3B30' }

@@ -8,7 +8,7 @@ import NumberInput from '../ui/NumberInput'
 const FREQUENCIES = ['One-Time', 'Monthly', 'Quarterly', 'Semi-annually', 'Yearly']
 const PROVISION_TYPES = ['Unit Trust', 'Fixed Deposit', 'ASNB', 'Cash Savings', 'Insurance', 'EPF Voluntary', 'Private Pension', 'Other']
 
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+import { uid } from '../../lib/formatters'
 
 const DEFAULT_RETURN_BY_TYPE = {
   'Unit Trust': 6,

@@ -42,7 +42,7 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
   const { t } = useLanguage()
   const currentAge = useMemo(() => getCurrentAge(contact?.dob), [contact?.dob])
   const [assumptions, setAssumptions] = useState({
-    retirementAge: contact?.retirementAge ?? 55,
+    retirementAge: contact?.retirementAge ?? 60,
     expectedAge: 85,
     savingsRate: 5,
     inflationRate: 3,

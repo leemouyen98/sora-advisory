@@ -37,7 +37,7 @@ export default function ContactsPage() {
 
   // Form state
   const [form, setForm] = useState({
-    name: '', dob: '', mobile: '', employment: '', retirementAge: 55,
+    name: '', dob: '', mobile: '', employment: '', retirementAge: 60,
     reviewDate: '', reviewFrequency: '', notes: '',
   })
 
@@ -72,7 +72,7 @@ export default function ContactsPage() {
     e.preventDefault()
     if (!form.name || !form.dob) return
     const c = addContact(form)
-    setForm({ name: '', dob: '', mobile: '', employment: '', retirementAge: 55, reviewDate: '', reviewFrequency: '', notes: '' })
+    setForm({ name: '', dob: '', mobile: '', employment: '', retirementAge: 60, reviewDate: '', reviewFrequency: '', notes: '' })
     setShowForm(false)
     setSearchParams({})
     navigate(`/contacts/${c.id}`)
@@ -308,7 +308,7 @@ export default function ContactsPage() {
                 <input
                   type="number" min={40} max={80}
                   value={form.retirementAge ?? 55}
-                  onChange={(e) => setForm({...form, retirementAge: parseInt(e.target.value) || 55})}
+                  onChange={(e) => setForm({...form, retirementAge: parseInt(e.target.value) || 60})}
                   className="hig-input"
                   placeholder="55"
                 />

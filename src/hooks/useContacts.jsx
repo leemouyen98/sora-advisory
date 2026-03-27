@@ -3,7 +3,7 @@ import { useAuth } from './useAuth'
 
 const ContactsContext = createContext(null)
 
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+import { uid } from '../lib/formatters'
 
 export function ContactsProvider({ children }) {
   const { token } = useAuth()

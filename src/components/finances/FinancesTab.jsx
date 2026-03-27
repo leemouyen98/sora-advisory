@@ -220,7 +220,8 @@ export default function FinancesTab({ contact, onUpdateFinancials }) {
 
     // Total assets
     const totalAssets = (f.assets || []).reduce((s, a) => s + (Number(a.amount) || 0), 0)
-    const totalInvestments = (f.investments || []).reduce((s, i) => s + (Number(i.amount) || 0), 0)
+    // Investments use .currentValue (market value); assets use .amount — do not swap these
+    const totalInvestments = (f.investments || []).reduce((s, i) => s + (Number(i.currentValue) || 0), 0)
 
     // Total liabilities (outstanding principal)
     const totalLiabilities = (f.liabilities || []).reduce((s, l) => s + (Number(l.principal) || 0), 0)

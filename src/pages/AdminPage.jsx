@@ -430,9 +430,9 @@ export default function AdminPage() {
 
   if (!isAdmin) return null
 
-  // Stats
-  const totalAgents = agents.filter(a => a.role === 'agent').length
-  const activeAgents = agents.filter(a => a.role === 'agent' && a.is_active === 1).length
+  // Stats — count all members (agents + admins), not just role='agent'
+  const totalAgents = agents.length
+  const activeAgents = agents.filter(a => a.is_active === 1).length
   const totalClients = agents.reduce((s, a) => s + (a.contact_count || 0), 0)
 
   return (
@@ -602,13 +602,7 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* Note on first admin */}
-      <p className="text-hig-caption text-hig-text-tertiary text-center">
-        To set the first admin, run:{' '}
-        <code className="bg-hig-gray-6 px-1.5 py-0.5 rounded text-hig-text font-mono">
-          wrangler d1 execute hla-db --command="UPDATE agents SET role='admin' WHERE code='YOUR_CODE'" --remote
-        </code>
-      </p>
+      {/* Note on first admin — intentionally removed from UI (dev-only command, not for production display) */}
 
       {/* Modals */}
       {showCreate && (

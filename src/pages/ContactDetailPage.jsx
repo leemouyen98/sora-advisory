@@ -70,6 +70,7 @@ export default function ContactDetailPage() {
   }, [contact?.financials])
 
   // Sidebar financial summary — Net Worth + Monthly Cash Flow
+  // Must match FinancesTab.jsx calculation exactly so both surfaces show consistent numbers.
   const sidebarFinancial = useMemo(() => {
     const fin = contact?.financials
     if (!fin) return null
@@ -79,12 +80,22 @@ export default function ContactDetailPage() {
     const income = Array.isArray(fin.income) ? fin.income : []
     const expenses = Array.isArray(fin.expenses) ? fin.expenses : []
     const totalAssets = assets.reduce((s, r) => s + (Number(r.amount) || 0), 0)
+    // Investments use .currentValue (market value field); assets use .amount
     const totalInv = investments.reduce((s, r) => s + (Number(r.currentValue) || 0), 0)
     const totalLiab = liabilities.reduce((s, r) => s + (Number(r.principal) || 0), 0)
     const monthlyIncome = income.reduce((s, r) => s + toMonthlyCF(r.amount, r.frequency), 0)
     const monthlyExpenses = expenses.reduce((s, r) => s + toMonthlyCF(r.amount, r.frequency), 0)
+    // Monthly loan repayments calculated as PMT — matches FinancesTab formula
+    const monthlyLoanRepayments = liabilities.reduce((s, l) => {
+      const P = Number(l.principal) || 0
+      const r = (Number(l.interestRate) || 0) / 100 / 12
+      const n = Number(l.loanPeriod) || 1
+      if (P === 0) return s
+      const pmt = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
+      return s + pmt
+    }, 0)
     const netWorth = totalAssets + totalInv - totalLiab
-    const monthlyCashFlow = monthlyIncome - monthlyExpenses
+    const monthlyCashFlow = monthlyIncome - monthlyExpenses - monthlyLoanRepayments
     const hasData = monthlyIncome > 0 || monthlyExpenses > 0 || totalAssets > 0 || totalInv > 0
     return { netWorth, monthlyCashFlow, monthlyIncome, monthlyExpenses, hasData }
   }, [contact?.financials])
@@ -111,7 +122,7 @@ export default function ContactDetailPage() {
       dob: contact.dob,
       mobile: contact.mobile || '',
       employment: contact.employment || '',
-      retirementAge: contact.retirementAge ?? 55,
+      retirementAge: contact.retirementAge ?? 60,
       reviewDate: contact.reviewDate || '',
       reviewFrequency: contact.reviewFrequency || '',
       notes: contact.notes || '',
