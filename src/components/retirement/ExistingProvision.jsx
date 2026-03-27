@@ -10,6 +10,21 @@ const PROVISION_TYPES = ['Unit Trust', 'Fixed Deposit', 'ASNB', 'Cash Savings', 
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
+const DEFAULT_RETURN_BY_TYPE = {
+  'Unit Trust': 6,
+  'Fixed Deposit': 3,
+  'ASNB': 5,
+  'Cash Savings': 2,
+  'Insurance': 4,
+  'EPF Voluntary': 5.5,
+  'Private Pension': 5,
+  'Other': 4,
+}
+
+function getDefaultReturn(type) {
+  return DEFAULT_RETURN_BY_TYPE[type] ?? 4
+}
+
 export default function ExistingProvision({ plan, currentAge, onChange, onBack, onContinue }) {
   const { t } = useLanguage()
   const provisions = plan.provisions || []
@@ -58,9 +73,12 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
       <div className="flex-1 space-y-4">
         <div className="hig-card p-5">
           <h3 className="text-hig-headline mb-2">{t('retirement.existingProvision')}</h3>
-          <p className="text-hig-subhead text-hig-text-secondary mb-5">
+          <p className="text-hig-subhead text-hig-text-secondary mb-3">
             {t('retirement.existingProvisionDesc')}
           </p>
+          <div className="mb-5 rounded-hig-sm bg-hig-gray-6 p-3 text-hig-caption1 text-hig-text-secondary">
+            Use the provision type to start with a realistic return assumption. You can still override the rate manually if needed.
+          </div>
 
           {provisions.length === 0 ? (
             <div className="text-center py-8">
@@ -96,12 +114,23 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                       <label className="hig-label">{t('retirement.provisionType')}</label>
                       <select
                         value={p.type || ''}
-                        onChange={(e) => updateProvision(idx, { type: e.target.value })}
+                        onChange={(e) => {
+                          const nextType = e.target.value
+                          updateProvision(idx, {
+                            type: nextType,
+                            preRetirementReturn: p.preRetirementReturn ? p.preRetirementReturn : getDefaultReturn(nextType),
+                          })
+                        }}
                         className="hig-input"
                       >
                         <option value="">{t('common.select')}</option>
                         {PROVISION_TYPES.map((pt) => <option key={pt}>{pt}</option>)}
                       </select>
+                        {p.type ? (
+                          <p className="text-hig-caption2 text-hig-text-secondary mt-1">
+                            Suggested return: {getDefaultReturn(p.type)}% p.a.
+                          </p>
+                        ) : null}
                     </div>
                     <div>
                       <label className="hig-label">{t('retirement.currentBalanceRM')}</label>
@@ -142,6 +171,11 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                           <option key={f}>{f}</option>
                         ))}
                       </select>
+                        {p.type ? (
+                          <p className="text-hig-caption2 text-hig-text-secondary mt-1">
+                            Suggested return: {getDefaultReturn(p.type)}% p.a.
+                          </p>
+                        ) : null}
                     </div>
                   </div>
                 </div>

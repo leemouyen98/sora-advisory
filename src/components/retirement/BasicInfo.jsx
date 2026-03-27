@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
 import { formatRMFull, formatPercent, retirementCorpusNeeded, projectEPF, getEPFRate } from '../../lib/calculations'
-import { Info, ExternalLink } from 'lucide-react'
+import { Info, ExternalLink, Sparkles } from 'lucide-react'
 import NumberInput from '../ui/NumberInput'
 
 export default function BasicInfo({
@@ -39,6 +39,27 @@ export default function BasicInfo({
       retirementAge: plan.retirementAge,
     })
   }, [plan.includeEPF, plan.epfBalance, plan.epfGrowthRate, effectiveAnnualIncome, plan.incomeGrowthRate, currentAge, plan.retirementAge])
+
+
+
+  const assumedMonthlyReplacement = useMemo(() => {
+    if (!effectiveAnnualIncome) return 0
+    return Math.round((effectiveAnnualIncome / 12) * 0.7)
+  }, [effectiveAnnualIncome])
+
+  const planningPresets = [
+    { label: 'Conservative', inflation: 4.5, pre: 4.5, post: 2.5 },
+    { label: 'Balanced', inflation: 4, pre: 5, post: 3 },
+    { label: 'Growth', inflation: 3.5, pre: 6, post: 3.5 },
+  ]
+
+  const applyPreset = (preset) => {
+    onChange({
+      inflationRate: preset.inflation,
+      preRetirementReturn: preset.pre,
+      postRetirementReturn: preset.post,
+    })
+  }
 
   const set = (key) => (e) => {
     const val = e.target.type === 'number' || e.target.type === 'range' || e.target.inputMode === 'numeric'
@@ -80,6 +101,48 @@ export default function BasicInfo({
                 />
                 <span className="text-hig-headline text-hig-blue w-8 text-right">{plan.lifeExpectancy}</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="hig-card p-5">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div>
+              <h3 className="text-hig-headline">Planning assumptions</h3>
+              <p className="text-hig-caption1 text-hig-text-secondary mt-1">
+                Make the assumptions visible early so the recommendation feels explainable, not arbitrary.
+              </p>
+            </div>
+            <Sparkles size={18} className="text-hig-blue mt-0.5" />
+          </div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {planningPresets.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => applyPreset(preset)}
+                className="px-3 py-1.5 rounded-full bg-hig-gray-6 hover:bg-hig-gray-5 text-hig-caption1 font-medium transition-colors"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="rounded-hig-sm bg-hig-gray-6 p-3">
+              <p className="text-hig-caption2 text-hig-text-secondary">Inflation</p>
+              <p className="text-hig-subhead font-semibold">{formatPercent(plan.inflationRate)}</p>
+            </div>
+            <div className="rounded-hig-sm bg-hig-gray-6 p-3">
+              <p className="text-hig-caption2 text-hig-text-secondary">Accumulation return</p>
+              <p className="text-hig-subhead font-semibold">{formatPercent(plan.preRetirementReturn)}</p>
+            </div>
+            <div className="rounded-hig-sm bg-hig-gray-6 p-3">
+              <p className="text-hig-caption2 text-hig-text-secondary">Retirement return</p>
+              <p className="text-hig-subhead font-semibold">{formatPercent(plan.postRetirementReturn)}</p>
+            </div>
+            <div className="rounded-hig-sm bg-hig-gray-6 p-3">
+              <p className="text-hig-caption2 text-hig-text-secondary">EPF included</p>
+              <p className="text-hig-subhead font-semibold">{plan.includeEPF ? 'Yes' : 'No'}</p>
             </div>
           </div>
         </div>
@@ -294,6 +357,16 @@ export default function BasicInfo({
               </div>
             )
           })()}
+
+          {assumedMonthlyReplacement > 0 && (
+            <div className="rounded-hig-sm bg-blue-50 p-4 space-y-1">
+              <p className="text-hig-caption1 text-hig-blue font-medium">Income sense-check</p>
+              <p className="text-hig-caption1 text-hig-text-secondary">
+                70% of current gross monthly income is about <strong>{formatRMFull(assumedMonthlyReplacement)}</strong>.
+                Use this as a reasonableness check against the retirement expense target.
+              </p>
+            </div>
+          )}
 
           <button onClick={onContinue} className="hig-btn-primary w-full">
             {t('common.continue')}
