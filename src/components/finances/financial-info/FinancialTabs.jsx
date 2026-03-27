@@ -3,7 +3,7 @@ import { formatRMFull } from '../../../lib/calculations'
 import NumberInput from '../../ui/NumberInput'
 import { toMonthly } from './helpers'
 
-export function OverviewTab({ summary, onNavigate, onImport }) {
+export function OverviewTab({ summary, onNavigate, onImport, data }) {
   const cats = [
     { key: 'assets',      label: 'Assets',          value: summary.totalAssets,      negative: false },
     { key: 'investments', label: 'Investments',      value: summary.totalInvestments, negative: false },
@@ -11,6 +11,12 @@ export function OverviewTab({ summary, onNavigate, onImport }) {
     { key: 'income',      label: 'Monthly Income',   value: summary.monthlyIncome,    negative: false },
     { key: 'expenses',    label: 'Monthly Expenses', value: summary.monthlyExpenses,  negative: true  },
   ]
+  const prompts = [
+    summary.totalAssets + summary.totalInvestments <= 0 && { key: 'assets', text: 'Add savings, EPF, or investment balances to avoid an empty net worth picture.' },
+    summary.monthlyIncome <= 0 && { key: 'income', text: 'Add at least one income source before relying on cash flow outputs.' },
+    summary.monthlyExpenses <= 0 && { key: 'expenses', text: 'Enter core monthly expenses. Otherwise cash flow will look artificially strong.' },
+    !(data?.liabilities || []).some((row) => Number(row.principal) > 0) && { key: 'liabilities', text: 'No liabilities recorded. Confirm loans and cards are truly nil before moving on.' },
+  ].filter(Boolean)
   return (
     <div className="space-y-4">
       {/* Import Data CTA */}
@@ -56,6 +62,31 @@ export function OverviewTab({ summary, onNavigate, onImport }) {
           </button>
         ))}
       </div>
+      {prompts.length > 0 && (
+        <div className="hig-card p-4">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div>
+              <p className="text-hig-subhead font-semibold">Planning checklist</p>
+              <p className="text-hig-caption1 text-hig-text-secondary mt-0.5">Fill these before presenting outputs as client-ready.</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {prompts.map((prompt) => (
+              <button
+                key={prompt.key}
+                onClick={() => onNavigate(prompt.key)}
+                className="w-full flex items-start justify-between gap-3 rounded-hig-sm border border-hig-gray-5 px-3 py-2.5 text-left hover:border-hig-blue/30 hover:bg-hig-blue/5 transition-colors"
+              >
+                <div>
+                  <p className="text-hig-caption1 font-medium text-hig-text">Complete {prompt.key}</p>
+                  <p className="text-hig-caption2 text-hig-text-secondary mt-0.5">{prompt.text}</p>
+                </div>
+                <ChevronRight size={14} className="text-hig-text-secondary mt-0.5 shrink-0" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {summary.epfContribution > 0 && (
         <div className="bg-hig-blue/5 border border-hig-blue/20 rounded-hig-sm p-3 flex items-start gap-2">
           <Info size={13} className="text-hig-blue mt-0.5 shrink-0" />

@@ -60,6 +60,7 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
       {activeTab === 'overview' && (
         <OverviewTab
           summary={summary}
+          data={data}
           onNavigate={setActiveTab}
           onImport={() => setShowImport(true)}
         />
