@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Vite Dev Server",
+      "runtimeExecutable": "/Users/x/.nvm/versions/node/v24.11.1/bin/node",
+      "runtimeArgs": ["node_modules/.bin/vite"],
+      "port": 5173
+    },
+    {
+      "name": "Wrangler Pages Dev",
+      "runtimeExecutable": "/Users/x/.nvm/versions/node/v24.11.1/bin/node",
+      "runtimeArgs": ["node_modules/.bin/wrangler", "pages", "dev"],
+      "port": 8788
+    }
+  ]
+}
