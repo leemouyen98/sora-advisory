@@ -14,38 +14,35 @@ const COLORS = {
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload || payload.length === 0) return null
-  const dataPoint = payload[0] && payload[0].payload
-  if (!dataPoint) return null
+  const d = payload[0] && payload[0].payload
+  if (!d) return null
 
-  const items = []
-  if (dataPoint.epf > 0) items.push({ label: 'EPF', value: dataPoint.epf, color: COLORS.epf })
-  if (dataPoint.provisions > 0) items.push({ label: 'Existing Provision', value: dataPoint.provisions, color: COLORS.provisions })
-  if (dataPoint.recommendations > 0) items.push({ label: 'Recommendation', value: dataPoint.recommendations, color: COLORS.recommendations })
-  if (dataPoint.shortfall > 0) items.push({ label: 'Shortfall', value: dataPoint.shortfall, color: COLORS.shortfall })
-
-  if (items.length === 0) return null
+  // Spec order: Age, Shortfall, Recommendation, Existing Provision, EPF
+  const rows = []
+  if (d.shortfall > 0)       rows.push({ label: 'Shortfall',          value: d.shortfall,       color: COLORS.shortfall })
+  if (d.recommendations > 0) rows.push({ label: 'Recommendation',     value: d.recommendations, color: COLORS.recommendations })
+  if (d.provisions > 0)      rows.push({ label: 'Existing Provision', value: d.provisions,      color: COLORS.provisions })
+  if (d.epf > 0)             rows.push({ label: 'EPF',                value: d.epf,             color: COLORS.epf })
 
   return (
     <div style={{
       background: 'white', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-      border: '1px solid #E5E5EA', padding: 12, minWidth: 200,
+      border: '1px solid #E5E5EA', padding: 12, minWidth: 210,
     }}>
-      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Client Age {label}</div>
-      {items.map(function(item) {
-        return (
-          <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginBottom: 4 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 5, background: item.color, flexShrink: 0 }} />
-            <span style={{ color: '#8E8E93' }}>{item.label}</span>
-            <span style={{ marginLeft: 'auto', fontWeight: 500 }}>{formatRMFull(item.value)}</span>
-          </div>
-        )
-      })}
-      {dataPoint.total > 0 && items.length > 1 && (
-        <div style={{ borderTop: '1px solid #E5E5EA', marginTop: 4, paddingTop: 4 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: '#1C1C1E' }}>Age {label}</div>
+      {rows.map((r) => (
+        <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginBottom: 4 }}>
+          <span style={{ width: 10, height: 10, borderRadius: 5, background: r.color, flexShrink: 0 }} />
+          <span style={{ color: '#8E8E93', flex: 1 }}>{r.label}</span>
+          <span style={{ fontWeight: 600 }}>{formatRMFull(r.value)}</span>
+        </div>
+      ))}
+      {d.total > 0 && rows.length > 1 && (
+        <div style={{ borderTop: '1px solid #F2F2F7', marginTop: 6, paddingTop: 6 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
             <span style={{ width: 10 }} />
-            <span style={{ fontWeight: 600 }}>Total Fund</span>
-            <span style={{ marginLeft: 'auto', fontWeight: 700 }}>{formatRMFull(dataPoint.total)}</span>
+            <span style={{ flex: 1, fontWeight: 600 }}>Total Fund</span>
+            <span style={{ fontWeight: 700 }}>{formatRMFull(d.total)}</span>
           </div>
         </div>
       )}
@@ -59,69 +56,68 @@ function formatYAxis(value) {
   return 'RM ' + value
 }
 
-export default function RetirementChart({ data, retirementAge, targetAmount, hasRecommendations }) {
-  // ALL hooks MUST run before any early return — React Rules of Hooks
+export default function RetirementChart({ data, retirementAge, currentAge, lifeExpectancy, targetAmount, hasRecommendations }) {
   const rawData = data && data.length > 0 ? data : []
 
-  const safeData = useMemo(() => {
-    if (rawData.length === 0) return []
-    return rawData
-  }, [rawData])
+  const safeData = useMemo(() => rawData, [rawData])
 
-  const maxVal = useMemo(function() {
+  const maxVal = useMemo(() => {
     if (safeData.length === 0) return 100000
-    var maxFund = 0
-    for (var i = 0; i < safeData.length; i++) {
-      var d = safeData[i]
-      var stacked = (d.epf || 0) + (d.provisions || 0) + (d.recommendations || 0) + (d.shortfall || 0)
+    let maxFund = 0
+    for (const d of safeData) {
+      const stacked = (d.epf || 0) + (d.provisions || 0) + (d.recommendations || 0) + (d.shortfall || 0)
       if (stacked > maxFund) maxFund = stacked
     }
-    var ceiling = Math.max((targetAmount || 0) * 1.15, maxFund * 1.1, 100000)
-    return Math.ceil(ceiling / 100000) * 100000
+    return Math.ceil(Math.max((targetAmount || 0) * 1.15, maxFund * 1.1, 100000) / 100000) * 100000
   }, [safeData, targetAmount])
 
-  // Early return AFTER all hooks
+  // Always show current age, retirement age, and life expectancy on X-axis
+  const xTicks = useMemo(() => {
+    const set = new Set([currentAge, retirementAge, lifeExpectancy].filter(Boolean))
+    return Array.from(set).sort((a, b) => a - b)
+  }, [currentAge, retirementAge, lifeExpectancy])
+
   if (safeData.length === 0) {
     return (
-      <div style={{ minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E8E93' }}>
+      <div style={{ minHeight: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E8E93' }}>
         No data to display
       </div>
     )
   }
 
-  // Only show a bucket if it has at least one non-zero value in the dataset
-  const showEPF = safeData.some((d) => d.epf > 0)
-  const showProvisions = safeData.some((d) => d.provisions > 0)
+  const showEPF            = safeData.some((d) => d.epf > 0)
+  const showProvisions     = safeData.some((d) => d.provisions > 0)
   const showRecommendations = hasRecommendations && safeData.some((d) => d.recommendations > 0)
-  const showShortfall = safeData.some((d) => d.shortfall > 0)
+  const showShortfall      = safeData.some((d) => d.shortfall > 0)
 
   const legendPayload = []
-  if (showEPF) legendPayload.push({ value: 'EPF', type: 'rect', color: COLORS.epf })
-  if (showProvisions) legendPayload.push({ value: 'Existing Provision', type: 'rect', color: COLORS.provisions })
-  if (showRecommendations) legendPayload.push({ value: 'Recommendation', type: 'rect', color: COLORS.recommendations })
-  if (showShortfall) legendPayload.push({ value: 'Shortfall', type: 'rect', color: COLORS.shortfall })
-  legendPayload.push({ value: 'Required Amount', type: 'plainline', color: '#1C1C1E', payload: { strokeDasharray: '6 4', strokeWidth: 1.5 } })
+  if (showEPF)             legendPayload.push({ value: 'EPF',                type: 'rect',      color: COLORS.epf })
+  if (showProvisions)      legendPayload.push({ value: 'Existing Provision', type: 'rect',      color: COLORS.provisions })
+  if (showRecommendations) legendPayload.push({ value: 'Recommendation',     type: 'rect',      color: COLORS.recommendations })
+  if (showShortfall)       legendPayload.push({ value: 'Shortfall',          type: 'rect',      color: COLORS.shortfall })
+  legendPayload.push({     value: 'Amount Required',                          type: 'plainline', color: '#1C1C1E',
+    payload: { strokeDasharray: '6 4', strokeWidth: 1.5 } })
 
   return (
-    <div style={{ width: '100%', aspectRatio: '16/7', minHeight: 220, maxHeight: 380 }}>
+    <div style={{ width: '100%', aspectRatio: '16/7', minHeight: 240, maxHeight: 400 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={safeData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+        <AreaChart data={safeData} margin={{ top: 10, right: 24, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="gradEPF" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#F5A623" stopOpacity={0.9} />
-              <stop offset="100%" stopColor="#FBBF24" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="#FBBF24" stopOpacity={0.35} />
             </linearGradient>
             <linearGradient id="gradProvisions" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#30D158" stopOpacity={0.9} />
-              <stop offset="100%" stopColor="#34C759" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="#34C759" stopOpacity={0.35} />
             </linearGradient>
             <linearGradient id="gradRec" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#0A84FF" stopOpacity={0.9} />
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.35} />
             </linearGradient>
             <linearGradient id="gradShortfall" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#FF453A" stopOpacity={0.85} />
-              <stop offset="100%" stopColor="#FF6B63" stopOpacity={0.3} />
+              <stop offset="100%" stopColor="#FF6B63" stopOpacity={0.25} />
             </linearGradient>
           </defs>
 
@@ -132,7 +128,7 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
             tickLine={false}
             axisLine={{ stroke: '#D1D1D6' }}
             tick={{ fontSize: 11, fill: '#8E8E93' }}
-            interval="preserveStartEnd"
+            ticks={xTicks}
             domain={['dataMin', 'dataMax']}
             type="number"
           />
@@ -142,7 +138,7 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
             tickLine={false}
             axisLine={false}
             tick={{ fontSize: 11, fill: '#8E8E93' }}
-            width={70}
+            width={72}
             domain={[0, maxVal]}
           />
 
@@ -153,65 +149,34 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
 
           {/* Stacked areas — bottom to top: epf → provisions → recommendations → shortfall */}
           {showEPF && (
-            <Area
-              type="monotone"
-              dataKey="epf"
-              stackId="stack"
-              fill="url(#gradEPF)"
-              stroke={COLORS.epf}
-              strokeWidth={1.5}
-              animationDuration={500}
-              name="EPF"
-            />
+            <Area type="monotone" dataKey="epf" stackId="stack"
+              fill="url(#gradEPF)" stroke={COLORS.epf} strokeWidth={1.5}
+              animationDuration={500} name="EPF" />
           )}
-
           {showProvisions && (
-            <Area
-              type="monotone"
-              dataKey="provisions"
-              stackId="stack"
-              fill="url(#gradProvisions)"
-              stroke={COLORS.provisions}
-              strokeWidth={1.5}
-              animationDuration={500}
-              name="Existing Provision"
-            />
+            <Area type="monotone" dataKey="provisions" stackId="stack"
+              fill="url(#gradProvisions)" stroke={COLORS.provisions} strokeWidth={1.5}
+              animationDuration={500} name="Existing Provision" />
           )}
-
           {showRecommendations && (
-            <Area
-              type="monotone"
-              dataKey="recommendations"
-              stackId="stack"
-              fill="url(#gradRec)"
-              stroke={COLORS.recommendations}
-              strokeWidth={1.5}
-              animationDuration={500}
-              name="Recommendation"
-            />
+            <Area type="monotone" dataKey="recommendations" stackId="stack"
+              fill="url(#gradRec)" stroke={COLORS.recommendations} strokeWidth={1.5}
+              animationDuration={500} name="Recommendation" />
           )}
-
           {showShortfall && (
-            <Area
-              type="monotone"
-              dataKey="shortfall"
-              stackId="stack"
-              fill="url(#gradShortfall)"
-              stroke={COLORS.shortfall}
-              strokeWidth={1}
-              animationDuration={500}
-              name="Shortfall"
-            />
+            <Area type="monotone" dataKey="shortfall" stackId="stack"
+              fill="url(#gradShortfall)" stroke={COLORS.shortfall} strokeWidth={1}
+              animationDuration={500} name="Shortfall" />
           )}
 
-          {/* Vertical dashed line at retirement age */}
+          {/* Retirement age vertical dashed line with target amount label */}
           <ReferenceLine
             x={retirementAge}
             stroke="#1C1C1E"
             strokeDasharray="6 4"
             strokeWidth={1.5}
             label={{
-              value: 'Amount Required ' + formatRMFull(targetAmount),
+              value: `Amount Required  ${formatRMFull(targetAmount)}`,
               position: 'insideTopRight',
               fontSize: 11,
               fontWeight: 600,
@@ -220,11 +185,7 @@ export default function RetirementChart({ data, retirementAge, targetAmount, has
             }}
           />
 
-          <Legend
-            verticalAlign="bottom"
-            height={36}
-            payload={legendPayload}
-          />
+          <Legend verticalAlign="bottom" height={36} payload={legendPayload} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
