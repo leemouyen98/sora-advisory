@@ -57,11 +57,6 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
                 <input type="number" step="0.5" min={0} max={10} value={plan.inflationRate} onChange={set('inflationRate')} className="hig-input" />
               </div>
               <div>
-                <label className="hig-label">{t('retirement.preReturnRatePct')}</label>
-                <input type="number" step="0.5" min={0} max={20} value={plan.preRetirementReturn ?? 5} onChange={set('preRetirementReturn')} className="hig-input" />
-                <p className="text-hig-caption2 text-hig-text-secondary mt-1">{t('retirement.accumDiscountRate')}</p>
-              </div>
-              <div>
                 <label className="hig-label">{t('retirement.postReturnRatePct')}</label>
                 <input type="number" step="0.5" min={0} max={10} value={plan.postRetirementReturn} onChange={set('postRetirementReturn')} className="hig-input" />
               </div>

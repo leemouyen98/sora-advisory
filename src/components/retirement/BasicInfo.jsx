@@ -48,15 +48,14 @@ export default function BasicInfo({
   }, [effectiveAnnualIncome])
 
   const planningPresets = [
-    { label: 'Conservative', inflation: 4.5, pre: 4.5, post: 2.5 },
-    { label: 'Balanced', inflation: 4, pre: 5, post: 3 },
-    { label: 'Growth', inflation: 3.5, pre: 6, post: 3.5 },
+    { label: 'Conservative', inflation: 4.5, post: 2.5 },
+    { label: 'Balanced', inflation: 4, post: 3 },
+    { label: 'Growth', inflation: 3.5, post: 3.5 },
   ]
 
   const applyPreset = (preset) => {
     onChange({
       inflationRate: preset.inflation,
-      preRetirementReturn: preset.pre,
       postRetirementReturn: preset.post,
     })
   }
@@ -127,14 +126,10 @@ export default function BasicInfo({
               </button>
             ))}
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="rounded-hig-sm bg-hig-gray-6 p-3">
               <p className="text-hig-caption2 text-hig-text-secondary">Inflation</p>
               <p className="text-hig-subhead font-semibold">{formatPercent(plan.inflationRate)}</p>
-            </div>
-            <div className="rounded-hig-sm bg-hig-gray-6 p-3">
-              <p className="text-hig-caption2 text-hig-text-secondary">Accumulation return</p>
-              <p className="text-hig-subhead font-semibold">{formatPercent(plan.preRetirementReturn)}</p>
             </div>
             <div className="rounded-hig-sm bg-hig-gray-6 p-3">
               <p className="text-hig-caption2 text-hig-text-secondary">Retirement return</p>
@@ -169,14 +164,6 @@ export default function BasicInfo({
                 <input type="number" step="0.5" min={0} max={10} value={plan.inflationRate} onChange={set('inflationRate')} className="hig-input pr-8" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">%</span>
               </div>
-            </div>
-            <div>
-              <label className="hig-label">{t('retirement.preReturnRate')}</label>
-              <div className="relative">
-                <input type="number" step="0.5" min={0} max={20} value={plan.preRetirementReturn ?? 5} onChange={set('preRetirementReturn')} className="hig-input pr-8" />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">%</span>
-              </div>
-              <p className="text-hig-caption2 text-hig-text-secondary mt-1">{t('retirement.preReturnRateDesc')}</p>
             </div>
             <div>
               <label className="hig-label">{t('retirement.postReturnRate')}</label>

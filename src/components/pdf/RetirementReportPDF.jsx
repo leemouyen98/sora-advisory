@@ -386,7 +386,6 @@ export function RetirementReportDocument({ plan, projection, contact, agentName 
             {[
               { label: 'Monthly Expenses (Today)', value: fmtRM(plan.monthlyExpenses) },
               { label: 'Inflation Rate',            value: `${plan.inflationRate ?? 4}%` },
-              { label: 'Pre-Retirement Return',     value: `${plan.preRetirementReturn ?? 5}%` },
               { label: 'Post-Retirement Return',    value: `${plan.postRetirementReturn ?? 3}%` },
               ...(plan.includeEPF ? [
                 { label: 'EPF Balance (Today)',          value: fmtRM(plan.epfBalance) },

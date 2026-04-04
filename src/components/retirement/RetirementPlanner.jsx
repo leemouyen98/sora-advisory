@@ -38,7 +38,6 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
         lifeExpectancy: plan.lifeExpectancy || 80,
         monthlyExpenses: plan.monthlyExpenses || 0,
         inflationRate: plan.inflationRate ?? 4,
-        preRetirementReturn: plan.preRetirementReturn ?? 5,
         postRetirementReturn: plan.postRetirementReturn ?? 1,
         includeEPF: plan.includeEPF || false,
         epfBalance: plan.epfBalance || 0,
@@ -143,7 +142,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
     const yearsToRet = Math.max(1, (plan.retirementAge || 55) - currentAge)
     const moderateYears = Math.min(12, yearsToRet)
     const comfortYears = Math.min(20, yearsToRet)
-    const accumulationRate = Number(plan.preRetirementReturn ?? 5)
+    const accumulationRate = 5 // standard accumulation assumption for new investment recommendations
 
     const buildMonthly = (targetShortfall, years) => {
       if (!targetShortfall || years <= 0) return 0
@@ -181,13 +180,13 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
         lumpSum: buildLumpSum(shortfallAmount * 0.35),
       },
     ]
-  }, [shortfallAmount, plan.preRetirementReturn, plan.retirementAge, currentAge])
+  }, [shortfallAmount, plan.retirementAge, currentAge])
 
   const sensitivityCards = useMemo(() => {
     const scenarios = [
       { label: 'Retire 2 years later', overrides: { retirementAge: Math.min((plan.retirementAge || 55) + 2, plan.lifeExpectancy - 1) } },
       { label: 'Inflation +1%', overrides: { inflationRate: Number(plan.inflationRate || 0) + 1 } },
-      { label: 'Return -1%', overrides: { preRetirementReturn: Math.max(0, Number(plan.preRetirementReturn || 0) - 1), postRetirementReturn: Math.max(0, Number(plan.postRetirementReturn || 0) - 1) } },
+      { label: 'Return -1%', overrides: { postRetirementReturn: Math.max(0, Number(plan.postRetirementReturn || 0) - 1) } },
     ]
 
     return scenarios.map((scenario) => {
@@ -197,7 +196,6 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
         lifeExpectancy: plan.lifeExpectancy || 80,
         monthlyExpenses: plan.monthlyExpenses || 0,
         inflationRate: scenario.overrides.inflationRate ?? (plan.inflationRate ?? 4),
-        preRetirementReturn: scenario.overrides.preRetirementReturn ?? (plan.preRetirementReturn ?? 5),
         postRetirementReturn: scenario.overrides.postRetirementReturn ?? (plan.postRetirementReturn ?? 1),
         includeEPF: plan.includeEPF || false,
         epfBalance: plan.epfBalance || 0,
@@ -415,7 +413,7 @@ export default function RetirementPlanner({ plan, currentAge, contactName, linke
                   <Info size={14} className="mt-0.5 text-hig-blue shrink-0" />
                   <div className="text-hig-caption1 text-hig-text-secondary">
                     <p className="font-medium text-hig-text mb-1">Assumptions driving this plan</p>
-                    <p>Inflation {plan.inflationRate}% · Accumulation return {plan.preRetirementReturn}% · Retirement return {plan.postRetirementReturn}% · Retire at age {plan.retirementAge}</p>
+                    <p>Inflation {plan.inflationRate}% · Retirement return {plan.postRetirementReturn}% · Retire at age {plan.retirementAge}</p>
                   </div>
                 </div>
               </div>

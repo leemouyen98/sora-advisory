@@ -209,7 +209,6 @@ export function generateRetirementProjection({
   lifeExpectancy,
   monthlyExpenses,
   inflationRate,
-  preRetirementReturn = 5,   // assumed accumulation return — used to discount the required curve backward
   postRetirementReturn,
   includeEPF,
   epfBalance,
@@ -418,10 +417,10 @@ export function generateRetirementProjection({
     // ── Required Corpus Curve ───────────────────────────────────────────────
     // Represents the amount you SHOULD have at each age to stay on track.
     //
-    // Pre-retirement: discount targetAmount backward using preRetirementReturn.
-    //   i.e. the PV of the required corpus, growing at preRetirementReturn each year.
-    //   At currentAge  → targetAmount / (1 + r)^yearsToRetirement  (smallest)
-    //   At retirementAge → targetAmount                             (peak)
+    // Pre-retirement: discount targetAmount backward using a standard 5% accumulation rate.
+    //   i.e. the PV of the required corpus, growing at 5% each year.
+    //   At currentAge  → targetAmount / (1.05)^yearsToRetirement  (smallest)
+    //   At retirementAge → targetAmount                            (peak)
     //
     // Post-retirement: PV of all remaining withdrawals from this age onward,
     //   discounted at real rate (postRetirementReturn − inflationRate).
@@ -429,7 +428,7 @@ export function generateRetirementProjection({
     let idealCorpus = 0
     if (age < retirementAge) {
       const yearsFromRetirement = retirementAge - age
-      idealCorpus = targetAmount / Math.pow(1 + preRetirementReturn / 100, yearsFromRetirement)
+      idealCorpus = targetAmount / Math.pow(1.05, yearsFromRetirement)
     } else if (age === retirementAge) {
       idealCorpus = targetAmount
     } else {

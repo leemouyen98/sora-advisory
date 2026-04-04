@@ -37,7 +37,6 @@ export default function RetirementPlannerPage() {
       lifeExpectancy: 100,
       monthlyExpenses: 3000,
       inflationRate: 4,
-      preRetirementReturn: 5,
       postRetirementReturn: 3,
       includeEPF: false,
       epfBalance: 0,

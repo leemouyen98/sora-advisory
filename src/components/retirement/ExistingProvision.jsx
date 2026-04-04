@@ -142,7 +142,7 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                       />
                     </div>
                     <div>
-                      <label className="hig-label">{t('retirement.preRetirementReturnPct')}</label>
+                      <label className="hig-label">Expected Return %</label>
                       <input
                         type="number"
                         step="0.5"
