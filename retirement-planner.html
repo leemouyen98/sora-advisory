@@ -466,6 +466,117 @@
     .mt12 { margin-top: 12px; }
     .mt16 { margin-top: 16px; }
     .mb16 { margin-bottom: 16px; }
+
+    /* ════════════════════════════════════════════════
+       STEP 3 — REBUILT LAYOUT
+    ════════════════════════════════════════════════ */
+    .results-main-full { padding: 20px 24px 48px; }
+
+    .analysis-row { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+    .analysis-chart { flex: 1; min-width: 0; }
+    .analysis-sit { width: 310px; min-width: 260px; display: flex; flex-direction: column; gap: 12px; }
+
+    .sit-card-v2 {
+      background: #fff; border: 1px solid #EEEEEE; border-radius: 8px;
+      box-shadow: rgba(0,0,0,0.07) 0 0 6px; padding: 16px 18px;
+    }
+    .sit-card-v2.has-rec { border-color: #3A8DDE; box-shadow: 0 0 0 2px rgba(58,141,222,.15); }
+    .sit-title-v2 { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .sit-val-v2   { font-size: 26px; font-weight: 700; color: #F54336; line-height: 1; margin-bottom: 4px; }
+    .sit-val-v2.green { color: #4CAF50; }
+    .sit-val-v2.blue  { color: #3A8DDE; }
+    .sit-sub-v2   { font-size: 12px; color: #999; margin-bottom: 6px; }
+    .sit-note-v2  { font-size: 12px; color: #585858; line-height: 1.45; }
+    .sit-empty-v2 { font-size: 12px; color: #BBBBBB; font-style: italic; }
+    .impact-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(76,175,80,.1); color: #388E3C;
+      border-radius: 12px; padding: 3px 10px;
+      font-size: 11.5px; font-weight: 700; margin-top: 8px;
+    }
+
+    /* ── RECOMMENDATION SECTION ─────────────────── */
+    .rec-section {
+      background: #fff; border: 1px solid #EEEEEE; border-radius: 10px;
+      box-shadow: rgba(0,0,0,0.08) 0 0 8px; padding: 22px 24px 24px;
+    }
+    .rec-section-title { font-size: 15px; font-weight: 700; color: #191919; margin-bottom: 3px; }
+    .rec-section-sub   { font-size: 13px; color: #999; margin-bottom: 18px; }
+
+    .rec-cards-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 18px;
+    }
+    .rec-card {
+      border: 2px solid #EEEEEE; border-radius: 10px; padding: 20px 18px;
+      cursor: pointer; transition: border-color .18s, box-shadow .18s, background .18s;
+      display: flex; flex-direction: column; background: #fff;
+      position: relative; overflow: hidden;
+    }
+    .rec-card:hover { border-color: #A8CDEF; box-shadow: 0 0 0 3px rgba(58,141,222,.1); }
+    .rec-card.selected {
+      border-color: #3A8DDE; background: rgba(58,141,222,.04);
+      box-shadow: 0 0 0 3px rgba(58,141,222,.18);
+    }
+    .rec-card.selected::after {
+      content: '✓'; position: absolute; top: 10px; right: 12px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #3A8DDE; color: #fff;
+      font-size: 12px; font-weight: 700; line-height: 22px; text-align: center;
+    }
+    .rc-badge {
+      font-size: 10.5px; font-weight: 700; color: #3A8DDE;
+      background: rgba(58,141,222,.1); border-radius: 4px;
+      padding: 3px 8px; margin-bottom: 14px;
+      text-transform: uppercase; letter-spacing: .4px; align-self: flex-start;
+    }
+    .rc-amount { font-size: 26px; font-weight: 700; color: #191919; line-height: 1; margin-bottom: 2px; }
+    .rc-unit   { font-size: 13px; color: #888; margin-bottom: 10px; }
+    .rc-return { font-size: 11.5px; color: #AAAAAA; margin-bottom: 18px; flex: 1; }
+    .rc-btn {
+      width: 100%; height: 34px; border-radius: 4px;
+      background: #F0F7FF; border: 1px solid rgba(58,141,222,.3);
+      color: #3A8DDE; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background .15s;
+    }
+    .rec-card:hover .rc-btn { background: rgba(58,141,222,.14); }
+    .rec-card.selected .rc-btn { background: #3A8DDE; color: #fff; border-color: #3A8DDE; }
+
+    /* Custom sim */
+    .custom-sim-panel {
+      display: none; margin-top: 16px; background: #F9FBFF;
+      border: 1px dashed rgba(58,141,222,.4); border-radius: 8px; padding: 20px 22px;
+    }
+    .custom-sim-panel.open { display: block; }
+    .csp-title  { font-size: 13.5px; font-weight: 700; color: #191919; margin-bottom: 14px; }
+    .csp-row    { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .csp-group  { display: flex; flex-direction: column; gap: 4px; }
+    .csp-label  { font-size: 11.5px; font-weight: 600; color: #585858; }
+    .csp-input  {
+      height: 38px; padding: 0 12px; border: 1px solid #CCCCCC; border-radius: 4px;
+      font-family: 'Open Sans',sans-serif; font-size: 14px; color: #191919;
+      background: #fff; outline: none; width: 160px;
+    }
+    .csp-input:focus { border-color: #3A8DDE; }
+    .csp-result {
+      margin-top: 14px; padding: 12px 16px;
+      background: #fff; border: 1px solid #D8EAF8; border-radius: 6px;
+      font-size: 13px; color: #585858; display: none;
+    }
+    .csp-result.show { display: block; }
+    .csp-result strong { color: #191919; font-weight: 700; }
+
+    /* Provisions disclosure */
+    .prov-disclosure { margin-top: 16px; background: #fff; border: 1px solid #EEEEEE; border-radius: 8px; overflow: hidden; }
+    .prov-disc-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 18px; cursor: pointer; user-select: none;
+      font-size: 13px; font-weight: 600; color: #585858; transition: background .12s;
+    }
+    .prov-disc-hdr:hover { background: #F9F9F9; }
+    .prov-disc-arrow { font-size: 11px; transition: transform .2s; display: inline-block; }
+    .prov-disc-arrow.open { transform: rotate(180deg); }
+    .prov-disc-body { display: none; padding: 4px 18px 16px; font-size: 13px; color: #BBBBBB; font-style: italic; }
+    .prov-disc-body.open { display: block; }
   </style>
 </head>
 <body>
@@ -775,184 +886,194 @@
           <button class="btn btn-outlined" onclick="goTo(1)">⚙ Planning Assumptions</button>
         </div>
 
-        <div class="results-body">
-          <!-- MAIN LEFT -->
-          <div class="results-main">
+        <!-- FULL-WIDTH MAIN -->
+        <div class="results-main-full">
 
-            <!-- Stats bar -->
-            <div class="stats-bar">
-              <div class="stat-block">
-                <span class="stat-lbl">Target Amount</span>
-                <span class="stat-val" id="r-target">RM 0</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-block">
-                <span class="stat-lbl">Covered</span>
-                <span class="stat-val">RM 0</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-block" style="flex:1;">
-                <span class="stat-lbl" id="r-net-label">Shortfall</span>
-                <span class="stat-val red" id="r-shortfall">RM 0</span>
-                <span class="stat-note mt4">
-                  <span class="lnk">Retirement Expense</span>: <span id="r-desc">—</span>
-                </span>
-              </div>
+          <!-- Stats bar -->
+          <div class="stats-bar" style="margin-bottom:16px;">
+            <div class="stat-block">
+              <span class="stat-lbl">Target Amount</span>
+              <span class="stat-val" id="r-target">RM 0</span>
             </div>
-
-            <!-- Legend + progress bar -->
-            <div class="mb16">
-              <div class="legend-row">
-                <div class="legend-item"><div class="ldot achieved"></div>Achieved</div>
-                <div class="legend-item"><div class="ldot at-risk"></div>At Risk</div>
-                <div class="legend-item"><div class="ldot existing"></div>Existing</div>
-                <div class="legend-item"><div class="ldot recommended"></div>Recommended</div>
-              </div>
-              <div class="progress-bar-bg" id="r-progress">
-                <!-- filled dynamically -->
-              </div>
-              <div style="display:flex;justify-content:space-between;font-size:11px;color:#999;margin-top:3px;">
-                <span>0%</span>
-                <span id="r-pct-label">Achieved: 0% &nbsp;|&nbsp; At Risk: 100%</span>
-              </div>
+            <div class="stat-divider"></div>
+            <div class="stat-block">
+              <span class="stat-lbl">Covered</span>
+              <span class="stat-val" id="r-covered">RM 0</span>
             </div>
-
-            <!-- Alert -->
-            <div class="alert-warn">
-              ⚠ Immediate action is needed. Your current provisions are significantly below what is required.
-            </div>
-
-            <!-- Situation cards -->
-            <div class="situation-row">
-              <div class="sit-card">
-                <div class="sit-title">Current Situation</div>
-                <div class="sit-sub">Funds will run out at</div>
-                <div class="sit-value" id="r-runout">60 yo</div>
-                <div class="sit-note" id="r-runout-note">At current levels, your funds will run out at age 60. You are at 0% of your retirement goal.</div>
-              </div>
-              <div class="sit-card">
-                <div class="sit-title">With Recommendation</div>
-                <div class="sit-sub" style="color:#BBBBBB;">No Recommendation Selected</div>
-                <div class="sit-empty">Add a recommendation to see how it improves your situation.</div>
-              </div>
-            </div>
-
-            <!-- Chart area -->
-            <div class="chart-area">
-              <div class="chart-header">
-                <span style="font-size:13px;font-weight:600;color:#191919;">Retirement Capital Chart</span>
-                <div class="view-toggle">
-                  <button class="vtbtn active" onclick="switchView('charts',this)">Charts</button>
-                  <button class="vtbtn" onclick="switchView('plans',this)">Plans</button>
-                </div>
-              </div>
-
-              <!-- Donut chart -->
-              <div class="donut-wrap">
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  <!-- background ring -->
-                  <circle cx="100" cy="100" r="75" fill="none" stroke="#EEEEEE" stroke-width="32"/>
-                  <!-- at-risk ring (full = shortfall) -->
-                  <circle cx="100" cy="100" r="75" fill="none" stroke="#F54336" stroke-width="32"
-                    stroke-dasharray="471" stroke-dashoffset="0"
-                    transform="rotate(-90 100 100)" id="donut-risk"/>
-                  <!-- achieved ring -->
-                  <circle cx="100" cy="100" r="75" fill="none" stroke="#4CAF50" stroke-width="32"
-                    stroke-dasharray="0 471"
-                    transform="rotate(-90 100 100)" id="donut-achieved"/>
-                  <!-- Centre label -->
-                  <text x="100" y="93" text-anchor="middle" font-size="11" fill="#999"
-                    font-family="Open Sans, sans-serif">Amount Required</text>
-                  <text x="100" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="#191919"
-                    font-family="Open Sans, sans-serif" id="donut-label">RM 0</text>
-                </svg>
-              </div>
-
-              <!-- Legend for donut -->
-              <div style="display:flex;gap:16px;justify-content:center;font-size:12px;color:#888;margin-bottom:12px;">
-                <span><span style="display:inline-block;width:10px;height:10px;background:#F54336;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Shortfall</span>
-                <span><span style="display:inline-block;width:10px;height:10px;background:#EEEEEE;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Required Amount</span>
-              </div>
-
-              <!-- X-axis labels -->
-              <div style="display:flex;justify-content:space-between;font-size:11px;color:#BBBBBB;padding:0 4px;" id="donut-axis">
-                <span>RM0</span>
-                <span>RM 1 M</span>
-                <span>RM 2 M</span>
-                <span>RM 3 M</span>
-                <span>RM 4 M</span>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- RIGHT: Tabs -->
-          <div class="results-right">
-            <div class="tabs-bar">
-              <div class="tabs-row">
-                <button class="tab-btn active" data-tab="rec">Recommendations</button>
-                <button class="tab-btn" data-tab="prov">Provisions</button>
-              </div>
-            </div>
-
-            <div id="tab-rec" class="tab-panel active">
-              <div class="rec-panel">
-                <div class="rec-panel-header">
-                  <div class="rec-panel-title">Add New Recommendation</div>
-                  <div class="rec-panel-sub">To achieve your objective, you could get on track by creating a plan with one of the following:</div>
-                </div>
-                <div class="rec-row" id="rec-row-1">
-                  <div>
-                    <div class="rec-amount" id="rec-opt-1">Invest RM 9,590 /mth</div>
-                    <div class="rec-period">for 10 years</div>
-                  </div>
-                  <button class="rec-add" title="Add">+</button>
-                </div>
-                <div class="rec-row" id="rec-row-2">
-                  <div>
-                    <div class="rec-amount" id="rec-opt-2">Invest RM 5,901 /mth</div>
-                    <div class="rec-period">for 20 years</div>
-                  </div>
-                  <button class="rec-add" title="Add">+</button>
-                </div>
-                <div class="rec-row">
-                  <div>
-                    <div class="rec-amount" id="rec-opt-3">Invest RM 914,185 one-time</div>
-                    <div class="rec-period">Today</div>
-                  </div>
-                  <button class="rec-add" title="Add">+</button>
-                </div>
-                <div class="rec-simulate">
-                  <span class="rec-simulate-lbl">Simulate Custom Recommendation</span>
-                  <button class="rec-add" title="Simulate">+</button>
-                </div>
-              </div>
-            </div>
-
-            <div id="tab-prov" class="tab-panel">
-              <div style="text-align:center;padding:40px 16px;color:#BBBBBB;font-size:13px;">
-                No provisions added yet.
-              </div>
-            </div>
-
-            <!-- Bottom summary repeat -->
-            <div class="res-sum" style="margin-top:auto;">
-              <div class="sum-row">
-                <span class="sum-label">Target Amount</span>
-                <span class="sum-value" id="r-target2">RM 0</span>
-              </div>
-              <div class="sum-row">
-                <span class="sum-label">Covered</span>
-                <span class="sum-value" id="r-covered2">RM 0</span>
-              </div>
-              <div class="sum-row">
-                <span class="sum-label" id="r-net-label2">Shortfall</span>
-                <span class="sum-value" id="r-shortfall2">RM 0</span>
-              </div>
+            <div class="stat-divider"></div>
+            <div class="stat-block" style="flex:1;">
+              <span class="stat-lbl" id="r-net-label">Shortfall</span>
+              <span class="stat-val red" id="r-shortfall">RM 0</span>
+              <span class="stat-note mt4">
+                <span class="lnk">Retirement Expense</span>: <span id="r-desc">—</span>
+              </span>
             </div>
           </div>
-        </div>
 
+          <!-- Legend + progress bar -->
+          <div style="margin-bottom:16px;">
+            <div class="legend-row">
+              <div class="legend-item"><div class="ldot achieved"></div>Achieved</div>
+              <div class="legend-item"><div class="ldot at-risk"></div>At Risk</div>
+              <div class="legend-item"><div class="ldot existing"></div>Existing</div>
+              <div class="legend-item"><div class="ldot recommended"></div>With Recommendation</div>
+            </div>
+            <div class="progress-bar-bg" id="r-progress" style="height:14px;border-radius:7px;background:#F54336;"></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#999;margin-top:4px;">
+              <span>0%</span>
+              <span id="r-pct-label">Achieved: 0% &nbsp;|&nbsp; At Risk: 100%</span>
+            </div>
+          </div>
+
+          <!-- Alert -->
+          <div class="alert-warn" id="r-alert">
+            ⚠ Immediate action is needed. Your current provisions are significantly below what is required.
+          </div>
+
+          <!-- Analysis row: chart left, situation cards right -->
+          <div class="analysis-row">
+
+            <!-- LEFT: chart -->
+            <div class="analysis-chart">
+              <div class="chart-area" style="margin-bottom:0;">
+                <div class="chart-header">
+                  <span style="font-size:13px;font-weight:600;color:#191919;">Retirement Capital Overview</span>
+                  <div class="view-toggle">
+                    <button class="vtbtn active" onclick="switchView('charts',this)">Charts</button>
+                    <button class="vtbtn" onclick="switchView('plans',this)">Plans</button>
+                  </div>
+                </div>
+                <div class="donut-wrap" style="margin:12px 0 8px;">
+                  <svg width="210" height="210" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="75" fill="none" stroke="#EEEEEE" stroke-width="30"/>
+                    <circle cx="100" cy="100" r="75" fill="none" stroke="#F54336" stroke-width="30"
+                      stroke-dasharray="471" stroke-dashoffset="0"
+                      transform="rotate(-90 100 100)" id="donut-risk"
+                      style="transition:stroke-dasharray .5s,stroke .3s;"/>
+                    <circle cx="100" cy="100" r="75" fill="none" stroke="#3A8DDE" stroke-width="30"
+                      stroke-dasharray="0 471"
+                      transform="rotate(-90 100 100)" id="donut-rec"
+                      style="transition:stroke-dasharray .5s;"/>
+                    <circle cx="100" cy="100" r="75" fill="none" stroke="#4CAF50" stroke-width="30"
+                      stroke-dasharray="0 471"
+                      transform="rotate(-90 100 100)" id="donut-achieved"
+                      style="transition:stroke-dasharray .5s;"/>
+                    <text x="100" y="91" text-anchor="middle" font-size="10.5" fill="#999"
+                      font-family="Open Sans,sans-serif">Amount Required</text>
+                    <text x="100" y="112" text-anchor="middle" font-size="12" font-weight="700" fill="#191919"
+                      font-family="Open Sans,sans-serif" id="donut-label">RM 0</text>
+                  </svg>
+                </div>
+                <div style="display:flex;gap:14px;justify-content:center;font-size:12px;color:#888;">
+                  <span><span style="display:inline-block;width:10px;height:10px;background:#F54336;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Shortfall</span>
+                  <span><span style="display:inline-block;width:10px;height:10px;background:#3A8DDE;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Recommended</span>
+                  <span><span style="display:inline-block;width:10px;height:10px;background:#4CAF50;border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Achieved</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: situation cards stacked -->
+            <div class="analysis-sit">
+              <!-- Current Situation -->
+              <div class="sit-card-v2">
+                <div class="sit-title-v2">Current Situation</div>
+                <div class="sit-sub-v2">Funds will run out at</div>
+                <div class="sit-val-v2" id="r-runout">— yo</div>
+                <div class="sit-note-v2" id="r-runout-note">Enter your details to see your current situation.</div>
+              </div>
+              <!-- With Recommendation -->
+              <div class="sit-card-v2" id="with-rec-card">
+                <div class="sit-title-v2">With Recommendation</div>
+                <div class="sit-sub-v2" id="wr-sub" style="color:#BBBBBB;">No plan selected</div>
+                <div class="sit-val-v2 blue" id="wr-val" style="display:none;">—</div>
+                <div class="sit-note-v2 sit-empty-v2" id="wr-note">Select a plan below to see how it changes your situation.</div>
+                <div class="impact-chip" id="wr-chip" style="display:none;">↑ Gap closes by 100%</div>
+              </div>
+            </div>
+
+          </div><!-- /analysis-row -->
+
+          <!-- ── RECOMMENDATIONS ─────────────────────────── -->
+          <div class="rec-section">
+            <div class="rec-section-title">How to get on track</div>
+            <div class="rec-section-sub">Select a plan below to see how it closes the gap — then bring it to your client.</div>
+
+            <div class="rec-cards-grid">
+
+              <!-- Card 1: Monthly 10 yr -->
+              <div class="rec-card" id="rc-0" onclick="selectRec(0)">
+                <div class="rc-badge">Monthly · 10 years</div>
+                <div class="rc-amount" id="rc-amount-0">RM —</div>
+                <div class="rc-unit">/month</div>
+                <div class="rc-return">Assumed growth: 7% p.a.</div>
+                <button class="rc-btn" onclick="event.stopPropagation();selectRec(0)">Select Plan</button>
+              </div>
+
+              <!-- Card 2: Monthly 20 yr -->
+              <div class="rec-card" id="rc-1" onclick="selectRec(1)">
+                <div class="rc-badge">Monthly · 20 years</div>
+                <div class="rc-amount" id="rc-amount-1">RM —</div>
+                <div class="rc-unit">/month</div>
+                <div class="rc-return">Assumed growth: 7% p.a.</div>
+                <button class="rc-btn" onclick="event.stopPropagation();selectRec(1)">Select Plan</button>
+              </div>
+
+              <!-- Card 3: Lump sum -->
+              <div class="rec-card" id="rc-2" onclick="selectRec(2)">
+                <div class="rc-badge">One-time · Today</div>
+                <div class="rc-amount" id="rc-amount-2">RM —</div>
+                <div class="rc-unit">lump sum</div>
+                <div class="rc-return">Assumed growth: 7% p.a.</div>
+                <button class="rc-btn" onclick="event.stopPropagation();selectRec(2)">Select Plan</button>
+              </div>
+
+            </div><!-- /rec-cards-grid -->
+
+            <!-- Custom simulation CTA -->
+            <div style="text-align:center;">
+              <button class="btn btn-outlined" onclick="toggleCustomSim()"
+                style="font-size:13px;gap:6px;">
+                ✏ Simulate Custom Recommendation
+              </button>
+            </div>
+
+            <!-- Custom simulation panel -->
+            <div class="custom-sim-panel" id="custom-sim-panel">
+              <div class="csp-title">Custom Simulation</div>
+              <div class="csp-row">
+                <div class="csp-group">
+                  <span class="csp-label">Monthly amount (RM)</span>
+                  <input class="csp-input" id="csp-amount" type="number" placeholder="e.g. 3000"
+                    oninput="runCustomSim()">
+                </div>
+                <div class="csp-group">
+                  <span class="csp-label">Duration (years)</span>
+                  <input class="csp-input" id="csp-years" type="number" placeholder="e.g. 15" value="15"
+                    oninput="runCustomSim()">
+                </div>
+                <div class="csp-group">
+                  <span class="csp-label">Annual return (%)</span>
+                  <input class="csp-input" id="csp-return" type="number" placeholder="e.g. 7" value="7"
+                    oninput="runCustomSim()">
+                </div>
+              </div>
+              <div class="csp-result" id="csp-result"></div>
+            </div>
+
+          </div><!-- /rec-section -->
+
+          <!-- Provisions disclosure -->
+          <div class="prov-disclosure">
+            <div class="prov-disc-hdr" onclick="toggleProvisions()">
+              <span>📋 Existing Provisions <span style="font-weight:400;color:#AAAAAA;font-size:12px;">(0 entries)</span></span>
+              <span class="prov-disc-arrow" id="prov-arrow">▼</span>
+            </div>
+            <div class="prov-disc-body" id="prov-body">
+              No provisions added. Go back to Step 2 to add savings, insurance or investments.
+            </div>
+          </div>
+
+        </div><!-- /results-main-full -->
       </div>
     </div>
 
@@ -984,21 +1105,111 @@
     }
   }
 
-  /* ── tabs (results page) ───────────── */
-  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const key = btn.dataset.tab;
-      document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('tab-rec').classList.toggle('active', key === 'rec');
-      document.getElementById('tab-prov').classList.toggle('active', key === 'prov');
-    });
-  });
-
   /* ── view toggle ───────────────────── */
   function switchView(view, el) {
     el.parentElement.querySelectorAll('.vtbtn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
+  }
+
+  /* ── recommendation card selection ─── */
+  let _recData = { target: 0, projMonthly: 0, retAge: 60, lifeExp: 75, ytr: 29 };
+  let _selectedRec = -1;
+
+  function selectRec(idx) {
+    _selectedRec = idx;
+    // highlight cards
+    [0,1,2].forEach(i => {
+      document.getElementById('rc-' + i).classList.toggle('selected', i === idx);
+    });
+
+    const { target, projMonthly, retAge, lifeExp, ytr } = _recData;
+    const circ = 2 * Math.PI * 75;
+    const annualReturn = 0.07;
+    const mRate = annualReturn / 12;
+    const covered = target; // full coverage when plan selected
+
+    // Update donut — show full coverage in blue (recommended)
+    const riskRing     = document.getElementById('donut-risk');
+    const recRing      = document.getElementById('donut-rec');
+    const achievedRing = document.getElementById('donut-achieved');
+    riskRing.setAttribute('stroke-dasharray', '0 ' + circ);
+    recRing.setAttribute('stroke-dasharray', circ + ' 0');
+    achievedRing.setAttribute('stroke-dasharray', '0 ' + circ);
+
+    // Progress bar — full recommended
+    const pBar = document.getElementById('r-progress');
+    pBar.style.background = '#E8F5E9';
+    pBar.innerHTML = `<div style="height:100%;background:#3A8DDE;border-radius:7px;width:100%;transition:width .4s;"></div>`;
+    document.getElementById('r-pct-label').textContent = 'With Recommendation: 100% covered';
+
+    // Stats bar — covered now = target, shortfall = 0
+    document.getElementById('r-covered').textContent  = fmtRM(covered);
+    document.getElementById('r-net-label').textContent = 'Surplus';
+    const sfEl = document.getElementById('r-shortfall');
+    sfEl.textContent = '+' + fmtRM(0);
+    sfEl.className   = 'stat-val green';
+
+    // Alert — hide it
+    const alertEl = document.getElementById('r-alert');
+    if (alertEl) alertEl.style.display = 'none';
+
+    // With Recommendation card
+    const labels = ['Monthly · 10 years', 'Monthly · 20 years', 'One-time · Today'];
+    const amounts = [
+      document.getElementById('rc-amount-0').textContent + '/mth for 10 yrs',
+      document.getElementById('rc-amount-1').textContent + '/mth for 20 yrs',
+      document.getElementById('rc-amount-2').textContent + ' lump sum',
+    ];
+    const wrCard = document.getElementById('with-rec-card');
+    wrCard.classList.add('has-rec');
+    document.getElementById('wr-sub').textContent  = labels[idx];
+    document.getElementById('wr-sub').style.color  = '#3A8DDE';
+    const wrVal  = document.getElementById('wr-val');
+    wrVal.style.display = 'block';
+    wrVal.textContent   = lifeExp + ' yo';
+    wrVal.className     = 'sit-val-v2 green';
+    document.getElementById('wr-note').textContent =
+      'With this plan (' + amounts[idx] + '), your retirement is fully funded to age ' + lifeExp + '.';
+    document.getElementById('wr-note').className = 'sit-note-v2';
+    const chip = document.getElementById('wr-chip');
+    chip.style.display = 'inline-flex';
+    chip.textContent   = '↑ Shortfall fully closed';
+  }
+
+  /* ── custom sim ─────────────────────── */
+  function toggleCustomSim() {
+    const panel = document.getElementById('custom-sim-panel');
+    panel.classList.toggle('open');
+  }
+
+  function runCustomSim() {
+    const amt     = parseFloat(document.getElementById('csp-amount').value) || 0;
+    const years   = parseFloat(document.getElementById('csp-years').value)  || 0;
+    const ret     = parseFloat(document.getElementById('csp-return').value) || 7;
+    const result  = document.getElementById('csp-result');
+    if (!amt || !years) { result.classList.remove('show'); return; }
+
+    const mRate   = (ret / 100) / 12;
+    const n       = years * 12;
+    const fv      = mRate > 0
+      ? amt * (Math.pow(1 + mRate, n) - 1) / mRate
+      : amt * n;
+    const target  = _recData.target;
+    const gap     = target - fv;
+    const pct     = Math.min(100, Math.round((fv / target) * 100));
+
+    result.classList.add('show');
+    result.innerHTML = gap <= 0
+      ? `Investing <strong>${fmtRM(amt)}/mth</strong> for <strong>${years} years</strong> at <strong>${ret}%</strong> grows to <strong>${fmtRM(fv)}</strong> — fully covering the target of ${fmtRM(target)}. <span style="color:#4CAF50;font-weight:700;">Surplus: ${fmtRM(Math.abs(gap))}</span>`
+      : `Investing <strong>${fmtRM(amt)}/mth</strong> for <strong>${years} years</strong> at <strong>${ret}%</strong> grows to <strong>${fmtRM(fv)}</strong> — covering <strong>${pct}%</strong> of the ${fmtRM(target)} target. <span style="color:#F54336;font-weight:700;">Remaining shortfall: ${fmtRM(gap)}</span>`;
+  }
+
+  /* ── provisions disclosure ──────────── */
+  function toggleProvisions() {
+    const body  = document.getElementById('prov-body');
+    const arrow = document.getElementById('prov-arrow');
+    body.classList.toggle('open');
+    arrow.classList.toggle('open');
   }
 
   /* ── input clamp ───────────────────── */
@@ -1093,9 +1304,26 @@
     const isSurplus = net > 0;
     const absNet    = Math.abs(net);
 
+    // Store for selectRec use
+    _recData = { target: targetAmount, projMonthly, retAge, lifeExp, ytr };
+    _selectedRec = -1;
+    // Reset rec cards
+    [0,1,2].forEach(i => document.getElementById('rc-'+i)?.classList.remove('selected'));
+    // Reset with-rec card
+    const wrCard = document.getElementById('with-rec-card');
+    if (wrCard) wrCard.classList.remove('has-rec');
+    const wrSub = document.getElementById('wr-sub');
+    if (wrSub) { wrSub.textContent = 'No plan selected'; wrSub.style.color = ''; }
+    const wrVal = document.getElementById('wr-val');
+    if (wrVal) wrVal.style.display = 'none';
+    const wrNote = document.getElementById('wr-note');
+    if (wrNote) { wrNote.textContent = 'Select a plan below to see how it changes your situation.'; wrNote.className = 'sit-note-v2 sit-empty-v2'; }
+    const wrChip = document.getElementById('wr-chip');
+    if (wrChip) wrChip.style.display = 'none';
+
     // Stats bar — third block
-    const netLabelEls = ['r-net-label', 'r-net-label2'];
-    const netValEls   = ['r-shortfall', 'r-shortfall2'];
+    const netLabelEls = ['r-net-label'];
+    const netValEls   = ['r-shortfall'];
 
     netLabelEls.forEach(id => {
       const el = document.getElementById(id);
@@ -1109,24 +1337,16 @@
       el.className   = 'stat-val ' + (isSurplus ? 'green' : 'red');
     });
 
-    // The second shortfall element is inside .sum-value (different class)
-    const sf2 = document.getElementById('r-shortfall2');
-    if (sf2) {
-      sf2.style.color = isSurplus ? '#4CAF50' : '#F54336';
-      sf2.className   = 'sum-value';
-    }
-
-    // Covered row in bottom summary
-    const cov2 = document.getElementById('r-covered2');
-    if (cov2) cov2.textContent = fmtRM(covered);
+    // Covered stat block
+    const covEl = document.getElementById('r-covered');
+    if (covEl) covEl.textContent = fmtRM(covered);
 
     // Alert — only show on shortfall
-    const alertEl = document.querySelector('.alert-warn');
+    const alertEl = document.getElementById('r-alert');
     if (alertEl) alertEl.style.display = isSurplus ? 'none' : 'block';
 
     // Stats bar top values
     document.getElementById('r-target').textContent    = fmtRM(targetAmount);
-    document.getElementById('r-target2').textContent   = fmtRM(targetAmount);
     document.getElementById('r-desc').textContent      =
       fmtRM(projMonthly) + ' per month from age ' + retAge +
       ' @ ' + inflation + '% for ' + dur + ' years';
@@ -1178,44 +1398,39 @@
     document.getElementById('donut-label').textContent = fmtRM(targetAmount);
     updateDonutAxis(targetAmount);
 
-    // Donut ring colours
+    // Donut ring — baseline (no recommendation selected)
     const riskRing     = document.getElementById('donut-risk');
+    const recRing      = document.getElementById('donut-rec');
     const achievedRing = document.getElementById('donut-achieved');
     const circ = 2 * Math.PI * 75; // ≈ 471
     if (isSurplus) {
-      riskRing.setAttribute('stroke', '#4CAF50');
-      riskRing.setAttribute('stroke-dasharray', circ);
-      riskRing.setAttribute('stroke-dashoffset', '0');
-      achievedRing.setAttribute('stroke-dasharray', '0 ' + circ);
+      riskRing.setAttribute('stroke-dasharray', '0 ' + circ);
+      recRing.setAttribute('stroke-dasharray', '0 ' + circ);
+      achievedRing.setAttribute('stroke-dasharray', circ + ' 0');
     } else {
       const achievedDash = (pctCovered / 100) * circ;
-      riskRing.setAttribute('stroke', '#F54336');
-      riskRing.setAttribute('stroke-dasharray', circ - achievedDash + ' ' + achievedDash);
-      riskRing.setAttribute('stroke-dashoffset', '0');
-      achievedRing.setAttribute('stroke', '#4CAF50');
+      riskRing.setAttribute('stroke-dasharray', (circ - achievedDash) + ' ' + achievedDash);
+      recRing.setAttribute('stroke-dasharray', '0 ' + circ);
       achievedRing.setAttribute('stroke-dasharray', achievedDash + ' ' + (circ - achievedDash));
     }
 
-    // Recommendation options
+    // Recommendation cards
     const annualReturn = 0.07;
     const mRate = annualReturn / 12;
 
-    // Option 1: 10 years
-    const n1 = 10 * 12;
+    // Card 0: 10 years monthly
+    const n1   = 10 * 12;
     const pmt1 = targetAmount * mRate / (Math.pow(1 + mRate, n1) - 1);
-    document.getElementById('rec-opt-1').textContent =
-      'Invest ' + fmtRM(pmt1) + ' /mth';
+    document.getElementById('rc-amount-0').textContent = fmtRM(pmt1);
 
-    // Option 2: 20 years
-    const n2 = 20 * 12;
+    // Card 1: 20 years monthly
+    const n2   = 20 * 12;
     const pmt2 = targetAmount * mRate / (Math.pow(1 + mRate, n2) - 1);
-    document.getElementById('rec-opt-2').textContent =
-      'Invest ' + fmtRM(pmt2) + ' /mth';
+    document.getElementById('rc-amount-1').textContent = fmtRM(pmt2);
 
-    // Option 3: lump sum today (FV in ytr years @ 7%)
+    // Card 2: lump sum
     const lump = targetAmount / Math.pow(1 + annualReturn, ytr);
-    document.getElementById('rec-opt-3').textContent =
-      'Invest ' + fmtRM(lump) + ' one-time';
+    document.getElementById('rc-amount-2').textContent = fmtRM(lump);
   }
 
   function updateDonutAxis(target) {
