@@ -328,7 +328,8 @@
     .stat-block { display: flex; flex-direction: column; }
     .stat-lbl { font-size: 12px; color: #999; margin-bottom: 4px; }
     .stat-val { font-size: 18px; font-weight: 700; color: #191919; }
-    .stat-val.red { color: #F54336; }
+    .stat-val.red   { color: #F54336; }
+    .stat-val.green { color: #4CAF50; }
     .stat-note { font-size: 12px; color: #585858; margin-top: 4px; }
     .stat-note .lnk { color: #3A8DDE; font-weight: 600; cursor: pointer; }
     .stat-divider { width: 1px; background: #EEEEEE; align-self: stretch; }
@@ -791,7 +792,7 @@
               </div>
               <div class="stat-divider"></div>
               <div class="stat-block" style="flex:1;">
-                <span class="stat-lbl">Shortfall</span>
+                <span class="stat-lbl" id="r-net-label">Shortfall</span>
                 <span class="stat-val red" id="r-shortfall">RM 0</span>
                 <span class="stat-note mt4">
                   <span class="lnk">Retirement Expense</span>: <span id="r-desc">—</span>
@@ -942,11 +943,11 @@
               </div>
               <div class="sum-row">
                 <span class="sum-label">Covered</span>
-                <span class="sum-value">RM 0</span>
+                <span class="sum-value" id="r-covered2">RM 0</span>
               </div>
               <div class="sum-row">
-                <span class="sum-label">Shortfall</span>
-                <span class="sum-value" style="color:#F54336;" id="r-shortfall2">RM 0</span>
+                <span class="sum-label" id="r-net-label2">Shortfall</span>
+                <span class="sum-value" id="r-shortfall2">RM 0</span>
               </div>
             </div>
           </div>
@@ -1084,27 +1085,116 @@
 
     const projMonthly  = m * Math.pow(1 + inflation / 100, ytr);
     const targetAmount = calcTargetAmount(projMonthly, dur, postReturn);
-    const shortfall    = targetAmount; // covered = 0
 
-    // Stats bar
+    // covered = sum of existing provisions (0 until provisions are added)
+    const covered = 0;
+    const net     = covered - targetAmount; // negative = shortfall, positive = surplus
+
+    const isSurplus = net > 0;
+    const absNet    = Math.abs(net);
+
+    // Stats bar — third block
+    const netLabelEls = ['r-net-label', 'r-net-label2'];
+    const netValEls   = ['r-shortfall', 'r-shortfall2'];
+
+    netLabelEls.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = isSurplus ? 'Surplus' : 'Shortfall';
+    });
+
+    netValEls.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = isSurplus ? '+' + fmtRM(absNet) : fmtRMneg(absNet);
+      el.className   = 'stat-val ' + (isSurplus ? 'green' : 'red');
+    });
+
+    // The second shortfall element is inside .sum-value (different class)
+    const sf2 = document.getElementById('r-shortfall2');
+    if (sf2) {
+      sf2.style.color = isSurplus ? '#4CAF50' : '#F54336';
+      sf2.className   = 'sum-value';
+    }
+
+    // Covered row in bottom summary
+    const cov2 = document.getElementById('r-covered2');
+    if (cov2) cov2.textContent = fmtRM(covered);
+
+    // Alert — only show on shortfall
+    const alertEl = document.querySelector('.alert-warn');
+    if (alertEl) alertEl.style.display = isSurplus ? 'none' : 'block';
+
+    // Stats bar top values
     document.getElementById('r-target').textContent    = fmtRM(targetAmount);
     document.getElementById('r-target2').textContent   = fmtRM(targetAmount);
-    document.getElementById('r-shortfall').textContent = fmtRMneg(shortfall);
-    document.getElementById('r-shortfall2').textContent= fmtRMneg(shortfall);
     document.getElementById('r-desc').textContent      =
       fmtRM(projMonthly) + ' per month from age ' + retAge +
       ' @ ' + inflation + '% for ' + dur + ' years';
 
-    // Run-out
-    document.getElementById('r-runout').textContent =
-      retAge + ' yo';
-    document.getElementById('r-runout-note').textContent =
-      'At current levels, your funds will run out at age ' + retAge +
-      '. You are at 0% of your retirement goal.';
+    // Run-out / situation card
+    const pctCovered = targetAmount > 0 ? Math.round((covered / targetAmount) * 100) : 0;
+    const runoutEl   = document.getElementById('r-runout');
+    const runoutNote = document.getElementById('r-runout-note');
+
+    if (isSurplus) {
+      runoutEl.textContent   = lifeExp + ' yo';
+      runoutEl.className     = 'sit-value green';
+      runoutNote.textContent = 'Your provisions fully cover your retirement needs. You have a surplus of ' +
+        fmtRM(absNet) + '.';
+    } else {
+      const runoutAge = covered > 0
+        ? Math.round(retAge + (covered / (projMonthly * 12)))
+        : retAge;
+      runoutEl.textContent   = runoutAge + ' yo';
+      runoutEl.className     = 'sit-value';
+      runoutNote.textContent = 'At current levels, your funds will run out at age ' + runoutAge +
+        '. You are at ' + pctCovered + '% of your retirement goal.';
+    }
+
+    // Progress bar label
+    document.getElementById('r-pct-label').textContent =
+      isSurplus
+        ? 'Achieved: 100% | Surplus: ' + fmtRM(absNet)
+        : 'Achieved: ' + pctCovered + '% \u00a0|\u00a0 At Risk: ' + (100 - pctCovered) + '%';
+
+    // Progress bar fill
+    const progressBar = document.getElementById('r-progress');
+    if (progressBar) {
+      if (isSurplus) {
+        progressBar.style.background = '#4CAF50';
+        progressBar.innerHTML = ''; // full green = 100%
+      } else {
+        progressBar.style.background = '#F54336';
+        if (pctCovered > 0) {
+          progressBar.innerHTML =
+            `<div class="progress-bar-fill" style="width:${pctCovered}%"></div>`;
+        } else {
+          progressBar.innerHTML = '';
+        }
+      }
+    }
 
     // Donut label + axis
     document.getElementById('donut-label').textContent = fmtRM(targetAmount);
     updateDonutAxis(targetAmount);
+
+    // Donut ring colours
+    const riskRing     = document.getElementById('donut-risk');
+    const achievedRing = document.getElementById('donut-achieved');
+    const circ = 2 * Math.PI * 75; // ≈ 471
+    if (isSurplus) {
+      riskRing.setAttribute('stroke', '#4CAF50');
+      riskRing.setAttribute('stroke-dasharray', circ);
+      riskRing.setAttribute('stroke-dashoffset', '0');
+      achievedRing.setAttribute('stroke-dasharray', '0 ' + circ);
+    } else {
+      const achievedDash = (pctCovered / 100) * circ;
+      riskRing.setAttribute('stroke', '#F54336');
+      riskRing.setAttribute('stroke-dasharray', circ - achievedDash + ' ' + achievedDash);
+      riskRing.setAttribute('stroke-dashoffset', '0');
+      achievedRing.setAttribute('stroke', '#4CAF50');
+      achievedRing.setAttribute('stroke-dasharray', achievedDash + ' ' + (circ - achievedDash));
+    }
 
     // Recommendation options
     const annualReturn = 0.07;
