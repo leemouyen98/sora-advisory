@@ -206,12 +206,7 @@ export default function BasicInfo({
 
                 {effectiveAnnualIncome > 0 ? (
                   <p className="text-hig-caption1 text-hig-text-secondary mt-1">
-                    {(() => {
-                      const monthly = effectiveAnnualIncome / 12
-                      const er = monthly >= 5000 ? 12 : 13
-                      const suffix = monthly >= 5000 ? t('retirement.epfSalaryHighSuffix') : ''
-                      return t('retirement.epfContribNote', { total: 11 + er, er, suffix })
-                    })()}
+                    {t('retirement.epfContribNote', { total: 23, er: 12, suffix: '' })}
                   </p>
                 ) : (
                   <p className="text-hig-caption2 text-hig-text-secondary mt-1">

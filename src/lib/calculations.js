@@ -111,9 +111,10 @@ export function tvmSolve(params, solveFor) {
  *   Monthly salary > RM5,000  : Employee 11% + Employer 12% = 23% of annual income
  * Rate is evaluated each year as income grows past the threshold.
  */
-export function getEPFRate(annualIncome) {
-  const monthlySalary = (annualIncome || 0) / 12
-  return monthlySalary >= 5000 ? 0.23 : 0.24
+export function getEPFRate(_annualIncome) {
+  // GoalsMapper uses a flat 23% (11% employee + 12% employer) for all income levels.
+  // The Third Schedule's higher 13% employer rate for wages ≤ RM 5,000 is NOT applied.
+  return 0.23
 }
 
 export function projectEPF({ currentBalance, growthRate, annualIncome, incomeGrowthRate, currentAge, retirementAge }) {
