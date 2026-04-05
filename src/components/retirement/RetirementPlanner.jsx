@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, useRef } from 'react'
-import { formatRMFull, generateRetirementProjection, tvmSolve, generateBreakdown, projectProvision, recMonthlyPMT, recLumpSum } from '../../lib/calculations'
-import { Plus, ChevronDown, ChevronUp, Trash2, CheckCircle2, AlertTriangle, XCircle, Maximize2, ArrowLeft } from 'lucide-react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { formatRMFull, generateRetirementProjection, tvmSolve, projectProvision, recMonthlyPMT, recLumpSum, recMonthlyFV } from '../../lib/calculations'
+import { Plus, ChevronDown, ChevronUp, Trash2, CheckCircle2, AlertTriangle, XCircle, ArrowLeft, MoreVertical, X } from 'lucide-react'
 import RetirementChart from './RetirementChart'
 import PlanningAssumptions from './PlanningAssumptions'
 import { useLanguage } from '../../hooks/useLanguage'
@@ -19,11 +19,12 @@ export default function RetirementPlanner({
   const { t } = useLanguage()
   const setActiveTab = onActiveTabChange
 
-  const [expandedRec,   setExpandedRec]   = useState(null)
-  const [showBreakdown, setShowBreakdown] = useState(null)
-  const [showCustom,    setShowCustom]    = useState(false)   // inline TVM form
-  const [customCalcFor, setCustomCalcFor] = useState('fv')
-  const [savedFlash,    setSavedFlash]    = useState(false)
+  const [showCustom,       setShowCustom]       = useState(false)
+  const [customCalcFor,    setCustomCalcFor]    = useState('fv')
+  const [customForm,       setCustomForm]       = useState({ fv: 0, rate: 5, pv: 0, pmt: 0, n: 10 })
+  const [deleteConfirmRec, setDeleteConfirmRec] = useState(null)   // { id, name }
+  const [showBreakdownRec, setShowBreakdownRec] = useState(null)   // rec id
+  const [savedFlash,       setSavedFlash]       = useState(false)
   const saveTimer = useRef(null)
 
   const flashSaved = useCallback(() => {
@@ -31,8 +32,6 @@ export default function RetirementPlanner({
     clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => setSavedFlash(false), 2000)
   }, [])
-
-  const [customForm, setCustomForm] = useState({ fv: 0, rate: 5, pv: 0, pmt: 0, n: 10 })
 
   // ── Projection ──────────────────────────────────────────────────────────────
   const projection = useMemo(() => {
@@ -128,9 +127,13 @@ export default function RetirementPlanner({
     flashSaved()
   }
 
+  const updateRec = (id, changes) => {
+    onChange({ recommendations: (plan.recommendations || []).map((r) => r.id === id ? { ...r, ...changes } : r) })
+  }
+
   const removeRec = (id) => {
-    if (!window.confirm(t('retirement.removeRecConfirm'))) return
     onChange({ recommendations: (plan.recommendations || []).filter((r) => r.id !== id) })
+    setDeleteConfirmRec(null)
     flashSaved()
   }
 
@@ -399,13 +402,13 @@ export default function RetirementPlanner({
                   key={rec.id}
                   rec={rec}
                   idx={idx}
-                  expanded={expandedRec === rec.id}
-                  showBreakdown={showBreakdown === rec.id}
+                  showBreakdown={showBreakdownRec === rec.id}
                   currentAge={currentAge}
+                  retirementAge={plan.retirementAge || 55}
                   onToggle={() => toggleRec(rec.id)}
-                  onRemove={() => removeRec(rec.id)}
-                  onExpand={() => setExpandedRec(expandedRec === rec.id ? null : rec.id)}
-                  onBreakdown={() => setShowBreakdown(showBreakdown === rec.id ? null : rec.id)}
+                  onUpdate={(changes) => updateRec(rec.id, changes)}
+                  onDeleteRequest={() => setDeleteConfirmRec({ id: rec.id, name: rec.name || `Recommendation ${idx + 1}` })}
+                  onBreakdown={() => setShowBreakdownRec(showBreakdownRec === rec.id ? null : rec.id)}
                   t={t}
                 />
               ))}
@@ -427,6 +430,15 @@ export default function RetirementPlanner({
         currentAge={currentAge}
         onChange={onChange}
         onClose={() => onToggleAssumptions(false)}
+      />
+    )}
+
+    {/* Delete Recommendation Confirmation Modal */}
+    {deleteConfirmRec && (
+      <DeleteConfirmModal
+        name={deleteConfirmRec.name}
+        onConfirm={() => removeRec(deleteConfirmRec.id)}
+        onCancel={() => setDeleteConfirmRec(null)}
       />
     )}
     </>
@@ -555,45 +567,361 @@ function InlineTVM({ form, setForm, calcFor, setCalcFor, shortfallAmount, curren
   )
 }
 
+// ─── Delete Confirmation Modal ────────────────────────────────────────────────
+
+function DeleteConfirmModal({ name, onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-hig-md shadow-xl w-80 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-hig-gray-5">
+          <p className="text-hig-subhead font-semibold">Delete Recommendation</p>
+          <button onClick={onCancel} className="p-1 text-hig-text-secondary hover:text-hig-text rounded">
+            <X size={16} />
+          </button>
+        </div>
+        {/* Body */}
+        <div className="px-4 py-4">
+          <p className="text-hig-subhead text-hig-text">
+            Are you sure you want to delete <strong>"{name}"</strong>?
+          </p>
+        </div>
+        {/* Footer */}
+        <div className="flex gap-2 px-4 pb-4">
+          <button onClick={onCancel} className="hig-btn-secondary flex-1">No</button>
+          <button onClick={onConfirm} className="hig-btn-primary flex-1 bg-red-500 border-red-500 hover:bg-red-600">
+            Yes, I am sure.
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Individual Recommendation Card ──────────────────────────────────────────
 
-function RecCard({ rec, idx, expanded, showBreakdown, currentAge, onToggle, onRemove, onExpand, onBreakdown, t }) {
+const CALC_FOR_TABS = [
+  { key: 'fv',   label: 'Est. Value' },
+  { key: 'pmt',  label: 'Monthly'    },
+  { key: 'pv',   label: 'Lump Sum'   },
+  { key: 'rate', label: 'Interest'   },
+]
+
+function RecCard({ rec, idx, showBreakdown, currentAge, retirementAge, onToggle, onUpdate, onDeleteRequest, onBreakdown, t }) {
+  const [calcFor,    setCalcFor]    = useState('fv')
+  const [optionOpen, setOptionOpen] = useState(false)
+  const [isRenaming, setIsRenaming] = useState(false)
+  const [nameInput,  setNameInput]  = useState(rec.name || '')
+  const optionRef = useRef(null)
+
+  const recName = rec.name || `Recommendation ${idx + 1}`
+  const yearsToRet = Math.max(1, retirementAge - currentAge)
+  const contribYears = Math.min(rec.periodYears || 10, yearsToRet)
+  const remainingYears = yearsToRet - contribYears
+  const R = (rec.growthRate || 5) / 100
+  const r = R / 12
+
+  // Close option menu on outside click
+  useEffect(() => {
+    if (!optionOpen) return
+    const handle = (e) => { if (optionRef.current && !optionRef.current.contains(e.target)) setOptionOpen(false) }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [optionOpen])
+
+  // ── Solved value for the "Calculate For" display box ─────────────────────
+  const solvedValue = useMemo(() => {
+    const pmt  = rec.monthlyAmount || 0
+    const ls   = rec.lumpSum || 0
+    const rate = rec.growthRate || 5
+    try {
+      switch (calcFor) {
+        case 'fv': {
+          // Two-phase FV: annuity-due × annual growth for remaining
+          let fv = 0
+          if (pmt > 0) fv += recMonthlyFV(pmt, rate, contribYears, yearsToRet)
+          if (ls  > 0) fv += Math.round(ls * Math.pow(1 + R, yearsToRet))
+          return fv
+        }
+        case 'pmt': return recMonthlyPMT(rec.futureValue || 0, rate, contribYears, yearsToRet)
+        case 'pv':  return recLumpSum(rec.futureValue || 0, rate, yearsToRet)
+        case 'rate':
+          return tvmSolve({ fv: rec.futureValue || 0, pmt, pv: ls, n: contribYears, frequency: 12 }, 'rate')
+        default:    return 0
+      }
+    } catch { return 0 }
+  }, [rec, calcFor, contribYears, yearsToRet, R])
+
+  const solvedLabel = {
+    fv:   `Estimated value at Age ${retirementAge}`,
+    pmt:  'Monthly Contribution',
+    pv:   'Lump Sum Today',
+    rate: 'Growth Rate (p.a.)',
+  }[calcFor]
+
+  const solvedDisplay = calcFor === 'rate'
+    ? `${Number.isFinite(solvedValue) ? solvedValue.toFixed(2) : '0.00'}%`
+    : formatRMFull(Math.abs(solvedValue || 0))
+
+  // ── Two-phase breakdown ───────────────────────────────────────────────────
+  const breakdown = useMemo(() => {
+    const pmt = rec.monthlyAmount || 0
+    const ls  = rec.lumpSum || 0
+    const rate = rec.growthRate || 5
+    const n = contribYears * 12
+
+    if (pmt > 0) {
+      const fvOrd   = r === 0 ? pmt * n : pmt * ((Math.pow(1 + r, n) - 1) / r)
+      const fvPhase1 = fvOrd * (1 + r)                                   // annuity-due
+      const fvPhase2 = fvPhase1 * Math.pow(1 + rate / 100, remainingYears)
+      return {
+        type: 'monthly',
+        pmt, contribYears,
+        fromAge: currentAge, toAge: currentAge + contribYears,
+        fvPhase1, remainingYears, retirementAge, fvPhase2,
+      }
+    }
+    if (ls > 0) {
+      return {
+        type: 'lumpSum',
+        ls, years: yearsToRet,
+        fv: ls * Math.pow(1 + rate / 100, yearsToRet),
+      }
+    }
+    return null
+  }, [rec, contribYears, remainingYears, yearsToRet, currentAge, retirementAge, r])
+
+  // ── Rename save ───────────────────────────────────────────────────────────
+  const saveRename = () => {
+    const trimmed = nameInput.trim()
+    onUpdate({ name: trimmed || undefined })
+    setIsRenaming(false)
+  }
+
   return (
-    <div className="border border-hig-gray-4 rounded-hig-sm overflow-hidden">
-      <div className="flex items-center gap-3 p-3">
+    <div className={`border rounded-hig-sm overflow-hidden transition-colors ${rec.isSelected ? 'border-hig-blue' : 'border-hig-gray-4'}`}>
+
+      {/* ── Header ── */}
+      <div className="flex items-center gap-2 p-3">
+        {/* Checkbox */}
         <button
           onClick={onToggle}
           className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors
-            ${rec.isSelected ? 'border-hig-blue bg-hig-blue' : 'border-hig-gray-3'}`}
+            ${rec.isSelected ? 'border-hig-blue bg-hig-blue' : 'border-hig-gray-3 hover:border-hig-blue'}`}
         >
           {rec.isSelected && <span className="w-2 h-2 rounded-full bg-white" />}
         </button>
-        <div className="flex-1 min-w-0">
-          <p className="text-hig-subhead font-medium">Recommendation {idx + 1}</p>
-          <p className="text-hig-caption1 text-hig-text-secondary truncate">
-            {rec.lumpSum > 0 && !rec.monthlyAmount
-              ? `${formatRMFull(rec.lumpSum)} one-time @ ${rec.growthRate}% for ${rec.periodYears}y`
-              : `${formatRMFull(rec.monthlyAmount)}/mth @ ${rec.growthRate}% for ${rec.periodYears}y`}
-          </p>
-        </div>
-        <button onClick={onExpand} className="p-1 text-hig-text-secondary hover:text-hig-text"><Maximize2 size={14} /></button>
-        <button onClick={onRemove} className="p-1 text-hig-text-secondary hover:text-hig-red"><Trash2 size={14} /></button>
-      </div>
-      {expanded && (
-        <div className="border-t border-hig-gray-5 p-3 bg-hig-gray-6">
+
+        {/* Name / Rename input */}
+        {isRenaming ? (
+          <input
+            autoFocus
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            onBlur={saveRename}
+            onKeyDown={(e) => { if (e.key === 'Enter') saveRename(); if (e.key === 'Escape') setIsRenaming(false) }}
+            className="flex-1 text-hig-subhead font-medium border-b border-hig-blue outline-none bg-transparent"
+          />
+        ) : (
+          <p className="flex-1 text-hig-subhead font-medium truncate">{recName}</p>
+        )}
+
+        {/* Option dropdown */}
+        <div className="relative shrink-0" ref={optionRef}>
           <button
-            onClick={onBreakdown}
-            className="hig-btn-ghost text-hig-caption1 w-full flex items-center justify-center gap-1"
+            onClick={() => setOptionOpen((v) => !v)}
+            className="p-1 rounded hover:bg-hig-gray-6 text-hig-text-secondary hover:text-hig-text transition-colors"
           >
-            {showBreakdown ? <><ChevronUp size={14} /> Hide</> : <><ChevronDown size={14} /> Show</>} calculation breakdown
+            <MoreVertical size={15} />
           </button>
-          {showBreakdown && (
-            <div className="mt-3 overflow-x-auto">
-              <BreakdownTable rec={rec} startAge={currentAge} />
+          {optionOpen && (
+            <div className="absolute right-0 top-full mt-1 bg-white border border-hig-gray-4 rounded-hig-sm shadow-lg z-20 w-28 overflow-hidden">
+              <button
+                onClick={() => { setIsRenaming(true); setNameInput(rec.name || `Recommendation ${idx + 1}`); setOptionOpen(false) }}
+                className="w-full text-left px-3 py-2 text-hig-caption1 hover:bg-hig-gray-6 transition-colors"
+              >
+                Rename
+              </button>
+              <button
+                onClick={() => { setOptionOpen(false); onDeleteRequest() }}
+                className="w-full text-left px-3 py-2 text-hig-caption1 text-hig-red hover:bg-red-50 transition-colors"
+              >
+                Delete
+              </button>
             </div>
           )}
         </div>
-      )}
+      </div>
+
+      {/* ── Body ── */}
+      <div className="border-t border-hig-gray-5 p-3 space-y-3 bg-hig-gray-6/30">
+
+        {/* Calculate For tabs */}
+        <div>
+          <p className="text-hig-caption2 text-hig-text-secondary mb-1 font-medium uppercase tracking-wide">Calculate For</p>
+          <div className="flex bg-hig-gray-6 rounded-hig-sm p-0.5">
+            {CALC_FOR_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setCalcFor(tab.key)}
+                className={`flex-1 py-1.5 text-[11px] font-medium rounded-hig-sm transition-colors
+                  ${calcFor === tab.key ? 'bg-hig-blue text-white shadow-sm' : 'text-hig-text-secondary hover:text-hig-text'}`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Solved result box */}
+        <div className="rounded-hig-sm bg-blue-50 border border-hig-blue/20 p-3">
+          <p className="text-[10px] font-semibold text-hig-blue uppercase tracking-wide mb-0.5">{solvedLabel}</p>
+          <p className="text-hig-title3 text-hig-blue">{solvedDisplay}</p>
+        </div>
+
+        {/* Editable fields */}
+        <div className="space-y-2">
+          {calcFor !== 'rate' && (
+            <div className="flex items-center gap-2">
+              <label className="hig-label mb-0 w-28 shrink-0">Growth Rate</label>
+              <div className="flex-1 relative">
+                <input
+                  type="number" step="0.5" min={0} max={20}
+                  value={rec.growthRate || 5}
+                  onChange={(e) => onUpdate({ growthRate: parseFloat(e.target.value) || 0 })}
+                  className="hig-input pr-6 py-1.5 text-hig-caption1"
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption2">%</span>
+              </div>
+            </div>
+          )}
+          {calcFor !== 'pv' && (
+            <div className="flex items-center gap-2">
+              <label className="hig-label mb-0 w-28 shrink-0">Lump Sum</label>
+              <div className="flex-1 relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption2">RM</span>
+                <input
+                  type="number" min={0}
+                  value={rec.lumpSum || ''}
+                  onChange={(e) => onUpdate({ lumpSum: parseFloat(e.target.value) || 0 })}
+                  className="hig-input pl-7 py-1.5 text-hig-caption1"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          )}
+          {calcFor !== 'pmt' && (
+            <div className="flex items-center gap-2">
+              <label className="hig-label mb-0 w-28 shrink-0">Monthly</label>
+              <div className="flex-1 relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption2">RM</span>
+                <input
+                  type="number" min={0}
+                  value={rec.monthlyAmount || ''}
+                  onChange={(e) => onUpdate({ monthlyAmount: parseFloat(e.target.value) || 0 })}
+                  className="hig-input pl-7 pr-10 py-1.5 text-hig-caption1"
+                  placeholder="0"
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption2">/mth</span>
+              </div>
+            </div>
+          )}
+          {calcFor !== 'fv' && (
+            <div className="flex items-center gap-2">
+              <label className="hig-label mb-0 w-28 shrink-0">Target Value</label>
+              <div className="flex-1 relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption2">RM</span>
+                <input
+                  type="number" min={0}
+                  value={rec.futureValue || ''}
+                  onChange={(e) => onUpdate({ futureValue: parseFloat(e.target.value) || 0 })}
+                  className="hig-input pl-7 py-1.5 text-hig-caption1"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <label className="hig-label mb-0 w-28 shrink-0">Period</label>
+            <div className="flex-1 relative">
+              <input
+                type="number" min={1} max={yearsToRet}
+                value={rec.periodYears || 10}
+                onChange={(e) => onUpdate({ periodYears: Math.max(1, Math.min(yearsToRet, parseInt(e.target.value) || 1)) })}
+                className="hig-input pr-10 py-1.5 text-hig-caption1"
+              />
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-caption2">yrs</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Breakdown toggle */}
+        <button
+          onClick={onBreakdown}
+          className="w-full flex items-center justify-between text-hig-caption1 text-hig-blue font-medium py-1 hover:underline"
+        >
+          <span>{showBreakdown ? 'Hide' : 'Show'} Calculation Breakdown</span>
+          {showBreakdown ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+        </button>
+
+        {/* Breakdown content */}
+        {showBreakdown && breakdown && (
+          <div className="rounded-hig-sm bg-white border border-hig-gray-5 p-3 space-y-2 text-hig-caption1">
+            {breakdown.type === 'monthly' ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Monthly Contribution</span>
+                  <span className="font-semibold">{formatRMFull(breakdown.pmt)}/mth</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Contribution Period</span>
+                  <span className="font-semibold">{breakdown.contribYears} yrs (age {breakdown.fromAge} to {breakdown.toAge})</span>
+                </div>
+                <div className="border-t border-hig-gray-6 pt-2">
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="text-hig-text-secondary">FV at End of Period (Age {breakdown.toAge})</p>
+                      <p className="text-hig-caption2 text-hig-text-secondary italic">compounded monthly</p>
+                    </div>
+                    <span className="font-semibold text-right">{formatRMFull(Math.round(breakdown.fvPhase1))}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Holding Period</span>
+                  <span className="font-semibold">{breakdown.remainingYears} yrs (age {breakdown.toAge} to {breakdown.retirementAge})</span>
+                </div>
+                <div className="border-t border-hig-gray-6 pt-2">
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="text-hig-text-secondary">FV after Holding (Age {breakdown.retirementAge})</p>
+                      <p className="text-hig-caption2 text-hig-text-secondary italic">compounded annually</p>
+                    </div>
+                    <span className="font-semibold text-right text-hig-green">{formatRMFull(Math.round(breakdown.fvPhase2))}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Lump Sum Today</span>
+                  <span className="font-semibold">{formatRMFull(breakdown.ls)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-hig-text-secondary">Growth Period</span>
+                  <span className="font-semibold">{breakdown.years} years</span>
+                </div>
+                <div className="border-t border-hig-gray-6 pt-2 flex justify-between">
+                  <div>
+                    <p className="text-hig-text-secondary">FV at Age {retirementAge}</p>
+                    <p className="text-hig-caption2 text-hig-text-secondary italic">compounded annually</p>
+                  </div>
+                  <span className="font-semibold text-hig-green">{formatRMFull(Math.round(breakdown.fv))}</span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -704,33 +1032,3 @@ function ProvisionPanel({ plan, currentAge, onChange }) {
   )
 }
 
-// ─── Breakdown Table ──────────────────────────────────────────────────────────
-
-function BreakdownTable({ rec, startAge }) {
-  const rows = useMemo(() => {
-    try { return generateBreakdown(rec, startAge) || [] } catch { return [] }
-  }, [rec, startAge])
-
-  if (!rows.length) return null
-
-  return (
-    <table className="w-full text-hig-caption2 border-collapse">
-      <thead>
-        <tr className="text-hig-text-secondary border-b border-hig-gray-5">
-          <th className="text-left py-1 pr-2">Age</th>
-          <th className="text-right py-1 pr-2">Contribution</th>
-          <th className="text-right py-1">Balance</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.age} className="border-b border-hig-gray-6">
-            <td className="py-1 pr-2">{r.age}</td>
-            <td className="text-right py-1 pr-2">{formatRMFull(r.contribution)}</td>
-            <td className="text-right py-1 font-medium">{formatRMFull(r.balance)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
