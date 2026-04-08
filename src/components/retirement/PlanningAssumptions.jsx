@@ -27,17 +27,11 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="hig-label">{t('retirement.retirementAge')}</label>
-                <div className="flex items-center gap-3">
-                  <input type="range" min={50} max={75} value={plan.retirementAge} onChange={set('retirementAge')} className="flex-1 accent-hig-blue" />
-                  <span className="text-hig-headline text-hig-blue w-8 text-right">{plan.retirementAge}</span>
-                </div>
+                <input type="number" min={50} max={75} value={plan.retirementAge || ''} onChange={set('retirementAge')} className="hig-input" />
               </div>
               <div>
                 <label className="hig-label">{t('retirement.lifeExpectancy')}</label>
-                <div className="flex items-center gap-3">
-                  <input type="range" min={61} max={120} value={plan.lifeExpectancy} onChange={set('lifeExpectancy')} className="flex-1 accent-hig-blue" />
-                  <span className="text-hig-headline text-hig-blue w-8 text-right">{plan.lifeExpectancy}</span>
-                </div>
+                <input type="number" min={61} max={120} value={plan.lifeExpectancy || ''} onChange={set('lifeExpectancy')} className="hig-input" />
               </div>
             </div>
           </div>
