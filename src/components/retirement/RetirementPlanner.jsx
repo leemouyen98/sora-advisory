@@ -15,6 +15,7 @@ export default function RetirementPlanner({
   plan, currentAge, contactName, linkedGrossMonthly = 0,
   onChange, showAssumptions, onToggleAssumptions,
   activeTab, onActiveTabChange, meetingMode = false,
+  agentName,
 }) {
   const { t } = useLanguage()
   const setActiveTab = onActiveTabChange
@@ -167,7 +168,7 @@ export default function RetirementPlanner({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <RetirementExportButton plan={plan} projection={projection} contact={{ name: contactName, currentAge }} />
+              <RetirementExportButton plan={plan} projection={projection} contact={{ name: contactName, currentAge }} agentName={agentName} />
               <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-hig-subhead"
                 style={{ backgroundColor: statusColor }}>
                 {projection.coveragePercent}%

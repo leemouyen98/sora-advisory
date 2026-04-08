@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { useLanguage } from '../hooks/useLanguage'
+import { useAuth } from '../hooks/useAuth'
 import { getAge } from '../lib/formatters'
 import { ArrowLeft, Settings, Presentation } from 'lucide-react'
 import BasicInfo from '../components/retirement/BasicInfo'
@@ -13,6 +14,7 @@ export default function RetirementPlannerPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { contacts, saveRetirementPlan } = useContacts()
+  const { agent } = useAuth()
   const contact = contacts.find((c) => c.id === id)
 
   // Pull gross income from Financial Info so we don't ask twice
@@ -195,6 +197,7 @@ export default function RetirementPlannerPage() {
           activeTab={activeTab}
           onActiveTabChange={setActiveTab}
           meetingMode={meetingMode}
+          agentName={agent?.name}
         />
       )}
     </div>
