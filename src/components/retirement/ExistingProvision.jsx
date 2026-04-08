@@ -129,6 +129,18 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                         />
                       </div>
                       <div>
+                        <label className="hig-label">{t('retirement.currentBalanceRM')} <span className="text-hig-red">*</span></label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
+                          <NumberInput
+                            value={p.currentBalance}
+                            onChange={(num) => updateProvision(idx, { currentBalance: num })}
+                            className="hig-input pl-10"
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+                      <div>
                         <label className="hig-label">{t('retirement.contributionAmountRM')} <span className="text-hig-red">*</span></label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
@@ -151,18 +163,6 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
                             <option key={f}>{f}</option>
                           ))}
                         </select>
-                      </div>
-                      <div>
-                        <label className="hig-label">{t('retirement.currentBalanceRM')}</label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-                          <NumberInput
-                            value={p.currentBalance}
-                            onChange={(num) => updateProvision(idx, { currentBalance: num })}
-                            className="hig-input pl-10"
-                            placeholder="0"
-                          />
-                        </div>
                       </div>
                       <div>
                         <label className="hig-label">{t('retirement.preReturnRate')} <span className="text-hig-red">*</span></label>

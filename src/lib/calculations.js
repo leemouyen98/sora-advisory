@@ -161,18 +161,20 @@ function getFrequencyMultiplier(freq) {
 
 /**
  * Project a single provision's value at retirement.
- * Uses ordinary annuity (end-of-period payments) — matches GoalsMapper's convention.
- * Any existing balance compounds as a lump sum to retirement.
+ * Uses annuity DUE (beginning-of-period payments) — matches GoalsMapper's convention.
+ * Any existing balance compounds as a lump sum (annual compounding) to retirement.
  */
 export function projectProvision(provision, yearsToRetirement) {
   const { amount, frequency, preRetirementReturn: rate = 1, currentBalance = 0 } = provision
-  // Compound any existing balance
+  // Compound any existing balance (annual compounding, matches GoalsMapper)
   const balanceFV = currentBalance > 0 ? fvLumpSum(currentBalance, rate, yearsToRetirement) : 0
   if (frequency === 'One-Time') {
     return balanceFV + fvLumpSum(amount, rate, yearsToRetirement)
   }
   const freq = getFrequencyMultiplier(frequency)
-  return balanceFV + fvAnnuity(amount, rate, yearsToRetirement, freq)
+  // Annuity due: multiply ordinary FV by (1 + periodic rate) — matches GoalsMapper exactly
+  const r = rate / 100 / freq
+  return balanceFV + fvAnnuity(amount, rate, yearsToRetirement, freq) * (1 + r)
 }
 
 /**
@@ -520,8 +522,14 @@ export function generateRetirementProjection({
   const dynamicWithRecOk = (fundsRunOutWithRec || 0) >= lifeExpectancy
 
   const reconciledShortfall = dynamicNoRecOk ? 0 : Math.max(0, safeNum(shortfall))
-  const reconciledSurplus   = dynamicNoRecOk && shortfall < 0 ? Math.abs(safeNum(shortfall)) : 0
   const reconciledFullyFunded = dynamicWithRecOk || totalCovered >= targetAmount
+  // Surplus: prefer dynamic surplus (funds outlast life expectancy with headroom);
+  // fall back to static surplus (totalCovered − targetAmount) whenever the plan is fully funded.
+  const reconciledSurplus = dynamicNoRecOk && shortfall < 0
+    ? Math.abs(safeNum(shortfall))
+    : reconciledFullyFunded
+      ? Math.max(0, safeNum(totalCovered - targetAmount))
+      : 0
 
   return {
     targetAmount: safeNum(targetAmount),
