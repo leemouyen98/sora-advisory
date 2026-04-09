@@ -78,8 +78,7 @@ function RetirementBarChart({ chartData, retirementAge, lifeExpectancy }) {
                 flexDirection: 'column',
                 borderRadius: 2,
                 overflow: 'hidden',
-                borderWidth: isRetire ? 1 : 0,
-                borderColor: isRetire ? C.blue : 'transparent',
+                ...(isRetire ? { borderWidth: 1, borderColor: C.blue } : {}),
               }}>
                 {/* Render segments bottom-to-top: shortfall on top (renders last = visually top) */}
                 {(d.shortfall || 0) > 0 && (
@@ -175,6 +174,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 18,
+    borderWidth: 0,
     borderLeftWidth: 3,
     borderLeftColor: C.blue,
   },
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   summaryCards: { flexDirection: 'row', gap: 8, marginBottom: 18 },
   summaryCard: {
     flex: 1, borderRadius: 8, padding: 12,
-    alignItems: 'center', borderTopWidth: 3,
+    alignItems: 'center', borderWidth: 0, borderTopWidth: 3,
   },
   summaryLabel: { fontSize: 7, color: C.gray2, marginBottom: 4, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.3 },
   summaryValue: { fontSize: 14, fontFamily: 'Helvetica-Bold', textAlign: 'center' },
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   tableHeaderCell: { color: C.white, fontFamily: 'Helvetica-Bold', fontSize: 7 },
   tableRow: {
     flexDirection: 'row', paddingVertical: 5, paddingHorizontal: 10,
-    borderBottomWidth: 0.5, borderBottomColor: C.gray5,
+    borderWidth: 0, borderBottomWidth: 0.5, borderBottomColor: C.gray5,
   },
   tableRowAlt: { backgroundColor: C.gray6 },
   tableCell:   { fontSize: 8, color: C.gray1 },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   // Recommendations
   recCard: {
     backgroundColor: C.gray6, borderRadius: 8, padding: 11,
-    marginBottom: 7, borderLeftWidth: 3, borderLeftColor: C.blue,
+    marginBottom: 7, borderWidth: 0, borderLeftWidth: 3, borderLeftColor: C.blue,
   },
   recTitle:  { fontSize: 9, fontFamily: 'Helvetica-Bold', marginBottom: 4 },
   recDetail: { fontSize: 7.5, color: C.gray2, marginTop: 2 },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   // Footer
   footer: {
     position: 'absolute', bottom: 16, left: 36, right: 36,
-    paddingTop: 7, borderTopWidth: 0.5, borderTopColor: C.gray5,
+    paddingTop: 7, borderWidth: 0, borderTopWidth: 0.5, borderTopColor: C.gray5,
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end',
   },
   footerText: { fontSize: 6, color: C.gray3, lineHeight: 1.6, flex: 1 },
