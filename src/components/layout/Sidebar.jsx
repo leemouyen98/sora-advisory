@@ -114,7 +114,7 @@ export default function Sidebar({ expanded, onToggle }) {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className="w-full flex items-center gap-3 min-h-touch rounded-hig-sm px-3 py-2.5 transition-all duration-hig text-left cursor-pointer relative"
+                className={`w-full flex items-center gap-3 min-h-touch rounded-hig-sm ${isOpen ? 'px-3' : 'justify-center'} py-2.5 transition-all duration-hig text-left cursor-pointer relative`}
                 style={{
                   background: active ? 'rgba(46,150,255,0.18)' : 'transparent',
                   color: active ? 'white' : 'rgba(255,255,255,0.52)',
@@ -146,7 +146,7 @@ export default function Sidebar({ expanded, onToggle }) {
             return (
               <button
                 onClick={() => navigate('/admin')}
-                className="w-full flex items-center gap-3 min-h-touch rounded-hig-sm px-3 py-2.5 transition-all duration-hig text-left cursor-pointer relative"
+                className={`w-full flex items-center gap-3 min-h-touch rounded-hig-sm ${isOpen ? 'px-3' : 'justify-center'} py-2.5 transition-all duration-hig text-left cursor-pointer relative`}
                 style={{
                   background: active ? 'rgba(175,82,222,0.20)' : 'transparent',
                   color: active ? 'rgba(218,170,255,1)' : 'rgba(255,255,255,0.52)',
@@ -182,7 +182,7 @@ export default function Sidebar({ expanded, onToggle }) {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className="w-full flex items-center gap-3 min-h-touch px-5 py-2.5 transition-all duration-hig text-left cursor-pointer relative"
+                className={`w-full flex items-center gap-3 min-h-touch rounded-hig-sm ${isOpen ? 'px-5' : 'justify-center'} py-2.5 transition-all duration-hig text-left cursor-pointer relative`}
                 style={{
                   background: active ? 'rgba(46,150,255,0.18)' : 'transparent',
                   color: active ? 'white' : 'rgba(255,255,255,0.45)',
@@ -211,7 +211,7 @@ export default function Sidebar({ expanded, onToggle }) {
           {/* About Sora */}
           <button
             onClick={() => setShowAbout(true)}
-            className="w-full flex items-center gap-3 min-h-touch px-5 py-2.5 transition-all duration-hig text-left cursor-pointer"
+            className={`w-full flex items-center gap-3 min-h-touch rounded-hig-sm ${isOpen ? 'px-5' : 'justify-center'} py-2.5 transition-all duration-hig text-left cursor-pointer`}
             style={{ color: 'rgba(255,255,255,0.38)' }}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)' }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.38)' }}

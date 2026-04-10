@@ -3,8 +3,21 @@ import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import BottomNav from './BottomNav'
 
+const SIDEBAR_KEY = 'sora-sidebar-expanded'
+
 export default function AppShell({ children }) {
-  const [sidebarExpanded, setSidebarExpanded] = useState(false)
+  const [sidebarExpanded, setSidebarExpanded] = useState(() => {
+    const stored = localStorage.getItem(SIDEBAR_KEY)
+    return stored !== null ? stored === 'true' : true   // default expanded
+  })
+
+  const handleToggle = () => {
+    setSidebarExpanded(prev => {
+      const next = !prev
+      localStorage.setItem(SIDEBAR_KEY, String(next))
+      return next
+    })
+  }
 
   return (
     <div
@@ -14,12 +27,12 @@ export default function AppShell({ children }) {
       {/* Sidebar — hidden on mobile, mini strip on tablet, collapsible on desktop */}
       <Sidebar
         expanded={sidebarExpanded}
-        onToggle={() => setSidebarExpanded(!sidebarExpanded)}
+        onToggle={handleToggle}
       />
 
       {/* Main content — offset on tablet to clear mini sidebar */}
       <div className="flex flex-1 flex-col min-w-0 md:pl-[60px] lg:pl-0">
-        <TopBar onMenuToggle={() => setSidebarExpanded(!sidebarExpanded)} />
+        <TopBar onMenuToggle={handleToggle} />
         <main className="flex-1 overflow-y-auto px-3 py-3 md:px-4 md:py-4 lg:px-6 lg:py-6
                          pb-[calc(72px+var(--safe-area-bottom))] md:pb-4 lg:pb-6">
           <div className="max-w-[1280px] mx-auto">
