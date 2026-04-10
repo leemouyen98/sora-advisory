@@ -617,7 +617,7 @@ function RecCard({ rec, idx, showBreakdown, currentAge, retirementAge, onToggle,
   const yearsToRet = Math.max(1, retirementAge - currentAge)
   const contribYears = Math.min(rec.periodYears || 10, yearsToRet)
   const remainingYears = yearsToRet - contribYears
-  const R = (rec.growthRate || 5) / 100
+  const R = (rec.growthRate ?? 5) / 100
   const r = R / 12
 
   // Close option menu on outside click
@@ -632,7 +632,7 @@ function RecCard({ rec, idx, showBreakdown, currentAge, retirementAge, onToggle,
   const solvedValue = useMemo(() => {
     const pmt  = rec.monthlyAmount || 0
     const ls   = rec.lumpSum || 0
-    const rate = rec.growthRate || 5
+    const rate = rec.growthRate ?? 5
     try {
       switch (calcFor) {
         case 'fv': {
@@ -666,7 +666,7 @@ function RecCard({ rec, idx, showBreakdown, currentAge, retirementAge, onToggle,
   const breakdown = useMemo(() => {
     const pmt = rec.monthlyAmount || 0
     const ls  = rec.lumpSum || 0
-    const rate = rec.growthRate || 5
+    const rate = rec.growthRate ?? 5
     const n = contribYears * 12
 
     if (pmt > 0) {
@@ -786,7 +786,7 @@ function RecCard({ rec, idx, showBreakdown, currentAge, retirementAge, onToggle,
               <div className="flex-1 relative">
                 <input
                   type="number" step="0.5" min={0} max={20}
-                  value={rec.growthRate || 5}
+                  value={rec.growthRate ?? 5}
                   onChange={(e) => onUpdate({ growthRate: parseFloat(e.target.value) || 0 })}
                   className="hig-input pr-6 py-1.5 text-hig-caption1"
                 />
