@@ -77,42 +77,51 @@ export default function RetirementPlannerPage() {
     </div>
   )
 
-  // Step indicator — compact
+  // Step indicator — GoalsMapper horizontal stepper style
   const stepIndicator = (
     <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-      <div className="-mx-1 overflow-x-auto px-1 pb-1">
-        <div className="flex min-w-max items-center gap-1.5">
+      {/* Centred stepper */}
+      <div className="-mx-1 flex-1 overflow-x-auto px-1 pb-1">
+        <div className="flex min-w-max items-center lg:justify-center">
           {[
             { n: 1, label: t('retirement.stepBasicInfo') },
             { n: 2, label: t('retirement.stepProvision') },
             { n: 3, label: t('retirement.stepPlanner') },
           ].map((s, idx) => (
-            <div key={s.n} className="flex items-center gap-1.5">
+            <div key={s.n} className="flex items-center">
               {idx > 0 && (
-                <span className="w-5 h-px bg-hig-gray-4" />
+                <div className="w-12 h-px mx-1" style={{ backgroundColor: '#bdbdbd' }} />
               )}
               <button
                 onClick={() => setStep(s.n)}
-                className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-hig-caption1 font-medium transition-colors
-                  ${step === s.n
-                    ? 'bg-hig-blue text-white'
-                    : step > s.n
-                      ? 'bg-hig-green/10 text-hig-green'
-                      : 'bg-hig-gray-6 text-hig-text-secondary'
-                  }`}
+                className="shrink-0 flex items-center gap-2 transition-colors"
               >
-                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
-                  ${step === s.n ? 'bg-white/20 text-white' : step > s.n ? 'bg-hig-green text-white' : 'bg-hig-gray-4 text-hig-text-secondary'}`}>
+                <span
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 transition-colors"
+                  style={
+                    step === s.n
+                      ? { backgroundColor: '#1976d2', color: '#fff' }
+                      : step > s.n
+                        ? { backgroundColor: '#1976d2', color: '#fff' }
+                        : { backgroundColor: 'transparent', color: '#9e9e9e', border: '2px solid #9e9e9e' }
+                  }
+                >
                   {step > s.n ? '✓' : s.n}
                 </span>
-                {s.label}
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: step === s.n ? '#1976d2' : step > s.n ? '#1976d2' : '#9e9e9e' }}
+                >
+                  {s.label}
+                </span>
               </button>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      {/* Right controls */}
+      <div className="flex flex-wrap items-center gap-3 shrink-0">
         {/* Planning Assumptions — visible when not in meeting mode */}
         {!meetingMode && (
           <button
