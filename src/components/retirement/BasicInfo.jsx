@@ -64,29 +64,23 @@ export default function BasicInfo({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="hig-label">{t('retirement.retirementAge')}</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={55} max={70}
-                  value={plan.retirementAge}
-                  onChange={set('retirementAge')}
-                  className="flex-1 accent-hig-blue"
-                />
-                <span className="text-hig-headline text-hig-blue w-8 text-right">{plan.retirementAge}</span>
-              </div>
+              <input
+                type="number"
+                min={50} max={75}
+                value={plan.retirementAge}
+                onChange={set('retirementAge')}
+                className="hig-input"
+              />
             </div>
             <div>
               <label className="hig-label">{t('retirement.lifeExpectancy')}</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={56} max={120}
-                  value={plan.lifeExpectancy}
-                  onChange={set('lifeExpectancy')}
-                  className="flex-1 accent-hig-blue"
-                />
-                <span className="text-hig-headline text-hig-blue w-8 text-right">{plan.lifeExpectancy}</span>
-              </div>
+              <input
+                type="number"
+                min={56} max={120}
+                value={plan.lifeExpectancy}
+                onChange={set('lifeExpectancy')}
+                className="hig-input"
+              />
             </div>
           </div>
         </div>
@@ -120,7 +114,6 @@ export default function BasicInfo({
                 <input type="number" step="0.5" min={0} max={10} value={plan.postRetirementReturn} onChange={set('postRetirementReturn')} className="hig-input pr-8" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">%</span>
               </div>
-              <p className="text-hig-caption2 text-hig-text-secondary mt-1">{t('retirement.postReturnRateDesc')}</p>
             </div>
           </div>
         </div>

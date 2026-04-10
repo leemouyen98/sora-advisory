@@ -40,10 +40,10 @@ export default function RetirementPlanner({
       return generateRetirementProjection({
         currentAge,
         retirementAge:      plan.retirementAge || 55,
-        lifeExpectancy:     plan.lifeExpectancy || 100,
+        lifeExpectancy:     plan.lifeExpectancy || 80,
         monthlyExpenses:    plan.monthlyExpenses || 0,
         inflationRate:      plan.inflationRate ?? 4,
-        postRetirementReturn: plan.postRetirementReturn ?? 3,
+        postRetirementReturn: plan.postRetirementReturn ?? 1,
         includeEPF:         plan.includeEPF || false,
         epfBalance:         plan.epfBalance || 0,
         epfGrowthRate:      plan.epfGrowthRate ?? 6,

@@ -36,10 +36,10 @@ export default function RetirementPlannerPage() {
   const [plan, setPlan] = useState(
     contact?.retirementPlan || {
       retirementAge: contact?.retirementAge ?? 55,
-      lifeExpectancy: 100,
+      lifeExpectancy: 80,
       monthlyExpenses: 3000,
       inflationRate: 4,
-      postRetirementReturn: 3,
+      postRetirementReturn: 1,
       includeEPF: false,
       epfBalance: 0,
       epfGrowthRate: 6,
