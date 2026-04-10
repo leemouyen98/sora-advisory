@@ -55,13 +55,13 @@ export default function BasicInfo({
   }
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col gap-6 lg:flex-row">
       {/* Left: Form */}
       <div className="flex-1 space-y-6">
         {/* Planning Parameters */}
         <div className="hig-card p-5">
           <h3 className="text-hig-headline mb-4">{t('retirement.planningParams')}</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="hig-label">{t('retirement.retirementAge')}</label>
               <div className="flex items-center gap-3">
@@ -94,8 +94,8 @@ export default function BasicInfo({
         {/* Retirement Expense */}
         <div className="hig-card p-5">
           <h3 className="text-hig-headline mb-4">{t('retirement.retirementExpense')}</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2 md:col-span-1">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2 md:col-span-1">
               <label className="hig-label">{t('retirement.monthlyExpensesToday')}</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
@@ -152,7 +152,7 @@ export default function BasicInfo({
           </div>
 
           {plan.includeEPF && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="hig-label">{t('retirement.epfBalance')}</label>
                 <div className="relative">
@@ -229,8 +229,8 @@ export default function BasicInfo({
       </div>
 
       {/* Right: Summary Panel */}
-      <div className="w-72 shrink-0 space-y-4">
-        <div className="hig-card p-5 space-y-4 sticky top-4">
+      <div className="w-full shrink-0 space-y-4 lg:w-72">
+        <div className="hig-card p-5 space-y-4 lg:sticky lg:top-4">
           <h3 className="text-hig-headline">{t('retirement.summaryHeader')}</h3>
 
           <div className="space-y-3 text-hig-subhead">

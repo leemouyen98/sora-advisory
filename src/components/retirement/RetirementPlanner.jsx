@@ -140,14 +140,14 @@ export default function RetirementPlanner({
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
-    <div className="flex gap-4 items-start">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
 
       {/* ── Left: Summary + Chart + Situation ────────────────────────────── */}
       <div className="flex-1 min-w-0 space-y-3">
 
         {/* Summary bar */}
         <div className="hig-card p-4">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex gap-5 flex-wrap">
               <div>
                 <p className="text-hig-caption1 text-hig-text-secondary font-medium">Target Amount</p>
@@ -216,7 +216,7 @@ export default function RetirementPlanner({
         </div>
 
         {/* Current Situation / With Recommendation */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {/* Current Situation */}
           <div className="hig-card p-4">
             <h4 className="text-hig-subhead font-semibold mb-2">Current Situation</h4>
@@ -266,8 +266,8 @@ export default function RetirementPlanner({
       </div>
 
       {/* ── Right: Recommendations / Provisions ──────────────────────────── */}
-      <div className="w-72 lg:w-80 shrink-0">
-        <div className="hig-card p-4 max-h-[calc(100vh-160px)] overflow-y-auto sticky top-0">
+      <div className="w-full shrink-0 lg:w-72 xl:w-80">
+        <div className="hig-card p-4 overflow-y-auto lg:sticky lg:top-4 lg:max-h-[calc(100dvh-160px)]">
 
           {/* Tab bar */}
           <div className="flex bg-hig-gray-6 rounded-hig-sm p-1 mb-3">
@@ -571,7 +571,7 @@ function InlineTVM({ form, setForm, calcFor, setCalcFor, shortfallAmount, curren
 function DeleteConfirmModal({ name, onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-hig-md shadow-xl w-80 overflow-hidden">
+      <div className="w-full max-w-sm overflow-hidden rounded-hig-md bg-white shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-hig-gray-5">
           <p className="text-hig-subhead font-semibold">Delete Recommendation</p>
@@ -586,7 +586,7 @@ function DeleteConfirmModal({ name, onConfirm, onCancel }) {
           </p>
         </div>
         {/* Footer */}
-        <div className="flex gap-2 px-4 pb-4">
+        <div className="flex flex-col-reverse gap-2 px-4 pb-4 sm:flex-row">
           <button onClick={onCancel} className="hig-btn-secondary flex-1">No</button>
           <button onClick={onConfirm} className="hig-btn-primary flex-1 bg-red-500 border-red-500 hover:bg-red-600">
             Yes, I am sure.
@@ -965,7 +965,7 @@ function ProvisionPanel({ plan, currentAge, onChange }) {
             <label className="hig-label">Name</label>
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="hig-input text-hig-caption1 py-1.5" placeholder="e.g. Unit Trust, ASNB" />
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
               <label className="hig-label">Current Balance (RM)</label>
               <input type="number" value={form.currentBalance || ''} onChange={(e) => setForm({ ...form, currentBalance: parseFloat(e.target.value) || 0 })} className="hig-input text-hig-caption1 py-1.5" placeholder="0" />
@@ -975,7 +975,7 @@ function ProvisionPanel({ plan, currentAge, onChange }) {
               <input type="number" value={form.amount || ''} onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })} className="hig-input text-hig-caption1 py-1.5" placeholder="500" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
               <label className="hig-label">Frequency</label>
               <select value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })} className="hig-input text-hig-caption1 py-1.5">
@@ -987,7 +987,7 @@ function ProvisionPanel({ plan, currentAge, onChange }) {
               <input type="number" step="0.5" value={form.preRetirementReturn} onChange={(e) => setForm({ ...form, preRetirementReturn: parseFloat(e.target.value) || 0 })} className="hig-input text-hig-caption1 py-1.5" />
             </div>
           </div>
-          <div className="flex gap-2 pt-1">
+          <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row">
             <button onClick={() => setShowForm(false)} className="hig-btn-secondary text-hig-caption1 flex-1">Cancel</button>
             <button onClick={addProvision}             className="hig-btn-primary text-hig-caption1 flex-1">Add</button>
           </div>
@@ -1030,4 +1030,3 @@ function ProvisionPanel({ plan, currentAge, onChange }) {
     </div>
   )
 }
-

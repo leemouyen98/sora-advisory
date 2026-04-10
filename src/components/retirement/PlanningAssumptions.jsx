@@ -24,7 +24,7 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
           {/* Planning Parameters */}
           <div>
             <h3 className="text-hig-headline mb-3">{t('retirement.planningParams')}</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="hig-label">{t('retirement.retirementAge')}</label>
                 <input type="number" min={50} max={75} value={plan.retirementAge || ''} onChange={set('retirementAge')} className="hig-input" />
@@ -41,8 +41,8 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
           {/* Retirement Expense */}
           <div>
             <h3 className="text-hig-headline mb-3">{t('retirement.retirementExpense')}</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
                 <label className="hig-label">{t('retirement.monthlyExpensesRM')}</label>
                 <input type="number" value={plan.monthlyExpenses || ''} onChange={set('monthlyExpenses')} className="hig-input" />
               </div>
@@ -72,7 +72,7 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
               </button>
             </div>
             {plan.includeEPF && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="hig-label">{t('retirement.epfBalanceRM')}</label>
                   <input type="number" value={plan.epfBalance || ''} onChange={set('epfBalance')} className="hig-input" />
@@ -94,7 +94,7 @@ export default function PlanningAssumptions({ plan, currentAge, onChange, onClos
           </div>
         </div>
 
-        <div className="flex justify-end mt-6">
+        <div className="mt-6 flex justify-stretch sm:justify-end">
           <button onClick={onClose} className="hig-btn-primary">{t('common.done')}</button>
         </div>
       </div>

@@ -102,17 +102,17 @@ export default function ContactsPage() {
   return (
     <div className="max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-hig-title2">{t('contacts.title')}</h1>
-        <button onClick={() => setShowForm(true)} className="hig-btn-primary gap-2">
+        <button onClick={() => setShowForm(true)} className="hig-btn-primary w-full justify-center gap-2 sm:w-auto">
           <Plus size={18} />
           {t('contacts.addNew')}
         </button>
       </div>
 
       {/* Search + Bulk Actions */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1 max-w-full sm:max-w-sm">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary" />
           <input
             type="text"
@@ -334,7 +334,7 @@ export default function ContactsPage() {
               <textarea value={form.notes} onChange={(e) => setForm({...form, notes: e.target.value})} className="hig-input min-h-[80px] resize-y" placeholder={t('contacts.placeholderNotes')} />
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
               <button type="button" onClick={() => { setShowForm(false); setSearchParams({}) }} className="hig-btn-secondary">{t('common.cancel')}</button>
               <button type="submit" className="hig-btn-primary">{t('contacts.btnAdd')}</button>
             </div>

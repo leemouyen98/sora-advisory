@@ -207,21 +207,21 @@ export default function ContactDetailPage() {
   if (showCashFlow) {
     return (
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-5">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
             onClick={() => setShowCashFlow(false)}
             className="hig-btn-ghost gap-1.5 -ml-3"
           >
             <ArrowLeft size={16} /> {contact.name}
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <TrendingUp size={17} className="text-hig-blue" />
             <span className="text-hig-headline font-semibold">{t('cashflow.title')}</span>
             <span className="text-hig-caption2 font-semibold px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue leading-none">
               {t('cashflow.fullSuite')}
             </span>
           </div>
-          <div className="w-32" />
+          <div className="hidden w-32 sm:block" />
         </div>
         <CashFlowTab
           financials={contact.financials}
@@ -243,12 +243,12 @@ export default function ContactDetailPage() {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Top header: Back + Options + Start Planning */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <button onClick={() => navigate('/contacts')} className="hig-btn-ghost gap-1.5 -ml-3">
           <ArrowLeft size={16} /> Contacts
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
 
         {/* ⋮ Options menu */}
         <div className="relative">
@@ -512,7 +512,7 @@ export default function ContactDetailPage() {
         {/* Right: Tabs */}
         <div className="flex-1 min-w-0 overflow-hidden">
           {/* Tab bar */}
-          <div className="flex border-b border-hig-gray-5 mb-4">
+          <div className="mb-4 flex overflow-x-auto border-b border-hig-gray-5">
             {[
               { key: 'interaction', label: t('contactDetail.tabInteraction') },
               { key: 'finances', label: t('contactDetail.tabFinances') },
@@ -520,7 +520,7 @@ export default function ContactDetailPage() {
               <button
                 key={tabItem.key}
                 onClick={() => setTab(tabItem.key)}
-                className={`px-5 py-3 text-hig-subhead font-medium border-b-2 transition-colors
+                className={`shrink-0 px-4 py-3 text-hig-subhead font-medium border-b-2 transition-colors sm:px-5
                   ${tab === tabItem.key
                     ? 'border-hig-blue text-hig-blue'
                     : 'border-transparent text-hig-text-secondary hover:text-hig-text'
@@ -534,10 +534,7 @@ export default function ContactDetailPage() {
           {tab === 'interaction' && (
             <div className="space-y-4">
               {/* Interaction sub-tab bar */}
-              <div style={{
-                display: 'flex', gap: 6,
-                padding: 4, background: '#F2F2F7', borderRadius: 10, width: 'fit-content',
-              }}>
+              <div className="flex w-full flex-wrap gap-1.5 rounded-[10px] bg-hig-gray-6 p-1 sm:w-fit">
                 {[
                   { key: 'notes',      label: t('contactDetail.subTabNotes')      },
                   { key: 'tasks',      label: t('contactDetail.subTabTasks')      },
@@ -548,14 +545,11 @@ export default function ContactDetailPage() {
                     <button
                       key={subTab.key}
                       onClick={() => setInteractionSubTab(subTab.key)}
-                      style={{
-                        padding: '7px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                        fontSize: 13, fontWeight: active ? 600 : 500,
-                        background: active ? 'white' : 'transparent',
-                        color: active ? '#1C1C1E' : '#8E8E93',
-                        boxShadow: active ? '0 1px 3px rgba(0,0,0,0.10)' : 'none',
-                        transition: 'all 0.15s',
-                      }}
+                      className={`flex-1 rounded-lg px-4 py-2 text-[13px] transition-all sm:flex-none
+                        ${active
+                          ? 'bg-white font-semibold text-hig-text shadow-[0_1px_3px_rgba(0,0,0,0.10)]'
+                          : 'font-medium text-hig-text-secondary'
+                        }`}
                     >
                       {subTab.label}
                     </button>
@@ -567,14 +561,14 @@ export default function ContactDetailPage() {
               {interactionSubTab === 'notes' && (
                 <div className="hig-card p-4">
                   <h3 className="text-hig-headline mb-3">{t('contactDetail.subTabNotes')}</h3>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row">
                     <textarea
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
                       placeholder={t('contactDetail.addNote')}
                       className="hig-input flex-1 min-h-[60px] resize-y"
                     />
-                    <button onClick={handleAddNote} disabled={!noteText.trim()} className="hig-btn-primary self-end">
+                    <button onClick={handleAddNote} disabled={!noteText.trim()} className="hig-btn-primary sm:self-end">
                       Add
                     </button>
                   </div>
@@ -600,16 +594,16 @@ export default function ContactDetailPage() {
               {/* Tasks */}
               {interactionSubTab === 'tasks' && (
                 <div className="hig-card p-4">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <h3 className="text-hig-headline">{t('contactDetail.subTabTasks')}</h3>
                     <button onClick={() => setShowTaskForm(!showTaskForm)} className="hig-btn-ghost gap-1">
                       <Plus size={14} /> {t('contactDetail.addTask')}
                     </button>
                   </div>
                   {showTaskForm && (
-                    <form onSubmit={handleAddTask} className="flex gap-3 mb-3">
+                    <form onSubmit={handleAddTask} className="mb-3 flex flex-col gap-3 sm:flex-row">
                       <input value={taskForm.title} onChange={(e) => setTaskForm({...taskForm, title: e.target.value})} className="hig-input flex-1" placeholder="Task title" />
-                      <input type="date" value={taskForm.dueDate} onChange={(e) => setTaskForm({...taskForm, dueDate: e.target.value})} className="hig-input w-40" />
+                      <input type="date" value={taskForm.dueDate} onChange={(e) => setTaskForm({...taskForm, dueDate: e.target.value})} className="hig-input w-full sm:w-40" />
                       <button type="submit" className="hig-btn-primary">Add</button>
                     </form>
                   )}
@@ -640,15 +634,15 @@ export default function ContactDetailPage() {
               {/* Activities */}
               {interactionSubTab === 'activities' && (
                 <div className="hig-card p-4">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <h3 className="text-hig-headline">{t('contactDetail.subTabActivities')}</h3>
                     <button onClick={() => setShowActivityForm(!showActivityForm)} className="hig-btn-ghost gap-1">
                       <Plus size={14} /> {t('contactDetail.logActivity')}
                     </button>
                   </div>
                   {showActivityForm && (
-                    <form onSubmit={handleAddActivity} className="flex gap-3 mb-3">
-                      <select value={activityForm.type} onChange={(e) => setActivityForm({...activityForm, type: e.target.value})} className="hig-input w-32">
+                    <form onSubmit={handleAddActivity} className="mb-3 flex flex-col gap-3 sm:flex-row">
+                      <select value={activityForm.type} onChange={(e) => setActivityForm({...activityForm, type: e.target.value})} className="hig-input w-full sm:w-32">
                         <option>Call</option>
                         <option>Meeting</option>
                         <option>Email</option>
@@ -712,7 +706,7 @@ export default function ContactDetailPage() {
               The Cash Flow Projection needs at least one income or expense entry to run.
               Head to the Finances tab and fill in the Financial Info section first.
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row">
               <button onClick={() => setShowCFPrompt(false)} className="hig-btn-secondary flex-1">
                 Cancel
               </button>
@@ -803,7 +797,7 @@ function EditContactModal({ editForm, setEditForm, onClose, onSubmit }) {
           <textarea value={editForm.notes || ''} onChange={(e) => setEditForm({...editForm, notes: e.target.value})} className="hig-input min-h-[80px] resize-y" placeholder="Any notes..." />
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="hig-btn-secondary">Cancel</button>
           <button type="submit" className="hig-btn-primary">Save Changes</button>
         </div>
@@ -830,7 +824,7 @@ function ConfirmModal({ title, body, danger, onConfirm, onCancel }) {
             <p className="text-hig-subhead text-hig-text-secondary leading-snug">{body}</p>
           </div>
         </div>
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
           <button onClick={onCancel} className="hig-btn-secondary">{t('common.cancel')}</button>
           <button
             onClick={onConfirm}

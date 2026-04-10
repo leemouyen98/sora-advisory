@@ -64,7 +64,7 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
   const increase = totalProjected - totalCapital
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col gap-6 lg:flex-row">
       {/* Left: Form */}
       <div className="flex-1 space-y-4">
         <div className="hig-card p-5">
@@ -118,7 +118,7 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
 
                   {/* Fields */}
                   {!isCollapsed && (
-                    <div className="p-4 grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2">
                       <div className="col-span-2">
                         <label className="hig-label">{t('retirement.provisionName')} <span className="text-hig-red">*</span></label>
                         <input
@@ -193,7 +193,7 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
           </div>
         )}
 
-        <div className="flex justify-between">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button onClick={onBack} className="hig-btn-ghost gap-1.5">
             <ArrowLeft size={16} /> {t('common.back')}
           </button>
@@ -204,8 +204,8 @@ export default function ExistingProvision({ plan, currentAge, onChange, onBack, 
       </div>
 
       {/* Right: Summary */}
-      <div className="w-72 shrink-0">
-        <div className="hig-card p-5 space-y-4 sticky top-4">
+      <div className="w-full shrink-0 lg:w-72">
+        <div className="hig-card p-5 space-y-4 lg:sticky lg:top-4">
           <h3 className="text-hig-headline">{t('retirement.provisionSummary')}</h3>
 
           {/* Green projected value box */}

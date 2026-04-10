@@ -153,10 +153,10 @@ export default function ProtectionPlannerPage() {
 
   // Step indicator — GoalsMapper horizontal stepper style
   const stepIndicator = (
-    <div className="flex items-center justify-between mb-5">
+    <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       {/* Centred stepper */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="flex items-center">
+      <div className="-mx-1 flex-1 overflow-x-auto px-1 pb-1">
+        <div className="flex min-w-max items-center lg:justify-center">
           {[
             { n: 1, label: t('protection.stepNeeds') },
             { n: 2, label: t('protection.stepCoverage') },
@@ -168,7 +168,7 @@ export default function ProtectionPlannerPage() {
               )}
               <button
                 onClick={() => setStep(s.n)}
-                className="flex items-center gap-2 transition-colors"
+                className="shrink-0 flex items-center gap-2 transition-colors"
               >
                 <span
                   className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 transition-colors"
@@ -195,7 +195,7 @@ export default function ProtectionPlannerPage() {
       </div>
 
       {/* Right controls */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex flex-wrap items-center gap-3 shrink-0">
         {!meetingMode && (
           <button
             onClick={() => { setStep(3); setShowAssumptions(true) }}
@@ -225,8 +225,8 @@ export default function ProtectionPlannerPage() {
     <div className="w-full">
       {/* Meeting Mode: slim header only */}
       {meetingMode ? (
-        <div className="flex items-center justify-between mb-4 px-1">
-          <div className="flex items-center gap-2">
+        <div className="mb-4 flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-hig-blue animate-pulse" />
             <span className="text-hig-caption1 font-semibold text-hig-blue">Presentation Mode</span>
             <span className="text-hig-caption2 text-hig-text-secondary">· {contact.name} · {t('protection.wealthProtection')}</span>
@@ -324,7 +324,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
   return (
     <>
     {/* pb-16 keeps content above the fixed footer */}
-    <div className="flex flex-col lg:flex-row gap-6 pb-16">
+    <div className="flex flex-col gap-6 pb-24 lg:flex-row">
       {/* Left: Form */}
       <div className="flex-1 space-y-4">
         <div className="bg-white rounded p-5" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
@@ -378,7 +378,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
                   </div>
 
                   {/* Row 2: Monthly Expenses + Period side-by-side */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-[13px] font-semibold text-gray-800 mb-1.5">
                         Monthly Expenses <span className="font-normal text-gray-400">Required</span>
@@ -452,7 +452,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
           </div>
 
           {/* Two inputs side by side */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Inflation Rate */}
             <div>
               <label className="block text-[13px] font-semibold text-gray-900 mb-1.5">
@@ -497,7 +497,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
 
       {/* Right: GoalsMapper Protection Progress panel */}
       <div className="w-full lg:w-72 shrink-0">
-        <div className="bg-white rounded p-5 sticky top-4" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
+        <div className="bg-white rounded p-5 lg:sticky lg:top-4" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
           <h3 className="text-[15px] font-semibold text-gray-900">Protection Progress</h3>
           <p className="text-[13px] text-gray-500 mt-0.5 mb-5">Compare your existing coverage against what you need</p>
 
@@ -520,7 +520,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
     {/* GoalsMapper fixed bottom footer — Step 1 */}
     <div
       className="fixed bottom-0 left-0 right-0 flex items-center justify-end px-4 py-2 z-50"
-      style={{ backgroundColor: 'rgb(250,250,250)', borderTop: '1px solid rgba(0,0,0,0.08)' }}
+      style={{ backgroundColor: 'rgb(250,250,250)', borderTop: '1px solid rgba(0,0,0,0.08)', paddingBottom: 'calc(0.5rem + var(--safe-area-bottom))' }}
     >
       <button
         onClick={onContinue}
@@ -564,7 +564,7 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
   const hasInsuranceData = (insuranceTotals.count || 0) > 0
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col gap-6 pb-24 lg:flex-row">
       {/* Left: Form */}
       <div className="flex-1 space-y-4">
         <div className="bg-white rounded p-5" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
@@ -646,7 +646,7 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
         {/* GoalsMapper-style fixed footer — Step 2 */}
         <div
           className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-4 py-2 z-50"
-          style={{ backgroundColor: 'rgb(250,250,250)', borderTop: '1px solid rgba(0,0,0,0.08)' }}
+          style={{ backgroundColor: 'rgb(250,250,250)', borderTop: '1px solid rgba(0,0,0,0.08)', paddingBottom: 'calc(0.5rem + var(--safe-area-bottom))' }}
         >
           <button
             onClick={onBack}
@@ -660,8 +660,8 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
       </div>
 
       {/* Right: GoalsMapper Protection Progress panel — Step 2 variant */}
-      <div className="w-72 shrink-0">
-        <div className="bg-white rounded p-5 sticky top-4" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
+      <div className="w-full shrink-0 lg:w-72">
+        <div className="bg-white rounded p-5 lg:sticky lg:top-4" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
           <h3 className="text-[15px] font-semibold text-gray-900">Protection Progress</h3>
           <p className="text-[13px] text-gray-500 mt-0.5 mb-5">Compare your existing coverage against what you need</p>
           <div className="space-y-5">
@@ -889,12 +889,12 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
       <OverviewPanel summary={summary} activeRisk={activeRisk} onSelect={setActiveRisk} contactName={contactName} />
 
       {/* Main layout */}
-      <div className="flex gap-4 items-start">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
         {/* Left: Summary + Visualization */}
         <div className="flex-1 min-w-0 space-y-3">
           {/* Summary card */}
           <div className="hig-card p-4">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex gap-5 flex-wrap">
                 <div>
                   <p className="text-hig-caption1 text-hig-text-secondary font-medium">{t('protection.targetCoverage')}</p>
@@ -969,12 +969,12 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
           {(plan.needs[activeRisk]?.lumpSum > 0 || plan.needs[activeRisk]?.monthly > 0) && (
             <div className="hig-card p-4">
               <h3 className="text-hig-subhead font-semibold mb-3 text-hig-text-secondary">{t('protection.needsBreakdown')}</h3>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="text-center">
                   <p className="text-hig-caption1 text-hig-text-secondary">{t('protection.lumpSum')}</p>
                   <p className="text-hig-subhead font-semibold">{formatRMFull(plan.needs[activeRisk]?.lumpSum || 0)}</p>
                 </div>
-                <div className="text-center border-x border-hig-gray-5">
+                <div className="py-3 text-center border-y border-hig-gray-5 sm:border-x sm:border-y-0 sm:py-0">
                   <p className="text-hig-caption1 text-hig-text-secondary">{t('protection.monthlyXYrs', { n: plan.needs[activeRisk]?.period || 0 })}</p>
                   <p className="text-hig-subhead font-semibold">{formatRMFull(plan.needs[activeRisk]?.monthly || 0)}/mo</p>
                 </div>
@@ -1007,10 +1007,10 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
         </div>
 
         {/* Right panel */}
-        <div className="w-72 lg:w-80 shrink-0">
-          <div className="hig-card p-4 max-h-[calc(100vh-160px)] overflow-y-auto sticky top-0">
+        <div className="w-full shrink-0 lg:w-80">
+          <div className="hig-card p-4 overflow-y-auto lg:sticky lg:top-4 lg:max-h-[calc(100dvh-160px)]">
             {/* Tab bar */}
-            <div className="flex bg-hig-gray-6 rounded-hig-sm p-1 mb-3">
+            <div className="mb-3 flex flex-col rounded-hig-sm bg-hig-gray-6 p-1 sm:flex-row">
               {[
                 { key: 'recommendations', label: t('protection.recommendations'), count: allRecs.length },
                 { key: 'existing', label: t('protection.stepCoverage'), count: RISKS.filter((r) => (plan.existing[r] || 0) > 0).length },
@@ -1035,7 +1035,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
             {activeTab === 'recommendations' && (
               <div className="space-y-3">
                 {!meetingMode && (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   <button onClick={addRecommendation} className="hig-btn-primary flex-1 gap-2">
                     <Plus size={15} /> {t('protection.addRecommendation')}
                   </button>
@@ -1049,7 +1049,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
 
                 {!meetingMode && policyMix.length > 0 && (
                   <div className="rounded-hig-sm border border-hig-blue/20 bg-hig-blue/5 p-3">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-hig-caption1 text-hig-blue font-semibold">Suggested protection focus</p>
                         <div className="mt-1 space-y-1">
@@ -1068,7 +1068,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                 )}
 
                 <div className={`rounded-hig-sm border p-3 ${affordability.status === 'good' ? 'border-hig-green/30 bg-hig-green/5' : affordability.status === 'watch' ? 'border-amber-200 bg-amber-50' : affordability.status === 'high' ? 'border-hig-red/25 bg-red-50' : 'border-hig-gray-5 bg-hig-gray-6/60'}`}>
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-hig-caption1 font-semibold">Premium affordability</p>
                       <p className="text-hig-caption2 text-hig-text-secondary mt-1">{affordability.helper}</p>
@@ -1080,7 +1080,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                       </div>
                     ) : null}
                   </div>
-                  <div className="mt-2 flex items-center justify-between gap-3 text-hig-caption1">
+                  <div className="mt-2 flex flex-col gap-1 text-hig-caption1 sm:flex-row sm:items-center sm:justify-between">
                     <span className="font-medium">{affordability.label}</span>
                     <span className="text-hig-text-secondary">Selected premiums: {formatRMFull(totalMonthlyPremium)}/mo</span>
                   </div>
@@ -1157,7 +1157,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                           />
 
                           {/* Policy Type + Coverage Term */}
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <div>
                               <label className="text-hig-caption1 text-hig-text-secondary font-medium block mb-1">{t('protection.policyType')}</label>
                               <select
@@ -1922,4 +1922,3 @@ function CoverageAgeChart({ risk, currentAge, lumpSum, monthly, period, existing
     </div>
   )
 }
-

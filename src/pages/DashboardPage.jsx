@@ -246,7 +246,7 @@ export default function DashboardPage() {
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 700, color: '#1C1C1E', lineHeight: 1.2 }}>
               {t(greetingKey())}{agent?.name ? `, ${agent.name.split(' ')[0]}` : ''} 👋
@@ -256,7 +256,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => navigate('/contacts?new=true')}
-            className="hig-btn-primary"
+            className="hig-btn-primary w-full justify-center sm:w-auto"
             style={{ gap: 7, fontSize: 14 }}
           >
             <Plus size={15} /> {t('dashboard.newContact')}
@@ -264,7 +264,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Stats ───────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 12, marginBottom: 24 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 12, marginBottom: 24 }}>
           <StatCard
             icon={Users} label={t('dashboard.statContacts')} color="#2E96FF" loading={contactsLoading}
             value={stats.total}
@@ -297,7 +297,7 @@ export default function DashboardPage() {
 
           {/* Left: Unified feed */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>{t('dashboard.upcoming')}</h2>
               {feed.length > 0 && (
                 <button
@@ -419,7 +419,7 @@ export default function DashboardPage() {
             {/* Quick Links — responsive grid */}
             <div>
               <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E', marginBottom: 12 }}>{t('dashboard.quickLinks')}</h2>
-              <div className="grid grid-cols-4 lg:grid-cols-2" style={{ gap: 8 }}>
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2" style={{ gap: 8 }}>
                 {QUICK_LINKS.map(({ label, icon: Icon, url, color }) => (
                   <a
                     key={label}

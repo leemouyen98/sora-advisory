@@ -79,38 +79,40 @@ export default function RetirementPlannerPage() {
 
   // Step indicator — compact
   const stepIndicator = (
-    <div className="flex items-center justify-between mb-5">
-      <div className="flex items-center gap-1.5">
-        {[
-          { n: 1, label: t('retirement.stepBasicInfo') },
-          { n: 2, label: t('retirement.stepProvision') },
-          { n: 3, label: t('retirement.stepPlanner') },
-        ].map((s, idx) => (
-          <div key={s.n} className="flex items-center gap-1.5">
-            {idx > 0 && (
-              <span className="w-5 h-px bg-hig-gray-4" />
-            )}
-            <button
-              onClick={() => setStep(s.n)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-hig-caption1 font-medium transition-colors
-                ${step === s.n
-                  ? 'bg-hig-blue text-white'
-                  : step > s.n
-                    ? 'bg-hig-green/10 text-hig-green'
-                    : 'bg-hig-gray-6 text-hig-text-secondary'
-                }`}
-            >
-              <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
-                ${step === s.n ? 'bg-white/20 text-white' : step > s.n ? 'bg-hig-green text-white' : 'bg-hig-gray-4 text-hig-text-secondary'}`}>
-                {step > s.n ? '✓' : s.n}
-              </span>
-              {s.label}
-            </button>
-          </div>
-        ))}
+    <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="-mx-1 overflow-x-auto px-1 pb-1">
+        <div className="flex min-w-max items-center gap-1.5">
+          {[
+            { n: 1, label: t('retirement.stepBasicInfo') },
+            { n: 2, label: t('retirement.stepProvision') },
+            { n: 3, label: t('retirement.stepPlanner') },
+          ].map((s, idx) => (
+            <div key={s.n} className="flex items-center gap-1.5">
+              {idx > 0 && (
+                <span className="w-5 h-px bg-hig-gray-4" />
+              )}
+              <button
+                onClick={() => setStep(s.n)}
+                className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-hig-caption1 font-medium transition-colors
+                  ${step === s.n
+                    ? 'bg-hig-blue text-white'
+                    : step > s.n
+                      ? 'bg-hig-green/10 text-hig-green'
+                      : 'bg-hig-gray-6 text-hig-text-secondary'
+                  }`}
+              >
+                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
+                  ${step === s.n ? 'bg-white/20 text-white' : step > s.n ? 'bg-hig-green text-white' : 'bg-hig-gray-4 text-hig-text-secondary'}`}>
+                  {step > s.n ? '✓' : s.n}
+                </span>
+                {s.label}
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {/* Planning Assumptions — visible when not in meeting mode */}
         {!meetingMode && (
           <button
@@ -142,8 +144,8 @@ export default function RetirementPlannerPage() {
     <div className="w-full">
       {/* Meeting Mode: slim header only */}
       {meetingMode ? (
-        <div className="flex items-center justify-between mb-4 px-1">
-          <div className="flex items-center gap-2">
+        <div className="mb-4 flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-hig-blue animate-pulse" />
             <span className="text-hig-caption1 font-semibold text-hig-blue">Presentation Mode</span>
             <span className="text-hig-caption2 text-hig-text-secondary">· {contact.name} · {t('contactDetail.retirementPlanner')}</span>
