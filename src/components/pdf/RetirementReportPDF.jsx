@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from 'react'
 import {
-  Document, Page, Text, View, StyleSheet, Image, PDFDownloadLink,
+  Document, Page, Text, View, StyleSheet, Image, usePDF,
 } from '@react-pdf/renderer'
 import { formatRMFull, recMonthlyFV } from '../../lib/calculations'
 
@@ -299,7 +300,7 @@ export function RetirementReportDocument({ plan, projection, contact, agentName 
           <View style={styles.headerRight}>
             <Text style={styles.headerTitle}>Retirement Planning Report</Text>
             <Text style={styles.headerSub}>Prepared by {agentName || 'Henry Lee'} · {today}</Text>
-            <Text style={[styles.headerSub, { marginTop: 1 }]}>PRIVATE &amp; CONFIDENTIAL</Text>
+            <Text style={[styles.headerSub, { marginTop: 1 }]}>PRIVATE {'&'} CONFIDENTIAL</Text>
           </View>
         </View>
 
@@ -527,34 +528,54 @@ export function RetirementReportDocument({ plan, projection, contact, agentName 
 }
 
 // ─── Export Button ─────────────────────────────────────────────────────────────
+// Uses usePDF (on-demand) instead of PDFDownloadLink so the PDF is only generated
+// when the user explicitly clicks — not on every plan change, which would keep the
+// button stuck in "Generating…" forever during active editing.
 export function RetirementExportButton({ plan, projection, contact, agentName }) {
-  const fileName = `Retirement_Plan_${(contact?.name || 'Client').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`
+  const [generating, setGenerating] = useState(false)
+  const [instance, updateInstance] = usePDF()
+  const pendingDownload = useRef(false)
+
+  // When PDF generation completes and we triggered it, auto-download and reset.
+  useEffect(() => {
+    if (pendingDownload.current && !instance.loading && instance.url) {
+      pendingDownload.current = false
+      setGenerating(false)
+      const fileName = `Retirement_Plan_${(contact?.name || 'Client').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`
+      const a = document.createElement('a')
+      a.href = instance.url
+      a.download = fileName
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
+  }, [instance.loading, instance.url, contact?.name])
+
+  const handleClick = () => {
+    setGenerating(true)
+    pendingDownload.current = true
+    updateInstance(
+      <RetirementReportDocument
+        plan={plan}
+        projection={projection}
+        contact={contact}
+        agentName={agentName}
+      />
+    )
+  }
 
   return (
-    <PDFDownloadLink
-      document={
-        <RetirementReportDocument
-          plan={plan}
-          projection={projection}
-          contact={contact}
-          agentName={agentName}
-        />
-      }
-      fileName={fileName}
+    <button
+      onClick={handleClick}
+      disabled={generating}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-hig-blue text-hig-blue hover:bg-hig-blue hover:text-white transition-colors disabled:opacity-50"
     >
-      {({ loading }) => (
-        <button
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-hig-blue text-hig-blue hover:bg-hig-blue hover:text-white transition-colors disabled:opacity-50"
-          disabled={loading}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          {loading ? 'Generating…' : 'Export PDF'}
-        </button>
-      )}
-    </PDFDownloadLink>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      {generating ? 'Generating…' : 'Export PDF'}
+    </button>
   )
 }
