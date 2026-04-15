@@ -39,7 +39,8 @@ export function formatAxisLabel(value) {
 }
 
 export function projectCashFlow({
-  annualIncome,
+  annualPassiveIncome,
+  annualEmploymentIncome,
   annualExpenses,
   initialSavings,
   initialEpf,
@@ -54,7 +55,7 @@ export function projectCashFlow({
 }) {
   const rows = []
   let pool = Number(initialSavings) || 0
-  let epfLocked = Number(initialEpf) || 0
+  let epfBalance = Number(initialEpf) || 0
   const inflation = (Number(inflationRate) || 0) / 100
   const savingsGrowth = (Number(savingsRate) || 0) / 100
   const epfGrowth = (Number(epfDividendRate) || 0) / 100
@@ -69,48 +70,51 @@ export function projectCashFlow({
     const ciOff = ciScenario && age >= ciScenario.age && age < ciScenario.age + (ciScenario.duration ?? 3)
     const disabilityOff = disabilityScenario && age >= disabilityScenario.age
     const deathOff = deathScenario && age >= deathScenario.age
-    const activeIncome = retired || ciOff || disabilityOff || deathOff ? 0 : annualIncome
+    const employmentStopped = retired || ciOff || disabilityOff || deathOff
+
+    // Passive income (rental, dividends, business, etc.) flows in regardless of scenarios
+    const activePassiveIncome = annualPassiveIncome
+    // Employment income stops when retired or a scenario is triggered
+    const activeEmploymentIncome = employmentStopped ? 0 : annualEmploymentIncome
+
     const goalLumpSum = goals
       .filter((goal) => goal.active && goal.age === age)
       .reduce((sum, goal) => sum + (Number(goal.amount) || 0), 0)
     const inflatedExpenses = annualExpenses * Math.pow(1 + inflation, yearIndex) + goalLumpSum
 
+    let passiveIncomeUsed = 0
     let takeHomeIncomeUsed = 0
     let cashUsed = 0
-    let passiveIncomeUsed = 0
     let shortfall = 0
+    let remaining = inflatedExpenses
 
-    const surplus = activeIncome - inflatedExpenses
-    if (surplus >= 0) {
-      takeHomeIncomeUsed = inflatedExpenses
-      pool = pool * (1 + savingsGrowth) + surplus
-      if (epfLocked > 0) epfLocked *= 1 + epfGrowth
-    } else {
-      takeHomeIncomeUsed = activeIncome
-      const deficit = inflatedExpenses - activeIncome
+    // Step 1: passive income (rental, business, dividends, etc.)
+    const fromPassive = Math.min(activePassiveIncome, remaining)
+    passiveIncomeUsed = fromPassive
+    remaining -= fromPassive
 
-      // Step 1: cover from EPF / passive income first
-      const grownEpf = epfLocked * (1 + epfGrowth)
-      if (grownEpf >= deficit) {
-        passiveIncomeUsed = deficit
-        epfLocked = grownEpf - deficit
-        pool = pool * (1 + savingsGrowth)
-      } else {
-        passiveIncomeUsed = grownEpf
-        epfLocked = 0
-        const afterEpf = deficit - grownEpf
+    // Step 2: take-home / employment income
+    const fromEmployment = Math.min(activeEmploymentIncome, remaining)
+    takeHomeIncomeUsed = fromEmployment
+    remaining -= fromEmployment
 
-        // Step 2: cover remaining from cash pool
-        if (pool >= afterEpf) {
-          cashUsed = afterEpf
-          pool = pool * (1 + savingsGrowth) - afterEpf
-        } else {
-          cashUsed = pool
-          shortfall = afterEpf - pool
-          pool = 0
-        }
-      }
+    // Surplus income goes to cash savings
+    const incomeSurplus = (activePassiveIncome - fromPassive) + (activeEmploymentIncome - fromEmployment)
+    pool = pool * (1 + savingsGrowth) + incomeSurplus
+
+    // Step 3: cash savings drawdown
+    if (remaining > 0) {
+      const fromCash = Math.min(pool, remaining)
+      cashUsed = fromCash
+      pool -= fromCash
+      remaining -= fromCash
     }
+
+    // Step 4: shortfall (EPF not drawn — managed in the Retirement Planner)
+    shortfall = remaining
+
+    // EPF compounds as an investment
+    if (epfBalance > 0) epfBalance *= (1 + epfGrowth)
 
     rows.push({
       age,
@@ -119,7 +123,7 @@ export function projectCashFlow({
       passiveIncomeUsed: Math.round(passiveIncomeUsed),
       shortfall: Math.round(shortfall),
       cashSavingsEOY: Math.round(pool),
-      epfEOY: Math.round(epfLocked),
+      epfEOY: Math.round(epfBalance),
     })
   }
 

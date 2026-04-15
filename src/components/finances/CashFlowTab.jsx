@@ -60,8 +60,17 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
     const expenses = Array.isArray(financials?.expenses) ? financials.expenses : []
     const assets = Array.isArray(financials?.assets) ? financials.assets : []
 
+    const annualPassiveIncome = income
+      .filter((row) => row.type !== 'Employment')
+      .reduce((sum, row) => sum + toAnnual(row.amount, row.frequency), 0)
+    const annualEmploymentIncome = income
+      .filter((row) => row.type === 'Employment')
+      .reduce((sum, row) => sum + toAnnual(row.amount, row.frequency), 0)
+
     return {
-      annualIncome: income.reduce((sum, row) => sum + toAnnual(row.amount, row.frequency), 0),
+      annualPassiveIncome,
+      annualEmploymentIncome,
+      annualIncome: annualPassiveIncome + annualEmploymentIncome,
       annualExpenses: expenses.reduce((sum, row) => sum + toAnnual(row.amount, row.frequency), 0),
       initialSavings: Number(assets.find((row) => row.id === 'savings-cash')?.amount) || 0,
       initialEpf: Number(assets.find((row) => row.id === 'epf-all')?.amount) || 0,
@@ -69,7 +78,11 @@ export default function CashFlowTab({ financials, contact, onEditFinancialInfo =
   }, [financials])
 
   const chartData = useMemo(() => projectCashFlow({
-    ...summary,
+    annualPassiveIncome: summary.annualPassiveIncome,
+    annualEmploymentIncome: summary.annualEmploymentIncome,
+    annualExpenses: summary.annualExpenses,
+    initialSavings: summary.initialSavings,
+    initialEpf: summary.initialEpf,
     currentAge,
     expectedAge: assumptions.expectedAge,
     retirementAge: assumptions.retirementAge,
