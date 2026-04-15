@@ -1,7 +1,8 @@
 import { ChevronRight, Info, Pencil, Plus, Trash2, Upload } from 'lucide-react'
 import { formatRMFull } from '../../../lib/calculations'
 import NumberInput from '../../ui/NumberInput'
-import { toMonthly } from './helpers'
+import { calcMonthlyRepayment, toMonthly } from './helpers'
+import { FREQUENCIES } from './constants'
 
 export function OverviewTab({ summary, onNavigate, onImport, data }) {
   const cats = [
