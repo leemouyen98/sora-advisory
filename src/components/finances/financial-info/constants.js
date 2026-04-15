@@ -26,7 +26,6 @@ export const EXPENSE_TYPES = [...EXPENSE_TYPES_CORE, ...EXPENSE_TYPES_OPTIONAL]
 export const FREQUENCIES = ['Monthly', 'Yearly', 'Quarterly', 'Semi-annually', 'One-Time']
 
 export const TABS = [
-  { key: 'overview', label: 'Overview' },
   { key: 'assets', label: 'Assets' },
   { key: 'investments', label: 'Investments' },
   { key: 'liabilities', label: 'Liabilities' },

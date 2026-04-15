@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { TABS, INVESTMENT_DEFAULT_RETURN } from './financial-info/constants'
 import { computeSummary, normalizeFinancials, uid } from './financial-info/helpers'
 import { AssetModal, ExpenseModal, IncomeModal, InvModal, LiabilityModal, QuickImportModal } from './financial-info/FinancialModals'
-import { AssetsTab, ExpTab, IncomeTab, InvTab, LiabTab, OverviewTab } from './financial-info/FinancialTabs'
+import { AssetsTab, ExpTab, IncomeTab, InvTab, LiabTab } from './financial-info/FinancialTabs'
 
 export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('assets')
   const [modal, setModal] = useState(null)
   const [showImport, setShowImport] = useState(false)
   const [data, setData] = useState(() => normalizeFinancials(financials, currentAge))
@@ -56,15 +56,6 @@ export default function FinancialInfo({ financials, onSave, currentAge = 30 }) {
           </button>
         ))}
       </div>
-
-      {activeTab === 'overview' && (
-        <OverviewTab
-          summary={summary}
-          data={data}
-          onNavigate={setActiveTab}
-          onImport={() => setShowImport(true)}
-        />
-      )}
 
       {activeTab === 'assets' && (
         <AssetsTab

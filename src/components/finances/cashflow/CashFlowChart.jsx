@@ -49,7 +49,7 @@ export default function CashFlowChart({
   return (
     <SectionCard
       title="Cash Flow Planner"
-      subtitle="Expenses by age — income, cash, passive income, and shortfall."
+      subtitle="Expenses by age — passive income, take-home, cash, and shortfall."
       action={
         <div className="flex items-center gap-3">
           {/* Cash savings toggle */}
@@ -144,14 +144,29 @@ export default function CashFlowChart({
             )}
             <Tooltip content={<ChartTooltip />} />
 
-            {/* Stacked bars — order: Income → Cash → Passive → Shortfall */}
+            {/* Stacked bars — order: Passive → Income → Cash → Shortfall */}
+            <Bar
+              yAxisId="left"
+              dataKey="passiveIncomeUsed"
+              name="Passive income"
+              stackId="flow"
+              fill={COLOURS.passiveIncomeUsed}
+              radius={[0, 0, 0, 0]}
+            >
+              {chartData.map((entry) => (
+                <Cell
+                  key={`pass-${entry.age}`}
+                  fill={COLOURS.passiveIncomeUsed}
+                  opacity={selectedAge != null && entry.age !== selectedAge ? 0.55 : 1}
+                />
+              ))}
+            </Bar>
             <Bar
               yAxisId="left"
               dataKey="takeHomeIncomeUsed"
               name="Income used"
               stackId="flow"
               fill={COLOURS.takeHomeIncomeUsed}
-              radius={[0, 0, 0, 0]}
             >
               {chartData.map((entry) => (
                 <Cell
@@ -172,21 +187,6 @@ export default function CashFlowChart({
                 <Cell
                   key={`cash-${entry.age}`}
                   fill={COLOURS.cashUsed}
-                  opacity={selectedAge != null && entry.age !== selectedAge ? 0.55 : 1}
-                />
-              ))}
-            </Bar>
-            <Bar
-              yAxisId="left"
-              dataKey="passiveIncomeUsed"
-              name="Passive income"
-              stackId="flow"
-              fill={COLOURS.passiveIncomeUsed}
-            >
-              {chartData.map((entry) => (
-                <Cell
-                  key={`pass-${entry.age}`}
-                  fill={COLOURS.passiveIncomeUsed}
                   opacity={selectedAge != null && entry.age !== selectedAge ? 0.55 : 1}
                 />
               ))}
@@ -229,10 +229,10 @@ export default function CashFlowChart({
       {/* ── Legend ── */}
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 px-1 text-hig-caption2 text-hig-text-secondary">
         {[
+          { colour: COLOURS.passiveIncomeUsed,  label: 'Passive income' },
+          { colour: COLOURS.takeHomeIncomeUsed, label: 'Take-home income' },
+          { colour: COLOURS.cashUsed,           label: 'Cash savings' },
           { colour: COLOURS.shortfall,          label: 'Shortfall' },
-          { colour: COLOURS.cashUsed,           label: 'Cash used' },
-          { colour: COLOURS.takeHomeIncomeUsed, label: 'Take-home income used' },
-          { colour: COLOURS.passiveIncomeUsed,  label: 'Passive income used' },
         ].map(({ colour, label }) => (
           <span key={label} className="flex items-center gap-1.5">
             <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: colour }} />
@@ -265,9 +265,9 @@ function AgeDetailStrip({ row, showCashSavings }) {
         </span>
       </div>
       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-hig-caption2 sm:grid-cols-4">
-        <DetailItem colour={COLOURS.takeHomeIncomeUsed} label="Income used"     value={row.takeHomeIncomeUsed} />
-        <DetailItem colour={COLOURS.cashUsed}           label="Cash used"       value={row.cashUsed} />
         <DetailItem colour={COLOURS.passiveIncomeUsed}  label="Passive income"  value={row.passiveIncomeUsed} />
+        <DetailItem colour={COLOURS.takeHomeIncomeUsed} label="Take-home income" value={row.takeHomeIncomeUsed} />
+        <DetailItem colour={COLOURS.cashUsed}           label="Cash savings"    value={row.cashUsed} />
         <DetailItem colour={COLOURS.shortfall}          label="Shortfall"       value={row.shortfall} />
       </div>
       {showCashSavings && (
@@ -319,10 +319,10 @@ function ChartTooltip({ active, payload, label }) {
         <span className="font-semibold">{formatRMCompact(total)}</span>
       </div>
       <div className="space-y-1 border-t border-hig-gray-5 pt-1.5">
-        <TooltipRow colour={COLOURS.shortfall}          label="Shortfall"            value={shortfall} />
-        <TooltipRow colour={COLOURS.cashUsed}           label="Cash used"            value={cash} />
-        <TooltipRow colour={COLOURS.takeHomeIncomeUsed} label="Take-home income used" value={income} />
-        <TooltipRow colour={COLOURS.passiveIncomeUsed}  label="Passive income used"   value={passive} />
+        <TooltipRow colour={COLOURS.passiveIncomeUsed}  label="Passive income"  value={passive} />
+        <TooltipRow colour={COLOURS.takeHomeIncomeUsed} label="Take-home income" value={income} />
+        <TooltipRow colour={COLOURS.cashUsed}           label="Cash savings"    value={cash} />
+        <TooltipRow colour={COLOURS.shortfall}          label="Shortfall"       value={shortfall} />
       </div>
       {savings != null && savings > 0 && (
         <div className="mt-2 border-t border-hig-gray-5 pt-2 flex justify-between">

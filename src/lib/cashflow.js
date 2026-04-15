@@ -89,25 +89,25 @@ export function projectCashFlow({
       takeHomeIncomeUsed = activeIncome
       const deficit = inflatedExpenses - activeIncome
 
-      // Step 1: cover from cash pool
-      if (pool >= deficit) {
-        cashUsed = deficit
-        pool = pool * (1 + savingsGrowth) - deficit
-        if (epfLocked > 0) epfLocked *= 1 + epfGrowth
+      // Step 1: cover from EPF / passive income first
+      const grownEpf = epfLocked * (1 + epfGrowth)
+      if (grownEpf >= deficit) {
+        passiveIncomeUsed = deficit
+        epfLocked = grownEpf - deficit
+        pool = pool * (1 + savingsGrowth)
       } else {
-        cashUsed = pool
-        pool = 0
-        const afterCash = deficit - cashUsed
+        passiveIncomeUsed = grownEpf
+        epfLocked = 0
+        const afterEpf = deficit - grownEpf
 
-        // Step 2: cover remaining from EPF / passive income
-        const grownEpf = epfLocked * (1 + epfGrowth)
-        if (grownEpf >= afterCash) {
-          passiveIncomeUsed = afterCash
-          epfLocked = grownEpf - afterCash
+        // Step 2: cover remaining from cash pool
+        if (pool >= afterEpf) {
+          cashUsed = afterEpf
+          pool = pool * (1 + savingsGrowth) - afterEpf
         } else {
-          passiveIncomeUsed = grownEpf
-          shortfall = afterCash - grownEpf
-          epfLocked = 0
+          cashUsed = pool
+          shortfall = afterEpf - pool
+          pool = 0
         }
       }
     }
