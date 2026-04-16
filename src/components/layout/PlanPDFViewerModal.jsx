@@ -31,12 +31,18 @@ function loadPDFJS() {
   })
 }
 
+const LANGS = {
+  zh: { label: '中', endpoint: '/api/documents/plan?lang=zh', title: '5-in-1 完整保障计划' },
+  en: { label: 'Eng', endpoint: '/api/documents/plan?lang=en', title: '5-in-1 Complete Protection' },
+}
+
 export default function PlanPDFViewerModal({ onClose }) {
   const { token } = useAuth()
   const canvasRef   = useRef(null)
   const pdfRef      = useRef(null)
   const renderTask  = useRef(null)
 
+  const [lang,        setLang]        = useState('zh')         // 'zh' | 'en'
   const [status,      setStatus]      = useState('loading')   // 'loading' | 'ready' | 'error'
   const [totalPages,  setTotalPages]  = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -56,16 +62,22 @@ export default function PlanPDFViewerModal({ onClose }) {
     return () => window.removeEventListener('keydown', handler, true)
   }, [onClose])
 
-  // ── Fetch & load PDF ──────────────────────────────────────────────────────
+  // ── Fetch & load PDF (re-runs when lang changes) ──────────────────────────
   useEffect(() => {
     let blobUrl = null
     let cancelled = false
+
+    // Reset to loading state when switching language
+    setStatus('loading')
+    setCurrentPage(1)
+    setTotalPages(0)
+    if (pdfRef.current) { pdfRef.current.destroy(); pdfRef.current = null }
 
     async function fetchAndLoad() {
       try {
         const pdfjs = await loadPDFJS()
 
-        const res = await fetch('/api/documents/plan', {
+        const res = await fetch(LANGS[lang].endpoint, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) throw new Error(`Server returned ${res.status}`)
@@ -95,7 +107,7 @@ export default function PlanPDFViewerModal({ onClose }) {
       if (blobUrl) URL.revokeObjectURL(blobUrl)
       if (pdfRef.current) { pdfRef.current.destroy(); pdfRef.current = null }
     }
-  }, [token])
+  }, [token, lang])
 
   // ── Render page to canvas ─────────────────────────────────────────────────
   const renderPage = useCallback(async (pageNum, s) => {
@@ -148,12 +160,33 @@ export default function PlanPDFViewerModal({ onClose }) {
           style={{ borderBottom: '1px solid rgba(255,255,255,0.10)' }}
         >
           <div>
-            <p className="text-white font-semibold text-sm tracking-wide">5-in-1 完整保障计划</p>
+            <p className="text-white font-semibold text-sm tracking-wide">{LANGS[lang].title}</p>
             {status === 'ready' && (
               <p className="text-white/40 text-xs mt-0.5">
                 Page {currentPage} of {totalPages}
               </p>
             )}
+          </div>
+
+          {/* ── Language toggle pill ── */}
+          <div
+            className="flex items-center rounded-lg overflow-hidden shrink-0"
+            style={{ border: '1px solid rgba(255,255,255,0.15)' }}
+          >
+            {['zh', 'en'].map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className="px-3 py-1 text-xs font-medium transition-colors"
+                style={{
+                  background: lang === l ? 'rgba(46,150,255,0.85)' : 'transparent',
+                  color: lang === l ? '#fff' : 'rgba(255,255,255,0.45)',
+                  cursor: lang === l ? 'default' : 'pointer',
+                }}
+              >
+                {LANGS[l].label}
+              </button>
+            ))}
           </div>
 
           <button

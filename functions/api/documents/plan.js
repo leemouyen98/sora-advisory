@@ -1,12 +1,14 @@
 /**
- * GET /api/documents/plan
- * Serves the 5-in-1 完整保障计划 PDF behind JWT auth.
- * The raw asset URL stays inaccessible to unauthenticated requests
- * because this function intercepts the canonical fetch path.
+ * GET /api/documents/plan?lang=zh  (default)
+ * GET /api/documents/plan?lang=en
+ * Serves the 5-in-1 protection plan PDF behind JWT auth.
  */
 import { getAgent } from '../_auth.js'
 
-const ASSET_PATH = '/assets/5-in-1%20%E5%AE%8C%E6%95%B4%E4%BF%9D%E9%9A%9C%E8%AE%A1%E5%88%92.pdf'
+const ASSETS = {
+  zh: '/assets/5-in-1%20%E5%AE%8C%E6%95%B4%E4%BF%9D%E9%9A%9C%E8%AE%A1%E5%88%92.pdf',
+  en: '/assets/5-in-1%20Complete%20Protection%20(Eng).pdf',
+}
 
 export async function onRequestOptions() {
   return new Response(null, {
@@ -29,9 +31,14 @@ export async function onRequestGet({ request, env }) {
     })
   }
 
+  // ── Pick asset by lang param ──────────────────────────────────────────────
+  const url = new URL(request.url)
+  const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'zh'
+  const assetPath = ASSETS[lang]
+
   // ── Fetch the static asset via the Pages ASSETS binding ───────────────────
-  const origin = new URL(request.url).origin
-  const assetRequest = new Request(`${origin}${ASSET_PATH}`, {
+  const origin = url.origin
+  const assetRequest = new Request(`${origin}${assetPath}`, {
     method: 'GET',
     headers: { Accept: 'application/pdf' },
   })
