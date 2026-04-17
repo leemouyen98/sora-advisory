@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Plus, Pencil, Trash2, Shield, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { formatRMFull } from '../../lib/calculations'
-import { InsuranceExportButton } from '../pdf/InsurancePoliciesPDF'
+import { InsuranceExportButton, PolicySummaryExportButton } from '../pdf/InsurancePoliciesPDF'
+import { useAuth } from '../../hooks/useAuth'
 
 const POLICY_TYPES = [
   'Life',
@@ -38,6 +39,8 @@ const EMPTY_POLICY = {
   commencementDate: '',
   maturityDate: '',
   status: 'Active',
+  nominee: '',
+  hasPremiumWaiver: false,
   notes: '',
   coverageDetails: {
     death: 0,
@@ -49,6 +52,7 @@ const EMPTY_POLICY = {
 }
 
 export default function InsuranceTab({ financials, onSave, contact }) {
+  const { agent } = useAuth()
   const policies = financials.insurance || []
   const [editingIdx, setEditingIdx] = useState(null) // null | 'new' | index
   const [form, setForm] = useState(null)
@@ -72,6 +76,7 @@ export default function InsuranceTab({ financials, onSave, contact }) {
   const openEdit = (idx) => {
     const p = policies[idx]
     setForm({
+      ...EMPTY_POLICY,
       ...p,
       coverageDetails: { ...EMPTY_POLICY.coverageDetails, ...p.coverageDetails },
     })
@@ -89,6 +94,8 @@ export default function InsuranceTab({ financials, onSave, contact }) {
       sumAssured: Number(form.sumAssured) || 0,
       annualPremium: Number(form.annualPremium) || 0,
       monthlyPremium: Number(form.monthlyPremium) || 0,
+      nominee: form.nominee || '',
+      hasPremiumWaiver: !!form.hasPremiumWaiver,
       coverageDetails: {
         death: Number(form.coverageDetails?.death) || 0,
         tpd: Number(form.coverageDetails?.tpd) || 0,
@@ -163,11 +170,11 @@ export default function InsuranceTab({ financials, onSave, contact }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="hig-label">Commencement</label>
+                <label className="hig-label">Policy Start Date</label>
                 <input type="date" value={form.commencementDate} onChange={(e) => updateForm('commencementDate', e.target.value)} className="hig-input" />
               </div>
               <div>
-                <label className="hig-label">Maturity</label>
+                <label className="hig-label">Maturity Date</label>
                 <input type="date" value={form.maturityDate} onChange={(e) => updateForm('maturityDate', e.target.value)} className="hig-input" />
               </div>
               <div>
@@ -178,6 +185,30 @@ export default function InsuranceTab({ financials, onSave, contact }) {
                   <option>Matured</option>
                   <option>Surrendered</option>
                 </select>
+              </div>
+            </div>
+
+            {/* Nominee + Premium Waiver */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="hig-label">Nominee (受益人)</label>
+                <input
+                  value={form.nominee}
+                  onChange={(e) => updateForm('nominee', e.target.value)}
+                  className="hig-input"
+                  placeholder="e.g. Spouse, Children"
+                />
+              </div>
+              <div className="flex items-end pb-1">
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <div
+                    onClick={() => updateForm('hasPremiumWaiver', !form.hasPremiumWaiver)}
+                    className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer ${form.hasPremiumWaiver ? 'bg-hig-blue' : 'bg-hig-gray-5'}`}
+                  >
+                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${form.hasPremiumWaiver ? 'translate-x-5' : 'translate-x-1'}`} />
+                  </div>
+                  <span className="hig-label mb-0">Premium Waiver (免缴保费)</span>
+                </label>
               </div>
             </div>
 
@@ -249,7 +280,18 @@ export default function InsuranceTab({ financials, onSave, contact }) {
 
       {/* Actions */}
       <div className="flex justify-end gap-2">
-        <InsuranceExportButton policies={policies} contact={contact} />
+        <PolicySummaryExportButton
+          policies={policies}
+          contact={contact}
+          agentName={agent?.name}
+          agentMobile={agent?.mobile}
+          agentEmail={agent?.email}
+        />
+        <InsuranceExportButton
+          policies={policies}
+          contact={contact}
+          agentName={agent?.name}
+        />
         <button onClick={openAdd} className="hig-btn-ghost gap-1.5"><Plus size={14} /> Add Policy</button>
       </div>
 
@@ -269,6 +311,9 @@ export default function InsuranceTab({ financials, onSave, contact }) {
                 <span className={`text-hig-caption2 px-2 py-0.5 rounded-full ${p.status === 'Active' ? 'bg-hig-green/10 text-hig-green' : 'bg-hig-gray-6 text-hig-gray-1'}`}>
                   {p.status}
                 </span>
+                {p.hasPremiumWaiver && (
+                  <span className="text-hig-caption2 px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue">PWV</span>
+                )}
               </div>
               <p className="text-hig-caption1 text-hig-text-secondary">{p.company} · {p.policyNo || 'No policy no.'}</p>
             </div>
@@ -295,6 +340,12 @@ export default function InsuranceTab({ financials, onSave, contact }) {
                   </div>
                 ))}
               </div>
+              {p.nominee && (
+                <div className="py-1 mt-1">
+                  <p className="text-hig-caption1 text-hig-text-secondary">Nominee</p>
+                  <p className="text-hig-subhead font-medium">{p.nominee}</p>
+                </div>
+              )}
               {p.notes && <p className="text-hig-caption1 text-hig-text-secondary mt-2 pt-2 border-t border-hig-gray-5">{p.notes}</p>}
               <div className="flex gap-2 mt-3">
                 <button onClick={(e) => { e.stopPropagation(); openEdit(idx) }} className="hig-btn-ghost gap-1 text-hig-caption1">

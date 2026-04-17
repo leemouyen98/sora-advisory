@@ -48,12 +48,21 @@ export function AuthProvider({ children }) {
     setAgent(null)
   }, [])
 
+  // Update the locally stored agent profile (email / mobile) after a successful PUT
+  const updateAgentProfile = useCallback((updates) => {
+    setAgent((prev) => {
+      const next = { ...prev, ...updates }
+      sessionStorage.setItem(AGENT_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   // Convenience: role from agent object, defaults to 'agent'
   const role = agent?.role ?? 'agent'
   const isAdmin = role === 'admin'
 
   return (
-    <AuthContext.Provider value={{ agent, token, loading, error, login, logout, role, isAdmin }}>
+    <AuthContext.Provider value={{ agent, token, loading, error, login, logout, role, isAdmin, updateAgentProfile }}>
       {children}
     </AuthContext.Provider>
   )

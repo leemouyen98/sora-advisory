@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Lock, Shield, AlertCircle, Eye, EyeOff } from 'lucide-react'
+import { User, Lock, Shield, AlertCircle, Eye, EyeOff, Phone, Mail } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 import { useLanguage } from '../hooks/useLanguage'
@@ -26,17 +26,27 @@ function SectionCard({ icon: Icon, iconColor, iconBg, title, children }) {
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
 export default function SettingsPage() {
-  const { agent, token } = useAuth()
+  const { agent, token, updateAgentProfile } = useAuth()
   const { addToast } = useToast()
   const { t } = useLanguage()
 
+  // ── Password state ──────────────────────────────────────────────────────────
   const [pw, setPw] = useState({ current: '', next: '', confirm: '' })
   const [showPw, setShowPw] = useState({ current: false, next: false, confirm: false })
   const [pwLoading, setPwLoading] = useState(false)
   const [pwError, setPwError] = useState('')
 
+  // ── Contact info state ──────────────────────────────────────────────────────
+  const [contactInfo, setContactInfo] = useState({
+    email:  agent?.email  || '',
+    mobile: agent?.mobile || '',
+  })
+  const [contactLoading, setContactLoading] = useState(false)
+  const [contactError, setContactError]   = useState('')
+
   const toggleShowPw = (field) => setShowPw((s) => ({ ...s, [field]: !s[field] }))
 
+  // ── Password change ─────────────────────────────────────────────────────────
   const handlePasswordChange = async (e) => {
     e.preventDefault()
     setPwError('')
@@ -75,6 +85,34 @@ export default function SettingsPage() {
       setPwError(t('settings.errNetwork'))
     } finally {
       setPwLoading(false)
+    }
+  }
+
+  // ── Contact info save ───────────────────────────────────────────────────────
+  const handleContactSave = async (e) => {
+    e.preventDefault()
+    setContactError('')
+    setContactLoading(true)
+    try {
+      const res = await fetch('/api/agent/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email: contactInfo.email, mobile: contactInfo.mobile }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setContactError(data.error || 'Failed to save contact info.')
+      } else {
+        updateAgentProfile({ email: data.email, mobile: data.mobile })
+        addToast('Contact info saved.', 'success')
+      }
+    } catch {
+      setContactError('Network error — check your connection and try again.')
+    } finally {
+      setContactLoading(false)
     }
   }
 
@@ -139,6 +177,75 @@ export default function SettingsPage() {
         <p style={{ fontSize: 12, color: '#C7C7CC', marginTop: 10 }}>
           {t('settings.adminNote')}
         </p>
+      </SectionCard>
+
+      {/* ── Contact Info ──────────────────────────────────────────────────────── */}
+      <SectionCard
+        icon={Phone}
+        iconColor="#FF9500"
+        iconBg="rgba(255,149,0,0.1)"
+        title="Contact Info"
+      >
+        <p style={{ fontSize: 13, color: '#8E8E93', marginBottom: 16, lineHeight: 1.5 }}>
+          Your mobile number and email will be auto-populated into policy export PDFs.
+        </p>
+        <form onSubmit={handleContactSave} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div>
+              <label className="hig-label">Mobile Number (H/P)</label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">
+                  <Phone size={14} />
+                </div>
+                <input
+                  type="tel"
+                  value={contactInfo.mobile}
+                  onChange={e => setContactInfo(f => ({ ...f, mobile: e.target.value }))}
+                  className="hig-input pl-9"
+                  placeholder="e.g. 012-3456789"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="hig-label">Email Address</label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary">
+                  <Mail size={14} />
+                </div>
+                <input
+                  type="email"
+                  value={contactInfo.email}
+                  onChange={e => setContactInfo(f => ({ ...f, email: e.target.value }))}
+                  className="hig-input pl-9"
+                  placeholder="e.g. henry@llhgroup.com"
+                />
+              </div>
+            </div>
+          </div>
+
+          {contactError && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: 'rgba(255,59,48,0.06)',
+              border: '1px solid rgba(255,59,48,0.18)',
+              borderRadius: 8, padding: '10px 14px',
+            }}>
+              <AlertCircle size={14} style={{ color: '#FF3B30', flexShrink: 0 }} />
+              <p style={{ fontSize: 13, color: '#FF3B30' }}>{contactError}</p>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 4 }}>
+            <button
+              type="submit"
+              className="hig-btn-primary"
+              disabled={contactLoading}
+              style={{ opacity: contactLoading ? 0.65 : 1, minWidth: 140 }}
+            >
+              {contactLoading ? 'Saving…' : 'Save Contact Info'}
+            </button>
+          </div>
+        </form>
       </SectionCard>
 
       {/* ── Security ──────────────────────────────────────────────────────────── */}

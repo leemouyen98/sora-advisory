@@ -46,7 +46,13 @@ export async function onRequestPost({ request, env }) {
 
     return json({
       token,
-      agent: { code: agent.code, name: agent.name, role: agent.role || 'agent' },
+      agent: {
+        code:   agent.code,
+        name:   agent.name,
+        role:   agent.role   || 'agent',
+        email:  agent.email  || '',
+        mobile: agent.mobile || '',
+      },
     })
   } catch (err) {
     console.error('Login error:', err)
