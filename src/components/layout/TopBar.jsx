@@ -144,7 +144,7 @@ export default function TopBar({ onMenuToggle }) {
 
         {/* Search with autocomplete */}
         {showSearch ? (
-          <div className="flex-1 min-w-0 md:max-w-lg lg:max-w-xl" ref={searchRef}>
+          <div className="min-w-0 w-full max-w-[260px] sm:max-w-sm md:max-w-lg lg:max-w-xl" ref={searchRef}>
             <div className="relative">
               <Search
                 size={16}
@@ -249,9 +249,10 @@ export default function TopBar({ onMenuToggle }) {
               )}
             </div>
           </div>
-        ) : (
-          <div className="flex-1 min-w-0" />
-        )}
+        ) : null}
+
+        {/* Flex spacer — always pushes profile to top-right */}
+        <div className="flex-1" />
 
         {/* Mobile page title (shown when not on search pages) */}
         {!showSearch && (
