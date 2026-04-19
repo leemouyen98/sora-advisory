@@ -687,7 +687,10 @@ export default function KnowledgeLibraryPage() {
                         <button
                           onClick={e => toggleStar(e, file.id)}
                           title={isStarred ? 'Remove from favourites' : 'Add to favourites'}
-                          className={`shrink-0 transition-opacity mt-0.5 group-hover:opacity-100 ${isStarred ? 'opacity-100' : 'opacity-0'}`}
+                          className="shrink-0 mt-0.5"
+                          style={{ opacity: isStarred ? 1 : 0.28, transition: 'opacity 0.15s', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                          onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
+                          onMouseLeave={e => { if (!isStarred) e.currentTarget.style.opacity = '0.28' }}
                         >
                           <Star
                             size={12}
@@ -706,7 +709,7 @@ export default function KnowledgeLibraryPage() {
                         </p>
                       </div>
                       <p style={{ fontSize: 10.5, color: '#9CA3AF', marginTop: 5 }}>
-                        {formatBytes(file.size)} · {formatDate(file.uploaded_at)}
+                        {formatBytes(file.size)}
                       </p>
                     </div>
                   </div>
@@ -729,9 +732,8 @@ export default function KnowledgeLibraryPage() {
                 style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: '#FAFAFA' }}
               >
                 <div style={{ flex: 1, fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Name</div>
-                <div style={{ width: 58,  fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type</div>
-                <div style={{ width: 78,  fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Size</div>
-                <div style={{ width: 106, fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Uploaded</div>
+                <div style={{ width: 58, fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type</div>
+                <div style={{ width: 78, fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Size</div>
                 <div style={{ width: isAdmin ? 84 : 34 }} />
               </div>
 
@@ -785,11 +787,6 @@ export default function KnowledgeLibraryPage() {
                       {formatBytes(file.size)}
                     </div>
 
-                    {/* Date */}
-                    <div style={{ width: 106, fontSize: 12, color: '#6B7280', flexShrink: 0 }}>
-                      {formatDate(file.uploaded_at)}
-                    </div>
-
                     {/* Actions */}
                     <div
                       style={{ width: isAdmin ? 84 : 34, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2, flexShrink: 0 }}
@@ -799,8 +796,10 @@ export default function KnowledgeLibraryPage() {
                       <button
                         onClick={e => toggleStar(e, file.id)}
                         title={isStarred ? 'Remove from favourites' : 'Add to favourites'}
-                        className={`w-6 h-6 flex items-center justify-center rounded-md transition-opacity group-hover:opacity-100 ${isStarred ? 'opacity-100' : 'opacity-0'}`}
-                        style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                        className="w-6 h-6 flex items-center justify-center rounded-md"
+                        style={{ border: 'none', background: 'transparent', cursor: 'pointer', opacity: isStarred ? 1 : 0.28, transition: 'opacity 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
+                        onMouseLeave={e => { if (!isStarred) e.currentTarget.style.opacity = '0.28' }}
                       >
                         <Star
                           size={13}
