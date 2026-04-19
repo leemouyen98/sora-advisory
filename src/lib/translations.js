@@ -9,6 +9,7 @@ const translations = {
   nav: {
     dashboard:  { en: 'Dashboard',  zh: '主页'   },
     contacts:   { en: 'Contacts',   zh: '客户'   },
+    library:    { en: 'Library',    zh: '资料库'  },
     settings:   { en: 'Settings',   zh: '设置'   },
     admin:      { en: 'Admin',      zh: '管理'   },
   },

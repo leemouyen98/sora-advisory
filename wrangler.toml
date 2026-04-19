@@ -8,6 +8,12 @@ binding = "DB"
 database_name = "goalsmapping-db"
 database_id = "fe80528d-f294-47a8-a93e-f8023961bd21"
 
+# ─── R2 Object Storage — Knowledge Library ────────────────────────────────────
+# Create the bucket first: Cloudflare dashboard → R2 → Create bucket → "sora-knowledge"
+[[r2_buckets]]
+binding = "KNOWLEDGE"
+bucket_name = "sora-knowledge"
+
 # ─── Environment variables ─────────────────────────────────────────────────────
 # Set JWT_SECRET in Cloudflare Pages dashboard (NOT here — causes binding conflict):
 # Pages > sora-advisory > Settings > Environment variables > Add variable
