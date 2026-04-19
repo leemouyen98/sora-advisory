@@ -1,13 +1,15 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useContacts } from '../hooks/useContacts'
 import { useToast } from '../hooks/useToast'
 import { useLanguage } from '../hooks/useLanguage'
+import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
 import {
   Plus, Users, CheckSquare, CalendarClock, Cake,
   ExternalLink, Building2, FileText, Shield, Globe, Landmark,
   ChevronRight, CheckCircle2, FileCheck, ClipboardList, TrendingUp,
+  Star, File, FileImage, FileSpreadsheet, Download,
 } from 'lucide-react'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -163,9 +165,143 @@ function StatCard({ icon: Icon, label, value, sub, color, loading, onClick }) {
   )
 }
 
+// ─── Helpers for file icons (mirrors KnowledgeLibraryPage) ───────────────────
+function fileIcon(mimeType) {
+  if (!mimeType) return File
+  if (mimeType === 'application/pdf') return FileText
+  if (mimeType.startsWith('image/')) return FileImage
+  if (mimeType.includes('spreadsheet') || mimeType.includes('excel') || mimeType.includes('csv'))
+    return FileSpreadsheet
+  return File
+}
+
+// ─── Favourites widget ────────────────────────────────────────────────────────
+function FavoritesWidget({ token }) {
+  const [favorites, setFavorites] = useState([])
+  const [loading,   setLoading]   = useState(true)
+  const [pdfViewer, setPdfViewer] = useState(null)
+
+  useEffect(() => {
+    if (!token) return
+    setLoading(true)
+    fetch('/api/library/favorites', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(d => setFavorites(d.favorites ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [token])
+
+  function openFavorite(fav) {
+    if (fav.mime_type === 'application/pdf') {
+      setPdfViewer({ fileId: fav.id, fileName: fav.name })
+    } else {
+      fetch(`/api/library/files/${fav.id}/view`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob)
+          const a   = document.createElement('a')
+          a.href = url; a.download = fav.name; a.click()
+          URL.revokeObjectURL(url)
+        })
+    }
+  }
+
+  return (
+    <>
+      <div>
+        <div className="flex items-center gap-1.5 mb-3">
+          <Star size={14} fill="#FF9500" stroke="#FF9500" />
+          <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>Favourites</h2>
+        </div>
+
+        <div className="hig-card overflow-hidden">
+          {loading ? (
+            <div style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[1, 2, 3].map(i => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Skeleton h={28} w={28} r={8} />
+                  <div style={{ flex: 1 }}>
+                    <Skeleton h={12} w="75%" />
+                    <div style={{ marginTop: 5 }}><Skeleton h={10} w="50%" /></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : favorites.length === 0 ? (
+            <div style={{
+              padding: '24px 16px', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: 8, textAlign: 'center',
+            }}>
+              <Star size={22} stroke="#C7C7CC" fill="none" />
+              <p style={{ fontSize: 13, color: '#8E8E93', lineHeight: 1.4 }}>
+                Star files in the Library to quick-access them here
+              </p>
+            </div>
+          ) : (
+            favorites.map((fav, idx) => {
+              const Icon  = fileIcon(fav.mime_type)
+              const isPDF = fav.mime_type === 'application/pdf'
+              const iconColor = isPDF ? '#FF3B30' : '#2E96FF'
+              return (
+                <button
+                  key={fav.id}
+                  onClick={() => openFavorite(fav)}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '10px 14px', textAlign: 'left', background: 'none',
+                    border: 'none', cursor: 'pointer', transition: 'background 0.15s',
+                    borderBottom: idx < favorites.length - 1 ? '1px solid #F2F2F7' : 'none',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#F9F9FB'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                >
+                  <div style={{
+                    width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                    background: `${iconColor}12`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon size={14} style={{ color: iconColor }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontSize: 12, fontWeight: 500, color: '#1C1C1E',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      marginBottom: 2,
+                    }}>
+                      {fav.name}
+                    </p>
+                    <p style={{
+                      fontSize: 11, color: '#8E8E93',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {fav.folder_name}
+                    </p>
+                  </div>
+                  {!isPDF && (
+                    <Download size={12} style={{ color: '#C7C7CC', flexShrink: 0 }} />
+                  )}
+                </button>
+              )
+            })
+          )}
+        </div>
+      </div>
+
+      {pdfViewer && (
+        <SecurePDFViewerModal
+          title={pdfViewer.fileName}
+          endpoint={`/api/library/files/${pdfViewer.fileId}/view`}
+          scrollMode
+          onClose={() => setPdfViewer(null)}
+        />
+      )}
+    </>
+  )
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const { agent } = useAuth()
+  const { agent, token } = useAuth()
   const { contacts, contactsLoading, contactsError } = useContacts()
   const navigate = useNavigate()
   const { addToast } = useToast()
@@ -447,6 +583,9 @@ export default function DashboardPage() {
                 ))}
               </div>
             </div>
+
+            {/* Favourites widget */}
+            <FavoritesWidget token={token} />
 
           </div>
         </div>

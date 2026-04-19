@@ -13,7 +13,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   FolderOpen, Folder, FolderPlus, Plus, Pencil, Trash2, Upload,
   FileText, FileImage, File, FileSpreadsheet, Loader, Library,
-  ChevronRight,
+  ChevronRight, Star,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
@@ -110,6 +110,8 @@ export default function KnowledgeLibraryPage() {
   const [uploading,      setUploading]      = useState(false)
   const [modal,          setModal]          = useState(null)
   const [pdfViewer,      setPdfViewer]      = useState(null)
+  // starredFileIds: Set of file IDs the current agent has starred
+  const [starredFileIds, setStarredFileIds] = useState(new Set())
 
   const currentFolderId = folderStack.length > 0 ? folderStack[folderStack.length - 1].id : null
   const headers = { Authorization: `Bearer ${token}` }
@@ -145,7 +147,10 @@ export default function KnowledgeLibraryPage() {
     try {
       const res  = await fetch(`/api/library/folders/${folderId}/files`, { headers })
       const data = await res.json()
-      setFiles(data.files ?? [])
+      const fileList = data.files ?? []
+      setFiles(fileList)
+      // Sync starred state from server response
+      setStarredFileIds(new Set(fileList.filter(f => f.is_starred).map(f => f.id)))
     } finally {
       setLoadingFiles(false)
     }
@@ -219,6 +224,28 @@ export default function KnowledgeLibraryPage() {
   async function deleteFile() {
     const res = await fetch(`/api/library/files/${modal.target.id}`, { method: 'DELETE', headers })
     if (res.ok) { loadFiles(currentFolderId); setModal(null) }
+  }
+
+  async function toggleStar(e, fileId) {
+    e.stopPropagation()
+    // Optimistic UI
+    setStarredFileIds(prev => {
+      const next = new Set(prev)
+      if (next.has(fileId)) next.delete(fileId)
+      else next.add(fileId)
+      return next
+    })
+    try {
+      await fetch(`/api/library/files/${fileId}/star`, { method: 'POST', headers })
+    } catch {
+      // Roll back on failure
+      setStarredFileIds(prev => {
+        const next = new Set(prev)
+        if (next.has(fileId)) next.delete(fileId)
+        else next.add(fileId)
+        return next
+      })
+    }
   }
 
   function openFile(file) {
@@ -390,13 +417,33 @@ export default function KnowledgeLibraryPage() {
             <div className="grid gap-3"
               style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
               {files.map(file => {
-                const Icon  = fileIcon(file.mime_type)
-                const isPDF = file.mime_type === 'application/pdf'
+                const Icon     = fileIcon(file.mime_type)
+                const isPDF    = file.mime_type === 'application/pdf'
+                const isStarred = starredFileIds.has(file.id)
                 return (
                   <div key={file.id}
                     className="group relative bg-white rounded-xl border border-black/8 p-4 cursor-pointer transition-shadow hover:shadow-md"
                     onClick={() => openFile(file)}
                   >
+                    {/* Star button — always visible when starred, hover-visible otherwise */}
+                    <button
+                      onClick={e => toggleStar(e, file.id)}
+                      title={isStarred ? 'Remove from favourites' : 'Add to favourites'}
+                      className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded z-10"
+                      style={{ opacity: isStarred ? 1 : 0, transition: 'opacity 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                      onMouseLeave={e => { if (!isStarred) e.currentTarget.style.opacity = '0' }}
+                    >
+                      <Star
+                        size={13}
+                        fill={isStarred ? '#FF9500' : 'none'}
+                        stroke={isStarred ? '#FF9500' : '#C7C7CC'}
+                        strokeWidth={2}
+                        style={{ transition: 'fill 0.15s, stroke 0.15s' }}
+                      />
+                    </button>
+
+                    {/* Admin actions */}
                     {isAdmin && (
                       <div className="absolute top-2 right-2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                         onClick={e => e.stopPropagation()}>
