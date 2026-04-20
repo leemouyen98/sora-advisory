@@ -7,9 +7,9 @@ import { useLanguage } from '../hooks/useLanguage'
 import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
 import {
   Plus, Users, CheckSquare, CalendarClock, Cake,
-  ExternalLink, Building2, FileText, Shield, Globe, Landmark,
+  Building2, FileText, Shield, Globe, Landmark,
   ChevronRight, CheckCircle2, FileCheck, ClipboardList, TrendingUp,
-  Star, File, FileImage, FileSpreadsheet, Download,
+  Star, File, FileImage, FileSpreadsheet, Download, ArrowUpRight,
 } from 'lucide-react'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -50,7 +50,6 @@ function fmtShort(str) {
   return isNaN(d) ? str : d.toLocaleDateString('en-MY', { day: 'numeric', month: 'short' })
 }
 
-// Days until a date this year (birthday-style rolling calc)
 function daysUntilBirthday(dob) {
   const target = new Date(dob)
   const now = new Date()
@@ -60,7 +59,6 @@ function daysUntilBirthday(dob) {
   return Math.round((target - now) / 86400000)
 }
 
-// Days until an absolute date
 function daysUntil(dateStr) {
   const target = new Date(dateStr)
   const now = new Date()
@@ -69,12 +67,21 @@ function daysUntil(dateStr) {
   return Math.round((target - now) / 86400000)
 }
 
-// Urgency badge
+// ─── Day-group label ──────────────────────────────────────────────────────────
+function dayGroupLabel(days) {
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Tomorrow'
+  if (days <= 7) return 'This Week'
+  if (days <= 14) return 'Next Week'
+  return 'Coming Up'
+}
+
+// ─── Urgency badge ────────────────────────────────────────────────────────────
 function UrgencyBadge({ days, type }) {
   const cfg = (() => {
-    if (days === 0) return { bg: 'rgba(255,59,48,0.1)', color: '#FF3B30', label: 'Today' }
+    if (days === 0) return { bg: 'rgba(255,59,48,0.10)', color: '#FF3B30', label: 'Today' }
     if (days === 1) return { bg: 'rgba(255,149,0,0.12)', color: '#FF9500', label: 'Tomorrow' }
-    if (days <= 3) return { bg: 'rgba(255,149,0,0.1)', color: '#FF9500', label: `${days}d` }
+    if (days <= 3) return { bg: 'rgba(255,149,0,0.10)', color: '#FF9500', label: `${days}d` }
     if (type === 'birthday') return { bg: 'rgba(255,45,85,0.08)', color: '#FF2D55', label: `${days}d` }
     if (type === 'review') return { bg: 'rgba(175,82,222,0.08)', color: '#AF52DE', label: `${days}d` }
     return { bg: 'rgba(46,150,255,0.08)', color: '#2E96FF', label: `${days}d` }
@@ -82,34 +89,14 @@ function UrgencyBadge({ days, type }) {
   return (
     <span style={{
       background: cfg.bg, color: cfg.color,
-      fontSize: 12, fontWeight: 600,
-      padding: '3px 10px', borderRadius: 20,
+      fontSize: 11, fontWeight: 700,
+      padding: '3px 9px', borderRadius: 20,
       whiteSpace: 'nowrap', flexShrink: 0,
+      letterSpacing: 0.2,
     }}>
       {cfg.label}
     </span>
   )
-}
-
-// Avatar initials
-function Avatar({ name, color }) {
-  const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-  return (
-    <div style={{
-      width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-      background: `${color}18`, color, fontWeight: 700, fontSize: 12,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      {initials}
-    </div>
-  )
-}
-
-// Type pill for unified feed
-const TYPE_CFG = {
-  task:    { color: '#2E96FF', label: 'Task',    Icon: CheckSquare },
-  review:  { color: '#AF52DE', label: 'Review',  Icon: CalendarClock },
-  birthday:{ color: '#FF2D55', label: 'Birthday',Icon: Cake },
 }
 
 // ─── Skeleton loader ──────────────────────────────────────────────────────────
@@ -117,7 +104,7 @@ function Skeleton({ h = 16, w = '100%', r = 6 }) {
   return (
     <div style={{
       height: h, width: w, borderRadius: r,
-      background: 'linear-gradient(90deg, #F2F2F7 25%, #E5E5EA 50%, #F2F2F7 75%)',
+      background: 'linear-gradient(90deg, #F2F2F7 25%, #E8E8ED 50%, #F2F2F7 75%)',
       backgroundSize: '200% 100%',
       animation: 'shimmer 1.4s ease infinite',
     }} />
@@ -126,46 +113,84 @@ function Skeleton({ h = 16, w = '100%', r = 6 }) {
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ icon: Icon, label, value, sub, color, loading, onClick }) {
+  const [hovered, setHovered] = useState(false)
   return (
     <button
       onClick={onClick}
-      className="hig-card text-left w-full overflow-hidden group"
-      style={{ transition: 'box-shadow 0.2s', padding: 0 }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.10)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = ''}
+      className="text-left w-full group"
+      style={{
+        background: '#FFFFFF',
+        borderRadius: 16,
+        border: hovered ? `1.5px solid ${color}30` : '1.5px solid rgba(0,0,0,0.04)',
+        boxShadow: hovered
+          ? `0 8px 24px ${color}18, 0 2px 8px rgba(0,0,0,0.06)`
+          : '0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        padding: '20px 20px 18px',
+        transition: 'all 0.2s ease',
+        transform: hovered ? 'translateY(-1px)' : 'none',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {/* Colored top accent */}
-      <div style={{ height: 3, background: color, borderRadius: '12px 12px 0 0' }} />
-      <div style={{ padding: '16px 18px 18px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: `${color}15`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Icon size={18} style={{ color }} />
-          </div>
-          <ChevronRight size={15} style={{ color: '#C7C7CC', transition: 'color 0.15s' }}
-            className="group-hover:text-hig-blue" />
+      {/* Subtle gradient blob */}
+      <div style={{
+        position: 'absolute', top: -20, right: -20,
+        width: 80, height: 80, borderRadius: '50%',
+        background: `radial-gradient(circle, ${color}18 0%, transparent 70%)`,
+        pointerEvents: 'none',
+        transition: 'opacity 0.2s',
+        opacity: hovered ? 1 : 0.6,
+      }} />
+
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 12,
+          background: `linear-gradient(135deg, ${color}22 0%, ${color}10 100%)`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: `0 2px 8px ${color}20`,
+        }}>
+          <Icon size={19} style={{ color }} />
         </div>
-        {loading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Skeleton h={28} w="50%" />
-            <Skeleton h={13} w="70%" />
-          </div>
-        ) : (
-          <>
-            <p style={{ fontSize: 26, fontWeight: 700, color: '#1C1C1E', lineHeight: 1.1 }}>{value}</p>
-            <p style={{ fontSize: 14, fontWeight: 500, color: '#1C1C1E', marginTop: 3 }}>{label}</p>
-            {sub && <p style={{ fontSize: 12, color: '#8E8E93', marginTop: 2 }}>{sub}</p>}
-          </>
-        )}
+        <ChevronRight
+          size={15}
+          style={{
+            color: hovered ? color : '#C7C7CC',
+            transition: 'color 0.2s, transform 0.2s',
+            transform: hovered ? 'translateX(2px)' : 'none',
+          }}
+        />
       </div>
+
+      {loading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Skeleton h={30} w="45%" />
+          <Skeleton h={12} w="65%" />
+        </div>
+      ) : (
+        <>
+          <p style={{
+            fontSize: 30, fontWeight: 700, color: '#1C1C1E', lineHeight: 1,
+            letterSpacing: -1,
+          }}>
+            {value}
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#3C3C43', marginTop: 5, letterSpacing: 0.1 }}>
+            {label}
+          </p>
+          {sub && (
+            <p style={{ fontSize: 11, color: '#8E8E93', marginTop: 3, letterSpacing: 0.1 }}>
+              {sub}
+            </p>
+          )}
+        </>
+      )}
     </button>
   )
 }
 
-// ─── Helpers for file icons (mirrors KnowledgeLibraryPage) ───────────────────
+// ─── File icon helper ─────────────────────────────────────────────────────────
 function fileIcon(mimeType) {
   if (!mimeType) return File
   if (mimeType === 'application/pdf') return FileText
@@ -209,14 +234,28 @@ function FavoritesWidget({ token }) {
   return (
     <>
       <div>
-        <div className="flex items-center gap-1.5 mb-3">
-          <Star size={14} fill="#FF9500" stroke="#FF9500" />
-          <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>Favourites</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
+          <div style={{
+            width: 24, height: 24, borderRadius: 7,
+            background: 'rgba(255,149,0,0.12)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Star size={12} fill="#FF9500" stroke="#FF9500" />
+          </div>
+          <h2 style={{ fontSize: 14, fontWeight: 700, color: '#1C1C1E', letterSpacing: 0.1 }}>
+            Favourites
+          </h2>
         </div>
 
-        <div className="hig-card overflow-hidden">
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: 14,
+          border: '1.5px solid rgba(0,0,0,0.04)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+          overflow: 'hidden',
+        }}>
           {loading ? (
-            <div style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[1, 2, 3].map(i => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <Skeleton h={28} w={28} r={8} />
@@ -232,9 +271,9 @@ function FavoritesWidget({ token }) {
               padding: '24px 16px', display: 'flex', flexDirection: 'column',
               alignItems: 'center', gap: 8, textAlign: 'center',
             }}>
-              <Star size={22} stroke="#C7C7CC" fill="none" />
-              <p style={{ fontSize: 13, color: '#8E8E93', lineHeight: 1.4 }}>
-                Star files in the Library to quick-access them here
+              <Star size={20} stroke="#C7C7CC" fill="none" />
+              <p style={{ fontSize: 12, color: '#8E8E93', lineHeight: 1.5, maxWidth: 160 }}>
+                Star files in the Library to pin them here
               </p>
             </div>
           ) : (
@@ -243,44 +282,15 @@ function FavoritesWidget({ token }) {
               const isPDF = fav.mime_type === 'application/pdf'
               const iconColor = isPDF ? '#FF3B30' : '#2E96FF'
               return (
-                <button
+                <FavRow
                   key={fav.id}
+                  fav={fav}
+                  Icon={Icon}
+                  iconColor={iconColor}
+                  isPDF={isPDF}
+                  isLast={idx === favorites.length - 1}
                   onClick={() => openFavorite(fav)}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 14px', textAlign: 'left', background: 'none',
-                    border: 'none', cursor: 'pointer', transition: 'background 0.15s',
-                    borderBottom: idx < favorites.length - 1 ? '1px solid #F2F2F7' : 'none',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#F9F9FB'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-                    background: `${iconColor}12`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Icon size={14} style={{ color: iconColor }} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{
-                      fontSize: 12, fontWeight: 500, color: '#1C1C1E',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      marginBottom: 2,
-                    }}>
-                      {fav.name}
-                    </p>
-                    <p style={{
-                      fontSize: 11, color: '#8E8E93',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {fav.folder_name}
-                    </p>
-                  </div>
-                  {!isPDF && (
-                    <Download size={12} style={{ color: '#C7C7CC', flexShrink: 0 }} />
-                  )}
-                </button>
+                />
               )
             })
           )}
@@ -296,6 +306,147 @@ function FavoritesWidget({ token }) {
         />
       )}
     </>
+  )
+}
+
+function FavRow({ fav, Icon, iconColor, isPDF, isLast, onClick }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+        padding: '10px 14px', textAlign: 'left',
+        background: hovered ? '#F9F9FB' : 'none',
+        border: 'none', cursor: 'pointer',
+        transition: 'background 0.15s',
+        borderBottom: isLast ? 'none' : '1px solid #F2F2F7',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div style={{
+        width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+        background: `${iconColor}12`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon size={14} style={{ color: iconColor }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{
+          fontSize: 12, fontWeight: 600, color: '#1C1C1E',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          marginBottom: 1,
+        }}>
+          {fav.name}
+        </p>
+        <p style={{
+          fontSize: 11, color: '#8E8E93',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {fav.folder_name}
+        </p>
+      </div>
+      {!isPDF && (
+        <Download size={12} style={{ color: hovered ? '#2E96FF' : '#C7C7CC', flexShrink: 0, transition: 'color 0.15s' }} />
+      )}
+    </button>
+  )
+}
+
+// ─── Type config ──────────────────────────────────────────────────────────────
+const TYPE_CFG = {
+  task:    { color: '#2E96FF', bg: 'rgba(46,150,255,0.10)',  label: 'Task',     Icon: CheckSquare  },
+  review:  { color: '#AF52DE', bg: 'rgba(175,82,222,0.10)',  label: 'Review',   Icon: CalendarClock },
+  birthday:{ color: '#FF2D55', bg: 'rgba(255,45,85,0.10)',   label: 'Birthday', Icon: Cake          },
+}
+
+// ─── Feed row ─────────────────────────────────────────────────────────────────
+function FeedRow({ item, isLast, onClick, TYPE_LABELS }) {
+  const [hovered, setHovered] = useState(false)
+  const cfg = TYPE_CFG[item.type]
+  const TypeIcon = cfg.Icon
+
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+        padding: '13px 18px', textAlign: 'left',
+        background: hovered ? '#F9F9FB' : 'transparent',
+        border: 'none', cursor: 'pointer',
+        borderBottom: isLast ? 'none' : '1px solid #F5F5F7',
+        transition: 'background 0.15s',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Type icon */}
+      <div style={{
+        width: 36, height: 36, borderRadius: 11, flexShrink: 0,
+        background: hovered ? cfg.color : cfg.bg,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background 0.2s',
+        boxShadow: hovered ? `0 3px 10px ${cfg.color}30` : 'none',
+      }}>
+        <TypeIcon size={15} style={{ color: hovered ? '#fff' : cfg.color, transition: 'color 0.2s' }} />
+      </div>
+
+      {/* Text */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{
+          fontSize: 14, fontWeight: 600, color: '#1C1C1E', marginBottom: 2,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {item.title}
+        </p>
+        <p style={{
+          fontSize: 12, color: '#8E8E93',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {item.type === 'task'
+            ? `${item.contact.name}  ·  Due ${item.sub}`
+            : item.sub}
+        </p>
+      </div>
+
+      {/* Right: type pill + urgency */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        <span style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase',
+          color: cfg.color, background: cfg.bg,
+          padding: '2px 7px', borderRadius: 20,
+          opacity: 0.9,
+        }}>
+          {TYPE_LABELS[item.type]}
+        </span>
+        <UrgencyBadge days={item.days} type={item.type} />
+      </div>
+    </button>
+  )
+}
+
+// ─── Section header ────────────────────────────────────────────────────────────
+function SectionHeader({ title, action, onAction }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1C1C1E', letterSpacing: 0.1 }}>{title}</h2>
+      {action && (
+        <button
+          onClick={onAction}
+          style={{
+            fontSize: 12, color: '#2E96FF', fontWeight: 600,
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '4px 8px', borderRadius: 8,
+            transition: 'background 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(46,150,255,0.08)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'none'}
+        >
+          {action}
+        </button>
+      )}
+    </div>
   )
 }
 
@@ -335,19 +486,16 @@ export default function DashboardPage() {
     return { total: contacts.length, pending, reviewsMonth, bdays }
   }, [contacts, thisMonth, thisYear])
 
-  // ── Unified upcoming feed ──────────────────────────────────────────────────
+  // ── Unified upcoming feed (grouped) ───────────────────────────────────────
   const feed = useMemo(() => {
     const items = []
-
     contacts.forEach(c => {
-      // Tasks due in next 60 days
-      ;(c.tasks || []).forEach(t => {
-        if (t.status === 'completed' || !t.dueDate) return
-        const d = daysUntil(t.dueDate)
+      ;(c.tasks || []).forEach(task => {
+        if (task.status === 'completed' || !task.dueDate) return
+        const d = daysUntil(task.dueDate)
         if (d >= 0 && d <= 60)
-          items.push({ type: 'task', days: d, contact: c, title: t.title, sub: fmtShort(t.dueDate) })
+          items.push({ type: 'task', days: d, contact: c, title: task.title, sub: fmtShort(task.dueDate) })
       })
-      // Reviews in next 60 days
       if (c.reviewDate) {
         const d = daysUntil(c.reviewDate)
         if (d >= 0 && d <= 60)
@@ -357,7 +505,6 @@ export default function DashboardPage() {
             sub: `Review on ${fmtShort(c.reviewDate)}${c.reviewFrequency ? ' · ' + c.reviewFrequency : ''}`,
           })
       }
-      // Birthdays in next 60 days
       if (c.dob) {
         const d = daysUntilBirthday(c.dob)
         if (d >= 0 && d <= 60)
@@ -368,39 +515,106 @@ export default function DashboardPage() {
           })
       }
     })
-
     return items.sort((a, b) => a.days - b.days).slice(0, 12)
   }, [contacts])
 
-  const totalUpcoming = feed.length
+  // Group feed by day label
+  const feedGroups = useMemo(() => {
+    const groups = []
+    let lastLabel = null
+    feed.forEach(item => {
+      const label = dayGroupLabel(item.days)
+      if (label !== lastLabel) {
+        groups.push({ label, items: [] })
+        lastLabel = label
+      }
+      groups[groups.length - 1].items.push(item)
+    })
+    return groups
+  }, [feed])
 
   return (
     <>
-      {/* Shimmer keyframe */}
-      <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+      <style>{`
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+      `}</style>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: '#1C1C1E', lineHeight: 1.2 }}>
-              {t(greetingKey())}{agent?.name ? `, ${agent.name.split(' ')[0]}` : ''} 👋
-            </h1>
-            <p style={{ fontSize: 14, color: '#8E8E93', marginTop: 4 }}>{todayStr()}</p>
-          </div>
+        <div
+          style={{
+            marginBottom: 28,
+            padding: '22px 24px',
+            background: 'linear-gradient(135deg, #040E1C 0%, #0a1f38 50%, #102845 100%)',
+            borderRadius: 20,
+            display: 'flex', flexDirection: 'column', gap: 12,
+            position: 'relative', overflow: 'hidden',
+            animation: 'fadeUp 0.4s ease',
+          }}
+        >
+          {/* Decorative orbs */}
+          <div style={{
+            position: 'absolute', top: -30, right: -30,
+            width: 140, height: 140, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(46,150,255,0.25) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', bottom: -20, left: 100,
+            width: 100, height: 100, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(175,82,222,0.15) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
 
-          <button
-            onClick={() => navigate('/contacts?new=true')}
-            className="hig-btn-primary w-full justify-center sm:w-auto"
-            style={{ gap: 7, fontSize: 14 }}
-          >
-            <Plus size={15} /> {t('dashboard.newContact')}
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontWeight: 500, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                  {todayStr()}
+                </p>
+              </div>
+              <h1 style={{
+                fontSize: 24, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.25,
+                letterSpacing: -0.5,
+              }}>
+                {t(greetingKey())}{agent?.name ? `, ${agent.name.split(' ')[0]}` : ''} 👋
+              </h1>
+              {!contactsLoading && (
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 5, fontWeight: 400 }}>
+                  {stats.total > 0
+                    ? `${stats.total} client${stats.total !== 1 ? 's' : ''} · ${stats.pending > 0 ? `${stats.pending} task${stats.pending !== 1 ? 's' : ''} pending` : 'all tasks clear'}`
+                    : 'No clients yet — add your first one below'}
+                </p>
+              )}
+            </div>
+
+            <button
+              onClick={() => navigate('/contacts?new=true')}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7,
+                background: '#2E96FF', color: '#fff',
+                border: 'none', borderRadius: 10, cursor: 'pointer',
+                fontSize: 13, fontWeight: 700, padding: '10px 18px',
+                boxShadow: '0 4px 14px rgba(46,150,255,0.40)',
+                transition: 'all 0.2s',
+                letterSpacing: 0.1,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#1a83f0'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#2E96FF'; e.currentTarget.style.transform = 'none' }}
+            >
+              <Plus size={14} />
+              {t('dashboard.newContact')}
+            </button>
+          </div>
         </div>
 
         {/* ── Stats ───────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 12, marginBottom: 24 }}>
+        <div
+          className="grid grid-cols-2 lg:grid-cols-4"
+          style={{ gap: 12, marginBottom: 24 }}
+        >
           <StatCard
             icon={Users} label={t('dashboard.statContacts')} color="#2E96FF" loading={contactsLoading}
             value={stats.total}
@@ -431,89 +645,84 @@ export default function DashboardPage() {
         {/* ── Body: Feed + Sidebar ─────────────────────────────────────────── */}
         <div className="flex flex-col lg:flex-row" style={{ gap: 16, alignItems: 'flex-start' }}>
 
-          {/* Left: Unified feed */}
+          {/* Left: Upcoming feed */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>{t('dashboard.upcoming')}</h2>
-              {feed.length > 0 && (
-                <button
-                  onClick={() => navigate('/contacts')}
-                  style={{ fontSize: 13, color: '#2E96FF', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  {t('dashboard.viewAllContacts')}
-                </button>
-              )}
-            </div>
+            <SectionHeader
+              title={t('dashboard.upcoming')}
+              action={feed.length > 0 ? t('dashboard.viewAllContacts') : null}
+              onAction={() => navigate('/contacts')}
+            />
 
             {/* Loading skeleton */}
             {contactsLoading && (
-              <div className="hig-card" style={{ overflow: 'hidden' }}>
+              <div style={{
+                background: '#FFF', borderRadius: 16,
+                border: '1.5px solid rgba(0,0,0,0.04)',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                overflow: 'hidden',
+              }}>
                 {[1, 2, 3, 4].map(i => (
                   <div key={i} style={{
                     display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '14px 20px',
-                    borderBottom: i < 4 ? '1px solid #F2F2F7' : 'none',
+                    padding: '14px 18px',
+                    borderBottom: i < 4 ? '1px solid #F5F5F7' : 'none',
                   }}>
-                    <Skeleton h={34} w={34} r={17} />
+                    <Skeleton h={36} w={36} r={11} />
                     <div style={{ flex: 1 }}>
                       <Skeleton h={14} w="60%" />
                       <div style={{ marginTop: 6 }}><Skeleton h={11} w="40%" /></div>
                     </div>
-                    <Skeleton h={24} w={44} r={12} />
+                    <Skeleton h={22} w={52} r={11} />
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Feed items */}
+            {/* Grouped feed */}
             {!contactsLoading && feed.length > 0 && (
-              <div className="hig-card" style={{ overflow: 'hidden' }}>
-                {feed.map((item, idx) => {
-                  const cfg = TYPE_CFG[item.type]
-                  const TypeIcon = cfg.Icon
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {feedGroups.map(group => {
+                  const allItems = group.items
                   return (
-                    <button
-                      key={`${item.type}-${item.contact.id}-${idx}`}
-                      onClick={() => navigate(`/contacts/${item.contact.id}`)}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-                        padding: '13px 20px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer',
-                        borderBottom: idx < feed.length - 1 ? '1px solid #F2F2F7' : 'none',
-                        transition: 'background 0.15s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#F9F9FB'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                    >
-                      {/* Colored type icon */}
+                    <div key={group.label}>
+                      {/* Group label */}
                       <div style={{
-                        width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                        background: `${cfg.color}12`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        marginBottom: 6, paddingLeft: 2,
                       }}>
-                        <TypeIcon size={15} style={{ color: cfg.color }} />
-                      </div>
-
-                      {/* Text */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 500, color: '#1C1C1E', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {item.title}
-                        </p>
-                        <p style={{ fontSize: 12, color: '#8E8E93', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {item.type === 'task' ? item.contact.name + '  ·  ' + t('dashboard.taskDue') + ' ' + item.sub : item.sub}
-                        </p>
-                      </div>
-
-                      {/* Type label + urgency badge */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                         <span style={{
-                          fontSize: 11, fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase',
-                          color: cfg.color, opacity: 0.7,
+                          fontSize: 11, fontWeight: 700, color: '#8E8E93',
+                          textTransform: 'uppercase', letterSpacing: 0.8,
                         }}>
-                          {TYPE_LABELS[item.type]}
+                          {group.label}
                         </span>
-                        <UrgencyBadge days={item.days} type={item.type} />
+                        <div style={{ flex: 1, height: 1, background: '#F2F2F7' }} />
+                        <span style={{
+                          fontSize: 10, color: '#C7C7CC', fontWeight: 600,
+                          letterSpacing: 0.2,
+                        }}>
+                          {allItems.length}
+                        </span>
                       </div>
-                    </button>
+
+                      {/* Items */}
+                      <div style={{
+                        background: '#FFF', borderRadius: 14,
+                        border: '1.5px solid rgba(0,0,0,0.04)',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                        overflow: 'hidden',
+                      }}>
+                        {allItems.map((item, idx) => (
+                          <FeedRow
+                            key={`${item.type}-${item.contact.id}-${idx}`}
+                            item={item}
+                            isLast={idx === allItems.length - 1}
+                            TYPE_LABELS={TYPE_LABELS}
+                            onClick={() => navigate(`/contacts/${item.contact.id}`)}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   )
                 })}
               </div>
@@ -521,28 +730,43 @@ export default function DashboardPage() {
 
             {/* Empty state */}
             {!contactsLoading && feed.length === 0 && (
-              <div className="hig-card" style={{
-                padding: '48px 24px', display: 'flex', flexDirection: 'column',
+              <div style={{
+                background: '#FFF',
+                borderRadius: 16,
+                border: '1.5px solid rgba(0,0,0,0.04)',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                padding: '48px 24px',
+                display: 'flex', flexDirection: 'column',
                 alignItems: 'center', textAlign: 'center', gap: 12,
               }}>
                 <div style={{
-                  width: 52, height: 52, borderRadius: '50%',
-                  background: 'rgba(52,199,89,0.1)',
+                  width: 56, height: 56, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(52,199,89,0.15) 0%, rgba(52,199,89,0.05) 100%)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 4px 16px rgba(52,199,89,0.15)',
                 }}>
                   <CheckCircle2 size={26} style={{ color: '#34C759' }} />
                 </div>
-                <p style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>{t('dashboard.allClear')}</p>
-                <p style={{ fontSize: 14, color: '#8E8E93', maxWidth: 280, lineHeight: 1.5 }}>
-                  {t('dashboard.allClearDesc')}
-                </p>
+                <div>
+                  <p style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1E', marginBottom: 6 }}>
+                    {t('dashboard.allClear')}
+                  </p>
+                  <p style={{ fontSize: 13, color: '#8E8E93', maxWidth: 260, lineHeight: 1.6 }}>
+                    {t('dashboard.allClearDesc')}
+                  </p>
+                </div>
                 {contacts.length === 0 && (
                   <button
                     onClick={() => navigate('/contacts?new=true')}
-                    className="hig-btn-primary"
-                    style={{ marginTop: 4, gap: 7, fontSize: 14 }}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 7,
+                      background: '#2E96FF', color: '#fff',
+                      border: 'none', borderRadius: 10, cursor: 'pointer',
+                      fontSize: 13, fontWeight: 700, padding: '10px 18px',
+                      marginTop: 4,
+                    }}
                   >
-                    <Plus size={15} /> {t('dashboard.addFirstContact')}
+                    <Plus size={14} /> {t('dashboard.addFirstContact')}
                   </button>
                 )}
               </div>
@@ -550,46 +774,78 @@ export default function DashboardPage() {
           </div>
 
           {/* Right: Sidebar */}
-          <div className="lg:w-60 lg:shrink-0 w-full" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="lg:w-64 lg:shrink-0 w-full" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-            {/* Quick Links — responsive grid */}
+            {/* Quick Links */}
             <div>
-              <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1C1C1E', marginBottom: 12 }}>{t('dashboard.quickLinks')}</h2>
+              <SectionHeader title={t('dashboard.quickLinks')} />
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2" style={{ gap: 8 }}>
                 {QUICK_LINKS.map(({ label, icon: Icon, url, color }) => (
-                  <a
-                    key={label}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hig-card"
-                    style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                      gap: 7, padding: '12px 8px', textDecoration: 'none',
-                      textAlign: 'center', transition: 'box-shadow 0.15s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.10)'}
-                    onMouseLeave={e => e.currentTarget.style.boxShadow = ''}
-                  >
-                    <div style={{
-                      width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                      background: `${color}15`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Icon size={16} style={{ color }} />
-                    </div>
-                    <span style={{ fontSize: 11, color: '#1C1C1E', fontWeight: 500, lineHeight: 1.3 }}>{label}</span>
-                  </a>
+                  <QuickLinkCard key={label} label={label} Icon={Icon} url={url} color={color} />
                 ))}
               </div>
             </div>
 
-            {/* Favourites widget */}
+            {/* Favourites */}
             <FavoritesWidget token={token} />
 
           </div>
         </div>
       </div>
     </>
+  )
+}
+
+// ─── Quick link card ──────────────────────────────────────────────────────────
+function QuickLinkCard({ label, Icon, url, color }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        gap: 8, padding: '14px 8px', textDecoration: 'none',
+        textAlign: 'center',
+        background: hovered ? `${color}08` : '#FFFFFF',
+        borderRadius: 14,
+        border: hovered ? `1.5px solid ${color}30` : '1.5px solid rgba(0,0,0,0.04)',
+        boxShadow: hovered ? `0 4px 14px ${color}20` : '0 1px 4px rgba(0,0,0,0.05)',
+        transition: 'all 0.2s',
+        transform: hovered ? 'translateY(-1px)' : 'none',
+        position: 'relative',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div style={{
+        width: 36, height: 36, borderRadius: 11,
+        background: hovered
+          ? `linear-gradient(135deg, ${color}30 0%, ${color}18 100%)`
+          : `linear-gradient(135deg, ${color}18 0%, ${color}0c 100%)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background 0.2s',
+        boxShadow: hovered ? `0 2px 8px ${color}25` : 'none',
+      }}>
+        <Icon size={16} style={{ color }} />
+      </div>
+      <span style={{
+        fontSize: 11, color: hovered ? '#1C1C1E' : '#3C3C43',
+        fontWeight: 600, lineHeight: 1.3, letterSpacing: 0.1,
+        transition: 'color 0.15s',
+      }}>
+        {label}
+      </span>
+      {hovered && (
+        <ArrowUpRight
+          size={9}
+          style={{
+            position: 'absolute', top: 8, right: 8,
+            color: `${color}80`,
+          }}
+        />
+      )}
+    </a>
   )
 }
