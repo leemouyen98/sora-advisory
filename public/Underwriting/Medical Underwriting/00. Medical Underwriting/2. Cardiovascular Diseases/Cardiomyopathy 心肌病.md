@@ -16,7 +16,7 @@ Refers to conditions that affect your heart muscle. If you have cardiomyopathy, 
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> a) Any latest relevant reports / results such as blood / urine / scan test, ECG, Echocardiagram.... ?
+> a) Any latest relevant reports / results such as blood / urine / scan test, ECG, Echocardiogram.... ?
 > b) Surgical Procedures report if performed.
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
@@ -28,5 +28,5 @@ Refers to conditions that affect your heart muscle. If you have cardiomyopathy, 
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance
+> Life / TPD / CI / Medical insurance
 > - Not insurable

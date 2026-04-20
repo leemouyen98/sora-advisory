@@ -14,22 +14,22 @@ Is the presence of blood cells in the urine. In haematuria, your kidneys or othe
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
 > Noticed to hv slight blood in urine test during routine medical check up on dd/mm/yy. Seen by Dr xxx of yy Hospital. was told by doctor that due to infection.
 > On short course of antibiotic, repeated urine FEME after 1 week, showed normal result of urine FEME.
-> Blood & urine test were done on dd/mm/yy. Reports are attached here. 
+> Blood & urine test were done on dd/mm/yy. Reports are attached here.
 > Fully recovered since.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI:
 > – Standard case provided well treated & no complications
-> 
+>
 > Medical insurance:
 > – KIV exclusion if was due to stones – Decline case if have proteinuria

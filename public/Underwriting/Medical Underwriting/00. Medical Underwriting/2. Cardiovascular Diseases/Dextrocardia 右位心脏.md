@@ -18,7 +18,7 @@ A congenital defect in which the position of the heart is mirror image of its no
 > 1) From client / doctor
 > a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram... ?
 > b) Operation / surgical Procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -27,5 +27,5 @@ A congenital defect in which the position of the heart is mirror image of its no
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance
+> Life / TPD / CI / Medical insurance
 > - Standard case provided normal heart function

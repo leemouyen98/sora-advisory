@@ -9,14 +9,14 @@ Is a type of fat, or lipid, which moves throughout your body in your blood. Lipi
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such blood (Lipid profile) & urine tests etc... done ? If yes, please state the dates & results.
-> 3) On medication / treatment ? If yes, what type & period of treatment. 
+> 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood (lipid profile test) / urine ?
-> 
+>
 > 2) KIV – Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -25,7 +25,7 @@ Is a type of fat, or lipid, which moves throughout your body in your blood. Lipi
 > Lipid profile test is attached here.
 > No medical follow up is required.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES  
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI / Medical insurance:
 > - Standard / Substandard case in view of lipid profile results.

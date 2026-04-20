@@ -17,7 +17,7 @@ A state in which the pressure within the hepatic portal vein is increased, causi
 
 > 1) From client / doctor
 > a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -27,5 +27,5 @@ A state in which the pressure within the hepatic portal vein is increased, causi
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance:
+> Life / TPD / CI / Medical insurance:
 > - Decline case

@@ -13,14 +13,14 @@ Is a temporary period of symptoms similar to those of a stroke. A TIA usually la
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
 > 3) Any surgery has been performed ? If yes, please state the date & type of operation.
-> 4) On medication / treatment ? If yes, what type & period of treatment. 
+> 4) On medication / treatment ? If yes, what type & period of treatment.
 > 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ? b) Surgery / removal report if performed.
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -30,7 +30,7 @@ Is a temporary period of symptoms similar to those of a stroke. A TIA usually la
 > CT scan, ECG, blood & urine test were done on dd/mm/yy. Reports are attached here.
 > Medical follow up was required yearly.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI / Medical insurance:
 > – Decline case

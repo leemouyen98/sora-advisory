@@ -13,9 +13,9 @@ Is an acute diarrheal illness caused by infection of the intestine with Vibrio c
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) KIV Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -26,6 +26,6 @@ Is an acute diarrheal illness caused by infection of the intestine with Vibrio c
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Standard case if full recovery

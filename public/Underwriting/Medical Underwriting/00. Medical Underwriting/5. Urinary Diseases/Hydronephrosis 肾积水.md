@@ -22,7 +22,7 @@ Severe cases of urinary blockage and hydronephrosis can damage the kidneys and l
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood (renal function test) / urine FEME / Ultrasound scan test ?
-> 
+>
 > 2) Medical Examination & Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE

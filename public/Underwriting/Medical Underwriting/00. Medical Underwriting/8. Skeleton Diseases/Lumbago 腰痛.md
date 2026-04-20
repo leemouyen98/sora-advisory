@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Low backache , of any cause or description. Severe lumbago, of sudden onset while bending or lifting, can be due either to a slipped disc or to a strained muscle or ligament.
 
@@ -16,9 +16,9 @@ Low backache , of any cause or description. Severe lumbago, of sudden onset whil
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
 > b)  Backache Questionnaire from applicant & attending doctor
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -30,6 +30,6 @@ Low backache , of any cause or description. Severe lumbago, of sudden onset whil
 
 > Life:
 > – standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – Exclusion

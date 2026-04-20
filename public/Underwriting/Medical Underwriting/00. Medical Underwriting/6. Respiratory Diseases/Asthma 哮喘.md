@@ -1,4 +1,4 @@
-#Medical_Underwriting/Respiratory_Diseases 
+#Medical_Underwriting/Respiratory_Diseases
 
 A respiratory condition marked by attacks of spasm in the bronchi of the lungs, causing difficulty in breathing. It is usually connected to allergic reaction or other forms of hypersensitivity.
 
@@ -19,10 +19,10 @@ It is one of the most common long-term diseases of children and adults. Asthma c
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine / scan test ? 
-> b) Asthmatic Questionnaire by applicant & attending doctor 
-> 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine / scan test ?
+> b) Asthmatic Questionnaire by applicant & attending doctor
+>
 > 2) KIV Medical Examination
 
 ## EXAMPLE OF DISCLOSURE
@@ -34,6 +34,6 @@ It is one of the most common long-term diseases of children and adults. Asthma c
 
 > Life / TPD / CI:
 > – Standard case if no complications & well controlled
-> 
+>
 > Medical insurance:
 > – Exclusion

@@ -18,9 +18,9 @@ Is a chronic (long-lasting) health condition that affects how your body turns fo
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> 
+>
 > a) Any relevant reports such as blood (FBS & HbA1c) / urine / scan tests ?
-> 
+>
 > b) Diabetes Questionnaire from attending Doctor (on insulin therapy) 2) Medical Examination (on oral medication)
 
 ## EXAMPLE OF DISCLOSURE
@@ -33,6 +33,6 @@ Is a chronic (long-lasting) health condition that affects how your body turns fo
 
 > Life / TPD:
 > – Sub-standard case provided good control & no complications
-> 
+>
 > CI / Medical insurance:
 > – Decline case / not insurable

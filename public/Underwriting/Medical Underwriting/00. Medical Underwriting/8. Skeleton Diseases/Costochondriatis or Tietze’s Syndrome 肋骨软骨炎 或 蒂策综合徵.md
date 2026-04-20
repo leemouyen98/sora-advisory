@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 A painful swelling of a rib in the region of the chest, over the junction of bone and cartilage.
 
@@ -19,20 +19,20 @@ Tietze syndrome is treated with rest and over-the-counter medicine.
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have costochondritis on dd/mm/yy. Consulted  Dr xxx of yy hospital,  X ray & ECG have been performed, revealed normal results, reports is attached  
+> Diagnosed to have costochondritis on dd/mm/yy. Consulted  Dr xxx of yy hospital,  X ray & ECG have been performed, revealed normal results, reports is attached
 > On pain killer medication when necessary.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

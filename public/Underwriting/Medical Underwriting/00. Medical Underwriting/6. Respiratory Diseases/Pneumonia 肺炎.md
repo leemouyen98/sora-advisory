@@ -4,9 +4,9 @@ Is a form of acute respiratory infection that affects the lungs. The lungs are m
 
 Bacteria are a common cause of pneumonia in adults.
 
-Treatment  
-1. Antibiotics. These medicines are used to treat bacterial pneumonia. 
-2. Cough medicine. This medicine may be used to calm your cough so that you can rest.   
+Treatment
+1. Antibiotics. These medicines are used to treat bacterial pneumonia.
+2. Cough medicine. This medicine may be used to calm your cough so that you can rest.
 3. Fever reducers/pain relievers. You may take these as needed for fever and discomfort.
 
 ![[ Pneumonia 01.png]]
@@ -20,7 +20,7 @@ Treatment
 
 > BILATERAL PNEUMONIA DUE TO ADENO VIRUS INFECTION, COMPLICATED BY BILATERAL PLEURAL EFFUSION IN ONE OF PRIVATE HOSPITAL ON DECEMBER 2019 (10 DAYS ADMISSION) IN SINGAPORE.
 > - TOTAL MEDICAL COST = S$40,200 ++
-> 
+>
 > NOTE :
 > All cost quoted is on estimated basis, it may not fully represent the actual cost.
 > Sources from various medical bills 2015 & 2023.
@@ -38,13 +38,13 @@ Treatment
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
 > Diagnosed to have pneumonia on dd/mm/yy by Dr xxx of yy Hospital, completely well treated & no complication noted.
-> Scanning, blood & urine test done on dd/mm/yy is attached. 
+> Scanning, blood & urine test done on dd/mm/yy is attached.
 > Fully recovered since.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

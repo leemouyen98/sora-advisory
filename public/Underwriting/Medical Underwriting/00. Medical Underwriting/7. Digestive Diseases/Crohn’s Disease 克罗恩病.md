@@ -19,9 +19,9 @@ Crohn’s disease is a long-term inflammatory bowel disease (IBD). It most commo
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -33,6 +33,6 @@ Crohn’s disease is a long-term inflammatory bowel disease (IBD). It most commo
 
 > Life:
 > – standard case
-> 
+>
 > TPD/ CI / Medical insurance:
 – Decline case

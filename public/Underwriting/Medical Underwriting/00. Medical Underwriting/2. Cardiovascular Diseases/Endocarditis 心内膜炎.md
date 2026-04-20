@@ -18,7 +18,7 @@ An inflammation of the lining of the heart cavity (endocardium) and valves. It i
 > 1) From client / doctor
 > a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
 > b) Operation / surgical Procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -33,6 +33,6 @@ An inflammation of the lining of the heart cavity (endocardium) and valves. It i
 > Life / TPD:
 > - Depends on the outcomes of examination / reports.
 > - Sub-standard case provided full recovery
-> 
-> Cl / Medical insurance:
+>
+> CI / Medical insurance:
 > - Decline case

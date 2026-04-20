@@ -20,7 +20,7 @@ Although usually harmless, sometimes an arrhythmia increases your risk of a more
 
 > 1) From client / doctor
 > a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -31,5 +31,5 @@ Although usually harmless, sometimes an arrhythmia increases your risk of a more
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance
+> Life / TPD / CI / Medical insurance
 > - Depends on the outcomes of examination/reports & the actual underlying cause

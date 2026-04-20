@@ -7,21 +7,21 @@ Usually occur as a result of infection from bacteria or viruses. Rarely, swollen
 
 ![YouTube: Enlarged Lymph Node / Glands](https://youtu.be/dFrZD4oXvwM)
 
-## FREQUENTLY ASKE QUESTIONS
+## FREQUENTLY ASKED QUESTIONS
 
-> 1. ﻿﻿﻿Actual & date diagnosis ?
-> 2. ﻿﻿﻿Any investigation tests such biopsy (HPE), blood & urine tests etc...done ? If yes, please state the dates & results.
-> 3. ﻿﻿﻿Any operation / removal done ? If yes, please state the date & type of operation/removal.
-> 4. ﻿﻿﻿On medication / treatment? If yes, what type & period of treatment.
-> 5. ﻿﻿﻿Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 6. ﻿﻿﻿Fully recovered ?
+> 1. Actual & date diagnosis ?
+> 2. Any investigation tests such biopsy (HPE), blood & urine tests etc...done ? If yes, please state the dates & results.
+> 3. Any operation / removal done ? If yes, please state the date & type of operation/removal.
+> 4. On medication / treatment? If yes, what type & period of treatment.
+> 5. Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
+> 6. Fully recovered ?
 
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> a) ﻿﻿﻿Any relevant reports / results such as blood / urine / scan test, biopsy (HPE) ?
-> b) ﻿﻿﻿Operation / removal report if performed.
-> 
+> a) Any relevant reports / results such as blood / urine / scan test, biopsy (HPE) ?
+> b) Operation / removal report if performed.
+>
 > 2) KIV - Medical examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -34,9 +34,9 @@ Usually occur as a result of infection from bacteria or viruses. Rarely, swollen
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD:
-> - ﻿﻿Depends on the outcomes of HPE / reports.
-> - ﻿﻿Standard case provided investigation tests showed negative result.
-> 
-> Cl / Medical insurance:
-> - ﻿﻿Depends on the outcomes of examination / reports.
-> - ﻿﻿Postpone if no confirm diagnosis established
+> - Depends on the outcomes of HPE / reports.
+> - Standard case provided investigation tests showed negative result.
+>
+> CI / Medical insurance:
+> - Depends on the outcomes of examination / reports.
+> - Postpone if no confirm diagnosis established

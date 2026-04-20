@@ -18,16 +18,16 @@ A person may be able to increase their platelet count naturally by consuming foo
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test.... ?
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have thrombocyopenia dd/mm/yy by Dr xxx of yy hospital. Investigation reports done on dd/mm/yy is attached.  
+> Diagnosed to have thrombocyopenia dd/mm/yy by Dr xxx of yy hospital. Investigation reports done on dd/mm/yy is attached.
 > On medical treatment.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / CI / Medical insurance:  
-> - Depends on the outcomes of reports.  
+> Life / TPD / CI / Medical insurance:
+> - Depends on the outcomes of reports.
 > - KIV postpone if due to unknown cause / severe case

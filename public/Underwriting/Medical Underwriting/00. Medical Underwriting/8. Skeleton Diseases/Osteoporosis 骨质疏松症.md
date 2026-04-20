@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 It is a disease that weakens bones, and if you have it, you are at a greater risk for sudden and unexpected bone fractures. Osteoporosis means that you have less bone mass and strength.
 
@@ -16,9 +16,9 @@ It is a disease that weakens bones, and if you have it, you are at a greater ris
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 
@@ -30,6 +30,6 @@ It is a disease that weakens bones, and if you have it, you are at a greater ris
 
 > Life:
 > – standard case
-> 
+>
 > TPD / CI / Medical insurance:
 – Exclusion

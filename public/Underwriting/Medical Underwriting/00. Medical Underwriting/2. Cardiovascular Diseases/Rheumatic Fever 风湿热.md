@@ -16,9 +16,9 @@ Rheumatic fever is an inflammatory disease that can affect many connective tissu
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> a) Any latest relevant reports / results such as blood / urine / scan test, ECG, Echocardiagram... ?
+> a) Any latest relevant reports / results such as blood / urine / scan test, ECG, Echocardiogram... ?
 > b) Operation / procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -30,5 +30,5 @@ Rheumatic fever is an inflammatory disease that can affect many connective tissu
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance
+> Life / TPD / CI / Medical insurance
 > - Not insurable if have some degree of valve damage

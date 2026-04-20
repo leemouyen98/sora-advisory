@@ -13,7 +13,7 @@ Are caused by a wide variety of germs, and symptoms can vary from mild to seriou
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan, MRI, biopsy (HPE), blood & urine tests etc...done ? If yes, please state the dates & results.
-> 3) On medication / treatment ? If yes, what type & period of treatment.  
+> 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 > 5) Fully recovered ?
 
@@ -21,16 +21,16 @@ Are caused by a wide variety of germs, and symptoms can vary from mild to seriou
 
 > 1) From client / doctor
 > a) Any relevant reports / results such as blood / urine / scan test, biopsy (HPE) ?
-> 
+>
 > 1) KIV – Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have urticardia on dd/mm/yy by Dr xxx of yy Clinic xxx. 
-> Medication given for 3 days, only 1 time follow up dated dd/mm/yy 
+> Diagnosed to have urticardia on dd/mm/yy by Dr xxx of yy Clinic xxx.
+> Medication given for 3 days, only 1 time follow up dated dd/mm/yy
 > Fully recovered since.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI / Medical insurance:
 > - Standard case provided investigation tests showed negative result & fully recovered.

@@ -11,26 +11,26 @@ Symptoms of a migraine attack may include heightened sensitivity to light and so
 ## EXAMPLE CASE OF HOSPITAL ADMISSION
 
 > ACUTE MIGRAINE IN ONE OF PRIVATE HOSPITAL ON SEPTEMBER 2017 (3 DAYS ADMISSION) IN SEREMBAN, NEGERI SEMBILAN.
-> 
+>
 > — TOTAL MEDICAL COST = RM2,600 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 3) On medication / treatment ? If yes, what type & period of treatment. 
+> 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -39,10 +39,10 @@ Symptoms of a migraine attack may include heightened sensitivity to light and so
 > CT scan, chest x-ray, blood & urine test were done on dd/mm/yy. Reports are attached here.
 > Medical follow up was required from time to time.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD:
-> – Standard case provided under good control.  
+> – Standard case provided under good control.
 >
 > CI / Medical insurance:
 > – Exclusion in medical insurance.

@@ -1,4 +1,4 @@
-#Medical_Underwriting/Mental_Diseases 
+#Medical_Underwriting/Mental_Diseases
 
 Is a developmental disability caused by differences in the brain. People with Autism spectrum disorder (ASD) often have problems with social communication and interaction, and restricted or repetitive behaviors or interests. People with ASD may also have different ways of learning, moving, or paying attention.
 
@@ -9,7 +9,7 @@ Untreated autism causes changes in brain function that make it more difficult f
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -17,7 +17,7 @@ Untreated autism causes changes in brain function that make it more difficult f
 
 > 1)  From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2)  Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,7 +29,7 @@ Untreated autism causes changes in brain function that make it more difficult f
 
 > Life:
 > – Decline / postpone / Sub-standard case depending on the severity of diagnosis
-> 
+>
 > TPD  / CI / Medical insurance:
 > – Decline case
 

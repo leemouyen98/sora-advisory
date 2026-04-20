@@ -6,19 +6,29 @@ Is a general term for a medical condition that keeps your thyroid from making th
 
 ![Thyroid Disease](https://youtu.be/qjHwOnV9K8A)
 
+## FREQUENTLY ASKED QUESTIONS
+
+> 1. Actual & date diagnosis ?
+> 2. Type of thyroid condition diagnosed (hypothyroidism / hyperthyroidism / thyroid nodule / goitre / thyroid cancer) ?
+> 3. Any investigation tests such as blood tests, ultrasound, thyroid function test (TFT) done ? If yes, please state the dates & results.
+> 4. Any operation / removal done ? If yes, please state the date & type of operation.
+> 5. On medication / treatment ? If yes, what type & period of treatment.
+> 6. Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
+> 7. Fully recovered / condition stable ?
+
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine / scan test ? 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine / scan test ?
 > b) Surgery / removal report if performed.
 > c) Thyroid Questionnaire by applicant
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
 > Noticed to have slight swelling of neck during routine medical check up on dd/mm/yy. Seen by Dr xxx of yy Hospital. Suspected viral fever
-> Blood & urine test were done on dd/mm/yy. Reports are attached here. 
+> Blood & urine test were done on dd/mm/yy. Reports are attached here.
 > Short course of medication. Fully recovered since.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

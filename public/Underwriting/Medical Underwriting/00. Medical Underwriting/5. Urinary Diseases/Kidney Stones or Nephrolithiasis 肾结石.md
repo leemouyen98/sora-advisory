@@ -18,10 +18,10 @@ Also called renal calculi, nephrolithiasis or urolithiasis; are hard deposits ma
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine FEME / scan test ? 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine FEME / scan test ?
 > b) Surgery / removal report if performed.
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -33,6 +33,6 @@ Also called renal calculi, nephrolithiasis or urolithiasis; are hard deposits ma
 
 > Life / TPD / CI:
 > – Standard case if no complications
-> 
+>
 > Medical insurance:
 > – Exclusion

@@ -13,12 +13,12 @@ Glomerulonephritis can come on suddenly (acute) or gradually (chronic).
 > 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 > 5) Fully recovered ?
- 
+
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood (renal function test) / urine FEME / Ultrasound scan test ?
-> 
+>
 > 2) Medical Examination & Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE

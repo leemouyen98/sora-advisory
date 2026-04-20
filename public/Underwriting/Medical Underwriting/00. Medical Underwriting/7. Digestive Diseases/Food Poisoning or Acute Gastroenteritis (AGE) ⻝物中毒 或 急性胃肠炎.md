@@ -8,20 +8,20 @@ An illness affecting the digestive system that results from eating food that is 
 
 > ACUTE FOOD POISONING / ACUTE GASTROENTERITIS (AGE) IN ONE OF PRIVATE HOSPITAL ON MARCH 2020 ( 1 DAYS ADMISSION) IN KUALA LUMPUR.
 > — TOTAL MEDICAL COST = RM3,100 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 # EXAMPLE CASE OF HOSPITAL ADMISSION 2
 
 > ACUTE GASTROENTERITIS (AGE) + OGDS + COLONOSCOPY; IN ONE OF PRIVATE HOSPITAL ON JANUARY 2022 ( 1 DAYS ADMISSION) IN KUCHING, SARAWAK.
 > — TOTAL MEDICAL COST = RM4,300 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 # FREQUENTLY ASKED QUESTIONS
@@ -33,9 +33,9 @@ An illness affecting the digestive system that results from eating food that is 
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) KIV Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -47,6 +47,6 @@ An illness affecting the digestive system that results from eating food that is 
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Standard case provided causes has been established

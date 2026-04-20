@@ -16,9 +16,9 @@ There are currently no medicines to treat the mumps virus. The infection usually
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) KIV Medical attendant report (MAR) / Attending physician statement (APS)
 # EXAMPLE OF DISCLOSURE
 
@@ -28,6 +28,6 @@ There are currently no medicines to treat the mumps virus. The infection usually
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Standard case if full recovery

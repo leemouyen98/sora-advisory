@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Is an inner ear problem that can cause dizzy spells, also called vertigo, and hearing loss. Most of the time, Meniere’s disease affects only one ear. Meniere’s disease can happen at any age. The exact cause of Ménière’s disease is unknown, but it’s thought to be caused by a problem with pressure deep inside the ear. 
 
@@ -11,7 +11,7 @@ No cure exists for Meniere’s disease. Some treatments can help lessen how bad 
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such audiometry,  blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such audiometry,  blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -19,7 +19,7 @@ No cure exists for Meniere’s disease. Some treatments can help lessen how bad 
 
 > 1)  From client / doctor
 > a)  Any relevant reports such as blood / urine / audiometry test ?
-> 
+>
 > 2)  Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -31,6 +31,6 @@ No cure exists for Meniere’s disease. Some treatments can help lessen how bad 
 
 > Life / TPD / CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

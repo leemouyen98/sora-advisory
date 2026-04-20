@@ -16,28 +16,28 @@ Medications are often the most effective way to treat gout attacks and prevent r
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such blood & urine tests etc... ? If yes, please
-> state the dates & results.  
+> state the dates & results.
 > 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine / scan test ? 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine / scan test ?
 > b) Gout Questionnaire from applicant & attending Doctor
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have gout on dd/mm/yy, seen by Dr xxx of yy Clinic. 
-> Blood & urine test were done on dd/mm/yy. Reports are attached here. 
+> Diagnosed to have gout on dd/mm/yy, seen by Dr xxx of yy Clinic.
+> Blood & urine test were done on dd/mm/yy. Reports are attached here.
 > On medication currently.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD /CI:
 > – Standard in Life coverage, provided have normal results.
-> 
+>
 > Medical insurance:
 > – Standard case if asymptomatic (no symptoms of disability) – Otherwise, KIV Exclusion

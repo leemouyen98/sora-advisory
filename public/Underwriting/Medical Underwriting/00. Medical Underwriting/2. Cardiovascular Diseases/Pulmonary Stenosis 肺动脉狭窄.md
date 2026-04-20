@@ -17,7 +17,7 @@ Treatment options for pulmonary stenosis include open-heart surgery or balloon a
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiagram.... ?
+> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
 > b) Surgery / Procedures report if performed.
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
@@ -26,7 +26,9 @@ Treatment options for pulmonary stenosis include open-heart surgery or balloon a
 > Diagnosed to have pulmonary stenosis on dd/mm/yy. currently on medication & on regular medical follow up. No surgery needed yet.
 > Echocardiogram, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
 
-## EXAMPLE OF DISCLOSURE
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Diagnosed to have pulmonary stenosis on dd/mm/yy. currently on medication & on regular medical follow up. No surgery needed yet.
-> Echocardiogram, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
+> Life / TPD / CI / Medical insurance:
+> - Depends on the severity (mild / moderate / severe) and outcomes of investigation reports.
+> - Mild cases with no symptoms and normal heart function: Standard or rated.
+> - Moderate to severe cases or post-surgical: Rated, exclusion, or postponed depending on current cardiac status.

@@ -12,10 +12,10 @@ relievers called non-steroid anti-inflammatory drugs (NSAIDs)
 
 > SEVERE GASTRITIS WITH GERD OGDS HAS BEEN PERFORMED IN ONE OF PRIVATE HOSPITAL ON FEBRUARY 2022 (2 DAYS ADMISSION) IN IPOH, PERAK.
 > — TOTAL MEDICAL COST = RM3,300 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 # FREQUENTLY ASKED QUESTIONS
@@ -27,10 +27,10 @@ relievers called non-steroid anti-inflammatory drugs (NSAIDs)
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine / scan test ? 
-> b) Gastritis Questionnaire from applicant & attending doctor 
-> 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine / scan test ?
+> b) Gastritis Questionnaire from applicant & attending doctor
+>
 > 2) KIV Medical Examination
 
 # EXAMPLE OF DISCLOSURE
@@ -43,7 +43,7 @@ Fully recovered after 1 week of medication.
 
 > Life / TPD / CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Standard case provided no history of admission, no complications & less than 5 attacks in 1 year
 > – Otherwise; Exclusion

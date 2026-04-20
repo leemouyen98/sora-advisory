@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Most often begins in early childhood. It is sometimes called crossed-eyes, walleye, or squint. Normally, the muscles attached to each eye work together to move both eyes in the same direction at the same time. Strabismus occurs when the eye muscles don’t work properly to control eye movement.
 
@@ -9,7 +9,7 @@ The cause could be congenital or acquired.
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -27,6 +27,6 @@ The cause could be congenital or acquired.
 
 > Life / TPD / CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

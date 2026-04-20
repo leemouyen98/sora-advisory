@@ -1,4 +1,4 @@
-#Medical_Underwriting/Mental_Diseases 
+#Medical_Underwriting/Mental_Diseases
 
 The state produced by loss of awareness of space, time or personality. Occurs when you are confused about the time, where you are or even who you are.
 
@@ -9,7 +9,7 @@ It can be the result of drugs, anxiety or organic disease.
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -17,9 +17,9 @@ It can be the result of drugs, anxiety or organic disease.
 
 > 1) From client / doctor
 >  a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 
+>
 ## EXAMPLE OF DISCLOSURE
 
 > Diagnosed to have disorientation on dd/mm/yy, seen by Dr xxx of yy Hospital.

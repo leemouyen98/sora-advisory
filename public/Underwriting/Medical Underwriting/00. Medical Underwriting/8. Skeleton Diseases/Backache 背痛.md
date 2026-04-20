@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 A common cause of back pain is an injury like a pulled muscle (strain). Sometimes, medical conditions like a slipped disc, sciatica (a trapped nerve) or ankylosing spondylitis can cause back pain.
 
@@ -10,10 +10,10 @@ Most back pain will subside after a few days, but if you’ve been experiencing
 
 > LOW BACKACHE, POST TRAUMA SOFT TISSUE INJURY WITH MRI /  CT SPINE SCAN HAS BEEN PERFORMED IN ONE OF PRIVATE HOSPITAL ON AUGUST 2017 (11 DAYS ADMISSION) IN KUALA LUMPUR.
 > — TOTAL MEDICAL COST = RM14,200 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 ## FREQUENTLY ASKED QUESTIONS
@@ -28,9 +28,9 @@ Most back pain will subside after a few days, but if you’ve been experiencing
 > 1)  From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
 > b)  Backache Questionnaire from applicant
-> 
-> 2)  Medical Examination  
-> 
+>
+> 2)  Medical Examination
+>
 > 3)  KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -42,7 +42,7 @@ Most back pain will subside after a few days, but if you’ve been experiencing
 
 > Life:
 > – Standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – Standard case If more than 1 year with no medical leave taken
 > – If not, exclusion

@@ -15,9 +15,9 @@ If you vomit blood and also have a burning or gnawing pain in your tummy, the mo
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE

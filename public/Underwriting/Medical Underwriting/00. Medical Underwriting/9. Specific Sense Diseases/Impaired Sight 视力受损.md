@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Means that a person’s eyesight cannot be corrected to a “normal” level. Vision impairment may be caused by a loss of visual acuity, where the eye does not see objects as clearly as usual. Some people are completely blind, but many others have what’s called legal blindness.
 
@@ -18,7 +18,7 @@ Means that a person’s eyesight cannot be corrected to a “normal” level. V
 > 1. From client / doctor:
 > a)  Any relevant reports such as blood / urine / vision test ?
 > b) Surgery report if has been performed
-> 
+>
 > 2. KIV – Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE

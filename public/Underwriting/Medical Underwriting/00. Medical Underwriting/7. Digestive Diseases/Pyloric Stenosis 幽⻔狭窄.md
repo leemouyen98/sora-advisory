@@ -22,7 +22,7 @@ The causes of pyloric stenosis are unknown, but genetic and environmental factor
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scanning tests ?
 > b) Surgery report if performed.
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -34,6 +34,6 @@ The causes of pyloric stenosis are unknown, but genetic and environmental factor
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

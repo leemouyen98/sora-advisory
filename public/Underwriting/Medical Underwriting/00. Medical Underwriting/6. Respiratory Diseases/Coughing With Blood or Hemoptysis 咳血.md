@@ -16,17 +16,17 @@ Refers to coughing or spitting up of blood or bloody mucus from your respiratory
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
 > Diagnosed to have hemoptysis due to chest infection on dd/mm/yy by Dr xxx of yy Hospital.
-> Scanning, blood & urine test done on dd/mm/yy is attached. 
+> Scanning, blood & urine test done on dd/mm/yy is attached.
 > On medical follow up currently.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI / Medical insurance:
-> – Depends on the outcomes of examination / reports.  
+> – Depends on the outcomes of examination / reports.
 > – KIV postpone / decline if the cause was due to lung disorder

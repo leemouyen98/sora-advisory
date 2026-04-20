@@ -19,7 +19,7 @@ It may result from chest trauma, excess pressure on the lungs or a lung disease,
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
 > b) Surgery report if performed.
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE

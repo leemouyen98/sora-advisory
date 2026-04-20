@@ -13,9 +13,9 @@ RUBBER BANDING OF HAEMORRHOIDS + COLONOSCOPY
 : RM2,500 – RM3,000
 
 NOTE :
-Under normal circumstances without complication involved.  
-All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-Sources from various medical bills 2015 & 2023.  
+Under normal circumstances without complication involved.
+All cost quoted is on estimated basis, it may not fully represent the actual cost.
+Sources from various medical bills 2015 & 2023.
 All information disclosed in this page serves as references only.
 
 ![Rubber Banding Of Haemorrhoids](https://youtu.be/GwXLbuBxuTA)
@@ -24,11 +24,11 @@ All information disclosed in this page serves as references only.
 
 > STAPLED HAEMORRHOIDOPEXY + COLONOSCOPY
 > : RM11,000 – RM13,000
-> 
+>
 > NOTE :
-> Under normal circumstances without complication involved.  
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> Under normal circumstances without complication involved.
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 ![Stapled Haemorrhoidopexy](https://youtu.be/lyN2JbS_O1E)
@@ -37,10 +37,10 @@ All information disclosed in this page serves as references only.
 
 > THROMBOSED HAEMORRHOID & RECTAL MUCOSAL PROLAPSED + SUBMUCOSAL LASER ABLATION + FIBREOPTIC COLONOSCOPY WITH EXCISION + FIXATION OF RECTUM FOR PROLAPSE + HAEMORRHOIDECTOMY + ANORECTAL STRETCH (EUA & SIGMOIDOSCOPY) IN ONE OF PRIVATE HOSPITAL ON FEBRUARY 2021 (3 DAYS ADMISSION) IN IPOH, PERAK.
 > — TOTAL MEDICAL COST = RM23,100 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 # FREQUENTLY ASKED QUESTIONS
@@ -55,7 +55,7 @@ All information disclosed in this page serves as references only.
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
 > b) Surgery report if performed.
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -67,6 +67,6 @@ All information disclosed in this page serves as references only.
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

@@ -11,14 +11,22 @@ Immerse you in cold water. A bath of cold or ice water has been proved to be the
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 3) On medication / treatment ? If yes, what type & period of treatment. 
+> 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
+
+## COMMON REQUIREMENTS
+
+> 1) From client / doctor
+> a) Any relevant reports / results such as blood / urine / scan test ?
+> b) Hospital admission / discharge summary if hospitalised.
+>
+> 2) KIV - Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
 > History of 1 episode of heat stroke on dd/mm/yy, seen by Dr xxx of yy clinic. Treatment done & fully recovered
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD/ CI / Medical insurance:
 > – Standard case provided no abnormality found

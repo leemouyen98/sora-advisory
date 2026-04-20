@@ -15,8 +15,8 @@ Is often described as an intense tightening in the chest, air hunger, difficulty
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiagram....?
-> 
+> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram....?
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ Is often described as an intense tightening in the chest, air hunger, difficulty
 
 > Life / TPD:
 > - Standard case provided due to minor illnesses.
-> 
-> Cl / Medical insurance:
+>
+> CI / Medical insurance:
 > - Exclusion in medical insurance if was due to asthma

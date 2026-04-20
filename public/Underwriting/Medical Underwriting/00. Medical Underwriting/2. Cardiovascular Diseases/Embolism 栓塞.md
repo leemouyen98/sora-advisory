@@ -17,7 +17,7 @@ The condition in which an embolus becomes lodged in an artery and obstructs its 
 > 1) From client / doctor
 > a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
 > b) Operation / surgical Procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,5 +29,5 @@ The condition in which an embolus becomes lodged in an artery and obstructs its 
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance:
+> Life / TPD / CI / Medical insurance:
 > - Decline case if was due to embolism of blood vessels

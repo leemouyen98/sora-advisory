@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Is a lack of vision.
 
@@ -19,7 +19,7 @@ Partial blindness means you have very limited vision. Complete blindness means y
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / vision test ?
-> 
+>
 > 2. Medical Examination
 
 ## EXAMPLE OF DISCLOSURE

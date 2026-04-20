@@ -10,7 +10,7 @@ Based on the history taken from the patient, the doctors recommend a Complete bl
 
 > ACUTE FEBRILE ILLNESS WITH HEPATITIS INFECTION IN ONE OF PRIVATE HOSPITAL ON SEPTEMBER 2020 (6 DAYS ADMISSION) IN JOHOR BAHRU, JOHOR.
 > — TOTAL MEDICAL COST = RM7,300 ++
-> 
+>
 > NOTE :
 > All cost quoted is on estimated basis, it may not fully represent the actual cost.
 > Sources from various medical bills 2015 & 2023.
@@ -28,12 +28,12 @@ Based on the history taken from the patient, the doctors recommend a Complete bl
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests
-> 
+>
 > 2) KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have fever on dd/mm/yy by Dr xxx of yy Hospital. 
+> Diagnosed to have fever on dd/mm/yy by Dr xxx of yy Hospital.
 > Fully recovered after 1 week of medication.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

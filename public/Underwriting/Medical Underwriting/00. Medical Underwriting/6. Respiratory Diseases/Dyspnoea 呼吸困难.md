@@ -18,13 +18,13 @@ Is most commonly caused by heart or lung conditions. Other causes include anemia
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
 > Noticed to have wheezing on dd/mm/yy by Dr xxx of yy Hospital, admitted for treatment of asthma. Discharged well with asthma medication.
-> Blood & urine test done on dd/mm/yy is attached. 
+> Blood & urine test done on dd/mm/yy is attached.
 > Medical follow up when necessary.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

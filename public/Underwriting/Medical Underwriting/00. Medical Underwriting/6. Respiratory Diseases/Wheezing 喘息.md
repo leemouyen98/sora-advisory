@@ -16,7 +16,7 @@ Is the shrill whistle or coarse rattle you hear when your airway is partially bl
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE

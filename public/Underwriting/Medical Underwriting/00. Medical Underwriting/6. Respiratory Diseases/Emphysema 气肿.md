@@ -1,4 +1,4 @@
-#Medical_Underwriting/Respiratory_Diseases 
+#Medical_Underwriting/Respiratory_Diseases
 
 Is a condition that involves damage to the walls of the air sacs (alveoli) of the lung. Alveoli are small, thin-walled, very fragile air sacs located in clusters at the end of the bronchial tubes deep inside the lungs. There are about 300 million alveoli in normal lungs.
 
@@ -18,12 +18,12 @@ Is a condition that involves damage to the walls of the air sacs (alveoli) of th
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have emphysema on dd/mm/yy by Dr xxx of yy Hospital. 
+> Diagnosed to have emphysema on dd/mm/yy by Dr xxx of yy Hospital.
 > On regular medical follow up currently.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

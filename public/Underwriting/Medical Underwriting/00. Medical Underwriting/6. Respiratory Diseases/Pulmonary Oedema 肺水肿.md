@@ -18,7 +18,7 @@ Pulmonary edema is often caused by congestive heart failure. When the heart is n
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE

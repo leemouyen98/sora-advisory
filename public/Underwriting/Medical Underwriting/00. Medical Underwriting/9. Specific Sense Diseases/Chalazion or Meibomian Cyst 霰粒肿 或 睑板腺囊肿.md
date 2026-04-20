@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 A swollen sebaccous gland in the eyelid, caused by chronic inflammation following blockage of the gland’s duct.  It is usually felt as a small firm lump in the upper or lower eyelid.
 
@@ -9,7 +9,7 @@ Treatment is by application of antibiotic ointments or surgical incision and cur
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 ## COMMON REQUIREMENTS
@@ -17,7 +17,7 @@ Treatment is by application of antibiotic ointments or surgical incision and cur
 > 1)  From client / doctor
 > a)  Any relevant reports such as blood / urine / vision test ?
 > b) Surgery report if has been performed
-> 
+>
 > 2)  KIV – Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ Treatment is by application of antibiotic ointments or surgical incision and cur
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Standard case if fully recovered

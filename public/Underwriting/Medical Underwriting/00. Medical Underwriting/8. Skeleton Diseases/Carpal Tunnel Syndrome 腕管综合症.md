@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Compression of the median nerve as it passes through the wrist. This causes pain and numbness in the index and middle fingers and weakness of the thumb.
 
@@ -17,7 +17,7 @@ Surgery for carpal tunnel syndrome is usually done as an outpatient. Two type
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
+>
 > 2. Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ Surgery for carpal tunnel syndrome is usually done as an outpatient. Two type
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

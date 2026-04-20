@@ -8,10 +8,10 @@ Is a viral infection that spreads from mosquitoes to people. It is more common i
 
 > DENGUE FEVER WITH DEHYDRATION IN ONE OF PRIVATE HOSPITAL ON AUGUST 2020 (7 DAYS ADMISSION) IN JOHOR BAHRU, JOHOR
 > — TOTAL MEDICAL COST = RM9,500 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 # FREQUENTLY ASKED QUESTIONS
@@ -23,9 +23,9 @@ Is a viral infection that spreads from mosquitoes to people. It is more common i
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) KIV Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -37,6 +37,6 @@ Is a viral infection that spreads from mosquitoes to people. It is more common i
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Standard case if full recovery

@@ -1,4 +1,4 @@
-#Medical_Underwriting/Brain_Nervous_Diseases 
+#Medical_Underwriting/Brain_Nervous_Diseases
 
 A complex, tangled web of arteries and veins where there is an abnormal connection between arteries and veins. Large AVM’s, also called angiomas, occur in males more often than in females.
 
@@ -25,7 +25,7 @@ Microsurgery is a term for the surgical resection of an AVM. This is a common tr
 > 1) From client / doctor
 >  a) Any relevant reports such as blood / urine / scan test ?
 > b) Surgery / removal report if performed.
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -39,6 +39,6 @@ Microsurgery is a term for the surgical resection of an AVM. This is a common tr
 
 > Life / TPD:
 > – Can be standard case provided surgery has been performed & no complication
-> 
+>
 > CI / Medical insurance
 > – Exclusion

@@ -1,4 +1,4 @@
-#Medical_Underwriting/Digestive_Diseases 
+#Medical_Underwriting/Digestive_Diseases
 
 The accumulation of fluid in the peritoneal cavity, causing abdominal swelling.
 
@@ -15,12 +15,12 @@ The accumulation of fluid in the peritoneal cavity, causing abdominal swelling.
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
-# EXAMPLE OF DISCLOSURE 
+# EXAMPLE OF DISCLOSURE
 
 > Diagnosed to ascitis on dd/mm/yy by Dr xxx of yy hospital. On medical follow up currently
 

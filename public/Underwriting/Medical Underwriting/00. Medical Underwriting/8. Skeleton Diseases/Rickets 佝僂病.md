@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Is the softening and weakening of bones in children, usually because of an extreme and prolonged vitamin D deficiency. Vitamin D helps your child’s body absorb calcium and phosphorus from food.
 
@@ -17,9 +17,9 @@ Most cases of rickets go away once your child gets enough vitamin D.
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -31,6 +31,6 @@ Most cases of rickets go away once your child gets enough vitamin D.
 
 > Life:
 > – standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – Exclusion

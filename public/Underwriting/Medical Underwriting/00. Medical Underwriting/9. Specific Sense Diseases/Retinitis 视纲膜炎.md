@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Is an inflammation of the retina, which can cause permanent vision loss. A number of microbes can cause retinitis, including Toxoplasma, Cytomegalovirus, Herpes zoster, Herpes simplex, and Candida.
 
@@ -8,10 +8,10 @@ Peripheral and central loss of vision will occur over time. People with retinit
 
 ![[Retinitis 01.png]]
 
-## FREQUENTLY ASKED QUESTIONS 
+## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -19,7 +19,7 @@ Peripheral and central loss of vision will occur over time. People with retinit
 
 > 1)  From client / doctor
 > a)  Any relevant reports such as blood / urine / vision test ?
-> 
+>
 > 2)  Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -31,6 +31,6 @@ Peripheral and central loss of vision will occur over time. People with retinit
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

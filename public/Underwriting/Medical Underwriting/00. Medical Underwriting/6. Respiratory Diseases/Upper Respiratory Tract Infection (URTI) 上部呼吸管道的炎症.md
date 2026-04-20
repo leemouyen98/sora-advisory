@@ -16,12 +16,12 @@ Affects the upper part of your respiratory system, including your sinuses and th
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests?
-> 
+>
 > 2) KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have URTI on dd/mm/yy by Dr xxx of yy Hospital. 
+> Diagnosed to have URTI on dd/mm/yy by Dr xxx of yy Hospital.
 > Fully recovered after 1 week of medication.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

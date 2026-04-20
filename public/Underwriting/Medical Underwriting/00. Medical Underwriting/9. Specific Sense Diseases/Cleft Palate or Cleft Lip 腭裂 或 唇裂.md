@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 The roof of the mouth (palate) is formed between the sixth and ninth weeks of pregnancy. A cleft palate happens if the tissue that makes up the roof of the mouth does not join together completely during pregnancy. For some babies, both the front and back parts of the palate are open.
 
@@ -11,7 +11,7 @@ The only way to repair a cleft palate is by surgery. The goal is to close the op
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such x-ray, blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such x-ray, blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  Any surgery has been performed ?
 > 4)  On medication / treatment ? If yes, what type & period of treatment.
 > 5)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
@@ -21,7 +21,7 @@ The only way to repair a cleft palate is by surgery. The goal is to close the op
 > 1)  From client / doctor
 > a)  Any relevant reports such as blood / urine / x ray / scan test ?
 > b)  Surgery report if has been performed
-> 
+>
 > 2)  Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -33,7 +33,7 @@ Fully recovered since.
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 – Exclusion
 

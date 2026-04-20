@@ -9,7 +9,7 @@ Is a condition in which the skin, whites of the eyes and mucous membranes turn y
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such endoscopy,  blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such endoscopy,  blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -17,7 +17,7 @@ Is a condition in which the skin, whites of the eyes and mucous membranes turn y
 
 > 1)  From client / doctor
 > a)  Any relevant reports such as blood (Liver function Test) / urine / scan test ?
-> 
+>
 > 2)  Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE

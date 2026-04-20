@@ -12,9 +12,9 @@ A condition in which bowel evacuations occur infrequently, or in which the faece
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -26,6 +26,6 @@ A condition in which bowel evacuations occur infrequently, or in which the faece
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Standard case provided causes has been established

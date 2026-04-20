@@ -17,7 +17,7 @@ Congenital heart defects are the most common type of birth defect. The defects c
 > 1) From client / doctor
 > a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram....?
 > b) Surgical Procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -27,6 +27,6 @@ Congenital heart defects are the most common type of birth defect. The defects c
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance:
+> Life / TPD / CI / Medical insurance:
 > - Depends on the outcomes of Chest X-ray, ECG, examination / reports
 > - Can be standard case provided Surgery has been performed & no heart complications

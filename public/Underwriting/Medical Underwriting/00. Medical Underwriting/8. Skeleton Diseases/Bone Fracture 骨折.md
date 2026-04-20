@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Is a break in the continuity of a bone. A significant percentage of bone fractures occur because of high force impact or stress. However, a fracture may also be the result of some medical conditions that weaken the bones. These include osteoporosis and some types of cancer.
 
@@ -15,9 +15,9 @@ Is a break in the continuity of a bone. A significant percentage of bone fractu
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ Is a break in the continuity of a bone. A significant percentage of bone fractu
 
 > Life:
 > – standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – KIV Exclusion, depends on the severity / residual impairment / complications

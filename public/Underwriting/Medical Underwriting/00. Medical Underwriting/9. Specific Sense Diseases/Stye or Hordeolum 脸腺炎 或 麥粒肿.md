@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Acute inflammation of a gland at the base of an eyelash, caused by bacterial infection. The gland becomes hard and tender and a pus-filled cyst develops at its centre. Styes are treated by bathing in warm water or removal of the eyelash involved.
 
@@ -7,7 +7,7 @@ Acute inflammation of a gland at the base of an eyelash, caused by bacterial inf
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -16,7 +16,7 @@ Acute inflammation of a gland at the base of an eyelash, caused by bacterial inf
 > 1)  From client / doctor
 > a)  Any relevant reports such as blood / urine / vision test ?
 > b) Surgery report if has been performed
-> 
+>
 > 2)  KIV – Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -28,6 +28,6 @@ Acute inflammation of a gland at the base of an eyelash, caused by bacterial inf
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Standard case if fully recovered

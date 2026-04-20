@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Is a type of degenerative joint disease that results from breakdown of joint cartilage and underlying bone. The most common symptoms are joint pain and stiffness. Other symptoms may include joint swelling, decreased range of motion, and, when the back is affected, weakness or numbness of the arms and legs.
 
@@ -16,9 +16,9 @@ Is a type of degenerative joint disease that results from breakdown of joint car
 ## COMMON REQUIREMENTS
 
 > 1. From client / doctor
-> 
+>
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
+>
 > 2. Medical Examination  / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -30,6 +30,6 @@ Is a type of degenerative joint disease that results from breakdown of joint car
 
 > Life:
 > – standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – Exclusion

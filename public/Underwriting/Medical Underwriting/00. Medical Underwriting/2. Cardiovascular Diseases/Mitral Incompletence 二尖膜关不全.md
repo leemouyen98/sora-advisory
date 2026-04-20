@@ -16,9 +16,9 @@ A failure of the mitral valve to close, allowing a reflux of blood from the left
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiagram.... ?
+> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
 > b) Surgery / Procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -27,5 +27,5 @@ A failure of the mitral valve to close, allowing a reflux of blood from the left
 > Echocardiogram, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
-> Life / TPD / Cl / Medical insurance:
+> Life / TPD / CI / Medical insurance:
 > - Decline case

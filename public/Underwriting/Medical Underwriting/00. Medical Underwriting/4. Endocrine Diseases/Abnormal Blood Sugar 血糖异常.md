@@ -13,9 +13,9 @@ Too much or too little glucose in the blood can be a sign of a serious medical c
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan tests ?
-> 
+>
 > 2) Medical Examination
 
 ## EXAMPLE OF DISCLOSURE
@@ -28,6 +28,6 @@ Too much or too little glucose in the blood can be a sign of a serious medical c
 
 > Life / TPD:
 > – Sub-standard case provided good control & no complications
-> 
+>
 > CI / Medical insurance:
 > – Decline case

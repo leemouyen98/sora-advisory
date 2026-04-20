@@ -20,13 +20,13 @@ You likely feel a sharp pain when you breathe, cough, or sneeze. The most common
 
 > 1) From client / doctor
 > a) Any relevant reports such as ECG, blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
 > History of 1 episode of chest pain on dd/mm/yy, seen Dr xxx of yy Hospital, ECG & chest X-ray have been performed but revealed normal results.
-> Scanning, blood & urine test done on dd/mm/yy is attached. 
+> Scanning, blood & urine test done on dd/mm/yy is attached.
 > Fully recovered since.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

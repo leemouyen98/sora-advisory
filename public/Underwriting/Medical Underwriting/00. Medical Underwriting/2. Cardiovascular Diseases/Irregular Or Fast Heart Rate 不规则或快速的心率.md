@@ -26,5 +26,5 @@ Is an uneven heartbeat. It means your heart is out of its usual rhythm. It may f
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance:
+> Life / TPD / CI / Medical insurance:
 > - Depends on the outcomes of examination/ reports & the actual underlying cause

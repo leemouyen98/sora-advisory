@@ -14,9 +14,9 @@ Is a whooshing, humming or rasping sound between the heartbeat sounds. This is c
 ## COMMON REQUIREMENTS
 
 > 1) From client / doctor
-> a) Any latest relevant reports / results such as blood / urine / scan test, ECG, Echocardiagram.... ?
+> a) Any latest relevant reports / results such as blood / urine / scan test, ECG, Echocardiogram.... ?
 > b) Operation / procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE

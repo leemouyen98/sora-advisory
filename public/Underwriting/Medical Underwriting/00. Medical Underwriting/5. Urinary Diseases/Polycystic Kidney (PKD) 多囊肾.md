@@ -24,15 +24,15 @@ What causes PKD? A gene mutation, or defect, causes PKD. In most PKD cases, a ch
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine / scan test ? 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine / scan test ?
 > b) Surgery / removal report if performed.
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have PKD on dd/mm/yy by Dr xxx of yy Hospital. Blood & urine test done on dd/mm/yy is attached.  
+> Diagnosed to have PKD on dd/mm/yy by Dr xxx of yy Hospital. Blood & urine test done on dd/mm/yy is attached.
 > On regular medical follow up
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

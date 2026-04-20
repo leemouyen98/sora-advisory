@@ -9,14 +9,14 @@ Is a neurological movement disorder. Common symptoms include tremor, slowness of
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 3) On medication / treatment ? If yes, what type & period of treatment. 
+> 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -25,7 +25,7 @@ Is a neurological movement disorder. Common symptoms include tremor, slowness of
 > CT scan, X-ray, blood & urine test were done on dd/mm/yy. Reports are attached here.
 > On medical follow up currently.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI / Medical insurance:
 > – Decline case

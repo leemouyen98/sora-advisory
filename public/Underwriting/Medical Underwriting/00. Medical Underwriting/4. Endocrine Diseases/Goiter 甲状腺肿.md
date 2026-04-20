@@ -19,25 +19,25 @@ Is a swelling of the thyroid gland that causes a lump in the front of the neck. 
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine / scan test ? 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine / scan test ?
 > b) Surgery / removal report if performed.
 > c) Thyroid Questionnaire by applicant
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
 > Diagnosed to have goitre on dd/mm/yy, admitted for 6 days & seen by Dr xxx of yy Hospital.
-> Surgery has been performed to remove the lump.  
-> Blood & urine test were done on dd/mm/yy. Reports are attached here. 
+> Surgery has been performed to remove the lump.
+> Blood & urine test were done on dd/mm/yy. Reports are attached here.
 > On medical follow up was required regularly.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD /CI:
 > – Depends on the outcomes of Diagnosis / examination / reports.
-> 
+>
 > Medical insurance:
 > – Standard case if total thyroidectomy has been performed, HPE / biopsy has confirmed Benign growth
 > – Otherwise; Exclusion / postpone

@@ -14,22 +14,22 @@ The most common causes appear to be chronic inflammation or injury. We perform a
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 3) Any surgery has been performed ? If yes, please state the date & type of operation.  
+> 3) Any surgery has been performed ? If yes, please state the date & type of operation.
 > 4) On medication / treatment ? If yes, what type & period of treatment.
 > 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine / scan test ? 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine / scan test ?
 > b) Surgery / removal report if performed.
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
 
 > Diagnosed to have Urethral stricture on dd/mm/yy by Dr xxx of yy Hospital, Repaired done removed on dd/mm/yy.
-> Blood & urine test done on dd/mm/yy is attached. 
+> Blood & urine test done on dd/mm/yy is attached.
 > Fully recovered since.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

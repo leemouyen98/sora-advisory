@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Inflammation of the conjuncyiva, which becomes red and swollen and produces a watery or pus containing discharge.
 
@@ -17,7 +17,7 @@ Pink eye is most often caused by a viral infection. It also can be caused by a b
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / vision test ?
-> 
+>
 > 2. KIV – Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -30,7 +30,7 @@ Pink eye is most often caused by a viral infection. It also can be caused by a b
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Standard case if fully recovered
 

@@ -13,9 +13,9 @@ Is the frequent passing of loose, watery and unformed faeces. Acute diarrhoea is
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 # EXAMPLE OF DISCLOSURE
 
@@ -26,6 +26,6 @@ Is the frequent passing of loose, watery and unformed faeces. Acute diarrhoea is
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Standard case provided causes has been established

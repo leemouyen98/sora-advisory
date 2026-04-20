@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 Is when you look at 1 object but can see 2 images. It may affect 1 eye or both eyes. Double vision isn’t something to ignore. While typically temporary, it may signal a serious problem, such as a brain aneurysm or stroke.
 
@@ -16,7 +16,7 @@ Is when you look at 1 object but can see 2 images. It may affect 1 eye or both 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / vision test ?
 > b) Surgery report if has been performed
-> 
+>
 > 2. KIV – Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE

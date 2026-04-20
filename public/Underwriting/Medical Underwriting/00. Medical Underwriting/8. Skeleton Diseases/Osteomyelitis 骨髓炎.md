@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Is inflammation or swelling that occurs in the bone. It can result from an infection somewhere else in the body that has spread to the bone, or it can start in the bone; often as a result of an injury. 
 
@@ -17,7 +17,7 @@ Osteomyelitis is a serious condition that requires immediate treatment. Most bo
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
+>
 > 2. Medical Examination  / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ Osteomyelitis is a serious condition that requires immediate treatment. Most bo
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

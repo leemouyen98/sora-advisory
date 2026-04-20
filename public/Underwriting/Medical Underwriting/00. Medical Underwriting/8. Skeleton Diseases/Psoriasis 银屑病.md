@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Is a skin disease that causes a rash with itchy, scaly patches, most commonly on the knees, elbows, trunk and scalp. Psoriasis is a common, long-term (chronic) disease with no cure. It can be painful, interfere with sleep and make it hard to concentrate.
 
@@ -19,9 +19,9 @@ Many people who have psoriasis also have serious health conditions such as diabe
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / scan test ?
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -33,6 +33,6 @@ Many people who have psoriasis also have serious health conditions such as diabe
 
 > Life:
 > – KIV sub-standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – Decline

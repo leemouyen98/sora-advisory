@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Is defined as a decrease in the size of a tissue or organ due to cellular shrinkage; the decrease in cell size is due to malnutrition, age, genetics, a lack of physical activity or certain medical conditions. 
 
@@ -17,9 +17,9 @@ An exercise program may help treat muscle atrophy. Exercises may include ones do
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -31,6 +31,6 @@ An exercise program may help treat muscle atrophy. Exercises may include ones do
 
 > Life:
 > – standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – Exclusion

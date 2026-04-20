@@ -15,13 +15,13 @@ The most common cause of laryngitis is a virus. Other types of infection (rare) 
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
 
 ## EXAMPLE OF DISCLOSURE
 
-> History of laryngitis on dd/mm/yy by Dr xxx of yy Hospital. Treated & discharged well after 3 days admission.  
-> Blood & urine test done on dd/mm/yy is attached. 
+> History of laryngitis on dd/mm/yy by Dr xxx of yy Hospital. Treated & discharged well after 3 days admission.
+> Blood & urine test done on dd/mm/yy is attached.
 > Medical follow up when necessary.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

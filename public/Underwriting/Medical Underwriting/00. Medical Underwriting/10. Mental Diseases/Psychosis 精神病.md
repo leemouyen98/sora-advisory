@@ -1,4 +1,4 @@
-#Medical_Underwriting/Mental_Diseases 
+#Medical_Underwriting/Mental_Diseases
 
 Refers to a collection of symptoms that affect the mind, where there has been some loss of contact with reality. During an episode of psychosis, a person’s thoughts and perceptions are disrupted and they may have difficulty recognizing what is real and what is not.
 
@@ -11,7 +11,7 @@ Psychosis can be treated, and many people make a good recovery, especially if th
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -19,7 +19,7 @@ Psychosis can be treated, and many people make a good recovery, especially if th
 
 > 1)  From client / doctor
 >  a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2)  Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE

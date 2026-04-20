@@ -15,9 +15,9 @@ Is a ulcer that develops in the first part of the small intestine (duodenum). Co
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ Is a ulcer that develops in the first part of the small intestine (duodenum). Co
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

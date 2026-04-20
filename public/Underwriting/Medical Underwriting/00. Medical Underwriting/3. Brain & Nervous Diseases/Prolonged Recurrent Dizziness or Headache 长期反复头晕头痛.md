@@ -22,10 +22,10 @@ Vestibular dysfunction. This is one of the most common causes of dizziness. Your
 
 > ACUTE HEADACHE + CT BRAIN IN ONE OF PRIVATE HOSPITAL ON DECEMBER 2022 (3 DAYS ADMISSION) IN SITIAWAN, PERAK.
 > — TOTAL MEDICAL COST = RM4,100 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 ## FREQUENTLY ASKED QUESTIONS
@@ -37,9 +37,9 @@ Vestibular dysfunction. This is one of the most common causes of dizziness. Your
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -47,7 +47,7 @@ Vestibular dysfunction. This is one of the most common causes of dizziness. Your
 > History of 1 episode of headache on dd/mm/yy, seen by Dr xxx of yy Hospital. Investigation tests done & revealed was due to normal headache.
 > On short course of pain killer medication Fully recovered.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD/ CI / Medical insurance:
 > – Standard case provided no abnormality found

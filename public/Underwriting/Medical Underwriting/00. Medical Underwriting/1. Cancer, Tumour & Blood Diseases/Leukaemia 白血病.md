@@ -19,10 +19,10 @@ Is the general name given to a group of cancers that develop in the bone marrow.
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have leukaemia dd/mm/yy by Dr xxx of yy hospital. Investigation reports done on dd/mm/yy is attached.  
+> Diagnosed to have leukaemia dd/mm/yy by Dr xxx of yy hospital. Investigation reports done on dd/mm/yy is attached.
 > On regular medical follow up
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD/ CI / Medical insurance:
 > - Not insurable

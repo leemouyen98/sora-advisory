@@ -10,10 +10,10 @@ Also known as gastric ulcers, are open sores that develop on the lining of the s
 
 > ACUTE GASTRIC ULCER + COLITIS – OGDS + COLONOSCOPY IN ONE OF PRIVATE HOSPITAL ON SEPTEMBER 2020 (6 DAYS ADMISSION) IN JOHOR BAHRU, JOHOR.
 > — TOTAL MEDICAL COST = RM8,500 ++
-> 
+>
 > NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 # FREQUENTLY ASKED QUESTIONS
@@ -24,9 +24,9 @@ Also known as gastric ulcers, are open sores that develop on the lining of the s
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -38,6 +38,6 @@ Also known as gastric ulcers, are open sores that develop on the lining of the s
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

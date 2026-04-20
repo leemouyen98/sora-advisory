@@ -15,9 +15,9 @@ A condition in which the action of swallowing is either difficult to perform or 
 
 # COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 # EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ A condition in which the action of swallowing is either difficult to perform or 
 
 > Life / TPD/ CI:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Standard case provided causes has been established

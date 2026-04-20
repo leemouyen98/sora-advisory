@@ -18,12 +18,12 @@ If the cause is a viral infection, pleurisy may go away on its own. The pain and
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
-> Diagnosed to have pleurisy on dd/mm/yy by Dr xxx of yy Hospital. 
+> Diagnosed to have pleurisy on dd/mm/yy by Dr xxx of yy Hospital.
 > Fully recovered after 1 week of medication.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES

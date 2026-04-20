@@ -1,4 +1,4 @@
-#Medical_Underwriting/Mental_Diseases 
+#Medical_Underwriting/Mental_Diseases
 
 Is a genetic condition where a person is born with an extra copy of chromosome 21. This means that they have a total of 47 chromosomes instead of 46. This can affect how their brain and body develop. People diagnosed with Down syndrome have happy and healthy lives with supportive care.
 
@@ -11,7 +11,7 @@ Children with Down syndrome have a higher incidence of infection, respiratory, v
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1) Actual & date diagnosis ?
-> 2) Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2) Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results.
 > 3) On medication / treatment ? If yes, what type & period of treatment.
 > 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -19,7 +19,7 @@ Children with Down syndrome have a higher incidence of infection, respiratory, v
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -31,6 +31,6 @@ Children with Down syndrome have a higher incidence of infection, respiratory, v
 
 > Life:
 > – Decline / postpone / Sub-standard case depending on the severity of diagnosis
-> 
+>
 > TPD  / CI / Medical insurance:
 – Decline case

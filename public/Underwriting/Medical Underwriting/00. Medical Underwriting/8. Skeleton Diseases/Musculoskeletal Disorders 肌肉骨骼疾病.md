@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Are injuries or disorders of the muscles, nerves, tendons, joints, cartilage, and spinal discs. Work-related musculoskeletal disorders (WMSD) are conditions in which: The work environment and performance of work contribute significantly to the condition.
 
@@ -15,9 +15,9 @@ Are injuries or disorders of the muscles, nerves, tendons, joints, cartilage, a
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
-> 2. Medical Examination  
-> 
+>
+> 2. Medical Examination
+>
 > 3. KIV – Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -29,6 +29,6 @@ Are injuries or disorders of the muscles, nerves, tendons, joints, cartilage, a
 
 > Life:
 > – standard case
-> 
+>
 > TPD / CI / Medical insurance:
 > – KIV Exclusion, depends on the severity / residual impairment / complications

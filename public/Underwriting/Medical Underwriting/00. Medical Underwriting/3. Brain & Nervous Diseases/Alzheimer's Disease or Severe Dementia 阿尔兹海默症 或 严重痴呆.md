@@ -14,9 +14,9 @@ Is the most common type of dementia. It is a progressive disease beginning with 
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -25,7 +25,7 @@ Is the most common type of dementia. It is a progressive disease beginning with 
 > CT scan, X-ray, blood & urine test were done on dd/mm/yy. Reports are attached here.
 > On medical follow up currently.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI / Medical insurance:
 > – Decline case

@@ -4,7 +4,7 @@ A condition in which there is great loss of protein in the urine, reduced levels
 
 Nephrotic syndrome is a group of symptoms that show that your kidneys are not working as well as they should. While the prognosis is usually quite good, nephrotic syndrome can become severe and even potentially life- threatening, if left untreated. The degree of severity depends on the underlying cause.
 
-![[Nephrotis Syndrome 01.png]]![[Nephrotis Syndrome 02.png]]
+![[Nephrotic Syndrome 01.png]]![[Nephrotic Syndrome 02.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 
@@ -18,7 +18,7 @@ Nephrotic syndrome is a group of symptoms that show that your kidneys are not wo
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood (renal function test) / urine FEME / Ultrasound scan test ?
-> 
+>
 > 2) Medical Examination & Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE

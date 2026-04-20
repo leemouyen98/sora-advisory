@@ -1,4 +1,4 @@
-#Medical_Underwriting/Digestive_Diseases 
+#Medical_Underwriting/Digestive_Diseases
 
 Occurs when your body loses more fluid than you take in. When the normal water content of your body is reduced, it upsets the balance of minerals (salts and sugar) in your body, which affects the way it functions. Water makes up over two-thirds of the healthy human body.
 
@@ -13,7 +13,7 @@ Occurs when your body loses more fluid than you take in. When the normal water c
 
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) KIV Medical attendant report (MAR) / Attending physician
 > statement (APS)
 
@@ -26,6 +26,6 @@ Occurs when your body loses more fluid than you take in. When the normal water c
 
 > Life / TPD/ CI:
 > - Standard case
-> 
+>
 > Medical insurance:
 > - Standard case provided causes has been established

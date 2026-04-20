@@ -18,20 +18,20 @@ This causes a reduction of the carbon dioxide concentration of arterial blood. T
 
 > 1) From client / doctor
 > a) Any relevant reports such as ECG, blood / urine / chest X-ray, scan tests ?
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
 
 > History of hyperventilation on dd/mm/yy, seen by Dr xxx of yy Hospital,
-> admitted for further check up. Treated & d  
-> Blood & urine test done on dd/mm/yy is attached. 
+> admitted for further check up. Treated & d
+> Blood & urine test done on dd/mm/yy is attached.
 > Fully recovered since.
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
 > Life / TPD / CI / Medical insurance:
 > – Standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

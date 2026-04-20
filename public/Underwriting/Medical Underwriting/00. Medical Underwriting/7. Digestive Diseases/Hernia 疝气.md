@@ -17,13 +17,13 @@ Sometimes the muscle weakness is present at birth; more often, it occurs later i
 
 # ESTIMATED RANGE OF MEDICAL COST IN ONE OF PRIVATE HOSPITALS IN IPOH, PERAK
 
-> HERNIORAPPHY  
+> HERNIORAPPHY
 > : RM8,000 – RM10,000
-> 
+>
 > NOTE :
-> Under normal circumstances without complication involved.  
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> Under normal circumstances without complication involved.
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 # FREQUENTLY ASKED QUESTIONS
@@ -38,7 +38,7 @@ Sometimes the muscle weakness is present at birth; more often, it occurs later i
 > 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ?
 > b) Surgery report if performed.
-> 
+>
 > 2) Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 # EXAMPLE OF DISCLOSURE
@@ -50,6 +50,6 @@ Sometimes the muscle weakness is present at birth; more often, it occurs later i
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

@@ -33,7 +33,7 @@ A hole in the partition(septum) between the left and right halves of the heart. 
 
 ## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / Cl / Medical insurance:
+> Life / TPD / CI / Medical insurance:
 > - Standard case if is the spontaneous closure & confirmed by latest
 > Echocargiogram
 > - Standard case provided Surgery has been performed more than 3 years & no heart complications

@@ -1,4 +1,4 @@
-#Medical_Underwriting/Specific_Sense_Diseases 
+#Medical_Underwriting/Specific_Sense_Diseases
 
 A condition in which loss of vision occurs because of an abnormally high pressure in the eye.
 
@@ -20,7 +20,7 @@ Surgery can’t cure glaucoma or undo vision loss, but it can help protect your 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / vision test ?
 > b) Surgery report if has been performed
-> 
+>
 > 2. KIV – Medical Examination
 
 ## EXAMPLE OF DISCLOSURE

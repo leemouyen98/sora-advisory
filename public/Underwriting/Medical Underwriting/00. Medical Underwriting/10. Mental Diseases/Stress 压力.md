@@ -1,4 +1,4 @@
-#Medical_Underwriting/Mental_Diseases 
+#Medical_Underwriting/Mental_Diseases
 
 Is the feeling of being overwhelmed or unable to cope with mental or emotional pressure. Stress is not an illness itself, but it can lead to you becoming unwell. For example, if stress lasts for a long time it can lead to anxiety and depression.
 
@@ -7,7 +7,7 @@ Is the feeling of being overwhelmed or unable to cope with mental or emotional 
 ## FREQUENTLY ASKED QUESTIONS
 
 > 1)  Actual & date diagnosis ?
-> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results. 
+> 2)  Any investigation tests such scanning, blood & urine tests etc… ? If yes, please state the dates & results.
 > 3)  On medication / treatment ? If yes, what type & period of treatment.
 > 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
@@ -15,7 +15,7 @@ Is the feeling of being overwhelmed or unable to cope with mental or emotional 
 
 > 1) From client / doctor
 >  a) Any relevant reports such as blood / urine / scan test ?
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -27,7 +27,7 @@ Is the feeling of being overwhelmed or unable to cope with mental or emotional 
 
 > Life:
 > – Decline / postpone / Sub-standard case depending on the severity of diagnosis
-> 
+>
 > TPD  / CI / Medical insurance:
 > – Decline case
 

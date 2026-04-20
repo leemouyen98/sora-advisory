@@ -26,7 +26,7 @@ Varicose veins are enlarged or twisted superficial veins, those of the leg being
 > 1) From client / doctor
 > a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
 > b) Operation / surgical Procedures report if performed.
-> 
+>
 > 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -39,6 +39,6 @@ Varicose veins are enlarged or twisted superficial veins, those of the leg being
 
 > Life / TPD/ CI:
 > - standard case
-> 
+>
 > Medical insurance:
 > - Exclusion

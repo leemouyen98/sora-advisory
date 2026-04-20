@@ -16,8 +16,8 @@ Occurs when the blood supply to part of your brain is interrupted or reduced, pr
 >— TOTAL MEDICAL COST = RM10,900 ++
 >
 >NOTE :
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.  
-> Sources from various medical bills 2015 & 2023.  
+> All cost quoted is on estimated basis, it may not fully represent the actual cost.
+> Sources from various medical bills 2015 & 2023.
 > All information disclosed in this page serves as references only.
 
 ## FREQUENTLY ASKED QUESTIONS
@@ -25,14 +25,14 @@ Occurs when the blood supply to part of your brain is interrupted or reduced, pr
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
 > 3) Any surgery has been performed ? If yes, please state the date & type of operation.
-> 4) On medication / treatment ? If yes, what type & period of treatment. 
+> 4) On medication / treatment ? If yes, what type & period of treatment.
 > 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
+> 1) From client / doctor
 > a) Any relevant reports such as blood / urine / scan test ? b) Surgery / removal report if performed.
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -42,7 +42,7 @@ Occurs when the blood supply to part of your brain is interrupted or reduced, pr
 > CT scan, ECG, blood & urine test were done on dd/mm/yy. Reports are attached here.
 > Physiotherapy & medical follow up was required regularly.
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES 
+## POSSIBILITIES OF UNDERWRITING OUTCOMES
 
-> Life / TPD / CI / Medical insurance  
+> Life / TPD / CI / Medical insurance
 > – Decline case

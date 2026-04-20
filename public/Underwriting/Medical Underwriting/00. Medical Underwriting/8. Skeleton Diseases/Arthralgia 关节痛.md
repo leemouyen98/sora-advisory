@@ -1,4 +1,4 @@
-#Medical_Underwriting/Skeleton_Diseases 
+#Medical_Underwriting/Skeleton_Diseases
 
 Pain in a joint without swelling or other signs of arthritis.
 
@@ -19,7 +19,7 @@ Treatments may include: Medicines such as non-steroidal anti-inflammatory drugs
 
 > 1. From client / doctor
 > a)  Any relevant reports such as blood / urine / CT / MRI scan test ?
-> 
+>
 > 2. Medical Examination  / Medical attendant report (MAR) / Attending physician statement (APS)
 
 ## EXAMPLE OF DISCLOSURE
@@ -31,6 +31,6 @@ Treatments may include: Medicines such as non-steroidal anti-inflammatory drugs
 
 > Life / TPD/ CI:
 > – standard case
-> 
+>
 > Medical insurance:
 > – Exclusion

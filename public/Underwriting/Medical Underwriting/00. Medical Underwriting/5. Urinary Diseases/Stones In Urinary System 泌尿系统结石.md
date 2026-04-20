@@ -14,16 +14,16 @@ Concentrated urine can crystallize and form stones. Some infections can lead to 
 
 > 1) Actual & date diagnosis ?
 > 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 3) Any surgery has been performed ? If yes, please state the date & type of operation.  
+> 3) Any surgery has been performed ? If yes, please state the date & type of operation.
 > 4) On medication / treatment ? If yes, what type & period of treatment.
 > 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 
 ## COMMON REQUIREMENTS
 
-> 1) From client / doctor  
-> a) Any relevant reports such as blood / urine FEME / scan test ? 
+> 1) From client / doctor
+> a) Any relevant reports such as blood / urine FEME / scan test ?
 > b) Surgery / removal report if performed.
-> 
+>
 > 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
 
 ## EXAMPLE OF DISCLOSURE
@@ -35,7 +35,7 @@ Concentrated urine can crystallize and form stones. Some infections can lead to 
 
 > Life / TPD / CI:
 > – Standard case if no complications
-> 
+>
 > Medical insurance:
 > – Standard case for single episode, no recurrence for more than 2 years
 > – Otherwise; Exclusion
