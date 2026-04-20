@@ -27,19 +27,19 @@ const ASSUMPTION_PRESETS = [
 
 const PREMIUM_RATIO_GUIDE = { green: 10, amber: 15 }
 
-function getPremiumAffordability(monthlyPremium, monthlyIncome) {
+function getPremiumAffordability(monthlyPremium, monthlyIncome, t) {
   if (!monthlyIncome || monthlyIncome <= 0) {
-    return { ratio: null, status: 'unknown', label: 'No income data', helper: 'Add gross monthly income in Financial Info to judge premium affordability properly.' }
+    return { ratio: null, status: 'unknown', label: t('protection.affordNoData'), helper: t('protection.affordNoDataHelper') }
   }
 
   const ratio = (monthlyPremium / monthlyIncome) * 100
   if (ratio <= PREMIUM_RATIO_GUIDE.green) {
-    return { ratio, status: 'good', label: 'Comfortable', helper: 'Premium load is within a generally manageable range of monthly income.' }
+    return { ratio, status: 'good', label: t('protection.affordComfortable'), helper: t('protection.affordComfortableHelper') }
   }
   if (ratio <= PREMIUM_RATIO_GUIDE.amber) {
-    return { ratio, status: 'watch', label: 'Watch affordability', helper: 'This can still work, but it needs client buy-in and cash flow discipline.' }
+    return { ratio, status: 'watch', label: t('protection.affordWatch'), helper: t('protection.affordWatchHelper') }
   }
-  return { ratio, status: 'high', label: 'Heavy premium load', helper: 'Premiums are likely too aggressive unless the client is intentionally prioritising protection.' }
+  return { ratio, status: 'high', label: t('protection.affordHeavy'), helper: t('protection.affordHeavyHelper') }
 }
 
 function getSuggestedPolicyMix(summary) {
@@ -47,7 +47,7 @@ function getSuggestedPolicyMix(summary) {
   return gaps.slice(0, 2).map((item, index) => ({
     risk: item.risk,
     amount: roundUp50K(item.shortfall),
-    priority: index === 0 ? 'Primary priority' : 'Next priority',
+    isPrimary: index === 0,
   }))
 }
 
@@ -135,7 +135,7 @@ export default function ProtectionPlannerPage() {
   if (!contact) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-hig-subhead text-hig-text-secondary">Contact not found</p>
+        <p className="text-hig-subhead text-hig-text-secondary">{t('contacts.contactNotFound')}</p>
       </div>
     )
   }
@@ -214,7 +214,7 @@ export default function ProtectionPlannerPage() {
               }`}
           >
             <Presentation size={13} />
-            {meetingMode ? 'Exit Presentation' : 'Presentation Mode'}
+            {meetingMode ? t('protection.exitPresentation') : t('protection.presentationMode')}
           </button>
         )}
       </div>
@@ -228,14 +228,14 @@ export default function ProtectionPlannerPage() {
         <div className="mb-4 flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-hig-blue animate-pulse" />
-            <span className="text-hig-caption1 font-semibold text-hig-blue">Presentation Mode</span>
+            <span className="text-hig-caption1 font-semibold text-hig-blue">{t('protection.presentationMode')}</span>
             <span className="text-hig-caption2 text-hig-text-secondary">· {contact.name} · {t('protection.wealthProtection')}</span>
           </div>
           <button
             onClick={() => setMeetingMode(false)}
             className="text-hig-caption1 text-hig-text-secondary hover:text-hig-text transition-colors"
           >
-            Exit ×
+            {t('protection.exitBtn')}
           </button>
         </div>
       ) : (
@@ -364,7 +364,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
                   {/* Row 1: Lump Sum — full width */}
                   <div>
                     <label className="block text-[13px] font-semibold text-gray-800 mb-1.5">
-                      Lump Sum <span className="font-normal text-gray-400">Required</span>
+                      {t('protection.lumpSum')} <span className="font-normal text-gray-400">{t('common.required')}</span>
                     </label>
                     <div className="flex items-center h-10 rounded px-3 bg-white" style={{ border: '1px solid #c4c4c4' }}>
                       <span className="text-gray-500 text-sm mr-1.5 shrink-0">RM</span>
@@ -381,7 +381,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-[13px] font-semibold text-gray-800 mb-1.5">
-                        Monthly Expenses <span className="font-normal text-gray-400">Required</span>
+                        {t('protection.monthlyExpensesLabel')} <span className="font-normal text-gray-400">{t('common.required')}</span>
                       </label>
                       <div className="flex items-center h-10 rounded px-3 bg-white" style={{ border: '1px solid #c4c4c4' }}>
                         <span className="text-gray-500 text-sm mr-1.5 shrink-0">RM</span>
@@ -395,7 +395,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
                     </div>
                     <div>
                       <label className="block text-[13px] font-semibold text-gray-800 mb-1.5">
-                        Period <span className="font-normal text-gray-400">Required</span>
+                        {t('common.period')} <span className="font-normal text-gray-400">{t('common.required')}</span>
                       </label>
                       <div className="flex items-center h-10 rounded overflow-hidden bg-white" style={{ border: '1px solid #c4c4c4' }}>
                         <input
@@ -405,7 +405,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
                           className="flex-1 border-0 px-3 h-full text-[15px] text-gray-900 bg-transparent focus:outline-none"
                           placeholder="0"
                         />
-                        <span className="pr-3 text-gray-400 text-sm shrink-0">years</span>
+                        <span className="pr-3 text-gray-400 text-sm shrink-0">{t('common.years')}</span>
                       </div>
                     </div>
                   </div>
@@ -432,8 +432,8 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
               </svg>
             </div>
             <div>
-              <p className="text-[15px] font-bold text-gray-900 leading-snug">Planning Parameters</p>
-              <p className="text-[13px] text-gray-500 mt-0.5">Adjust these settings to match your protection plan.</p>
+              <p className="text-[15px] font-bold text-gray-900 leading-snug">{t('protection.planningParamsTitle')}</p>
+              <p className="text-[13px] text-gray-500 mt-0.5">{t('protection.planningParamsDesc')}</p>
             </div>
           </div>
 
@@ -446,8 +446,8 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
               <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
             </svg>
             <p className="text-[13px] py-1.5" style={{ color: 'rgb(1,67,97)' }}>
-              <strong>Inflation rate</strong> helps estimate how much your financial needs may increase over time, so your coverage remains sufficient when the need arises.<br/>
-              <strong>Investment return rate</strong> represents the rate at which your insurance payout is assumed to grow after it is received, supporting future expenses.
+              <strong>{t('protection.inflationRateShort')}</strong>{' '}{t('protection.planningParamsInflationDesc')}<br/>
+              <strong>{t('protection.returnRateShort')}</strong>{' '}{t('protection.planningParamsReturnDesc')}
             </p>
           </div>
 
@@ -456,7 +456,7 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
             {/* Inflation Rate */}
             <div>
               <label className="block text-[13px] font-semibold text-gray-900 mb-1.5">
-                Inflation Rate <span className="font-normal text-gray-400">Required</span>
+                {t('protection.inflationRatePct')} <span className="font-normal text-gray-400">{t('common.required')}</span>
               </label>
               <div className="flex items-center h-10 rounded px-3 bg-white" style={{ border: '1px solid #c4c4c4' }}>
                 <input
@@ -470,13 +470,13 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
                 />
                 <span className="text-gray-400 text-sm shrink-0">%</span>
               </div>
-              <p className="text-[12px] text-gray-400 mt-1">Min: 0%, Max: 10%</p>
+              <p className="text-[12px] text-gray-400 mt-1">{t('protection.inflationRateMinMax')}</p>
             </div>
 
             {/* Investment Return Rate */}
             <div>
               <label className="block text-[13px] font-semibold text-gray-900 mb-1.5">
-                Investment Return Rate <span className="font-normal text-gray-400">Required</span>
+                {t('protection.returnRatePct')} <span className="font-normal text-gray-400">{t('common.required')}</span>
               </label>
               <div className="flex items-center h-10 rounded px-3 bg-white" style={{ border: '1px solid #c4c4c4' }}>
                 <input
@@ -498,8 +498,8 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
       {/* Right: GoalsMapper Protection Progress panel */}
       <div className="w-full lg:w-72 shrink-0">
         <div className="bg-white rounded p-5 lg:sticky lg:top-4" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
-          <h3 className="text-[15px] font-semibold text-gray-900">Protection Progress</h3>
-          <p className="text-[13px] text-gray-500 mt-0.5 mb-5">Compare your existing coverage against what you need</p>
+          <h3 className="text-[15px] font-semibold text-gray-900">{t('protection.protectionProgress')}</h3>
+          <p className="text-[13px] text-gray-500 mt-0.5 mb-5">{t('protection.protectionProgressDesc')}</p>
 
           <div className="space-y-5">
             {needsSummary.map(({ risk, total }) => (
@@ -508,14 +508,14 @@ function ProtectionBasicInfo({ plan, updatePlan, setNeed, onContinue, monthlyInc
                 {/* Full-width solid colour bar — GoalsMapper style */}
                 <div className="h-2.5 rounded-full w-full" style={{ backgroundColor: RISK_COLOUR[risk] }} />
                 <p className="text-[13px] font-bold text-right mt-1" style={{ color: '#777' }}>
-                  Total Required Coverage: {formatRMFull(total)}
+                  {t('protection.totalRequiredCoverage')} {formatRMFull(total)}
                 </p>
               </div>
             ))}
           </div>
 
           <button onClick={onContinue} className="hig-btn-primary w-full mt-4">
-            Continue
+            {t('common.continue')}
           </button>
         </div>
       </div>
@@ -558,9 +558,9 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
       {/* Left: Form */}
       <div className="flex-1 space-y-4">
         <div className="bg-white rounded p-5" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
-          <h3 className="text-[16px] font-bold text-gray-900 mb-1">Existing Coverage</h3>
+          <h3 className="text-[16px] font-bold text-gray-900 mb-1">{t('protection.existingCoverageHeader')}</h3>
           <p className="text-[13px] text-gray-500 mb-5">
-            This allows you to factor in your existing coverage during the analysis
+            {t('protection.step2ExistingDesc')}
           </p>
 
           {/* ── Insurance Tab sync banner ── */}
@@ -577,9 +577,9 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
                       : t('protection.activePoliciesPlural', { n: insuranceTotals.count })}
                   </p>
                   <p className="text-hig-caption2 text-hig-text-secondary mt-0.5 flex flex-wrap gap-2">
-                    <span>Death: {formatRMFull(insuranceTotals.death || 0)}</span>
-                    <span>TPD: {formatRMFull(insuranceTotals.tpd || 0)}</span>
-                    <span>CI: {formatRMFull(insuranceTotals.aci || 0)}</span>
+                    <span>{t('protection.insuranceSyncDeath')} {formatRMFull(insuranceTotals.death || 0)}</span>
+                    <span>{t('protection.insuranceSyncTPD')} {formatRMFull(insuranceTotals.tpd || 0)}</span>
+                    <span>{t('protection.insuranceSyncCI')} {formatRMFull(insuranceTotals.aci || 0)}</span>
                   </p>
                 </div>
               </div>
@@ -607,7 +607,7 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
                     <h4 className="text-[15px] font-semibold text-gray-900">{riskLabels[risk]}</h4>
                     {target > 0 && (
                       <span className="ml-auto text-[13px] text-gray-500">
-                        Target: {formatRMFull(target)}
+                        {t('protection.targetPrefix')} {formatRMFull(target)}
                       </span>
                     )}
                   </div>
@@ -615,7 +615,7 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
                   {/* Input */}
                   <div className="px-4 pt-3 pb-4">
                     <label className="block text-[13px] font-semibold text-gray-800 mb-1.5">
-                      Coverage Amount <span className="font-normal text-gray-400">Required</span>
+                      {t('protection.coverageAmountLabel')} <span className="font-normal text-gray-400">{t('common.required')}</span>
                     </label>
                     <div className="flex items-center h-10 rounded px-3 bg-white" style={{ border: '1px solid #c4c4c4' }}>
                       <span className="text-gray-500 text-sm mr-1.5 shrink-0">RM</span>
@@ -638,8 +638,8 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
       {/* Right: GoalsMapper Protection Progress panel — Step 2 variant */}
       <div className="w-full shrink-0 lg:w-72">
         <div className="bg-white rounded p-5 lg:sticky lg:top-4" style={{ border: '1px solid rgba(0,0,0,0.12)' }}>
-          <h3 className="text-[15px] font-semibold text-gray-900">Protection Progress</h3>
-          <p className="text-[13px] text-gray-500 mt-0.5 mb-5">Compare your existing coverage against what you need</p>
+          <h3 className="text-[15px] font-semibold text-gray-900">{t('protection.protectionProgress')}</h3>
+          <p className="text-[13px] text-gray-500 mt-0.5 mb-5">{t('protection.protectionProgressDesc')}</p>
           <div className="space-y-5">
             {RISKS.map((risk) => {
               const existing = plan.existing[risk] || 0
@@ -665,8 +665,8 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
                   </div>
                   {/* Existing / Total row */}
                   <div className="flex justify-between mt-1">
-                    <span className="text-[12px] text-gray-500">Existing Coverage: {formatRMFull(existing)}</span>
-                    <span className="text-[12px] font-bold text-gray-500">Total Required Coverage: {formatRMFull(target)}</span>
+                    <span className="text-[12px] text-gray-500">{t('protection.existingCoverageColon')} {formatRMFull(existing)}</span>
+                    <span className="text-[12px] font-bold text-gray-500">{t('protection.totalRequiredCoverage')} {formatRMFull(target)}</span>
                   </div>
                 </div>
               )
@@ -675,10 +675,10 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
 
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
             <button onClick={onBack} className="hig-btn-ghost gap-1.5">
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> {t('common.back')}
             </button>
             <button onClick={onContinue} className="hig-btn-primary">
-              Continue
+              {t('common.continue')}
             </button>
           </div>
         </div>
@@ -694,7 +694,7 @@ function ProtectionExistingCoverage({ plan, setExisting, onBack, onContinue, ins
 // Logic priority: (1) gap closed → reassure, (2) income known → anchor to income,
 // (3) no income → anchor to sum at risk, (4) no needs entered → prompt.
 
-function buildUrgencyNarrative({ risk, active, plan, monthlyIncome, contactName }) {
+function buildUrgencyNarrative({ t, risk, active, plan, monthlyIncome, contactName }) {
   const firstName = (contactName || 'the client').split(' ')[0]
   const { targetCoverage, shortfall, surplus, coveragePercent } = active
   const need = plan.needs[risk] || {}
@@ -702,60 +702,51 @@ function buildUrgencyNarrative({ risk, active, plan, monthlyIncome, contactName 
 
   // ── No needs entered yet ──
   if (!targetCoverage || targetCoverage === 0) {
-    const prompts = {
-      death:  `Enter ${firstName}'s lump sum obligations and monthly family expenses in Step 1 to calculate the death coverage needed.`,
-      tpd:    `TPD coverage replaces lost income if ${firstName} can no longer work. Enter the monthly amount and period in Step 1.`,
-      aci:    `Advanced stage CI typically sidelines someone for 2–5 years. Define the coverage need in Step 1 to see the gap.`,
-      eci:    `Early diagnosis coverage funds treatment at the most critical — and most treatable — stage. Set the need in Step 1.`,
-    }
-    return prompts[risk] || `Enter needs in Step 1 to calculate the ${RISK_SHORT[risk]} coverage target.`
+    const keyMap = { death: 'urgencyNoNeedsDeath', tpd: 'urgencyNoNeedsTPD', aci: 'urgencyNoNeedsACI', eci: 'urgencyNoNeedsECI' }
+    const key = keyMap[risk]
+    if (key) return t(`protection.${key}`, { name: firstName })
+    return t('protection.urgencyNoNeedsDefault', { risk: RISK_SHORT[risk] })
   }
 
   // ── Gap fully closed ──
   if (coveragePercent >= 100) {
-    const surplusText = surplus > 0 ? ` — ${formatRMFull(surplus)} buffer above target` : ''
-    return `${RISK_SHORT[risk]} gap is closed${surplusText}. No action needed here.`
+    const surplusText = surplus > 0 ? t('protection.urgencySurplusText', { amount: formatRMFull(surplus) }) : ''
+    return t('protection.urgencyGapClosed', { risk: RISK_SHORT[risk], surplusText })
   }
 
   // ── Gap exists — income available ──
   if (monthlyIncome > 0) {
     const monthsUnprotected = Math.round(shortfall / monthlyIncome)
-    const pctIncome = ((need.monthly || 0) / monthlyIncome * 100).toFixed(0)
-
     switch (risk) {
       case 'death':
-        return `If ${firstName} passes away today, the family needs ${formatRMFull(targetCoverage)} to cover obligations and sustain income over ${period} years. Only ${coveragePercent}% is in place — the ${formatRMFull(shortfall)} gap represents roughly ${monthsUnprotected} months of ${firstName}'s income left unprotected.`
-
+        return t('protection.urgencyDeathWithIncome', { name: firstName, target: formatRMFull(targetCoverage), period, pct: coveragePercent, shortfall: formatRMFull(shortfall), months: monthsUnprotected })
       case 'tpd':
-        return `Total permanent disability ends ${firstName}'s income immediately and permanently. At ${formatRMFull(monthlyIncome)}/month, the ${formatRMFull(shortfall)} shortfall means ${monthsUnprotected} months of income has no coverage. Only ${coveragePercent}% of the need is met.`
-
+        return t('protection.urgencyTPDWithIncome', { name: firstName, income: formatRMFull(monthlyIncome), shortfall: formatRMFull(shortfall), months: monthsUnprotected, pct: coveragePercent })
       case 'aci':
-        return `Advanced stage CI typically forces 2–5 years out of the workforce. ${firstName} earns ${formatRMFull(monthlyIncome)}/month — the ${formatRMFull(shortfall)} gap, on top of treatment costs, leaves significant financial exposure. ${coveragePercent}% covered.`
-
+        return t('protection.urgencyACIWithIncome', { name: firstName, income: formatRMFull(monthlyIncome), shortfall: formatRMFull(shortfall), pct: coveragePercent })
       case 'eci':
-        return `Early stage diagnosis is the window to act fast and afford the best treatment — it's also when financial pressure is highest. ${firstName}'s ${formatRMFull(shortfall)} shortfall means those costs land directly on the family. ${coveragePercent}% covered.`
-
+        return t('protection.urgencyECIWithIncome', { name: firstName, shortfall: formatRMFull(shortfall), pct: coveragePercent })
       default:
-        return `${formatRMFull(shortfall)} of ${RISK_SHORT[risk]} coverage is unprotected — ${coveragePercent}% met, ${monthsUnprotected} months of income at risk.`
+        return t('protection.urgencyDefaultWithIncome', { shortfall: formatRMFull(shortfall), risk: RISK_SHORT[risk], pct: coveragePercent, months: monthsUnprotected })
     }
   }
 
   // ── Gap exists — no income data ──
   switch (risk) {
     case 'death':
-      return `Only ${coveragePercent}% of death coverage is in force. The ${formatRMFull(shortfall)} gap leaves ${firstName}'s dependants exposed — obligations that cannot be met if the worst happens.`
+      return t('protection.urgencyDeathNoIncome', { pct: coveragePercent, shortfall: formatRMFull(shortfall), name: firstName })
 
     case 'tpd':
-      return `Total disability means zero income, permanently. Only ${coveragePercent}% of the required cover is in place — ${formatRMFull(shortfall)} is unprotected.`
+      return t('protection.urgencyTPDNoIncome', { pct: coveragePercent, shortfall: formatRMFull(shortfall), name: firstName })
 
     case 'aci':
-      return `Advanced CI at ${coveragePercent}% coverage leaves a ${formatRMFull(shortfall)} gap. Treatment costs plus lost income over ${period} years is the real exposure — not just the medical bill.`
+      return t('protection.urgencyACINoIncome', { pct: coveragePercent, shortfall: formatRMFull(shortfall), period })
 
     case 'eci':
-      return `Early stage CI coverage is only ${coveragePercent}% funded. The ${formatRMFull(shortfall)} shortfall means ${firstName} absorbs early treatment costs with no financial cushion.`
+      return t('protection.urgencyECINoIncome', { pct: coveragePercent, shortfall: formatRMFull(shortfall), name: firstName })
 
     default:
-      return `${coveragePercent}% of ${RISK_SHORT[risk]} coverage is in place. ${formatRMFull(shortfall)} remains unprotected.`
+      return t('protection.urgencyDefaultNoIncome', { pct: coveragePercent, risk: RISK_SHORT[risk], shortfall: formatRMFull(shortfall) })
   }
 }
 
@@ -842,7 +833,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
       }, 0)
   }, [plan.recommendations])
 
-  const affordability = getPremiumAffordability(totalMonthlyPremium, monthlyIncome)
+  const affordability = getPremiumAffordability(totalMonthlyPremium, monthlyIncome, t)
 
   const addSuggestedGapRecommendation = () => {
     const template = { death: 0, tpd: 0, aci: 0, eci: 0 }
@@ -925,6 +916,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
             >
               <p className="text-hig-caption1 leading-relaxed">
                 {buildUrgencyNarrative({
+                  t,
                   risk: activeRisk,
                   active,
                   plan,
@@ -977,7 +969,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
               onClick={() => setShowGapChart((v) => !v)}
               className="hig-btn-ghost gap-1.5"
             >
-              Coverage Gap Analysis
+              {t('protection.coverageGapAnalysis')}
               {showGapChart ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
             {showGapChart && <CoverageGapChart summary={summary} />}
@@ -1036,17 +1028,17 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                   <div className="rounded-hig-sm border border-hig-blue/20 bg-hig-blue/5 p-3">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <p className="text-hig-caption1 text-hig-blue font-semibold">Suggested protection focus</p>
+                        <p className="text-hig-caption1 text-hig-blue font-semibold">{t('protection.suggestedFocus')}</p>
                         <div className="mt-1 space-y-1">
                           {policyMix.map((item) => (
                             <p key={item.risk} className="text-hig-caption2 text-hig-text-secondary">
-                              <span className="font-medium text-hig-text">{item.priority}:</span> {RISK_SHORT[item.risk]} {formatRMFull(item.amount)}
+                              <span className="font-medium text-hig-text">{item.isPrimary ? t('protection.primaryPriority') : t('protection.nextPriority')}:</span> {RISK_SHORT[item.risk]} {formatRMFull(item.amount)}
                             </p>
                           ))}
                         </div>
                       </div>
                       <button onClick={addSuggestedGapRecommendation} className="hig-btn-ghost border border-hig-blue/30 text-hig-blue text-hig-caption1 whitespace-nowrap">
-                        Add suggested mix
+                        {t('protection.addSuggestedMix')}
                       </button>
                     </div>
                   </div>
@@ -1055,19 +1047,19 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                 <div className={`rounded-hig-sm border p-3 ${affordability.status === 'good' ? 'border-hig-green/30 bg-hig-green/5' : affordability.status === 'watch' ? 'border-amber-200 bg-amber-50' : affordability.status === 'high' ? 'border-hig-red/25 bg-red-50' : 'border-hig-gray-5 bg-hig-gray-6/60'}`}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-hig-caption1 font-semibold">Premium affordability</p>
+                      <p className="text-hig-caption1 font-semibold">{t('protection.premiumAffordability')}</p>
                       <p className="text-hig-caption2 text-hig-text-secondary mt-1">{affordability.helper}</p>
                     </div>
                     {affordability.ratio !== null ? (
                       <div className="text-right">
                         <p className="text-hig-title3">{affordability.ratio.toFixed(1)}%</p>
-                        <p className="text-hig-caption2 text-hig-text-secondary">of monthly income</p>
+                        <p className="text-hig-caption2 text-hig-text-secondary">{t('protection.ofMonthlyIncome')}</p>
                       </div>
                     ) : null}
                   </div>
                   <div className="mt-2 flex flex-col gap-1 text-hig-caption1 sm:flex-row sm:items-center sm:justify-between">
                     <span className="font-medium">{affordability.label}</span>
-                    <span className="text-hig-text-secondary">Selected premiums: {formatRMFull(totalMonthlyPremium)}/mo</span>
+                    <span className="text-hig-text-secondary">{t('protection.selectedPremiums', { amount: formatRMFull(totalMonthlyPremium) })}</span>
                   </div>
                 </div>
 
@@ -1079,6 +1071,12 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
 
                 {allRecs.map((rec, idx) => {
                   const freqMap = { Monthly: 12, Quarterly: 4, 'Semi-annually': 2, Yearly: 1 }
+                  const freqDisplay = {
+                    Monthly: t('protection.freqMonthly'),
+                    Quarterly: t('protection.freqQuarterly'),
+                    'Semi-annually': t('protection.freqSemiAnnually'),
+                    Yearly: t('protection.freqYearly'),
+                  }
                   const paymentsPerYear = freqMap[rec.frequency] || 12
                   const totalPremiumPaid = (rec.premiumAmount || 0) * paymentsPerYear * (rec.periodYears || 0)
                   const isExpanded = expandedRecId === rec.id
@@ -1122,7 +1120,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                           )}
                           {rec.premiumAmount > 0 && (
                             <p className="text-hig-caption2 text-hig-text-secondary">
-                              {formatRMFull(rec.premiumAmount)}/{(rec.frequency || 'Monthly').toLowerCase()} · {rec.periodYears || 0} yrs
+                              {formatRMFull(rec.premiumAmount)}/{freqDisplay[rec.frequency] || t('protection.freqMonthly')} · {rec.periodYears || 0} {t('common.years')}
                               {totalPremiumPaid > 0 && ` · ${t('common.total')} ${formatRMFull(totalPremiumPaid)}`}
                             </p>
                           )}
@@ -1151,11 +1149,11 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                                 className="hig-input"
                               >
                                 <option value="">{t('common.select')}</option>
-                                <option>Term Life</option>
-                                <option>Whole Life</option>
-                                <option>Investment-Linked</option>
-                                <option>CI Rider</option>
-                                <option>Standalone CI</option>
+                                <option value="Term Life">{t('protection.policyTermLife')}</option>
+                                <option value="Whole Life">{t('protection.policyWholeLife')}</option>
+                                <option value="Investment-Linked">{t('protection.policyILP')}</option>
+                                <option value="CI Rider">{t('protection.policyCIRider')}</option>
+                                <option value="Standalone CI">{t('protection.policyStandaloneCI')}</option>
                               </select>
                             </div>
                             <div>
@@ -1166,14 +1164,14 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                                 className="hig-input"
                               >
                                 <option value="">{t('common.select')}</option>
-                                <option>10 years</option>
-                                <option>15 years</option>
-                                <option>20 years</option>
-                                <option>25 years</option>
-                                <option>30 years</option>
-                                <option>To Age 70</option>
-                                <option>To Age 100</option>
-                                <option>Whole of Life</option>
+                                <option value="10 years">10 {t('common.years')}</option>
+                                <option value="15 years">15 {t('common.years')}</option>
+                                <option value="20 years">20 {t('common.years')}</option>
+                                <option value="25 years">25 {t('common.years')}</option>
+                                <option value="30 years">30 {t('common.years')}</option>
+                                <option value="To Age 70">{t('protection.termToAge70')}</option>
+                                <option value="To Age 100">{t('protection.termToAge100')}</option>
+                                <option value="Whole of Life">{t('protection.termWholeLife')}</option>
                               </select>
                             </div>
                           </div>
@@ -1253,10 +1251,10 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                               onChange={(e) => updateRec(rec.id, { frequency: e.target.value })}
                               className="hig-input"
                             >
-                              <option>Monthly</option>
-                              <option>Quarterly</option>
-                              <option>Semi-annually</option>
-                              <option>Yearly</option>
+                              <option value="Monthly">{t('protection.freqMonthly')}</option>
+                              <option value="Quarterly">{t('protection.freqQuarterly')}</option>
+                              <option value="Semi-annually">{t('protection.freqSemiAnnually')}</option>
+                              <option value="Yearly">{t('protection.freqYearly')}</option>
                             </select>
                           </div>
 
@@ -1284,7 +1282,7 @@ function ProtectionPlanner({ plan, currentAge, contactName, monthlyIncome, updat
                               <p className="text-[10px] text-amber-700 font-bold tracking-wide mb-0.5">{t('protection.totalPremiumPaid')}</p>
                               <p className="text-hig-subhead font-bold text-amber-900">{formatRMFull(totalPremiumPaid)}</p>
                               <p className="text-[10px] text-amber-700 mt-0.5">
-                                {formatRMFull(rec.premiumAmount)}/{(rec.frequency || 'Monthly').toLowerCase()} × {rec.periodYears} years
+                                {formatRMFull(rec.premiumAmount)}/{freqDisplay[rec.frequency] || t('protection.freqMonthly')} × {rec.periodYears} {t('common.years')}
                               </p>
                             </div>
                           )}
@@ -1470,12 +1468,18 @@ function OverviewPanel({ summary, activeRisk, onSelect, contactName }) {
   const noData       = totalTarget === 0
 
   // Conversation starter narrative
+  const clientFirst = contactName?.split(' ')[0] || 'the client'
   const narrative = noData
-    ? `No coverage needs entered yet — go back to Step 1 to define what ${contactName?.split(' ')[0] || 'the client'} needs protected.`
+    ? t('protection.overviewNoDataNarrative', { name: clientFirst })
     : allCovered
-    ? `All four risk categories are fully covered. ${contactName?.split(' ')[0] || 'The client'} is well-protected.`
+    ? t('protection.overviewFullyCoveredNarrative', { name: clientFirst })
     : totalShortfall > 0
-    ? `Total unprotected exposure: ${formatRMFull(totalShortfall)}. Without additional coverage, ${contactName?.split(' ')[0] || 'the client'} carries ${overallPct < 50 ? 'significant' : 'partial'} risk across ${summary.filter(r => r.shortfall > 0).length} of 4 categories.`
+    ? t('protection.overviewShortfallNarrative', {
+        amount: formatRMFull(totalShortfall),
+        name: clientFirst,
+        level: overallPct < 50 ? t('protection.overviewSignificant') : t('protection.overviewPartial'),
+        count: summary.filter(r => r.shortfall > 0).length,
+      })
     : ''
 
   const overallStatus = noData ? 'na' : allCovered ? 'good' : overallPct >= 50 ? 'fair' : 'poor'
@@ -1657,13 +1661,14 @@ function buildCoverageChartData({ lumpSum, monthly, period, inflationRate, retur
 }
 
 function CoverageNeedsTooltip({ active, payload, label, recColour }) {
+  const { t } = useLanguage()
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload
   if (!d) return null
   const rows = [
-    { key: 'existing',    label: 'Existing Coverage',     color: '#34C759' },
-    { key: 'recommended', label: 'Recommended Coverage',  color: recColour || '#2E96FF' },
-    { key: 'shortfall',   label: 'Shortfall',             color: '#FF3B30' },
+    { key: 'existing',    label: t('protection.legendExistingCoverage'),    color: '#34C759' },
+    { key: 'recommended', label: t('protection.legendRecommendedCoverage'), color: recColour || '#2E96FF' },
+    { key: 'shortfall',   label: t('protection.legendShortfall'),           color: '#FF3B30' },
   ]
   return (
     <div style={{
@@ -1672,7 +1677,7 @@ function CoverageNeedsTooltip({ active, payload, label, recColour }) {
       border: '1px solid #E5E5EA', padding: '10px 14px', minWidth: 200,
     }}>
       <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 7 }}>
-        Client Age {label}
+        {t('protection.clientAgeTooltip', { age: label })}
       </div>
       {rows.map(({ key, label: lbl, color }) =>
         d[key] > 0 ? (
@@ -1695,13 +1700,14 @@ function CoverageNeedsTooltip({ active, payload, label, recColour }) {
 // all-zero depending on whether needs have been defined in Step 1.
 
 function CoverageGapTooltip({ active, payload, label }) {
+  const { t } = useLanguage()
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload
   if (!d) return null
   const rows = [
-    { key: 'existing',    label: 'Existing Coverage',    color: '#34C759' },
-    { key: 'recommended', label: 'Recommended Coverage', color: '#2E96FF' },
-    { key: 'shortfall',   label: 'Shortfall',            color: '#FF6B6B' },
+    { key: 'existing',    label: t('protection.legendExistingCoverage'),    color: '#34C759' },
+    { key: 'recommended', label: t('protection.legendRecommendedCoverage'), color: '#2E96FF' },
+    { key: 'shortfall',   label: t('protection.legendShortfall'),           color: '#FF6B6B' },
   ].filter(({ key }) => (d[key] || 0) > 0)
   return (
     <div style={{
@@ -1712,7 +1718,7 @@ function CoverageGapTooltip({ active, payload, label }) {
       <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 7 }}>{label}</div>
       {d.target > 0 && (
         <div style={{ fontSize: 11, color: '#8E8E93', marginBottom: 6 }}>
-          Target: {formatRMFull(d.target)}
+          {t('protection.targetPrefix')} {formatRMFull(d.target)}
         </div>
       )}
       {rows.length > 0 ? rows.map(({ key, label: lbl, color }) => (
@@ -1722,13 +1728,14 @@ function CoverageGapTooltip({ active, payload, label }) {
           <span style={{ fontWeight: 500 }}>{formatRMFull(d[key])}</span>
         </div>
       )) : (
-        <div style={{ fontSize: 12, color: '#8E8E93' }}>No needs entered — go to Step 1.</div>
+        <div style={{ fontSize: 12, color: '#8E8E93' }}>{t('protection.noNeedsStep1')}</div>
       )}
     </div>
   )
 }
 
 function CoverageGapChart({ summary }) {
+  const { t } = useLanguage()
   const anyTarget = summary.some((s) => s.targetCoverage > 0)
 
   const data = summary.map((s) => ({
@@ -1750,11 +1757,11 @@ function CoverageGapChart({ summary }) {
 
   return (
     <div className="hig-card p-4">
-      <h3 className="text-hig-subhead font-semibold mb-0.5">Coverage Gap Analysis</h3>
+      <h3 className="text-hig-subhead font-semibold mb-0.5">{t('protection.coverageGapAnalysis')}</h3>
       <p className="text-hig-caption1 text-hig-text-secondary mb-3">
         {anyTarget
-          ? 'Coverage status across all four risk categories.'
-          : 'Enter needs in Step 1 to calculate targets.'}
+          ? t('protection.coverageGapDesc')
+          : t('protection.coverageGapNeedsPrompt')}
       </p>
 
       {/* Legend */}
@@ -1762,25 +1769,25 @@ function CoverageGapChart({ summary }) {
         {hasExisting && (
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#34C759' }} />
-            <span className="text-hig-caption1 text-hig-text-secondary">Existing</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">{t('protection.legendExisting')}</span>
           </div>
         )}
         {hasRecs && (
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#2E96FF' }} />
-            <span className="text-hig-caption1 text-hig-text-secondary">Recommended</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">{t('protection.legendRecommended')}</span>
           </div>
         )}
         {hasShortfall && (
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#FF6B6B' }} />
-            <span className="text-hig-caption1 text-hig-text-secondary">Shortfall</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">{t('protection.legendShortfall')}</span>
           </div>
         )}
         {!anyTarget && !hasExisting && !hasRecs && !hasShortfall && (
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block bg-hig-gray-4" />
-            <span className="text-hig-caption1 text-hig-text-secondary">No needs defined</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">{t('protection.noNeedsDefined')}</span>
           </div>
         )}
       </div>
@@ -1818,6 +1825,7 @@ function CoverageGapChart({ summary }) {
 // ─── Coverage Needs by Age Chart ─────────────────────────────────────────────
 
 function CoverageAgeChart({ risk, currentAge, lumpSum, monthly, period, existing, withRecs, inflationRate, returnRate }) {
+  const { t } = useLanguage()
   const recColour = RISK_COLOUR[risk]
 
   const data = useMemo(
@@ -1849,13 +1857,13 @@ function CoverageAgeChart({ risk, currentAge, lumpSum, monthly, period, existing
 
   return (
     <div className="hig-card p-5">
-      <h3 className="text-hig-headline mb-1">Coverage Needs by Age</h3>
+      <h3 className="text-hig-headline mb-1">{t('protection.coverageNeedsByAge')}</h3>
       <p className="text-hig-caption1 text-hig-text-secondary mb-1">
-        Annual living expenses vs. how far your coverage pool reaches.
+        {t('protection.coverageNeedsByAgeDesc')}
       </p>
       {hasLumpSumSpike && (
         <p className="text-hig-caption2 text-hig-orange mb-3">
-          ⚑ Age {data[0].age} includes one-off lump sum of {formatRMFull(lumpSum)} — bar is clipped. See Needs Breakdown for full value.
+          {t('protection.lumpSumSpikeNote', { age: data[0].age, amount: formatRMFull(lumpSum) })}
         </p>
       )}
 
@@ -1864,18 +1872,18 @@ function CoverageAgeChart({ risk, currentAge, lumpSum, monthly, period, existing
         {existing > 0 && (
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#34C759' }} />
-            <span className="text-hig-caption1 text-hig-text-secondary">Existing Coverage</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">{t('protection.legendExistingCoverage')}</span>
           </div>
         )}
         {hasRecs && (
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: recColour }} />
-            <span className="text-hig-caption1 text-hig-text-secondary">Recommended Coverage</span>
+            <span className="text-hig-caption1 text-hig-text-secondary">{t('protection.legendRecommendedCoverage')}</span>
           </div>
         )}
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#FF6B6B' }} />
-          <span className="text-hig-caption1 text-hig-text-secondary">Shortfall</span>
+          <span className="text-hig-caption1 text-hig-text-secondary">{t('protection.legendShortfall')}</span>
         </div>
       </div>
 
@@ -1887,7 +1895,7 @@ function CoverageAgeChart({ risk, currentAge, lumpSum, monthly, period, existing
             tick={{ fontSize: 11, fill: '#8E8E93' }}
             tickLine={false}
             axisLine={{ stroke: '#E5E5EA' }}
-            label={{ value: 'Age', position: 'insideBottom', offset: -1, fontSize: 11, fill: '#8E8E93' }}
+            label={{ value: t('common.age'), position: 'insideBottom', offset: -1, fontSize: 11, fill: '#8E8E93' }}
           />
           <YAxis
             tickFormatter={yTickFmt}

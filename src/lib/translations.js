@@ -63,6 +63,7 @@ const translations = {
     tomorrow:   { en: 'Tomorrow',   zh: '明天'   },
     male:       { en: 'Male',       zh: '男'     },
     female:     { en: 'Female',     zh: '女'     },
+    frequency:  { en: 'Frequency',  zh: '频率'   },
   },
 
   // ─── Dashboard ──────────────────────────────────────────────────────────────
@@ -652,6 +653,112 @@ const translations = {
     underProtected:       { en: 'Under-Protected',                    zh: '保障不足'                    },
     noDataStatus:         { en: 'No Data',                            zh: '暂无数据'                    },
     overallPctMet:        { en: '{pct}% of total coverage needs met', zh: '总保障需求已满足 {pct}%'       },
+
+    // ── Presentation Mode ────────────────────────────────────────────────────
+    presentationMode:     { en: 'Presentation Mode',    zh: '演示模式' },
+    exitPresentation:     { en: 'Exit Presentation',    zh: '退出演示' },
+    exitBtn:              { en: 'Exit ×',               zh: '退出 ×'  },
+
+    // ── Step 1 form labels ───────────────────────────────────────────────────
+    monthlyExpensesLabel: { en: 'Monthly Expenses',     zh: '月支出' },
+    inflationRateShort:   { en: 'Inflation rate',       zh: '通胀率' },
+    returnRateShort:      { en: 'Investment return rate', zh: '投资回报率' },
+    planningParamsInflationDesc: { en: 'helps estimate how much your financial needs may increase over time, so your coverage remains sufficient when the need arises.', zh: '帮助估算您的财务需求随时间可能增长的幅度，确保保障额在需要时仍然充足。' },
+    planningParamsReturnDesc:    { en: 'represents the rate at which your insurance payout is assumed to grow after it is received, supporting future expenses.', zh: '代表保险赔付金在收到后的预计增长率，用于支持未来支出。' },
+    inflationRateMinMax:  { en: 'Min: 0%, Max: 10%',   zh: '最低：0%，最高：10%' },
+    protectionProgress:   { en: 'Protection Progress',  zh: '保障进度' },
+    protectionProgressDesc: { en: 'Compare your existing coverage against what you need', zh: '比较您的现有保障与所需保障额' },
+    totalRequiredCoverage: { en: 'Total Required Coverage:', zh: '所需总保障额：' },
+
+    // ── Step 2 form labels ───────────────────────────────────────────────────
+    step2ExistingDesc:    { en: 'This allows you to factor in your existing coverage during the analysis', zh: '此步骤让您在分析中纳入现有保障额' },
+    targetPrefix:         { en: 'Target:', zh: '目标：' },
+    coverageAmountLabel:  { en: 'Coverage Amount', zh: '保障金额' },
+    existingCoverageColon: { en: 'Existing Coverage:', zh: '现有保障：' },
+    insuranceSyncDeath:   { en: 'Death:', zh: '身故：' },
+    insuranceSyncTPD:     { en: 'TPD:', zh: 'TPD：' },
+    insuranceSyncCI:      { en: 'CI:', zh: 'CI：' },
+
+    // ── Step 3 Planner UI ────────────────────────────────────────────────────
+    suggestedFocus:       { en: 'Suggested protection focus', zh: '建议保障重点' },
+    addSuggestedMix:      { en: 'Add suggested mix', zh: '添加建议组合' },
+    premiumAffordability: { en: 'Premium affordability', zh: '保费负担能力' },
+    ofMonthlyIncome:      { en: 'of monthly income', zh: '占月收入' },
+    selectedPremiums:     { en: 'Selected premiums: {amount}/mo', zh: '已选保费：{amount}/月' },
+    coverageGapAnalysis:  { en: 'Coverage Gap Analysis', zh: '保障缺口分析' },
+    primaryPriority:      { en: 'Primary priority', zh: '首要优先' },
+    nextPriority:         { en: 'Next priority', zh: '次要优先' },
+
+    // ── Policy type options ──────────────────────────────────────────────────
+    policyTermLife:       { en: 'Term Life',         zh: '定期寿险' },
+    policyWholeLife:      { en: 'Whole Life',         zh: '终身寿险' },
+    policyILP:            { en: 'Investment-Linked',  zh: '投资连接险' },
+    policyCIRider:        { en: 'CI Rider',           zh: '重疾附约' },
+    policyStandaloneCI:   { en: 'Standalone CI',      zh: '独立重疾险' },
+
+    // ── Coverage term options ────────────────────────────────────────────────
+    termToAge70:          { en: 'To Age 70',     zh: '至70岁' },
+    termToAge100:         { en: 'To Age 100',    zh: '至100岁' },
+    termWholeLife:        { en: 'Whole of Life', zh: '终身' },
+
+    // ── Frequency options ────────────────────────────────────────────────────
+    freqMonthly:          { en: 'Monthly',        zh: '每月' },
+    freqQuarterly:        { en: 'Quarterly',      zh: '每季' },
+    freqSemiAnnually:     { en: 'Semi-annually',  zh: '每半年' },
+    freqYearly:           { en: 'Yearly',         zh: '每年' },
+
+    // ── Premium affordability labels ─────────────────────────────────────────
+    affordNoData:              { en: 'No income data',      zh: '无收入数据' },
+    affordComfortable:         { en: 'Comfortable',         zh: '负担合理' },
+    affordWatch:               { en: 'Watch affordability', zh: '注意负担能力' },
+    affordHeavy:               { en: 'Heavy premium load',  zh: '保费负担过重' },
+    affordNoDataHelper:        { en: 'Add gross monthly income in Financial Info to judge premium affordability properly.', zh: '请在财务资料中填入税前月收入，以评估保费负担能力。' },
+    affordComfortableHelper:   { en: 'Premium load is within a generally manageable range of monthly income.', zh: '保费占月收入比例在合理范围内。' },
+    affordWatchHelper:         { en: 'This can still work, but it needs client buy-in and cash flow discipline.', zh: '仍可接受，但需客户认可及严格的现金流管理。' },
+    affordHeavyHelper:         { en: 'Premiums are likely too aggressive unless the client is intentionally prioritising protection.', zh: '保费负担可能过重，除非客户有意以保障为首要考量。' },
+
+    // ── Coverage Gap Chart ───────────────────────────────────────────────────
+    coverageGapDesc:        { en: 'Coverage status across all four risk categories.', zh: '四个风险类别的保障状况。' },
+    coverageGapNeedsPrompt: { en: 'Enter needs in Step 1 to calculate targets.', zh: '请在步骤1填写需求以计算目标保障额。' },
+    legendExisting:         { en: 'Existing', zh: '现有' },
+    legendRecommended:      { en: 'Recommended', zh: '建议' },
+    legendShortfall:        { en: 'Shortfall', zh: '缺口' },
+    noNeedsDefined:         { en: 'No needs defined', zh: '尚未定义需求' },
+    noNeedsStep1:           { en: 'No needs entered — go to Step 1.', zh: '尚未填写需求，请返回步骤1。' },
+
+    // ── Coverage Age Chart ───────────────────────────────────────────────────
+    coverageNeedsByAge:        { en: 'Coverage Needs by Age', zh: '按年龄划分的保障需求' },
+    coverageNeedsByAgeDesc:    { en: 'Annual living expenses vs. how far your coverage pool reaches.', zh: '年度生活费用与保障资金可覆盖的年限。' },
+    lumpSumSpikeNote:          { en: '⚑ Age {age} includes one-off lump sum of {amount} — bar is clipped. See Needs Breakdown for full value.', zh: '⚑ {age}岁包含一次性保障额 {amount}，图表已裁剪显示。详见需求明细。' },
+    legendExistingCoverage:    { en: 'Existing Coverage', zh: '现有保障' },
+    legendRecommendedCoverage: { en: 'Recommended Coverage', zh: '建议保障' },
+    clientAgeTooltip:          { en: 'Client Age {age}', zh: '客户年龄 {age}岁' },
+
+    // ── Overview Panel narratives ────────────────────────────────────────────
+    overviewNoDataNarrative:       { en: 'No coverage needs entered yet — go back to Step 1 to define what {name} needs protected.', zh: '尚未填写保障需求——请返回步骤1为{name}定义所需保障。' },
+    overviewFullyCoveredNarrative: { en: 'All four risk categories are fully covered. {name} is well-protected.', zh: '四个风险类别均已完全覆盖，{name}的保障到位。' },
+    overviewShortfallNarrative:    { en: 'Total unprotected exposure: {amount}. Without additional coverage, {name} carries {level} risk across {count} of 4 categories.', zh: '总未保障缺口：{amount}。若不增加保障，{name}在4个类别中的{count}个面临{level}风险。' },
+    overviewSignificant:           { en: 'significant', zh: '显著' },
+    overviewPartial:               { en: 'partial', zh: '部分' },
+
+    // ── Urgency Narratives (Step 3 summary card) ─────────────────────────────
+    urgencyNoNeedsDeath:      { en: "Enter {name}'s lump sum obligations and monthly family expenses in Step 1 to calculate the death coverage needed.", zh: '请在步骤1填入{name}的一次性义务及家庭月支出，以计算所需身故保障额。' },
+    urgencyNoNeedsTPD:        { en: 'TPD coverage replaces lost income if {name} can no longer work. Enter the monthly amount and period in Step 1.', zh: '全残保障在{name}无法工作时替代收入，请在步骤1填入月供金额及期限。' },
+    urgencyNoNeedsACI:        { en: 'Advanced stage CI typically sidelines someone for 2–5 years. Define the coverage need in Step 1 to see the gap.', zh: '晚期重疾通常使人停止工作2至5年，请在步骤1定义所需保障额以了解缺口。' },
+    urgencyNoNeedsECI:        { en: 'Early diagnosis coverage funds treatment at the most critical — and most treatable — stage. Set the need in Step 1.', zh: '早期确诊保障在最关键也最可治愈的阶段提供资金支持，请在步骤1设定所需保障。' },
+    urgencyNoNeedsDefault:    { en: 'Enter needs in Step 1 to calculate the {risk} coverage target.', zh: '请在步骤1填写需求以计算{risk}保障目标。' },
+    urgencyGapClosed:         { en: '{risk} gap is closed{surplusText}. No action needed here.', zh: '{risk}缺口已填补{surplusText}，此项无需采取行动。' },
+    urgencySurplusText:       { en: ' — {amount} buffer above target', zh: '，超出目标{amount}' },
+    urgencyDeathWithIncome:   { en: "If {name} passes away today, the family needs {target} to cover obligations and sustain income over {period} years. Only {pct}% is in place — the {shortfall} gap represents roughly {months} months of {name}'s income left unprotected.", zh: '若{name}今日身故，家庭需要{target}以覆盖义务并维持{period}年的收入。目前仅达到{pct}%——{shortfall}缺口约代表{name} {months}个月的收入未受保障。' },
+    urgencyTPDWithIncome:     { en: "Total permanent disability ends {name}'s income immediately and permanently. At {income}/month, the {shortfall} shortfall means {months} months of income has no coverage. Only {pct}% of the need is met.", zh: '全残将立即永久终止{name}的收入。以{income}/月计，{shortfall}缺口意味着{months}个月的收入没有保障，目前仅满足{pct}%的需求。' },
+    urgencyACIWithIncome:     { en: 'Advanced stage CI typically forces 2–5 years out of the workforce. {name} earns {income}/month — the {shortfall} gap, on top of treatment costs, leaves significant financial exposure. {pct}% covered.', zh: '晚期重疾通常迫使人停工2至5年。{name}月收入为{income}——在治疗费用之上，{shortfall}缺口留下显著的财务风险，目前覆盖{pct}%。' },
+    urgencyECIWithIncome:     { en: "Early stage diagnosis is the window to act fast and afford the best treatment — it's also when financial pressure is highest. {name}'s {shortfall} shortfall means those costs land directly on the family. {pct}% covered.", zh: '早期确诊是快速行动、负担最佳治疗的时机——也是财务压力最大的时候。{name}的{shortfall}缺口意味着这些费用将直接落在家庭身上，目前覆盖{pct}%。' },
+    urgencyDefaultWithIncome: { en: '{shortfall} of {risk} coverage is unprotected — {pct}% met, {months} months of income at risk.', zh: '{risk}保障中有{shortfall}未受保障——目前达到{pct}%，{months}个月的收入面临风险。' },
+    urgencyDeathNoIncome:     { en: "Only {pct}% of death coverage is in force. The {shortfall} gap leaves {name}'s dependants exposed — obligations that cannot be met if the worst happens.", zh: '身故保障目前仅覆盖{pct}%，{shortfall}缺口令{name}的受扶养人面临风险——若最坏情况发生，这些义务将无法履行。' },
+    urgencyTPDNoIncome:       { en: 'Only {pct}% of TPD coverage is funded. A {shortfall} gap remains — if {name} becomes permanently disabled, income stops and this shortfall has to be absorbed.', zh: '全残保障目前仅达到{pct}%，仍有{shortfall}缺口——若{name}永久伤残，收入停止，这一缺口将由自身承担。' },
+    urgencyACINoIncome:       { en: 'Advanced CI at {pct}% coverage leaves a {shortfall} gap. Treatment costs plus lost income over {period} years is the real exposure — not just the medical bill.', zh: '晚期重疾保障目前仅覆盖{pct}%，留下{shortfall}缺口。{period}年内的治疗费用加上收入损失才是真正的风险敞口——不仅仅是医疗账单。' },
+    urgencyECINoIncome:       { en: 'Early stage CI coverage is only {pct}% funded. The {shortfall} shortfall means {name} absorbs early treatment costs with no financial cushion.', zh: '早期重疾保障目前仅达到{pct}%，{shortfall}缺口意味着{name}需自行承担早期治疗费用，毫无财务缓冲。' },
+    urgencyDefaultNoIncome:   { en: '{pct}% of {risk} coverage is in place. {shortfall} remains unprotected.', zh: '{risk}保障目前达到{pct}%，{shortfall}仍未受保障。' },
   },
 
   // ─── Cash Flow Planner ──────────────────────────────────────────────────────
