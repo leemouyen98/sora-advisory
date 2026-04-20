@@ -135,7 +135,7 @@ export default function TopBar({ onMenuToggle }) {
         {/* Menu toggle — tablet only */}
         <button
           onClick={onMenuToggle}
-          className="hidden md:flex lg:hidden min-w-touch min-h-touch items-center justify-center
+          className="flex lg:hidden min-w-touch min-h-touch items-center justify-center
                      text-hig-text-secondary hover:text-hig-text rounded-hig-sm
                      hover:bg-hig-gray-6 transition-colors duration-hig"
         >

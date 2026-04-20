@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import BottomNav from './BottomNav'
@@ -6,10 +7,18 @@ import BottomNav from './BottomNav'
 const SIDEBAR_KEY = 'sora-sidebar-expanded'
 
 export default function AppShell({ children }) {
+  const location = useLocation()
   const [sidebarExpanded, setSidebarExpanded] = useState(() => {
     const stored = localStorage.getItem(SIDEBAR_KEY)
     return stored !== null ? stored === 'true' : true   // default expanded
   })
+
+  // Auto-close drawer on mobile when navigating
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setSidebarExpanded(false)
+    }
+  }, [location.pathname])
 
   const handleToggle = () => {
     setSidebarExpanded(prev => {

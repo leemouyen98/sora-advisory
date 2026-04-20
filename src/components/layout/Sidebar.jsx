@@ -59,7 +59,7 @@ export default function Sidebar({ expanded, onToggle }) {
     <>
       {expanded && (
         <div
-          className="fixed inset-0 bg-black/20 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-50 lg:hidden"
           onClick={onToggle}
         />
       )}
@@ -69,10 +69,11 @@ export default function Sidebar({ expanded, onToggle }) {
         onMouseLeave={handleMouseLeave}
         style={{ background: NAVY }}
         className={`
-          hidden md:flex flex-col
-          fixed lg:relative z-30 h-full
+          flex flex-col
+          fixed lg:relative z-[60] lg:z-30 h-full
           transition-all duration-300 ease-in-out
           ${isOpen ? 'w-60' : 'w-[60px]'}
+          ${expanded ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
       >
         {/* ── Logo area ── */}
