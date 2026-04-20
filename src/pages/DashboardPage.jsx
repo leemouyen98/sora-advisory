@@ -591,7 +591,7 @@ export default function DashboardPage() {
             </div>
 
             <button
-              onClick={() => navigate('/contacts?new=true')}
+              onClick={() => navigate('/contacts/new')}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 7,
                 background: '#2E96FF', color: '#fff',
@@ -757,7 +757,7 @@ export default function DashboardPage() {
                 </div>
                 {contacts.length === 0 && (
                   <button
-                    onClick={() => navigate('/contacts?new=true')}
+                    onClick={() => navigate('/contacts/new')}
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: 7,
                       background: '#2E96FF', color: '#fff',

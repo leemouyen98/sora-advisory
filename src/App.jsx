@@ -8,6 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 const LoginPage             = lazy(() => import('./pages/LoginPage'))
 const DashboardPage         = lazy(() => import('./pages/DashboardPage'))
 const ContactsPage          = lazy(() => import('./pages/ContactsPage'))
+const AddContactPage        = lazy(() => import('./pages/AddContactPage'))
 const ContactDetailPage     = lazy(() => import('./pages/ContactDetailPage'))
 const RetirementPlannerPage = lazy(() => import('./pages/RetirementPlannerPage'))
 const ProtectionPlannerPage = lazy(() => import('./pages/ProtectionPlannerPage'))
@@ -64,6 +65,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/contacts" element={<ContactsPage />} />
+            <Route path="/contacts/new" element={<AddContactPage />} />
             <Route path="/contacts/:id" element={<ContactDetailPage />} />
             <Route path="/contacts/:id/retirement" element={
               <ErrorBoundary><RetirementPlannerPage /></ErrorBoundary>

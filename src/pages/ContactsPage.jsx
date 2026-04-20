@@ -13,13 +13,12 @@
 import { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
-import { useLanguage } from '../hooks/useLanguage'
 import {
   Plus, Search, Trash2, Tag, MoreHorizontal,
   ChevronRight, Phone, AlertCircle,
   Target, Shield, CheckCircle2,
   LayoutList, Columns, Clock, AlertTriangle,
-  SortAsc, Filter, Mail,
+  SortAsc,
 } from 'lucide-react'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -490,110 +489,6 @@ function PipelineView({ contacts, onNavigate, onStageChange }) {
   )
 }
 
-// Add Contact Modal
-function AddContactModal({ onClose, onAdd }) {
-  const [form, setForm] = useState({
-    name: '', dob: '', mobile: '', email: '', employment: '',
-    stage: 'Lead', retirementAge: 55, reviewDate: '', reviewFrequency: '', notes: '',
-  })
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!form.name || !form.dob) return
-    onAdd(form)
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <form
-        onClick={e => e.stopPropagation()}
-        onSubmit={handleSubmit}
-        className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="text-hig-title3">Add Contact</h2>
-          <button type="button" onClick={onClose}
-            className="p-1.5 rounded-hig-sm hover:bg-hig-gray-6 text-hig-text-secondary">
-            ✕
-          </button>
-        </div>
-
-        {/* Name + DOB */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Full Name <span className="text-hig-red">*</span></label>
-            <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="hig-input" placeholder="Ahmad Bin Ali" required />
-          </div>
-          <div>
-            <label className="hig-label">Date of Birth <span className="text-hig-red">*</span></label>
-            <input type="date" value={form.dob} onChange={e => setForm({...form, dob: e.target.value})} className="hig-input" required />
-          </div>
-        </div>
-
-        {/* Mobile + Email */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Mobile</label>
-            <input value={form.mobile} onChange={e => setForm({...form, mobile: e.target.value})} className="hig-input" placeholder="012-3456789" />
-          </div>
-          <div>
-            <label className="hig-label">Email</label>
-            <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="hig-input" placeholder="email@example.com" />
-          </div>
-        </div>
-
-        {/* Employment + Stage */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Employment</label>
-            <select value={form.employment} onChange={e => setForm({...form, employment: e.target.value})} className="hig-input">
-              <option value="">Select...</option>
-              <option>Employed</option>
-              <option>Self-Employed</option>
-              <option>Business Owner</option>
-              <option>Unemployed</option>
-              <option>Retired</option>
-            </select>
-          </div>
-          <div>
-            <label className="hig-label">Pipeline Stage</label>
-            <select value={form.stage} onChange={e => setForm({...form, stage: e.target.value})} className="hig-input">
-              {STAGES.filter(s => s.key !== 'Dormant').map(s => (
-                <option key={s.key} value={s.key}>{s.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Retirement Age */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Retirement Age</label>
-            <input type="number" min={40} max={80} value={form.retirementAge ?? 55}
-              onChange={e => setForm({...form, retirementAge: parseInt(e.target.value) || 55})}
-              className="hig-input" placeholder="55" />
-          </div>
-          <div>
-            <label className="hig-label">Review Date</label>
-            <input type="date" value={form.reviewDate} onChange={e => setForm({...form, reviewDate: e.target.value})} className="hig-input" />
-          </div>
-        </div>
-
-        <div>
-          <label className="hig-label">Notes</label>
-          <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})}
-            className="hig-input min-h-[60px] resize-y" placeholder="Referral source, key needs..." />
-        </div>
-
-        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className="hig-btn-secondary">Cancel</button>
-          <button type="submit" className="hig-btn-primary">Add Contact</button>
-        </div>
-      </form>
-    </div>
-  )
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 const SORT_OPTIONS = [
@@ -606,16 +501,14 @@ const SORT_OPTIONS = [
 const STAGE_ORDER = { Lead: 0, Prospect: 1, Proposal: 2, Client: 3, Dormant: 4 }
 
 export default function ContactsPage() {
-  const { contacts, contactsLoading, contactsError, addContact, deleteContacts, addTag, updateContact } = useContacts()
+  const { contacts, contactsLoading, contactsError, deleteContacts, addTag, updateContact } = useContacts()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { t } = useLanguage()
 
   const [search,      setSearch]      = useState(() => searchParams.get('q') || '')
   const [filter,      setFilter]      = useState('all')
   const [sortBy,      setSortBy]      = useState('activity')
   const [viewMode,    setViewMode]    = useState('list') // 'list' | 'pipeline'
-  const [showForm,    setShowForm]    = useState(searchParams.get('new') === 'true')
   const [selected,    setSelected]    = useState(new Set())
   const [showBulkMenu,setShowBulkMenu]= useState(false)
   const [showSort,    setShowSort]    = useState(false)
@@ -678,13 +571,6 @@ export default function ContactsPage() {
     return list
   }, [contacts, search, filter, sortBy, now])
 
-  const handleAdd = (formData) => {
-    const c = addContact(formData)
-    setShowForm(false)
-    setSearchParams({})
-    navigate(`/contacts/${c.id}`)
-  }
-
   const handleBulkDelete = () => {
     if (!selected.size) return
     deleteContacts([...selected])
@@ -709,7 +595,7 @@ export default function ContactsPage() {
       {/* Header */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-hig-title2">Contacts</h1>
-        <button onClick={() => setShowForm(true)} className="hig-btn-primary w-full justify-center gap-2 sm:w-auto">
+        <button onClick={() => navigate('/contacts/new')} className="hig-btn-primary w-full justify-center gap-2 sm:w-auto">
           <Plus size={16} /> Add Contact
         </button>
       </div>
@@ -868,13 +754,6 @@ export default function ContactsPage() {
         </div>
       )}
 
-      {/* Add Contact Modal */}
-      {showForm && (
-        <AddContactModal
-          onClose={() => { setShowForm(false); setSearchParams({}) }}
-          onAdd={handleAdd}
-        />
-      )}
     </div>
   )
 }
