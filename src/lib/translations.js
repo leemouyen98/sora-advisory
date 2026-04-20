@@ -10,21 +10,21 @@ const translations = {
     dashboard:  { en: 'Dashboard',  zh: '主页'   },
     contacts:   { en: 'Contacts',   zh: '客户'   },
     library:    { en: 'Library',    zh: '资料库'  },
-    settings:   { en: 'Settings',   zh: '设置'   },
+    settings:   { en: 'Settings',   zh: '设定'   },
     admin:      { en: 'Admin',      zh: '管理'   },
   },
 
   // ─── TopBar / Profile dropdown ─────────────────────────────────────────────
   topbar: {
     agentCode:  { en: 'Agent Code', zh: '业务员代码' },
-    settings:   { en: 'Settings',   zh: '设置'      },
+    settings:   { en: 'Settings',   zh: '设定'      },
     logOut:     { en: 'Log Out',    zh: '登出'      },
     language:   { en: 'Language',   zh: '语言'      },
   },
 
   // ─── Common actions ─────────────────────────────────────────────────────────
   common: {
-    save:       { en: 'Save',       zh: '保存'   },
+    save:       { en: 'Save',       zh: '储存'   },
     cancel:     { en: 'Cancel',     zh: '取消'   },
     delete:     { en: 'Delete',     zh: '删除'   },
     edit:       { en: 'Edit',       zh: '编辑'   },
@@ -34,9 +34,9 @@ const translations = {
     done:       { en: 'Done',       zh: '完成'   },
     reset:      { en: 'Reset',      zh: '重置'   },
     confirm:    { en: 'Confirm',    zh: '确认'   },
-    loading:    { en: 'Loading…',   zh: '加载中…' },
+    loading:    { en: 'Loading…',   zh: '载入中…' },
     error:      { en: 'Error',      zh: '错误'   },
-    search:     { en: 'Search',     zh: '搜索'   },
+    search:     { en: 'Search',     zh: '搜寻'   },
     select:     { en: 'Select…',    zh: '请选择…' },
     none:       { en: 'None',       zh: '无'     },
     yes:        { en: 'Yes',        zh: '是'     },
@@ -103,7 +103,7 @@ const translations = {
   contacts: {
     title:          { en: 'Contacts',         zh: '客户'       },
     addNew:         { en: 'Add New Contact',  zh: '添加新客户' },
-    searchPlaceholder: { en: 'Search contacts…', zh: '搜索客户…'  },
+    searchPlaceholder: { en: 'Search contacts…', zh: '搜寻客户…'  },
     selected:       { en: 'selected',         zh: '已选'       },
     tagAsClient:    { en: 'Tag as Client',    zh: '标记为客户' },
     tagAsProspect:  { en: 'Tag as Prospect',  zh: '标记为潜在客户' },
@@ -135,12 +135,12 @@ const translations = {
 
     empEmployed:      { en: 'Employed',           zh: '受雇'   },
     empSelfEmployed:  { en: 'Self-Employed',      zh: '自雇'   },
-    empUnemployed:    { en: 'Unemployed',         zh: '待业'   },
+    empUnemployed:    { en: 'Unemployed',         zh: '失业'   },
     empRetired:       { en: 'Retired',            zh: '已退休' },
 
     freqAnnually:     { en: 'Annually',           zh: '每年'   },
     freqSemiAnnual:   { en: 'Semi-annually',      zh: '每半年' },
-    freqQuarterly:    { en: 'Quarterly',          zh: '每季度' },
+    freqQuarterly:    { en: 'Quarterly',          zh: '每季'   },
   },
 
   // ─── Contact Detail ─────────────────────────────────────────────────────────
@@ -200,8 +200,8 @@ const translations = {
 
   // ─── Settings ───────────────────────────────────────────────────────────────
   settings: {
-    title:            { en: 'Settings',                   zh: '设置'             },
-    subtitle:         { en: 'Manage your account and security preferences.', zh: '管理您的账户及安全设置。' },
+    title:            { en: 'Settings',                   zh: '设定'             },
+    subtitle:         { en: 'Manage your account and security preferences.', zh: '管理您的账户及安全设定。' },
     profile:          { en: 'Profile',                    zh: '个人资料'         },
     agentCode:        { en: 'Agent Code',                 zh: '业务员代码'       },
     fullName:         { en: 'Full Name',                  zh: '全名'             },
@@ -255,14 +255,14 @@ const translations = {
     description:    { en: 'Description',         zh: '描述'       },
     category:       { en: 'Category',            zh: '类别'       },
     frequency:      { en: 'Frequency',           zh: '频率'       },
-    currentValue:   { en: 'Current Value',       zh: '当前价值'   },
+    currentValue:   { en: 'Current Value',       zh: '目前价值'   },
     principal:      { en: 'Principal',           zh: '本金'       },
     interestRate:   { en: 'Interest Rate',       zh: '利率'       },
     monthlyPayment: { en: 'Monthly Payment',     zh: '月还款额'   },
     balance:        { en: 'Balance',             zh: '余额'       },
     freqMonthly:    { en: 'Monthly',             zh: '每月'       },
     freqYearly:     { en: 'Yearly',              zh: '每年'       },
-    freqQuarterly:  { en: 'Quarterly',           zh: '每季度'     },
+    freqQuarterly:  { en: 'Quarterly',           zh: '每季'       },
     freqSemiAnnual: { en: 'Semi-annually',       zh: '每半年'     },
     freqOneTime:    { en: 'One-Time',            zh: '一次性'     },
     importData:     { en: 'Import Financial Data', zh: '导入财务数据' },
@@ -303,7 +303,7 @@ const translations = {
     progressing:        { en: 'Progressing',              zh: '有进展'           },
     atRisk:             { en: 'At Risk',                  zh: '有风险'           },
 
-    currentAge:         { en: 'Current Age',              zh: '当前年龄'         },
+    currentAge:         { en: 'Current Age',              zh: '目前年龄'         },
     retirementAge:      { en: 'Retirement Age',           zh: '退休年龄'         },
     lifeExpectancy:     { en: 'Life Expectancy',          zh: '预期寿命'         },
     monthlyExpenses:    { en: 'Monthly Expenses at Retirement', zh: '退休月支出' },
@@ -398,7 +398,7 @@ const translations = {
     msgAtRisk:             { en: 'There\'s a significant gap. Let\'s explore options to bridge it.', zh: '存在较大缺口，让我们一同探讨填补方案。' },
 
     // ── Situation cards ──────────────────────────────────────────────────────
-    currentSituation:      { en: 'Current Situation',                         zh: '当前情况'           },
+    currentSituation:      { en: 'Current Situation',                         zh: '目前情况'           },
     withRecommendation:    { en: 'With Recommendation',                       zh: '加建议后'           },
     fundsLastThrough:      { en: 'Funds should last through retirement years.', zh: '资金将支撑整个退休期。' },
     fundsRunOutMsg:        { en: 'Funds run out at age {age}. {pct}% of goal covered.', zh: '资金将在 {age} 岁耗尽，已覆盖目标 {pct}%。' },
@@ -480,7 +480,7 @@ const translations = {
 
     death:            { en: 'Death',                      zh: '身故'             },
     tpd:              { en: 'Total Permanent Disability', zh: '永久完全伤残'     },
-    aci:              { en: 'Critical Illness (Accelerated)', zh: '重疾（提前给付）' },
+    aci:              { en: 'Critical Illness (Accelerated)', zh: '重疾（提早给付）' },
     eci:              { en: 'Early Critical Illness',     zh: '早期重疾'         },
 
     needsTitle:       { en: 'Protection Need',            zh: '保障需求'         },
@@ -592,7 +592,7 @@ const translations = {
     savingsGrowth:    { en: 'Savings Growth',             zh: '储蓄增长率'       },
     epfDividend:      { en: 'EPF Dividend',               zh: '公积金股息率'     },
     inflationRate:    { en: 'Inflation Rate',             zh: '通货膨胀率'       },
-    assumptions:      { en: 'Assumptions',                zh: '假设设置'         },
+    assumptions:      { en: 'Assumptions',                zh: '假设设定'         },
     existingPlans:    { en: 'Existing Plans',             zh: '现有计划'         },
     deactivateAll:    { en: 'Deactivate All',             zh: '全部停用'         },
     noPlans:          { en: 'No insurance plans added',   zh: '暂无保险计划'     },
