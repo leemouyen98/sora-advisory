@@ -142,11 +142,11 @@ function MarkdownContent({ blocks }) {
         )
 
         if (block.type === 'image') return (
-          <div key={i} style={{ borderRadius: 12, overflow: 'hidden', background: '#F2F2F7' }}>
+          <div key={i} style={{ borderRadius: 12, overflow: 'hidden', background: '#F2F2F7', display: 'inline-block', maxWidth: '100%' }}>
             <img
               src={mediaUrl(block.name)}
               alt={block.name.replace(/\s*\d+\.(png|jpg|jpeg)$/i, '')}
-              style={{ width: '100%', maxHeight: 260, objectFit: 'cover', display: 'block' }}
+              style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
               onError={e => {
                 e.target.style.display = 'none'
                 e.target.parentElement.style.display = 'none'
