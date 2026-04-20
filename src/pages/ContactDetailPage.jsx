@@ -1,14 +1,11 @@
 /**
- * ContactDetailPage — Account 360 view (Salesforce-inspired)
+ * ContactDetailPage — Account 360 view
  *
- * Key improvements over previous version:
- * · Pipeline stage selector (in profile card sidebar)
- * · Unified Activity Timeline (merges notes + calls/meetings + tasks in one feed)
- * · Quick Action Bar (Log Call / Meeting / Note / Task — inline forms, 2 clicks)
- * · Coverage Snapshot widget (Life / Medical / CI / PA visual status)
- * · Review countdown + stale-contact warning
- * · Next-action suggestion based on stage + last activity
- * · All existing functionality preserved (Finances tab, planners, cash flow)
+ * · Redesigned hero card with gradient banner, stats strip
+ * · Date-grouped timeline (Today / Yesterday / This Week / Earlier)
+ * · Edit button navigates to /contacts/:id/edit (full-page form)
+ * · Quick Action Bar, Coverage Snapshot, Planning Snapshot preserved
+ * · All existing functionality preserved
  */
 
 import { useState, useMemo, useEffect } from 'react'
@@ -112,6 +109,42 @@ function buildTimeline(contact) {
     items.push({ ...t, _kind: 'task', _sortDate: t.dueDate || t.date || '0' })
   )
   return items.sort((a, b) => new Date(b._sortDate) - new Date(a._sortDate))
+}
+
+// Group timeline items by date bucket
+function groupTimeline(items) {
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1)
+  const weekAgo   = new Date(now); weekAgo.setDate(now.getDate() - 7)
+  const monthAgo  = new Date(now); monthAgo.setDate(now.getDate() - 30)
+
+  const buckets = [
+    { key: 'today',     label: 'Today',      items: [] },
+    { key: 'yesterday', label: 'Yesterday',  items: [] },
+    { key: 'week',      label: 'This Week',  items: [] },
+    { key: 'month',     label: 'This Month', items: [] },
+    { key: 'older',     label: 'Earlier',    items: [] },
+  ]
+
+  items.forEach(item => {
+    const d = new Date(item._sortDate)
+    d.setHours(0, 0, 0, 0)
+    if (d >= now)         buckets[0].items.push(item)
+    else if (d >= yesterday) buckets[1].items.push(item)
+    else if (d >= weekAgo)   buckets[2].items.push(item)
+    else if (d >= monthAgo)  buckets[3].items.push(item)
+    else                     buckets[4].items.push(item)
+  })
+
+  return buckets.filter(b => b.items.length > 0)
+}
+
+// Derive a deterministic hue from contact name for the avatar gradient
+function nameHue(name = '') {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return Math.abs(h) % 360
 }
 
 // Next-action suggestion engine
@@ -544,87 +577,6 @@ function TimelineItem({ item, contactId, onToggleTask }) {
   )
 }
 
-// ─── Edit Contact Modal ───────────────────────────────────────────────────────
-function EditContactModal({ editForm, setEditForm, onClose, onSubmit }) {
-  const { t } = useLanguage()
-  return (
-    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <form
-        onClick={e => e.stopPropagation()}
-        onSubmit={onSubmit}
-        className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto"
-      >
-        <h2 className="text-hig-title3">Edit Contact</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Name <span className="text-hig-red">*</span></label>
-            <input value={editForm.name || ''} onChange={e => setEditForm({...editForm, name: e.target.value})} className="hig-input" required />
-          </div>
-          <div>
-            <label className="hig-label">Date of Birth <span className="text-hig-red">*</span></label>
-            <input type="date" value={editForm.dob || ''} onChange={e => setEditForm({...editForm, dob: e.target.value})} className="hig-input" required />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Mobile</label>
-            <input value={editForm.mobile || ''} onChange={e => setEditForm({...editForm, mobile: e.target.value})} className="hig-input" placeholder="012-3456789" />
-          </div>
-          <div>
-            <label className="hig-label">Email</label>
-            <input type="email" value={editForm.email || ''} onChange={e => setEditForm({...editForm, email: e.target.value})} className="hig-input" placeholder="email@example.com" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Employment Status</label>
-            <select value={editForm.employment || ''} onChange={e => setEditForm({...editForm, employment: e.target.value})} className="hig-input">
-              <option value="">Select...</option>
-              <option>Employed</option>
-              <option>Self-Employed</option>
-              <option>Business Owner</option>
-              <option>Unemployed</option>
-              <option>Retired</option>
-            </select>
-          </div>
-          <div>
-            <label className="hig-label">Retirement Age</label>
-            <input type="number" min={40} max={80} value={editForm.retirementAge ?? 55}
-              onChange={e => setEditForm({...editForm, retirementAge: parseInt(e.target.value) || 55})}
-              className="hig-input" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="hig-label">Review Date</label>
-            <input type="date" value={editForm.reviewDate || ''} onChange={e => setEditForm({...editForm, reviewDate: e.target.value})} className="hig-input" />
-          </div>
-          <div>
-            <label className="hig-label">Review Frequency</label>
-            <select value={editForm.reviewFrequency || ''} onChange={e => setEditForm({...editForm, reviewFrequency: e.target.value})} className="hig-input">
-              <option value="">Select...</option>
-              <option>Annually</option>
-              <option>Semi-annually</option>
-              <option>Quarterly</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label className="hig-label">Notes</label>
-          <textarea value={editForm.notes || ''} onChange={e => setEditForm({...editForm, notes: e.target.value})}
-            className="hig-input min-h-[80px] resize-y" placeholder="Referral source, key context..." />
-        </div>
-
-        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className="hig-btn-secondary">Cancel</button>
-          <button type="submit" className="hig-btn-primary">Save Changes</button>
-        </div>
-      </form>
-    </div>
-  )
-}
-
 // ─── Confirm Modal ────────────────────────────────────────────────────────────
 function ConfirmModal({ title, body, danger, onConfirm, onCancel }) {
   const { t } = useLanguage()
@@ -672,8 +624,6 @@ export default function ContactDetailPage() {
   const [showCFPrompt,  setShowCFPrompt]  = useState(false)
   const [showStartPlanning, setShowStartPlanning] = useState(false)
   const [showOptionsMenu,   setShowOptionsMenu]   = useState(false)
-  const [showEditForm,      setShowEditForm]       = useState(false)
-  const [editForm,          setEditForm]           = useState({})
   const [confirmAction,     setConfirmAction]      = useState(null)
   const [autoOpenFinancialEdit, setAutoOpenFinancialEdit] = useState(false)
 
@@ -738,26 +688,6 @@ export default function ContactDetailPage() {
   const age   = getAge(contact.dob)
   const stage = getEffectiveStage(contact)
 
-  const openEdit = () => {
-    setEditForm({
-      name: contact.name, dob: contact.dob,
-      mobile: contact.mobile || '', email: contact.email || '',
-      employment: contact.employment || '',
-      retirementAge: contact.retirementAge ?? 55,
-      reviewDate: contact.reviewDate || '',
-      reviewFrequency: contact.reviewFrequency || '',
-      notes: contact.notes || '',
-    })
-    setShowEditForm(true)
-  }
-
-  const handleEditSubmit = (e) => {
-    e.preventDefault()
-    if (!editForm.name || !editForm.dob) return
-    updateContact(id, editForm)
-    setShowEditForm(false)
-  }
-
   const launchCashFlow = () => {
     setShowStartPlanning(false)
     if (!hasFinancialData) setShowCFPrompt(true)
@@ -820,7 +750,6 @@ export default function ContactDetailPage() {
           onSaveFinancials={data => saveFinancials(id, data)}
           onDone={() => setShowCashFlow(false)}
         />
-        {showEditForm && <EditContactModal editForm={editForm} setEditForm={setEditForm} onClose={() => setShowEditForm(false)} onSubmit={handleEditSubmit} />}
       </div>
     )
   }
@@ -943,101 +872,187 @@ export default function ContactDetailPage() {
         {/* ── Sidebar ──────────────────────────────────────────────────────── */}
         <div className="w-full lg:w-72 lg:shrink-0 space-y-4">
 
-          {/* Profile card */}
-          <div className="hig-card p-5 space-y-3">
-            {/* Avatar + Name + Edit */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div style={{
-                  width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
-                  background: '#2E96FF18', color: '#2E96FF',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 17, fontWeight: 700,
-                }}>
-                  {contact.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
-                </div>
-                <div>
-                  <h2 className="text-hig-headline">{contact.name}</h2>
-                  <p className="text-hig-caption1 text-hig-text-secondary">Age {age}</p>
-                </div>
-              </div>
-              <button onClick={openEdit} className="p-1.5 rounded-hig-sm hover:bg-hig-gray-6 text-hig-text-secondary hover:text-hig-blue transition-colors">
-                <Pencil size={14} />
-              </button>
-            </div>
-
-            {/* Stage selector */}
-            <StageSelector
-              stage={stage}
-              onChange={newStage => updateContact(id, { stage: newStage })}
-            />
-
-            {/* Review countdown */}
-            <ReviewCountdown reviewDate={contact.reviewDate} />
-
-            {/* Contact info */}
-            <div className="space-y-2 text-hig-subhead pt-1">
-              {contact.mobile && (
-                <div className="flex items-center gap-2.5 text-hig-text-secondary">
-                  <Phone size={14} />
-                  <a href={`tel:${contact.mobile}`} className="text-hig-text hover:text-hig-blue transition-colors">
-                    {contact.mobile}
-                  </a>
-                </div>
-              )}
-              {contact.email && (
-                <div className="flex items-center gap-2.5 text-hig-text-secondary">
-                  <Mail size={14} />
-                  <a href={`mailto:${contact.email}`} className="text-hig-text hover:text-hig-blue transition-colors truncate">
-                    {contact.email}
-                  </a>
-                </div>
-              )}
-              <div className="flex items-center gap-2.5 text-hig-text-secondary">
-                <Calendar size={14} />
-                <span className="text-hig-text">
-                  {new Date(contact.dob).toLocaleDateString('en-MY', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </span>
-              </div>
-              {contact.employment && (
-                <div className="flex items-center gap-2.5 text-hig-text-secondary">
-                  <Briefcase size={14} />
-                  <span className="text-hig-text">{contact.employment}</span>
-                </div>
-              )}
-              {contact.reviewDate && contact.reviewFrequency && (
-                <div className="flex items-center gap-2.5 text-hig-text-secondary">
-                  <Clock size={14} />
-                  <span className="text-hig-text">{contact.reviewFrequency}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Tags */}
-            <div className="pt-1">
-              <div className="flex flex-wrap gap-1.5">
-                {contact.tags.map(tag => (
-                  <span key={tag} className="flex items-center gap-1 text-hig-caption1 px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue font-medium">
-                    {tag}
-                    <button onClick={() => removeTag([contact.id], tag)} className="text-hig-blue/60 hover:text-hig-blue transition-colors">
-                      <X size={10} />
+          {/* ── Hero Card ─────────────────────────────────────────────────── */}
+          <div className="hig-card overflow-hidden">
+            {/* Gradient banner */}
+            {(() => {
+              const hue = nameHue(contact.name)
+              const initials = contact.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)
+              return (
+                <>
+                  <div style={{
+                    height: 64,
+                    background: `linear-gradient(135deg, hsl(${hue},70%,55%) 0%, hsl(${(hue+40)%360},65%,65%) 100%)`,
+                    position: 'relative',
+                  }}>
+                    {/* Edit button top-right */}
+                    <button
+                      onClick={() => navigate(`/contacts/${id}/edit`)}
+                      style={{
+                        position: 'absolute', top: 8, right: 8,
+                        width: 28, height: 28, borderRadius: 8,
+                        background: 'rgba(255,255,255,0.25)',
+                        border: '1px solid rgba(255,255,255,0.35)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', backdropFilter: 'blur(4px)',
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.4)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                      title="Edit contact"
+                    >
+                      <Pencil size={13} style={{ color: 'white' }} />
                     </button>
-                  </span>
-                ))}
-                {['Client','Prospect'].filter(t => !contact.tags.includes(t)).map(t => (
-                  <button key={t} onClick={() => addTag([contact.id], t)}
-                    className="text-hig-caption1 px-2 py-0.5 rounded-full border border-dashed border-hig-gray-3 text-hig-text-secondary hover:border-hig-blue hover:text-hig-blue transition-colors">
-                    + {t}
-                  </button>
-                ))}
-              </div>
-            </div>
+                  </div>
 
-            {contact.notes && (
-              <p className="text-hig-caption1 text-hig-text-secondary pt-1 border-t border-hig-gray-5 leading-relaxed">
-                {contact.notes}
-              </p>
-            )}
+                  {/* Avatar overlapping banner */}
+                  <div style={{ padding: '0 16px 16px', marginTop: -28 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <div style={{
+                        width: 56, height: 56, borderRadius: '50%',
+                        background: `hsl(${hue},70%,55%)`,
+                        border: '3px solid white',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 18, fontWeight: 700, color: 'white',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                        flexShrink: 0,
+                      }}>
+                        {initials}
+                      </div>
+                      {/* Stage pill */}
+                      <StageSelector
+                        stage={stage}
+                        onChange={newStage => updateContact(id, { stage: newStage })}
+                      />
+                    </div>
+
+                    {/* Name + age */}
+                    <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1E', lineHeight: 1.2, marginBottom: 2 }}>
+                      {contact.name}
+                    </h2>
+                    <p style={{ fontSize: 12, color: '#8E8E93', marginBottom: 10 }}>
+                      Age {age}{contact.employment ? ` · ${contact.employment}` : ''}
+                    </p>
+
+                    {/* Stats strip */}
+                    {(() => {
+                      const policies    = (contact.financials?.insurance || []).filter(p => !p.status || p.status === 'Active')
+                      const covCount    = Object.values(getCoverageStatus(contact)).filter(Boolean).length
+                      const allActivity = [
+                        ...(contact.activities   || []).map(a => new Date(a.date)),
+                        ...(contact.interactions || []).map(i => new Date(i.date)),
+                      ].filter(d => !isNaN(d))
+                      const lastSeen = allActivity.length
+                        ? Math.floor((Date.now() - Math.max(...allActivity)) / 86400000)
+                        : null
+                      const openTasks   = (contact.tasks || []).filter(t => t.status !== 'completed').length
+                      const totalAnnPremium = policies.reduce((s, p) => {
+                        const amt = Number(p.annualPremium || p.premium || 0)
+                        return s + (p.premiumFrequency === 'Monthly' ? amt * 12 : amt)
+                      }, 0)
+
+                      const stats = [
+                        { label: 'Coverage', value: `${covCount}/4`, color: covCount===4?'#34C759':covCount>=2?'#FF9500':'#FF3B30' },
+                        { label: 'Policies', value: policies.length, color: '#2E96FF' },
+                        ...(lastSeen !== null ? [{ label: 'Last seen', value: lastSeen===0?'Today':`${lastSeen}d`, color: lastSeen>60?'#FF3B30':lastSeen>14?'#FF9500':'#34C759' }] : []),
+                        ...(openTasks > 0 ? [{ label: 'Open tasks', value: openTasks, color: '#FF9500' }] : []),
+                      ]
+
+                      return (
+                        <div style={{
+                          display: 'grid', gridTemplateColumns: `repeat(${Math.min(stats.length,4)}, 1fr)`,
+                          gap: 1, background: '#F2F2F7', borderRadius: 10, overflow: 'hidden',
+                          marginBottom: 12,
+                        }}>
+                          {stats.map(s => (
+                            <div key={s.label} style={{
+                              background: 'white', padding: '8px 6px', textAlign: 'center',
+                            }}>
+                              <p style={{ fontSize: 15, fontWeight: 700, color: s.color, lineHeight: 1.1 }}>{s.value}</p>
+                              <p style={{ fontSize: 10, color: '#8E8E93', marginTop: 2, fontWeight: 500 }}>{s.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Review countdown */}
+                    <ReviewCountdown reviewDate={contact.reviewDate} />
+
+                    {/* Contact info */}
+                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                      {contact.mobile && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                          <Phone size={13} style={{ color: '#8E8E93', flexShrink: 0 }} />
+                          <a href={`tel:${contact.mobile}`} style={{ color: '#1C1C1E', textDecoration: 'none' }}
+                            onMouseEnter={e => e.target.style.color='#2E96FF'}
+                            onMouseLeave={e => e.target.style.color='#1C1C1E'}>
+                            {contact.mobile}
+                          </a>
+                        </div>
+                      )}
+                      {contact.email && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                          <Mail size={13} style={{ color: '#8E8E93', flexShrink: 0 }} />
+                          <a href={`mailto:${contact.email}`} style={{ color: '#1C1C1E', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                            onMouseEnter={e => e.target.style.color='#2E96FF'}
+                            onMouseLeave={e => e.target.style.color='#1C1C1E'}>
+                            {contact.email}
+                          </a>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                        <Calendar size={13} style={{ color: '#8E8E93', flexShrink: 0 }} />
+                        <span style={{ color: '#1C1C1E' }}>
+                          {new Date(contact.dob).toLocaleDateString('en-MY', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </span>
+                      </div>
+                      {contact.reviewDate && contact.reviewFrequency && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                          <Clock size={13} style={{ color: '#8E8E93', flexShrink: 0 }} />
+                          <span style={{ color: '#1C1C1E' }}>{contact.reviewFrequency} review</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Tags */}
+                    <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {contact.tags.map(tag => (
+                        <span key={tag} style={{
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          fontSize: 11, fontWeight: 600,
+                          padding: '3px 8px', borderRadius: 20,
+                          background: '#EBF5FF', color: '#2E96FF',
+                        }}>
+                          {tag}
+                          <button onClick={() => removeTag([contact.id], tag)} style={{ color: '#2E96FF80', border: 'none', background: 'none', cursor: 'pointer', display: 'flex' }}>
+                            <X size={9} />
+                          </button>
+                        </span>
+                      ))}
+                      {['Client','Prospect'].filter(t => !contact.tags.includes(t)).map(t => (
+                        <button key={t} onClick={() => addTag([contact.id], t)}
+                          style={{
+                            fontSize: 11, padding: '3px 8px', borderRadius: 20,
+                            border: '1.5px dashed #C7C7CC', background: 'none',
+                            color: '#8E8E93', cursor: 'pointer', transition: 'all 0.15s',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor='#2E96FF'; e.currentTarget.style.color='#2E96FF' }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor='#C7C7CC'; e.currentTarget.style.color='#8E8E93' }}>
+                          + {t}
+                        </button>
+                      ))}
+                    </div>
+
+                    {contact.notes && (
+                      <p style={{ fontSize: 12, color: '#8E8E93', marginTop: 10, paddingTop: 10, borderTop: '1px solid #F2F2F7', lineHeight: 1.5 }}>
+                        {contact.notes}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )
+            })()}
           </div>
 
           {/* Coverage Snapshot */}
@@ -1160,7 +1175,7 @@ export default function ContactDetailPage() {
                 ))}
               </div>
 
-              {/* Timeline feed */}
+              {/* Timeline feed — date-grouped */}
               <div className="hig-card p-4">
                 {timeline.length === 0 ? (
                   <div style={{ padding: '32px 0', textAlign: 'center' }}>
@@ -1171,13 +1186,33 @@ export default function ContactDetailPage() {
                     </p>
                   </div>
                 ) : (
-                  timeline.map((item, idx) => (
-                    <TimelineItem
-                      key={item.id || idx}
-                      item={item}
-                      contactId={contact.id}
-                      onToggleTask={toggleTask}
-                    />
+                  groupTimeline(timeline).map(bucket => (
+                    <div key={bucket.key}>
+                      {/* Date bucket header */}
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        margin: '8px 0 4px',
+                      }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+                          textTransform: 'uppercase', color: '#8E8E93',
+                        }}>
+                          {bucket.label}
+                        </span>
+                        <div style={{ flex: 1, height: 1, background: '#F2F2F7' }} />
+                        <span style={{ fontSize: 10, color: '#C7C7CC', fontWeight: 500 }}>
+                          {bucket.items.length}
+                        </span>
+                      </div>
+                      {bucket.items.map((item, idx) => (
+                        <TimelineItem
+                          key={item.id || idx}
+                          item={item}
+                          contactId={contact.id}
+                          onToggleTask={toggleTask}
+                        />
+                      ))}
+                    </div>
                   ))
                 )}
               </div>
@@ -1224,13 +1259,6 @@ export default function ContactDetailPage() {
         </div>
       )}
 
-      {/* Edit Contact Modal */}
-      {showEditForm && (
-        <EditContactModal
-          editForm={editForm} setEditForm={setEditForm}
-          onClose={() => setShowEditForm(false)} onSubmit={handleEditSubmit}
-        />
-      )}
     </div>
   )
 }

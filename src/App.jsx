@@ -10,6 +10,7 @@ const DashboardPage         = lazy(() => import('./pages/DashboardPage'))
 const ContactsPage          = lazy(() => import('./pages/ContactsPage'))
 const AddContactPage        = lazy(() => import('./pages/AddContactPage'))
 const ContactDetailPage     = lazy(() => import('./pages/ContactDetailPage'))
+const EditContactPage       = lazy(() => import('./pages/EditContactPage'))
 const RetirementPlannerPage = lazy(() => import('./pages/RetirementPlannerPage'))
 const ProtectionPlannerPage = lazy(() => import('./pages/ProtectionPlannerPage'))
 const SettingsPage          = lazy(() => import('./pages/SettingsPage'))
@@ -67,6 +68,7 @@ export default function App() {
             <Route path="/contacts" element={<ContactsPage />} />
             <Route path="/contacts/new" element={<AddContactPage />} />
             <Route path="/contacts/:id" element={<ContactDetailPage />} />
+            <Route path="/contacts/:id/edit" element={<EditContactPage />} />
             <Route path="/contacts/:id/retirement" element={
               <ErrorBoundary><RetirementPlannerPage /></ErrorBoundary>
             } />
