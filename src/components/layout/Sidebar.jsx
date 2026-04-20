@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Users,
   Library,
+  Stethoscope,
   Settings,
   Shield,
   ChevronLeft,
@@ -31,9 +32,10 @@ export default function Sidebar({ expanded, onToggle }) {
   const isOpen = expanded || hovered
 
   const NAV_ITEMS = [
-    { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
-    { path: '/contacts',  label: t('nav.contacts'),  icon: Users },
-    { path: '/library',   label: t('nav.library'),   icon: Library },
+    { path: '/dashboard',    label: t('nav.dashboard'),    icon: LayoutDashboard },
+    { path: '/contacts',     label: t('nav.contacts'),     icon: Users },
+    { path: '/library',      label: t('nav.library'),      icon: Library },
+    ...(isAdmin ? [{ path: '/underwriting', label: t('nav.underwriting'), icon: Stethoscope }] : []),
   ]
 
   const BOTTOM_NAV = [

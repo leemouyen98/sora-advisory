@@ -11,7 +11,8 @@ const translations = {
     contacts:   { en: 'Contacts',   zh: '客户'   },
     library:    { en: 'Library',    zh: '资料库'  },
     settings:   { en: 'Settings',   zh: '设定'   },
-    admin:      { en: 'Admin',      zh: '管理'   },
+    admin:        { en: 'Admin',      zh: '管理'   },
+    underwriting: { en: 'UW Guide',   zh: '核保指南' },
   },
 
   // ─── TopBar / Profile dropdown ─────────────────────────────────────────────

@@ -15,8 +15,9 @@ const RetirementPlannerPage = lazy(() => import('./pages/RetirementPlannerPage')
 const ProtectionPlannerPage = lazy(() => import('./pages/ProtectionPlannerPage'))
 const SettingsPage          = lazy(() => import('./pages/SettingsPage'))
 const AdminPage             = lazy(() => import('./pages/AdminPage'))
-const KnowledgeLibraryPage  = lazy(() => import('./pages/KnowledgeLibraryPage'))
-const NotFoundPage          = lazy(() => import('./pages/NotFoundPage'))
+const KnowledgeLibraryPage      = lazy(() => import('./pages/KnowledgeLibraryPage'))
+const MedicalUnderwritingPage   = lazy(() => import('./pages/MedicalUnderwritingPage'))
+const NotFoundPage              = lazy(() => import('./pages/NotFoundPage'))
 
 // ─── Full-screen loading fallback ─────────────────────────────────────────────
 function PageLoader() {
@@ -76,6 +77,9 @@ export default function App() {
               <ErrorBoundary><ProtectionPlannerPage /></ErrorBoundary>
             } />
             <Route path="/library" element={<KnowledgeLibraryPage />} />
+            <Route path="/underwriting" element={
+              <AdminRoute><MedicalUnderwritingPage /></AdminRoute>
+            } />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/admin" element={
               <AdminRoute><AdminPage /></AdminRoute>
