@@ -1,25 +1,23 @@
 /**
- * KnowledgeLibraryPage
- * ────────────────────
- * Two-panel layout: folder navigation (left) + file browser (right).
+ * KnowledgeLibraryPage — reworked
+ * ────────────────────────────────
+ * Left panel  : folder navigation with active-folder highlight
+ * Right panel : file browser with sort, drag-drop upload, pinned section
  *
- * Right-panel features:
- *   • Grid view — PDF cards with first-page thumbnail; other files with icon
- *   • List view — compact table with type badge, size, date
- *   • Search bar — real-time name filter
- *   • Type filter chips — All / PDF / Image / Other
- *   • View mode persisted to localStorage
- *   • Star toggle on every file (amber ★, optimistic UI)
- *
- * File actions:
- *   PDF   → SecurePDFViewerModal (canvas, scroll, no download)
- *   Other → authenticated download
+ * New in this version:
+ *   • Sort controls (Name / Date / Size + direction) — toolbar + clickable list headers
+ *   • Date column in list view (uploaded_at)
+ *   • Drag & drop upload overlay
+ *   • Starred files pinned at top in a "Pinned" section
+ *   • File-type badge chip on grid card thumbnails
+ *   • Active-folder left-accent in sidebar
  */
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   FolderOpen, Folder, Plus, Pencil, Trash2, Upload,
   FileText, FileImage, File, FileSpreadsheet, Loader, Library,
-  ChevronRight, Star, LayoutGrid, List, Search, X, Download,
+  ChevronRight, ChevronUp, ChevronDown, Star, LayoutGrid, List,
+  Search, X, Download,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
@@ -123,6 +121,32 @@ function ConfirmModal({ message, confirmLabel = 'Delete', onConfirm, onClose }) 
   )
 }
 
+// ── Sort direction icon ───────────────────────────────────────────────────────
+function SortIcon({ field, sortBy, sortDir }) {
+  if (sortBy !== field) return <ChevronDown size={10} style={{ color: '#D1D5DB', marginLeft: 2 }} />
+  return sortDir === 'asc'
+    ? <ChevronUp size={10} style={{ color: '#2E96FF', marginLeft: 2 }} />
+    : <ChevronDown size={10} style={{ color: '#2E96FF', marginLeft: 2 }} />
+}
+
+// ── Section divider ───────────────────────────────────────────────────────────
+function SectionLabel({ icon, label, count }) {
+  return (
+    <div className="flex items-center gap-2 mb-3" style={{ marginTop: 2 }}>
+      {icon}
+      <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+        {label}
+      </span>
+      {count != null && (
+        <span style={{
+          fontSize: 10, fontWeight: 600, color: '#9CA3AF',
+          background: 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: 20,
+        }}>{count}</span>
+      )}
+    </div>
+  )
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function KnowledgeLibraryPage() {
   const { token, isAdmin } = useAuth()
@@ -139,18 +163,26 @@ export default function KnowledgeLibraryPage() {
   const [pdfViewer,      setPdfViewer]      = useState(null)
   const [starredFileIds, setStarredFileIds] = useState(new Set())
 
-  // ── View / filter ───────────────────────────────────────────────────────────
+  // ── View / filter / sort ─────────────────────────────────────────────────────
   const [viewMode,    setViewMode]    = useState(() => {
     try { return localStorage.getItem('lib-view') || 'grid' } catch { return 'grid' }
   })
   const [search,     setSearch]     = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
+  const [sortBy,     setSortBy]     = useState('name')
+  const [sortDir,    setSortDir]    = useState('asc')
+  const [isDragOver, setIsDragOver] = useState(false)
 
   const currentFolderId = folderStack.length > 0 ? folderStack[folderStack.length - 1].id : null
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
 
-  // Reset search/filter on folder change
-  useEffect(() => { setSearch(''); setTypeFilter('all') }, [currentFolderId])
+  // Reset filters on folder change
+  useEffect(() => {
+    setSearch('')
+    setTypeFilter('all')
+    setSortBy('name')
+    setSortDir('asc')
+  }, [currentFolderId])
 
   // ── Navigation ──────────────────────────────────────────────────────────────
   function drillInto(folder) {
@@ -261,7 +293,6 @@ export default function KnowledgeLibraryPage() {
     try {
       await fetch(`/api/library/files/${fileId}/star`, { method: 'POST', headers })
     } catch {
-      // Roll back
       setStarredFileIds(prev => {
         const next = new Set(prev)
         next.has(fileId) ? next.delete(fileId) : next.add(fileId)
@@ -290,9 +321,32 @@ export default function KnowledgeLibraryPage() {
     try { localStorage.setItem('lib-view', mode) } catch {}
   }
 
-  // ── Filtered files ───────────────────────────────────────────────────────────
+  function toggleSort(field) {
+    if (sortBy === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortBy(field); setSortDir('asc') }
+  }
+
+  // ── Drag & drop ──────────────────────────────────────────────────────────────
+  function handleDragOver(e) {
+    if (!currentFolderId || !isAdmin) return
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+  function handleDragLeave(e) {
+    if (e.currentTarget.contains(e.relatedTarget)) return
+    setIsDragOver(false)
+  }
+  function handleDrop(e) {
+    e.preventDefault()
+    setIsDragOver(false)
+    if (!currentFolderId || !isAdmin) return
+    const dropped = e.dataTransfer?.files
+    if (dropped?.length) uploadFiles(dropped)
+  }
+
+  // ── Filtered + sorted files ───────────────────────────────────────────────────
   const filteredFiles = useMemo(() => {
-    let result = files
+    let result = [...files]
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter(f => f.name.toLowerCase().includes(q))
@@ -305,8 +359,25 @@ export default function KnowledgeLibraryPage() {
         return true
       })
     }
+    result.sort((a, b) => {
+      let va, vb
+      if (sortBy === 'name') { va = a.name.toLowerCase(); vb = b.name.toLowerCase() }
+      else if (sortBy === 'date') {
+        va = new Date(a.uploaded_at || 0).getTime()
+        vb = new Date(b.uploaded_at || 0).getTime()
+      }
+      else if (sortBy === 'size') { va = a.size || 0; vb = b.size || 0 }
+      if (va < vb) return sortDir === 'asc' ? -1 : 1
+      if (va > vb) return sortDir === 'asc' ? 1 : -1
+      return 0
+    })
     return result
-  }, [files, search, typeFilter])
+  }, [files, search, typeFilter, sortBy, sortDir])
+
+  // Split into pinned / rest for section display
+  const pinnedFiles  = useMemo(() => filteredFiles.filter(f =>  starredFileIds.has(f.id)), [filteredFiles, starredFileIds])
+  const restFiles    = useMemo(() => filteredFiles.filter(f => !starredFileIds.has(f.id)), [filteredFiles, starredFileIds])
+  const hasSections  = pinnedFiles.length > 0 && restFiles.length > 0
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -396,37 +467,51 @@ export default function KnowledgeLibraryPage() {
             subfolders.map(folder => (
               <div
                 key={folder.id}
-                className="group flex items-center gap-2 mx-1.5 px-2.5 py-2 rounded-lg cursor-pointer transition-colors"
+                className="group flex items-center gap-2 mx-1.5 rounded-lg cursor-pointer transition-colors"
+                style={{ position: 'relative', overflow: 'hidden' }}
                 onClick={() => drillInto(folder)}
                 onMouseEnter={e => { e.currentTarget.style.background = '#F3F4F6' }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
               >
-                <Folder size={14} style={{ color: '#2E96FF', flexShrink: 0 }} />
-                <span style={{
-                  fontSize: 13, color: '#111827', flex: 1,
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {folder.name}
-                </span>
+                {/* Left accent bar — always present but transparent; shows on hover */}
+                <div style={{
+                  position: 'absolute', left: 0, top: 4, bottom: 4,
+                  width: 3, borderRadius: 2,
+                  background: '#2E96FF',
+                  opacity: 0,
+                  transition: 'opacity 0.15s',
+                }}
+                  className="group-hover:opacity-100"
+                />
 
-                {/* Admin: rename / delete on hover */}
-                {isAdmin ? (
-                  <div
-                    className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <button
-                      onClick={() => setModal({ type: 'renameFolder', target: folder })}
-                      className="w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-[#2E96FF] transition-colors"
-                    ><Pencil size={10} /></button>
-                    <button
-                      onClick={() => setModal({ type: 'deleteFolder', target: folder })}
-                      className="w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-red-500 transition-colors"
-                    ><Trash2 size={10} /></button>
-                  </div>
-                ) : (
-                  <ChevronRight size={12} style={{ color: '#D1D5DB', flexShrink: 0 }} />
-                )}
+                <div className="flex items-center gap-2 flex-1 min-w-0 px-2.5 py-2 pl-3.5">
+                  <Folder size={14} style={{ color: '#2E96FF', flexShrink: 0 }} />
+                  <span style={{
+                    fontSize: 13, color: '#111827', flex: 1,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {folder.name}
+                  </span>
+
+                  {/* Admin: rename / delete on hover */}
+                  {isAdmin ? (
+                    <div
+                      className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => setModal({ type: 'renameFolder', target: folder })}
+                        className="w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-[#2E96FF] transition-colors"
+                      ><Pencil size={10} /></button>
+                      <button
+                        onClick={() => setModal({ type: 'deleteFolder', target: folder })}
+                        className="w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-red-500 transition-colors"
+                      ><Trash2 size={10} /></button>
+                    </div>
+                  ) : (
+                    <ChevronRight size={12} style={{ color: '#D1D5DB', flexShrink: 0 }} />
+                  )}
+                </div>
               </div>
             ))
           )}
@@ -452,6 +537,7 @@ export default function KnowledgeLibraryPage() {
               <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1, whiteSpace: 'nowrap' }}>
                 {files.length} {files.length === 1 ? 'file' : 'files'}
                 {filteredFiles.length !== files.length && ` · ${filteredFiles.length} shown`}
+                {starredFileIds.size > 0 && ` · ${starredFileIds.size} pinned`}
               </p>
             )}
           </div>
@@ -518,6 +604,46 @@ export default function KnowledgeLibraryPage() {
                 })}
               </div>
 
+              {/* Sort controls */}
+              <div
+                className="flex items-center rounded-lg overflow-hidden"
+                style={{ border: '1px solid rgba(0,0,0,0.1)' }}
+              >
+                {[
+                  { key: 'name', label: 'Name' },
+                  { key: 'date', label: 'Date' },
+                  { key: 'size', label: 'Size' },
+                ].map(({ key, label }, idx, arr) => {
+                  const active = sortBy === key
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => toggleSort(key)}
+                      title={`Sort by ${label}`}
+                      style={{
+                        padding: '4px 9px',
+                        fontSize: 11, fontWeight: active ? 600 : 500,
+                        background: active ? 'rgba(46,150,255,0.1)' : 'transparent',
+                        color: active ? '#2E96FF' : '#6B7280',
+                        border: 'none',
+                        borderRight: idx < arr.length - 1 ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 1,
+                        transition: 'all 0.12s',
+                      }}
+                    >
+                      {label}
+                      {active
+                        ? (sortDir === 'asc'
+                            ? <ChevronUp size={10} style={{ marginLeft: 1 }} />
+                            : <ChevronDown size={10} style={{ marginLeft: 1 }} />)
+                        : <ChevronDown size={10} style={{ marginLeft: 1, opacity: 0.3 }} />
+                      }
+                    </button>
+                  )
+                })}
+              </div>
+
               {/* View toggle */}
               <div
                 className="flex items-center rounded-lg overflow-hidden"
@@ -569,7 +695,39 @@ export default function KnowledgeLibraryPage() {
         </div>
 
         {/* ── Content area ─────────────────────────────────────────────────── */}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div
+          className="flex-1 overflow-y-auto p-5"
+          style={{ position: 'relative' }}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {/* Drag-and-drop overlay */}
+          {isDragOver && currentFolderId && isAdmin && (
+            <div
+              style={{
+                position: 'absolute', inset: 10, zIndex: 40,
+                background: 'rgba(46,150,255,0.06)',
+                border: '2px dashed #2E96FF',
+                borderRadius: 14,
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 10, pointerEvents: 'none',
+              }}
+            >
+              <div style={{
+                width: 52, height: 52, borderRadius: 16,
+                background: 'rgba(46,150,255,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Upload size={22} style={{ color: '#2E96FF' }} />
+              </div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#2E96FF' }}>Drop files to upload</p>
+              <p style={{ fontSize: 12, color: '#60A5FA' }}>
+                into {folderStack[folderStack.length - 1]?.name}
+              </p>
+            </div>
+          )}
 
           {/* No folder selected */}
           {!currentFolderId && (
@@ -600,10 +758,26 @@ export default function KnowledgeLibraryPage() {
           {/* Empty folder */}
           {currentFolderId && !loadingFiles && files.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full gap-3">
-              <FolderOpen size={38} strokeWidth={1.2} style={{ color: '#D1D5DB' }} />
-              <p style={{ fontSize: 14, color: '#9CA3AF' }}>
-                {isAdmin ? 'No files yet — upload to get started' : 'No files in this folder'}
-              </p>
+              {isAdmin ? (
+                <>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: 20,
+                    border: '2px dashed #D1D5DB',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Upload size={22} strokeWidth={1.4} style={{ color: '#D1D5DB' }} />
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: 14, fontWeight: 500, color: '#9CA3AF', marginBottom: 4 }}>No files yet</p>
+                    <p style={{ fontSize: 12, color: '#C4C4C4' }}>Drag & drop or click Upload to get started</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <FolderOpen size={38} strokeWidth={1.2} style={{ color: '#D1D5DB' }} />
+                  <p style={{ fontSize: 14, color: '#9CA3AF' }}>No files in this folder</p>
+                </>
+              )}
             </div>
           )}
 
@@ -627,94 +801,58 @@ export default function KnowledgeLibraryPage() {
               GRID VIEW
               ════════════════════════════════════════════════════════════════ */}
           {currentFolderId && !loadingFiles && filteredFiles.length > 0 && viewMode === 'grid' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 14 }}>
-              {filteredFiles.map(file => {
-                const isPDF     = file.mime_type === 'application/pdf'
-                const Icon      = fileIcon(file.mime_type)
-                const color     = fileAccentColor(file.mime_type)
-                const isStarred = starredFileIds.has(file.id)
-
-                return (
-                  <div
-                    key={file.id}
-                    className="group bg-white rounded-2xl overflow-hidden cursor-pointer transition-all"
-                    style={{
-                      border: '1px solid rgba(0,0,0,0.07)',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.11)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'; e.currentTarget.style.transform = 'translateY(0)' }}
-                    onClick={() => openFile(file)}
-                  >
-                    {/* Thumbnail area — fixed height */}
-                    <div style={{ position: 'relative', height: 148, overflow: 'hidden' }}>
-                      {isPDF ? (
-                        <PDFThumbnail fileId={file.id} token={token} />
-                      ) : (
-                        <div style={{
-                          width: '100%', height: '100%',
-                          background: `${color}0D`,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <Icon size={38} style={{ color, opacity: 0.75 }} />
-                        </div>
-                      )}
-
-                      {/* Admin action buttons — top-right, appear on card hover */}
-                      {isAdmin && (
-                        <div
-                          className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={e => e.stopPropagation()}
-                        >
-                          <button
-                            onClick={() => setModal({ type: 'renameFile', target: file })}
-                            className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-500 hover:text-[#2E96FF] transition-colors"
-                            style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(4px)', border: '1px solid rgba(0,0,0,0.1)' }}
-                          ><Pencil size={10} /></button>
-                          <button
-                            onClick={() => setModal({ type: 'deleteFile', target: file })}
-                            className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-500 transition-colors"
-                            style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(4px)', border: '1px solid rgba(0,0,0,0.1)' }}
-                          ><Trash2 size={10} /></button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Card footer */}
-                    <div style={{ padding: '9px 11px 11px' }}>
-                      <div className="flex items-start gap-1.5">
-                        {/* Star */}
-                        <button
-                          onClick={e => toggleStar(e, file.id)}
-                          title={isStarred ? 'Remove from favourites' : 'Add to favourites'}
-                          className="shrink-0 mt-0.5"
-                          style={{ opacity: isStarred ? 1 : 0.28, transition: 'opacity 0.15s', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                          onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
-                          onMouseLeave={e => { if (!isStarred) e.currentTarget.style.opacity = '0.28' }}
-                        >
-                          <Star
-                            size={12}
-                            fill={isStarred ? '#FF9500' : 'none'}
-                            stroke={isStarred ? '#FF9500' : '#C7C7CC'}
-                            strokeWidth={2}
-                          />
-                        </button>
-                        {/* File name */}
-                        <p style={{
-                          fontSize: 12, fontWeight: 500, color: '#111827',
-                          lineHeight: 1.35, overflow: 'hidden',
-                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                        }}>
-                          {file.name}
-                        </p>
-                      </div>
-                      <p style={{ fontSize: 10.5, color: '#9CA3AF', marginTop: 5 }}>
-                        {formatBytes(file.size)}
-                      </p>
-                    </div>
+            <div>
+              {/* Pinned section */}
+              {pinnedFiles.length > 0 && (
+                <div style={{ marginBottom: hasSections ? 20 : 0 }}>
+                  {hasSections && (
+                    <SectionLabel
+                      icon={<Star size={11} fill="#FF9500" stroke="#FF9500" />}
+                      label="Pinned"
+                      count={pinnedFiles.length}
+                    />
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 14 }}>
+                    {pinnedFiles.map(file => (
+                      <GridCard
+                        key={file.id}
+                        file={file}
+                        token={token}
+                        isAdmin={isAdmin}
+                        isStarred
+                        onOpen={() => openFile(file)}
+                        onStar={e => toggleStar(e, file.id)}
+                        onRename={() => setModal({ type: 'renameFile', target: file })}
+                        onDelete={() => setModal({ type: 'deleteFile', target: file })}
+                      />
+                    ))}
                   </div>
-                )
-              })}
+                </div>
+              )}
+
+              {/* Rest section */}
+              {restFiles.length > 0 && (
+                <div>
+                  {hasSections && (
+                    <SectionLabel label="All Files" count={restFiles.length} />
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 14 }}>
+                    {restFiles.map(file => (
+                      <GridCard
+                        key={file.id}
+                        file={file}
+                        token={token}
+                        isAdmin={isAdmin}
+                        isStarred={false}
+                        onOpen={() => openFile(file)}
+                        onStar={e => toggleStar(e, file.id)}
+                        onRename={() => setModal({ type: 'renameFile', target: file })}
+                        onDelete={() => setModal({ type: 'deleteFile', target: file })}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -726,115 +864,90 @@ export default function KnowledgeLibraryPage() {
               className="bg-white rounded-2xl overflow-hidden"
               style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
             >
-              {/* Header row */}
+              {/* Sortable header row */}
               <div
                 className="flex items-center px-4 py-2"
                 style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: '#FAFAFA' }}
               >
-                <div style={{ flex: 1, fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Name</div>
+                {/* Name header */}
+                <button
+                  onClick={() => toggleSort('name')}
+                  className="flex items-center gap-0.5 flex-1 text-left"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  <span style={{ fontSize: 10, fontWeight: 700, color: sortBy === 'name' ? '#2E96FF' : '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Name</span>
+                  <SortIcon field="name" sortBy={sortBy} sortDir={sortDir} />
+                </button>
                 <div style={{ width: 58, fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type</div>
-                <div style={{ width: 78, fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Size</div>
+                {/* Size header */}
+                <button
+                  onClick={() => toggleSort('size')}
+                  className="flex items-center gap-0.5"
+                  style={{ width: 70, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  <span style={{ fontSize: 10, fontWeight: 700, color: sortBy === 'size' ? '#2E96FF' : '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Size</span>
+                  <SortIcon field="size" sortBy={sortBy} sortDir={sortDir} />
+                </button>
+                {/* Date header */}
+                <button
+                  onClick={() => toggleSort('date')}
+                  className="flex items-center gap-0.5"
+                  style={{ width: 110, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  <span style={{ fontSize: 10, fontWeight: 700, color: sortBy === 'date' ? '#2E96FF' : '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Uploaded</span>
+                  <SortIcon field="date" sortBy={sortBy} sortDir={sortDir} />
+                </button>
                 <div style={{ width: isAdmin ? 84 : 34 }} />
               </div>
 
-              {/* File rows */}
-              {filteredFiles.map((file, idx) => {
-                const Icon      = fileIcon(file.mime_type)
-                const color     = fileAccentColor(file.mime_type)
-                const typeLabel = fileTypeLabel(file.mime_type)
-                const isStarred = starredFileIds.has(file.id)
-                const isPDF     = file.mime_type === 'application/pdf'
-
-                return (
-                  <div
-                    key={file.id}
-                    className="group flex items-center px-4 py-2.5 cursor-pointer transition-colors"
-                    style={{ borderBottom: idx < filteredFiles.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#F9FAFB' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
-                    onClick={() => openFile(file)}
-                  >
-                    {/* Icon + name */}
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                      <div style={{
-                        width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-                        background: `${color}12`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <Icon size={14} style={{ color }} />
-                      </div>
-                      <span style={{
-                        fontSize: 13, fontWeight: 500, color: '#111827',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {file.name}
-                      </span>
+              {/* Pinned section in list */}
+              {pinnedFiles.length > 0 && (
+                <>
+                  {hasSections && (
+                    <div className="flex items-center gap-2 px-4 py-1.5" style={{ background: 'rgba(255,149,0,0.04)', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                      <Star size={10} fill="#FF9500" stroke="#FF9500" />
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#FF9500', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Pinned</span>
                     </div>
+                  )}
+                  {pinnedFiles.map((file, idx) => (
+                    <ListRow
+                      key={file.id}
+                      file={file}
+                      isLast={!hasSections && idx === pinnedFiles.length - 1}
+                      isAdmin={isAdmin}
+                      isStarred
+                      onOpen={() => openFile(file)}
+                      onStar={e => toggleStar(e, file.id)}
+                      onRename={() => setModal({ type: 'renameFile', target: file })}
+                      onDelete={() => setModal({ type: 'deleteFile', target: file })}
+                    />
+                  ))}
+                </>
+              )}
 
-                    {/* Type badge */}
-                    <div style={{ width: 58, flexShrink: 0 }}>
-                      <span style={{
-                        fontSize: 10.5, fontWeight: 600, color,
-                        background: `${color}12`,
-                        padding: '2px 7px', borderRadius: 20,
-                      }}>
-                        {typeLabel}
-                      </span>
+              {/* Rest section in list */}
+              {restFiles.length > 0 && (
+                <>
+                  {hasSections && (
+                    <div className="flex items-center gap-2 px-4 py-1.5" style={{ background: '#FAFAFA', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em' }}>All Files</span>
                     </div>
-
-                    {/* Size */}
-                    <div style={{ width: 78, fontSize: 12, color: '#6B7280', flexShrink: 0 }}>
-                      {formatBytes(file.size)}
-                    </div>
-
-                    {/* Actions */}
-                    <div
-                      style={{ width: isAdmin ? 84 : 34, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2, flexShrink: 0 }}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      {/* Star */}
-                      <button
-                        onClick={e => toggleStar(e, file.id)}
-                        title={isStarred ? 'Remove from favourites' : 'Add to favourites'}
-                        className="w-6 h-6 flex items-center justify-center rounded-md"
-                        style={{ border: 'none', background: 'transparent', cursor: 'pointer', opacity: isStarred ? 1 : 0.28, transition: 'opacity 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
-                        onMouseLeave={e => { if (!isStarred) e.currentTarget.style.opacity = '0.28' }}
-                      >
-                        <Star
-                          size={13}
-                          fill={isStarred ? '#FF9500' : 'none'}
-                          stroke={isStarred ? '#FF9500' : '#C7C7CC'}
-                          strokeWidth={2}
-                        />
-                      </button>
-
-                      {/* Non-PDF download indicator */}
-                      {!isPDF && (
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#C7C7CC' }}>
-                          <Download size={11} />
-                        </span>
-                      )}
-
-                      {/* Admin */}
-                      {isAdmin && (
-                        <>
-                          <button
-                            onClick={() => setModal({ type: 'renameFile', target: file })}
-                            className="w-6 h-6 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-all hover:text-[#2E96FF] transition-colors"
-                            style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#9CA3AF' }}
-                          ><Pencil size={12} /></button>
-                          <button
-                            onClick={() => setModal({ type: 'deleteFile', target: file })}
-                            className="w-6 h-6 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 transition-colors"
-                            style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#9CA3AF' }}
-                          ><Trash2 size={12} /></button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
+                  )}
+                  {restFiles.map((file, idx) => (
+                    <ListRow
+                      key={file.id}
+                      file={file}
+                      isLast={idx === restFiles.length - 1}
+                      isAdmin={isAdmin}
+                      isStarred={false}
+                      onOpen={() => openFile(file)}
+                      onStar={e => toggleStar(e, file.id)}
+                      onRename={() => setModal({ type: 'renameFile', target: file })}
+                      onDelete={() => setModal({ type: 'deleteFile', target: file })}
+                    />
+                  ))}
+                </>
+              )}
             </div>
           )}
         </div>
@@ -875,6 +988,212 @@ export default function KnowledgeLibraryPage() {
           onClose={() => setPdfViewer(null)}
         />
       )}
+    </div>
+  )
+}
+
+// ── Grid card sub-component ───────────────────────────────────────────────────
+function GridCard({ file, token, isAdmin, isStarred, onOpen, onStar, onRename, onDelete }) {
+  const isPDF  = file.mime_type === 'application/pdf'
+  const Icon   = fileIcon(file.mime_type)
+  const color  = fileAccentColor(file.mime_type)
+  const label  = fileTypeLabel(file.mime_type)
+
+  return (
+    <div
+      className="group bg-white rounded-2xl overflow-hidden cursor-pointer transition-all"
+      style={{
+        border: '1px solid rgba(0,0,0,0.07)',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.11)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'; e.currentTarget.style.transform = 'translateY(0)' }}
+      onClick={onOpen}
+    >
+      {/* Thumbnail area */}
+      <div style={{ position: 'relative', height: 148, overflow: 'hidden' }}>
+        {isPDF ? (
+          <PDFThumbnail fileId={file.id} token={token} />
+        ) : (
+          <div style={{
+            width: '100%', height: '100%',
+            background: `${color}0D`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon size={38} style={{ color, opacity: 0.75 }} />
+          </div>
+        )}
+
+        {/* File type badge — bottom-left of thumbnail */}
+        <div style={{
+          position: 'absolute', bottom: 8, left: 8,
+          fontSize: 9.5, fontWeight: 700,
+          color,
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(4px)',
+          padding: '2px 7px', borderRadius: 20,
+          border: `1px solid ${color}30`,
+          letterSpacing: '0.03em',
+          pointerEvents: 'none',
+        }}>
+          {label}
+        </div>
+
+        {/* Admin action buttons — top-right, on hover */}
+        {isAdmin && (
+          <div
+            className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={onRename}
+              className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-500 hover:text-[#2E96FF] transition-colors"
+              style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(4px)', border: '1px solid rgba(0,0,0,0.1)' }}
+            ><Pencil size={10} /></button>
+            <button
+              onClick={onDelete}
+              className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-500 transition-colors"
+              style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(4px)', border: '1px solid rgba(0,0,0,0.1)' }}
+            ><Trash2 size={10} /></button>
+          </div>
+        )}
+      </div>
+
+      {/* Card footer */}
+      <div style={{ padding: '9px 11px 11px' }}>
+        <div className="flex items-start gap-1.5">
+          {/* Star */}
+          <button
+            onClick={onStar}
+            title={isStarred ? 'Remove from pinned' : 'Pin file'}
+            className="shrink-0 mt-0.5"
+            style={{ opacity: isStarred ? 1 : 0.28, transition: 'opacity 0.15s', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
+            onMouseLeave={e => { if (!isStarred) e.currentTarget.style.opacity = '0.28' }}
+          >
+            <Star
+              size={12}
+              fill={isStarred ? '#FF9500' : 'none'}
+              stroke={isStarred ? '#FF9500' : '#C7C7CC'}
+              strokeWidth={2}
+            />
+          </button>
+          {/* File name */}
+          <p style={{
+            fontSize: 12, fontWeight: 500, color: '#111827',
+            lineHeight: 1.35, overflow: 'hidden',
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          }}>
+            {file.name}
+          </p>
+        </div>
+        <div className="flex items-center justify-between" style={{ marginTop: 5 }}>
+          <p style={{ fontSize: 10.5, color: '#9CA3AF' }}>{formatBytes(file.size)}</p>
+          <p style={{ fontSize: 10.5, color: '#C4C4C4' }}>{formatDate(file.uploaded_at)}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── List row sub-component ────────────────────────────────────────────────────
+function ListRow({ file, isLast, isAdmin, isStarred, onOpen, onStar, onRename, onDelete }) {
+  const Icon      = fileIcon(file.mime_type)
+  const color     = fileAccentColor(file.mime_type)
+  const typeLabel = fileTypeLabel(file.mime_type)
+  const isPDF     = file.mime_type === 'application/pdf'
+
+  return (
+    <div
+      className="group flex items-center px-4 py-2.5 cursor-pointer transition-colors"
+      style={{ borderBottom: isLast ? 'none' : '1px solid rgba(0,0,0,0.04)' }}
+      onMouseEnter={e => { e.currentTarget.style.background = '#F9FAFB' }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+      onClick={onOpen}
+    >
+      {/* Icon + name */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+          background: `${color}12`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon size={14} style={{ color }} />
+        </div>
+        <span style={{
+          fontSize: 13, fontWeight: 500, color: '#111827',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {file.name}
+        </span>
+      </div>
+
+      {/* Type badge */}
+      <div style={{ width: 58, flexShrink: 0 }}>
+        <span style={{
+          fontSize: 10.5, fontWeight: 600, color,
+          background: `${color}12`,
+          padding: '2px 7px', borderRadius: 20,
+        }}>
+          {typeLabel}
+        </span>
+      </div>
+
+      {/* Size */}
+      <div style={{ width: 70, fontSize: 12, color: '#6B7280', flexShrink: 0 }}>
+        {formatBytes(file.size)}
+      </div>
+
+      {/* Date */}
+      <div style={{ width: 110, fontSize: 12, color: '#9CA3AF', flexShrink: 0 }}>
+        {formatDate(file.uploaded_at)}
+      </div>
+
+      {/* Actions */}
+      <div
+        style={{ width: isAdmin ? 84 : 34, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2, flexShrink: 0 }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Star */}
+        <button
+          onClick={onStar}
+          title={isStarred ? 'Remove from pinned' : 'Pin file'}
+          className="w-6 h-6 flex items-center justify-center rounded-md"
+          style={{ border: 'none', background: 'transparent', cursor: 'pointer', opacity: isStarred ? 1 : 0.28, transition: 'opacity 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
+          onMouseLeave={e => { if (!isStarred) e.currentTarget.style.opacity = '0.28' }}
+        >
+          <Star
+            size={13}
+            fill={isStarred ? '#FF9500' : 'none'}
+            stroke={isStarred ? '#FF9500' : '#C7C7CC'}
+            strokeWidth={2}
+          />
+        </button>
+
+        {/* Download hint for non-PDFs */}
+        {!isPDF && (
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#C7C7CC' }}>
+            <Download size={11} />
+          </span>
+        )}
+
+        {/* Admin */}
+        {isAdmin && (
+          <>
+            <button
+              onClick={onRename}
+              className="w-6 h-6 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-all hover:text-[#2E96FF] transition-colors"
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#9CA3AF' }}
+            ><Pencil size={12} /></button>
+            <button
+              onClick={onDelete}
+              className="w-6 h-6 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 transition-colors"
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#9CA3AF' }}
+            ><Trash2 size={12} /></button>
+          </>
+        )}
+      </div>
     </div>
   )
 }
