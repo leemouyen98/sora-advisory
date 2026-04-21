@@ -8,37 +8,37 @@ const LOGO_ELEMENTS = [
     color: '#1A7FFF',
     bg: 'rgba(26,127,255,0.10)',
     title: 'The S Mark',
-    desc: 'A flowing S — movement, continuity, a guided journey. Good advisory work is never a one-time transaction. It evolves with the client.',
+    desc: 'A flowing S — movement, continuity, a guided journey. Good advisory work evolves with the client.',
   },
   {
     icon: Star,
     color: '#FFB800',
     bg: 'rgba(255,184,0,0.10)',
     title: 'The Star',
-    desc: 'A fixed point of reference. Something that orients decisions even when the future is uncertain — helping clients choose with clarity.',
+    desc: 'A fixed point of reference. Helping clients choose with clarity even when the future is uncertain.',
   },
   {
     icon: Waves,
     color: '#30D158',
     bg: 'rgba(48,209,88,0.10)',
     title: 'The Horizon',
-    desc: 'Vision beyond the immediate. The discipline to look toward long-term protection and planning, not just the moment in front of us.',
+    desc: 'Vision beyond the immediate. Planning for long-term protection, not just the moment in front of us.',
   },
   {
     icon: Palette,
     color: '#BF8FFF',
     bg: 'rgba(191,143,255,0.10)',
     title: 'Blue & Gold',
-    desc: 'Blue for trust, calm, and clarity. Gold for quality, confidence, and warmth. Measured, credible, and forward-looking — together.',
+    desc: 'Blue for trust and clarity. Gold for quality and confidence. Credible, measured, forward-looking.',
   },
 ]
 
 const VALUES = [
-  'Clarity before recommendation',
-  'Protection with purpose',
-  'Structured thinking',
-  'Long-term relationships',
-  'Guidance that evolves',
+  { label: 'Clarity before recommendation', accent: true },
+  { label: 'Protection with purpose', accent: false },
+  { label: 'Structured thinking', accent: false },
+  { label: 'Long-term relationships', accent: false },
+  { label: 'Guidance that evolves', accent: false },
 ]
 
 export default function AboutSoraModal({ onClose }) {
@@ -56,99 +56,189 @@ export default function AboutSoraModal({ onClose }) {
   return (
     <div
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(4,14,28,0.72)',
-        backdropFilter: 'blur(8px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px',
-        animation: 'abtBackdrop 0.2s ease both',
-      }}
+      className="abt-backdrop"
     >
       <style>{`
-        @keyframes abtBackdrop {
-          from { opacity: 0; }
-          to   { opacity: 1; }
+        /* ── Reset & tokens ────────────────────────── */
+        .abt-backdrop {
+          position: fixed; inset: 0; z-index: 1000;
+          background: rgba(4,14,28,0.75);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          display: flex; align-items: center; justify-content: center;
+          padding: 16px;
+          padding-bottom: max(16px, env(safe-area-inset-bottom));
+          animation: abtBackdrop 0.22s ease both;
         }
-        @keyframes abtSlide {
-          from { opacity: 0; transform: translateY(32px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+
+        /* ── Modal shell ───────────────────────────── */
+        .abt-card {
+          background: #fff;
+          border-radius: 24px;
+          width: 100%;
+          max-width: 660px;
+          max-height: 92vh;
+          display: flex; flex-direction: column;
+          overflow: hidden;
+          box-shadow: 0 40px 100px rgba(0,0,0,0.42), 0 2px 8px rgba(0,0,0,0.12);
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+          animation: abtSlide 0.38s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes abtUp {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
+
+        /* ── Hero ──────────────────────────────────── */
+        .abt-hero {
+          position: relative;
+          height: 260px;
+          flex-shrink: 0;
+          overflow: hidden;
         }
-        .abt-card  { animation: abtSlide 0.35s cubic-bezier(0.22,1,0.36,1) both; }
-        .abt-s1    { animation: abtUp 0.4s 0.10s ease both; }
-        .abt-s2    { animation: abtUp 0.4s 0.18s ease both; }
-        .abt-s3    { animation: abtUp 0.4s 0.26s ease both; }
-        .abt-s4    { animation: abtUp 0.4s 0.34s ease both; }
+
+        /* ── Scrollable body ───────────────────────── */
+        .abt-body {
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+          padding: 28px 30px 40px;
+        }
+        .abt-body::-webkit-scrollbar { width: 4px; }
+        .abt-body::-webkit-scrollbar-track { background: transparent; }
+        .abt-body::-webkit-scrollbar-thumb {
+          background: rgba(0,0,0,0.1);
+          border-radius: 4px;
+        }
+
+        /* ── Logo-element grid ─────────────────────── */
+        .abt-logo-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
         .abt-el {
+          background: #FAFAFA;
+          border: 1.5px solid #F0F0F5;
+          border-radius: 14px;
+          padding: 15px 16px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.03);
           transition: transform 0.18s ease, box-shadow 0.18s ease;
           cursor: default;
         }
         .abt-el:hover {
           transform: translateY(-3px);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.09) !important;
+          box-shadow: 0 10px 28px rgba(0,0,0,0.08) !important;
         }
+
+        /* ── Values chips ──────────────────────────── */
+        .abt-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 28px;
+        }
+
+        /* ── Close button ──────────────────────────── */
         .abt-close {
+          position: absolute; top: 14px; right: 14px;
+          width: 36px; height: 36px; border-radius: 50%;
+          background: rgba(0,0,0,0.38); border: none;
+          color: white; cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
           transition: background 0.15s, transform 0.15s;
+          /* Expand tap area without growing the visual */
+          padding: 0;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .abt-close::before {
+          content: '';
+          position: absolute;
+          inset: -8px;
+          border-radius: 50%;
         }
         .abt-close:hover {
-          background: rgba(0,0,0,0.55) !important;
+          background: rgba(0,0,0,0.58) !important;
           transform: scale(1.08);
         }
-        .abt-scroll::-webkit-scrollbar { width: 4px; }
-        .abt-scroll::-webkit-scrollbar-track { background: transparent; }
-        .abt-scroll::-webkit-scrollbar-thumb {
-          background: rgba(0,0,0,0.1);
-          border-radius: 4px;
+        .abt-close:active { transform: scale(0.94); }
+
+        /* ── Stagger animations ────────────────────── */
+        @keyframes abtBackdrop { from { opacity:0; } to { opacity:1; } }
+        @keyframes abtSlide {
+          from { opacity:0; transform:translateY(36px) scale(0.96); }
+          to   { opacity:1; transform:translateY(0) scale(1); }
+        }
+        @keyframes abtUp {
+          from { opacity:0; transform:translateY(14px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        .abt-s1 { animation: abtUp 0.42s 0.08s ease both; }
+        .abt-s2 { animation: abtUp 0.42s 0.16s ease both; }
+        .abt-s3 { animation: abtUp 0.42s 0.24s ease both; }
+        .abt-s4 { animation: abtUp 0.42s 0.32s ease both; }
+        .abt-s5 { animation: abtUp 0.42s 0.40s ease both; }
+
+        /* ════════════════════════════════════════════
+           RESPONSIVE — iPhone (≤ 430px)
+           ════════════════════════════════════════════ */
+        @media (max-width: 430px) {
+          .abt-backdrop { padding: 0; align-items: flex-end; }
+          .abt-card {
+            border-radius: 24px 24px 0 0;
+            max-height: 94vh;
+            max-width: 100%;
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.35);
+          }
+          .abt-hero { height: 220px; }
+          .abt-body { padding: 22px 20px 36px; }
+          /* Single column on small phones */
+          .abt-logo-grid { grid-template-columns: 1fr; }
+          .abt-el { padding: 14px 15px; border-radius: 12px; }
+          /* Larger close tap zone on mobile */
+          .abt-close { width: 38px; height: 38px; top: 12px; right: 12px; }
+        }
+
+        /* Slightly larger phones (iPhone Plus / Pro Max) */
+        @media (min-width: 390px) and (max-width: 430px) {
+          .abt-logo-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ════════════════════════════════════════════
+           RESPONSIVE — iPad (431px – 1024px)
+           ════════════════════════════════════════════ */
+        @media (min-width: 431px) and (max-width: 1024px) {
+          .abt-card { max-width: 600px; }
+          .abt-hero { height: 250px; }
+          .abt-body { padding: 26px 28px 38px; }
         }
       `}</style>
 
-      <div
-        className="abt-card"
-        style={{
-          background: 'white',
-          borderRadius: 24,
-          width: '100%', maxWidth: 620,
-          maxHeight: '92vh',
-          display: 'flex', flexDirection: 'column',
-          overflow: 'hidden',
-          boxShadow: '0 40px 100px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.12)',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
-        }}
-      >
+      <div className="abt-card">
 
-        {/* ── Hero ───────────────────────────────────────────────────── */}
-        <div style={{ position: 'relative', height: 270, flexShrink: 0, overflow: 'hidden' }}>
+        {/* ── Hero ──────────────────────────────────────────────── */}
+        <div className="abt-hero">
           <ProtectedImg
             src="/assets/sora-og.jpg"
             alt="Sora — sky, clarity, perspective"
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 28%' }}
           />
 
-          {/* Bottom gradient for text legibility */}
+          {/* Gradient overlay */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(170deg, rgba(4,14,28,0.15) 0%, rgba(4,14,28,0.72) 100%)',
+            background: 'linear-gradient(165deg, rgba(4,14,28,0.12) 0%, rgba(4,14,28,0.74) 100%)',
           }} />
 
-          {/* Top label */}
-          <div style={{
-            position: 'absolute', top: 18, left: 20,
-            display: 'flex', alignItems: 'center', gap: 7,
-          }}>
+          {/* Top badge */}
+          <div style={{ position: 'absolute', top: 16, left: 18 }}>
             <div style={{
-              background: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(8px)',
+              background: 'rgba(255,255,255,0.14)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
               border: '1px solid rgba(255,255,255,0.22)',
-              borderRadius: 20, padding: '5px 12px',
+              borderRadius: 20, padding: '5px 13px',
               display: 'flex', alignItems: 'center', gap: 6,
             }}>
-              <Sparkles size={12} color="rgba(255,255,255,0.9)" strokeWidth={2.5} />
+              <Sparkles size={11} color="rgba(255,255,255,0.9)" strokeWidth={2.5} />
               <span style={{
-                fontSize: 11, fontWeight: 700, letterSpacing: '1.2px',
+                fontSize: 10.5, fontWeight: 700, letterSpacing: '1.3px',
                 textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)',
               }}>
                 About Sora
@@ -156,12 +246,12 @@ export default function AboutSoraModal({ onClose }) {
             </div>
           </div>
 
-          {/* Bottom hero text */}
-          <div style={{ position: 'absolute', bottom: 22, left: 24, right: 60 }}>
+          {/* Hero text */}
+          <div style={{ position: 'absolute', bottom: 20, left: 22, right: 58 }}>
             <p style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: '2.5px',
+              fontSize: 10.5, fontWeight: 700, letterSpacing: '2.5px',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.5)',
+              color: 'rgba(255,255,255,0.48)',
               marginBottom: 6,
             }}>
               空 · Sora · Sky
@@ -174,57 +264,53 @@ export default function AboutSoraModal({ onClose }) {
             </p>
           </div>
 
-          {/* Close */}
-          <button
-            className="abt-close"
-            onClick={onClose}
-            style={{
-              position: 'absolute', top: 16, right: 16,
-              width: 32, height: 32, borderRadius: '50%',
-              background: 'rgba(0,0,0,0.38)', border: 'none',
-              color: 'white', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
+          {/* Close button */}
+          <button className="abt-close" onClick={onClose} aria-label="Close">
             <X size={15} strokeWidth={2.5} />
           </button>
         </div>
 
-        {/* ── Scrollable body ─────────────────────────────────────────── */}
-        <div
-          className="abt-scroll"
-          style={{ overflowY: 'auto', padding: '30px 32px 40px' }}
-        >
+        {/* ── Scrollable body ───────────────────────────────────── */}
+        <div className="abt-body">
 
-          {/* Sora logo + tagline */}
-          <div className="abt-s1" style={{
-            display: 'flex', alignItems: 'center', gap: 16,
-            padding: '16px 20px',
-            background: 'linear-gradient(135deg, #040E1C 0%, #0C2244 100%)',
-            borderRadius: 16, marginBottom: 28,
-          }}>
-            <ProtectedImg
-              src="/assets/sora-logo.png"
-              alt="Sora Advisory"
-              style={{ width: 130, height: 'auto', flexShrink: 0, filter: 'brightness(0) invert(1)' }}
-            />
-            <div style={{ width: '1px', height: 44, background: 'rgba(255,255,255,0.12)', flexShrink: 0 }} />
-            <p style={{
-              fontSize: 13, color: 'rgba(255,255,255,0.58)',
-              lineHeight: 1.65, fontStyle: 'italic',
+          {/* Logo + tagline banner */}
+          <div className="abt-s1" style={{ marginBottom: 26 }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #040E1C 0%, #0C2244 100%)',
+              borderRadius: 16,
+              padding: '16px 20px',
+              display: 'flex', alignItems: 'center', gap: 16,
+              position: 'relative', overflow: 'hidden',
             }}>
-              "Good advisory work should bring clarity, confidence, and direction."
-            </p>
+              {/* Subtle glow */}
+              <div style={{
+                position: 'absolute', top: -50, right: -30, pointerEvents: 'none',
+                width: 180, height: 180, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(26,127,255,0.16) 0%, transparent 70%)',
+              }} />
+              <ProtectedImg
+                src="/assets/sora-logo.png"
+                alt="Sora Advisory"
+                style={{ width: 110, height: 'auto', flexShrink: 0, filter: 'brightness(0) invert(1)' }}
+              />
+              <div style={{ width: 1, height: 40, background: 'rgba(255,255,255,0.12)', flexShrink: 0 }} />
+              <p style={{
+                fontSize: 13, color: 'rgba(255,255,255,0.55)',
+                lineHeight: 1.65, fontStyle: 'italic',
+              }}>
+                "Good advisory work should bring clarity, confidence, and direction."
+              </p>
+            </div>
           </div>
 
           {/* ── The Name ── */}
-          <div className="abt-s1" style={{ marginBottom: 30 }}>
+          <div className="abt-s2" style={{ marginBottom: 28 }}>
             <SectionHeader icon={Wind} color="#1A7FFF" label="What the Name Means" />
-            <p style={{ fontSize: 14.5, color: '#3A3A3C', lineHeight: 1.78, marginBottom: 12 }}>
+            <p style={{ fontSize: 14.5, color: '#3A3A3C', lineHeight: 1.8, marginBottom: 10 }}>
               <strong>Sora</strong> comes from the Japanese <strong>空 (そら)</strong> — meaning <em>sky</em>.
               Expansive. Calm. Full of perspective. The sky creates space to think beyond the immediate moment.
             </p>
-            <p style={{ fontSize: 14.5, color: '#636366', lineHeight: 1.78, marginBottom: 18 }}>
+            <p style={{ fontSize: 14, color: '#636366', lineHeight: 1.78, marginBottom: 16 }}>
               In a field often dominated by products and pressure, Sora was built to feel different —
               helping clients step back, see the bigger picture, and move forward with confidence.
             </p>
@@ -241,21 +327,11 @@ export default function AboutSoraModal({ onClose }) {
           </div>
 
           {/* ── Logo elements ── */}
-          <div className="abt-s2" style={{ marginBottom: 30 }}>
+          <div className="abt-s3" style={{ marginBottom: 28 }}>
             <SectionHeader icon={Sparkles} color="#FFB800" label="What the Logo Means" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="abt-logo-grid">
               {LOGO_ELEMENTS.map(({ icon: Icon, color, bg, title, desc }) => (
-                <div
-                  key={title}
-                  className="abt-el"
-                  style={{
-                    background: '#FAFAFA',
-                    border: '1.5px solid #F0F0F5',
-                    borderRadius: 14,
-                    padding: '15px 16px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                  }}
-                >
+                <div key={title} className="abt-el">
                   <div style={{
                     width: 32, height: 32, borderRadius: 9,
                     background: bg,
@@ -276,13 +352,12 @@ export default function AboutSoraModal({ onClose }) {
           </div>
 
           {/* ── LLH Group ── */}
-          <div className="abt-s3" style={{ marginBottom: 30 }}>
+          <div className="abt-s4" style={{ marginBottom: 28 }}>
             <div style={{
               background: 'linear-gradient(135deg, #040E1C 0%, #0D2450 100%)',
               borderRadius: 16, padding: '20px 22px',
               position: 'relative', overflow: 'hidden',
             }}>
-              {/* Glow */}
               <div style={{
                 position: 'absolute', top: -40, right: -40, pointerEvents: 'none',
                 width: 180, height: 180, borderRadius: '50%',
@@ -299,7 +374,10 @@ export default function AboutSoraModal({ onClose }) {
                   Why "By LLH Group"
                 </p>
               </div>
-              <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.82)', lineHeight: 1.74, position: 'relative' }}>
+              <p style={{
+                fontSize: 14.5, color: 'rgba(255,255,255,0.82)',
+                lineHeight: 1.74, position: 'relative',
+              }}>
                 Sora is the advisory identity. LLH Group is the foundation behind it.
                 Together, they bring modern clarity and established trust — refined and contemporary,
                 grounded in continuity, experience, and responsibility.
@@ -308,33 +386,33 @@ export default function AboutSoraModal({ onClose }) {
           </div>
 
           {/* ── What Sora Stands For ── */}
-          <div className="abt-s4">
+          <div className="abt-s5">
             <SectionHeader icon={Star} color="#30D158" label="What Sora Stands For" />
-            <p style={{ fontSize: 14.5, color: '#636366', lineHeight: 1.78, marginBottom: 18 }}>
+            <p style={{ fontSize: 14, color: '#636366', lineHeight: 1.78, marginBottom: 18 }}>
               Not noise. Not pressure. Not one-size-fits-all. A more thoughtful way to advise —
               built on five commitments:
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
-              {VALUES.map((v, i) => (
-                <span key={v} style={{
+            <div className="abt-chips">
+              {VALUES.map(({ label, accent }) => (
+                <span key={label} style={{
                   padding: '7px 14px', borderRadius: 22,
-                  background: i === 0 ? 'rgba(26,127,255,0.07)' : '#F5F5FA',
-                  border: `1px solid ${i === 0 ? 'rgba(26,127,255,0.18)' : '#EAEAF0'}`,
+                  background: accent ? 'rgba(26,127,255,0.07)' : '#F5F5FA',
+                  border: `1px solid ${accent ? 'rgba(26,127,255,0.18)' : '#EAEAF0'}`,
                   fontSize: 13, fontWeight: 600,
-                  color: i === 0 ? '#1A60CC' : '#3A3A3C',
-                }}>{v}</span>
+                  color: accent ? '#1A60CC' : '#3A3A3C',
+                }}>{label}</span>
               ))}
             </div>
 
-            {/* Final tagline */}
+            {/* Footer */}
             <div style={{
-              paddingTop: 22, borderTop: '1px solid #F2F2F7',
+              paddingTop: 20, borderTop: '1px solid #F2F2F7',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             }}>
               <span style={{ width: 20, height: 1, background: '#E5E5EA', display: 'block' }} />
               <p style={{
-                fontSize: 11.5, fontWeight: 700,
-                color: '#AEAEB2', letterSpacing: '1px',
+                fontSize: 11, fontWeight: 700,
+                color: '#AEAEB2', letterSpacing: '1.1px',
                 textTransform: 'uppercase', textAlign: 'center',
               }}>
                 trusted guidance · clear protection · lasting value
