@@ -152,7 +152,7 @@ export default function TopBar({ onMenuToggle }) {
               />
               <input
                 type="text"
-                placeholder="Search contacts…"
+                placeholder={t('topbar.searchContacts')}
                 value={displayQuery}
                 onChange={handleSearchChange}
                 onKeyDown={handleSearchKeyDown}
@@ -206,7 +206,7 @@ export default function TopBar({ onMenuToggle }) {
                             {highlight(c.name)}
                           </p>
                           <p className="text-hig-caption2 text-hig-text-secondary leading-none">
-                            {age ? `Age ${age}` : ''}
+                            {age ? t('topbar.ageLabel', { age }) : ''}
                             {age && c.employment ? ' · ' : ''}
                             {c.employment ? highlight(c.employment) : ''}
                             {!age && !c.employment && c.mobile ? highlight(c.mobile) : ''}
@@ -242,7 +242,7 @@ export default function TopBar({ onMenuToggle }) {
                       }}
                       className="w-full px-3 py-2 text-hig-caption1 text-hig-blue hover:bg-hig-blue/5 transition-colors text-center border-t border-hig-gray-5 font-medium"
                     >
-                      See all results →
+                      {t('topbar.seeAllResults')}
                     </button>
                   )}
                 </div>

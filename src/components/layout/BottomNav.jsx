@@ -1,13 +1,15 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Users, Settings } from 'lucide-react'
+import { useLanguage } from '../../hooks/useLanguage'
 
-const TABS = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/contacts',  label: 'Contacts',  icon: Users          },
-  { path: '/settings',  label: 'Settings',  icon: Settings       },
+const TAB_PATHS = [
+  { path: '/dashboard', tKey: 'nav.dashboard', icon: LayoutDashboard },
+  { path: '/contacts',  tKey: 'nav.contacts',  icon: Users           },
+  { path: '/settings',  tKey: 'nav.settings',  icon: Settings        },
 ]
 
 export default function BottomNav() {
+  const { t } = useLanguage()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -17,7 +19,8 @@ export default function BottomNav() {
       style={{ paddingBottom: 'var(--safe-area-bottom)' }}
     >
       <div className="flex min-h-[56px] items-stretch px-1">
-        {TABS.map(({ path, label, icon: Icon }) => {
+        {TAB_PATHS.map(({ path, tKey, icon: Icon }) => {
+          const label = t(tKey)
           const active = path === '/contacts'
             ? location.pathname.startsWith('/contacts')
             : location.pathname.startsWith(path)

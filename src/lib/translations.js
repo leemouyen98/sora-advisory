@@ -17,10 +17,13 @@ const translations = {
 
   // ─── TopBar / Profile dropdown ─────────────────────────────────────────────
   topbar: {
-    agentCode:  { en: 'Agent Code', zh: '业务员代码' },
-    settings:   { en: 'Settings',   zh: '设定'      },
-    logOut:     { en: 'Log Out',    zh: '登出'      },
-    language:   { en: 'Language',   zh: '语言'      },
+    agentCode:      { en: 'Agent Code',        zh: '业务员代码'      },
+    settings:       { en: 'Settings',          zh: '设定'            },
+    logOut:         { en: 'Log Out',           zh: '登出'            },
+    language:       { en: 'Language',          zh: '语言'            },
+    searchContacts: { en: 'Search contacts…',  zh: '搜寻客户…'       },
+    seeAllResults:  { en: 'See all results →', zh: '查看所有结果 →'   },
+    ageLabel:       { en: 'Age {age}',         zh: '{age}岁'         },
   },
 
   // ─── Common actions ─────────────────────────────────────────────────────────
