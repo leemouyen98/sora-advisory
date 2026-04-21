@@ -44,7 +44,7 @@ export default function AppShell({ children }) {
         <TopBar onMenuToggle={handleToggle} />
         <main className="flex-1 overflow-y-auto px-3 py-3 md:px-4 md:py-4 lg:px-6 lg:py-6
                          pb-[calc(72px+var(--safe-area-bottom))] md:pb-4 lg:pb-6">
-          <div className="max-w-[1280px] mx-auto">
+          <div className="max-w-[1280px] mx-auto h-full min-h-0">
             {children}
           </div>
         </main>
