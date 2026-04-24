@@ -1,54 +1,53 @@
 #Medical_Underwriting/Brain_Nervous_Diseases
 
-Is a temporary period of symptoms similar to those of a stroke. A TIA usually lasts only a few minutes and doesn’t cause permanent damage. Often called a ministroke. It serves as a warning sign that a person is at higher risk of a major stroke and should seek immediate medical attention.
+A transient ischaemic attack (TIA) is a temporary episode of stroke-like symptoms lasting only a few minutes, caused by a brief interruption of blood flow to the brain. Unlike a full stroke, a TIA does not cause permanent brain damage. However, it is a serious warning sign — people who have had a TIA are at significantly higher risk of having a major stroke in the days or weeks that follow.
+短暂性脑缺血发作（TIA）是由脑部血流短暂中断引起的类中风症状发作，通常仅持续数分钟。与完全性中风不同，TIA不会造成永久性脑损伤。但这是一个严重的警示信号——发生过TIA的人在随后数天或数周内发生重大中风的风险显著升高。
 
 ![[Transient Ischaemia Attack 01.png]]
-
 ![[Transient Ischaemia Attack 02.png]]
-
 ![[Transient Ischaemia Attack 03.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如CT扫描/MRI、血液及尿液检查等）？如是，请说明日期及结果。
-> 3) Any surgery has been performed ? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4) On medication / treatment ? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it diagnosed, and how long did the episode last?
+> 1) 何时确诊？发作持续多长时间？
+> 2) Were any investigations done (e.g. CT/MRI scan, ECG, carotid ultrasound, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如CT/MRI扫描、心电图、颈动脉超声波、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Was any surgery or procedure performed? If yes, state date and type.
+> 3) 是否进行过手术或治疗？如是，请说明日期及类型。
+> 4) Any treatment or medication? If yes, what type and for how long?
+> 4) 是否接受过治疗或服药？如是，说明类型及疗程。
+> 5) Still under medical follow-up? If yes, how often?
+> 5) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test ? b) Surgery / removal report if performed.
-> a) 任何相关报告，如 blood / urine / scan test ? b) Surgery / removal report if performed.。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: CT/MRI scan（CT/MRI扫描）, ECG（心电图）, carotid ultrasound（颈动脉超声波）, blood/urine tests
+> a) 最新报告：CT/MRI扫描、心电图、颈动脉超声波、血液/尿液检查
+> b) Surgery report if performed
+> b) 如有进行，附上手术报告
 >
-> 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to TIA on dd/mm/yy, admitted for 1 day only & under Dr xxx of yy Hospital.
-> dd/mm/yy 诊断为短暂性脑缺血发作（TIA），住院1天，由 yy 医院 Dr xxx 医生诊治。
-> History of hypertension since mm/yy, on medication & quarterly follow up by Dr xx of yy hospital.
-> 自 mm/yy 起有高血压病史，服药并每季度由 yy 医院 Dr xx 医生随访。
-> CT scan, ECG, blood & urine test were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成CT扫描、心电图、血液及尿液检查，报告随附。
-> Medical follow up was required yearly.
-> 需每年进行医疗随访。
+> Diagnosed with TIA on dd/mm/yy by Dr xxx of yy Hospital. Admitted for 1 day only.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断为短暂性脑缺血发作（TIA）。住院仅1天。
+> History of hypertension since mm/yy — on medication with quarterly follow-up.
+> 自 mm/yy 起有高血压病史，服药并每季度随访。
+> CT scan, ECG, blood and urine tests done on dd/mm/yy. Reports attached. Annual follow-up required.
+> dd/mm/yy 完成CT扫描、心电图、血液及尿液检查，报告随附。需每年进行随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> – Decline case
-> – 拒保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Decline
+> - 拒保

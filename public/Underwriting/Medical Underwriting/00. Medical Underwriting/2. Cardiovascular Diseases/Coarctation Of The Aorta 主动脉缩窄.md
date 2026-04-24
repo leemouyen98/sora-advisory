@@ -1,49 +1,47 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-Congenital narrowing of a short segment of the aorta.
-the major blood vessel that carries blood away from the heart to the body. This narrowing causes the left side of the heart to work harder to pump blood through the aorta. Sometimes the coarctation is minor and might not even cause symptoms.
+Coarctation of the aorta is a congenital narrowing of a segment of the aorta — the main artery carrying blood from the heart. This forces the left ventricle to work harder, causing high blood pressure in the upper body and reduced blood flow to the lower body. Surgical repair is usually required and significantly improves outcomes.
+主动脉缩窄是指主动脉（心脏主要输血管道）某段先天性变窄，导致左心室负荷加重，上半身血压升高，下半身供血减少。通常需手术修复，术后效果明显改善。
 
 ![[Coarctation Of The Aorta 01.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such chest x-ray, ECG, echocardiogram, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 chest x-ray, ECG, echocardiogram, blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) Any surgery has been performed ? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4) On medication / treatment ? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis and severity?
+> 1) 确诊日期及严重程度？
+> 2) What investigations were done (e.g., ECG, chest X-ray, echocardiogram, blood tests)? Please provide dates and results.
+> 2) 曾进行哪些检查（如心电图、胸部X光、超声心动图、血液检查）？请提供日期及结果。
+> 3) Has any surgery been performed? If yes, please state the type, date and outcome.
+> 3) 是否曾接受手术？如有，请说明类型、日期及结果。
+> 4) Is the client currently on medication? If yes, what type and for how long?
+> 4) 客户目前是否在服药？如有，请说明药物类型及疗程。
+> 5) Is the client still on medical follow-up? If yes, how frequent?
+> 5) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
-> a) 最新相关报告/结果，如 blood / urine / chest x-ray, scan test, ECG, Echocardiogram...。
-> b) Operation / surgical Procedures report if performed
-> b) 如有进行，附上手术/外科操作报告
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: echocardiogram, ECG, chest X-ray, blood & urine tests
+> a) 最新报告：超声心动图、心电图、胸部X光、血液及尿液检查
+> b) Surgical / procedure report (if applicable)
+> b) 手术或治疗程序报告（如有）
 >
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have coarctation of aorta since born. Surgery has been performed at age of 8, on yearly medical follow up.
-> 先天性主动脉缩窄，8岁时已进行手术，每年进行医疗随访。
-> Echocardiogram, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成超声心动图、胸部X光、血液及尿液检查，报告随附。
+> Congenital aortic coarctation, diagnosed at birth. Corrective surgery performed at age 8. Currently on yearly follow-up. Latest echocardiogram, chest X-ray and blood tests done on dd/mm/yy — reports attached.
+> 先天性主动脉缩窄，出生时确诊，8岁时完成矫正手术。目前每年定期复诊。dd/mm/yy 完成最新超声心动图、胸部X光及血液检查，报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> - Decline case
-> - 拒保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Decline in most cases, even post-surgery, due to long-term cardiovascular risks.
+> - 即便术后，由于长期心血管风险，大多数情况下拒保。

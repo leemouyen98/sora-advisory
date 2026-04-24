@@ -1,45 +1,44 @@
 #Medical_Underwriting/Cancer_Tumour_Blood_Diseases
 
-Is a disorder characterised by a morphological or numerical alteration in single or multiple chromosomes, affecting autosomes, sex chromosomes, or both.
-染色体异常是指单条或多条染色体在形态或数量上发生改变的疾病，可影响常染色体、性染色体或两者。
+A chromosomal abnormality is a change in the number or structure of chromosomes. This can involve an extra chromosome, a missing segment, or a duplicated section. Examples include Down syndrome (Trisomy 21), Trisomy 18, Trisomy 13, Klinefelter syndrome, Turner syndrome, and XYY syndrome. Symptoms may not appear at birth.
+染色体异常是指染色体的数量或结构发生改变，包括额外染色体、缺失片段或重复片段。常见例子有唐氏综合征（21三体症）、18三体症、13三体症、克氏综合征及特纳综合征等。症状不一定在出生时即显现。
 
-Some chromosomal abnormalities occur when there is an extra chromosome, while others occur when a section of a chromosome is deleted or duplicated. Examples of chromosomal abnormalities
-include Down syndrome, Trisomy 18, Trisomy 13, Klinefelter syndrome, XYY syndrome, Turner syndrome and triple X syndrome.
+![[Chromososom 01.png]]
+![[Chromososom 02.png]]
 
-![[Chromososom 01.png]]![[Chromososom 02.png]]
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 3) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it diagnosed, and what type of chromosomal abnormality?
+> 1) 何时确诊？是哪种染色体异常？
+> 2) Were any investigations done (e.g. DNA/genetic testing, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如DNA/基因检测、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Still under medical follow-up? If yes, how often?
+> 3) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as DNA, blood / urine / scan test.... ?
-> a) 任何相关报告，如 DNA, blood / urine / scan test.... 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: DNA/genetic test（基因检测）, blood/urine tests
+> a) 最新报告：基因检测、血液/尿液检查
 >
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have chromosomal abnormality on dd/mm/yy by Dr xxx of yy hospital.
-> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有染色体异常。
-> Investigation reports done on dd/mm/yy is attached. On medical follow up
-> dd/mm/yy 完成的检查报告随附。进行医疗随访。
+> Diagnosed with chromosomal abnormality (Down syndrome) on dd/mm/yy by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有染色体异常（唐氏综合征）。
+> Investigation reports dated dd/mm/yy attached. Currently under regular follow-up.
+> dd/mm/yy 的检查报告随附。目前仍在定期随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD/ CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
 > - Not insurable
 > - 不可承保

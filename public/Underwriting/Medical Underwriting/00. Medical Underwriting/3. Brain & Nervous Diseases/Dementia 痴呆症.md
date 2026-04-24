@@ -1,48 +1,46 @@
 #Medical_Underwriting/Brain_Nervous_Diseases
 
-Is a general term for the impaired ability to remember, think, or make decisions that interferes with doing everyday activities. Dementia is caused by damage to or changes in the brain.
+Dementia is a general term for a significant decline in memory, thinking, or decision-making ability that interferes with daily life. It is caused by damage to or changes in the brain — from diseases such as Alzheimer's, vascular disease, Lewy body disease, or Parkinson's. It is not a normal part of ageing, though it becomes more common with age.
+痴呆症是指记忆、思维或决策能力出现明显下降，并影响日常生活的统称。它由大脑损伤或变化引起，原因包括阿尔茨海默病、血管疾病、路易体病或帕金森症等。痴呆症不是正常老化的一部分，尽管随年龄增长其发病率会上升。
 
 ![[Dementia 01.png]]
-
 ![[Dementia 02.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如CT扫描/MRI、血液及尿液检查等）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it diagnosed, and what type (e.g. Alzheimer's, vascular, Lewy body)?
+> 1) 何时确诊？是哪种类型（如阿尔茨海默型、血管型、路易体型）？
+> 2) Were any investigations done (e.g. CT scan, MRI, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如CT扫描、MRI、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Any treatment or medication? If yes, what type and for how long?
+> 3) 是否接受过治疗或服药？如是，说明类型及疗程。
+> 4) Still under medical follow-up? If yes, how often?
+> 4) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test ?
-> a) 任何相关报告，如 blood / urine / scan test 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: CT scan（CT扫描）, MRI（磁力共振）, blood/urine tests
+> a) 最新报告：CT扫描、MRI、血液/尿液检查
 >
-> 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have dementia due to aging on dd/mm/yy, seen by Dr xxx of yy Hospital.
-> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有因老化引起的痴呆。
-> ECG, chest x-ray, blood & urine test were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成心电图、胸部X光、血液及尿液检查，报告随附。
-> On medical follow up.
-> 进行医疗随访。
+> Diagnosed with dementia (age-related) on dd/mm/yy by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有（老化相关）痴呆症。
+> ECG, chest X-ray, blood and urine tests done on dd/mm/yy. Reports attached. Currently on regular follow-up.
+> dd/mm/yy 完成心电图、胸部X光、血液及尿液检查，报告随附。目前仍在定期随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> - Decline case
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Decline
 > - 拒保

@@ -1,62 +1,53 @@
 #Medical_Underwriting/Brain_Nervous_Diseases
 
-Are fits that can happen when a child has a fever. They most often happen between the ages of 6 months and 3 years. The fevers that trigger febrile seizures are usually caused by a viral infection.
+Febrile fits (febrile seizures) are seizures that occur in young children when they develop a fever. They most commonly affect children between 6 months and 3 years of age and are usually triggered by viral infections. Most febrile seizures are brief (under 5 minutes), resolve on their own, and do not cause lasting brain damage.
+热性惊厥（发热痉挛）是幼儿在发烧时发生的癫痫发作。最常见于6个月至3岁的儿童，通常由病毒感染引发。大多数热性惊厥持续时间短暂（5分钟内），可自行停止，不会造成持久性脑损伤。
 
 ![[Febrile Fits 01.png]]
-## EXAMPLE CASE OF HOSPITAL ADMISSION
-## 住院案例示例
 
-> FEBRILE FIT + VIRAL FEVER IN ONE OF PRIVATE HOSPITAL ON NOVEMBER 2017 (4 DAYS ADMISSION) IN PENANG.
-> FEBRILE FIT + VIRAL FEVER 在某私立医院 于11月2017 (4 天住院) （槟城）.
-> — TOTAL MEDICAL COST = RM6,200 ++
-> — 总医疗费用 = RM6,200 以上
->
-> NOTE :
-> 注意：
-> All cost quoted is on estimated basis, it may not fully represent the actual cost.
-> 所有报价均为估算，未必完全反映实际费用。
-> Sources from various medical bills 2015 & 2023.
-> 资料来源自2015年及2023年各类医疗账单。
-> All information disclosed in this page serves as references only.
-> 本页所披露的所有信息仅供参考。
+## ESTIMATED MEDICAL COST (PRIVATE HOSPITAL, PENANG — NOVEMBER 2017)
+## 医疗费用估算（槟城某私立医院，2017年11月）
+
+> Febrile Fit + Viral Fever (4-day admission): RM 6,200++
+> 热性惊厥 + 病毒性发烧（住院4天）：RM 6,200 以上
+> All figures are estimates based on medical bills from 2015–2023, for reference only.
+> 以上数字来自2015至2023年各类医疗账单，仅供参考，不代表实际费用。
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如CT扫描/MRI、血液及尿液检查等）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When did it occur, and how many episodes in total?
+> 1) 何时发生？共发作几次？
+> 2) Were any investigations done (e.g. EEG, CT scan, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如脑电图、CT扫描、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Any treatment or medication? If yes, what type and for how long?
+> 3) 是否接受过治疗或服药？如是，说明类型及疗程。
+> 4) Still under medical follow-up? If yes, how often?
+> 4) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test ?
-> a) 任何相关报告，如 blood / urine / scan test 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: EEG（脑电图）, blood/urine tests
+> a) 最新报告：脑电图、血液/尿液检查
 >
-> 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> History of 1 episode of febrile fits on dd/mm/yy, admitted & seen by Dr xxx of yy Hospital. Investigation tests done & revealed was due to fever.
-> dd/mm/yy 有1次热性惊厥发作，住院并由 yy 医院 Dr xxx 医生诊治，检查显示为发烧所致。
-> Discharged well with 1 day admission.
-> 住院1天后康复出院。
-> Blood & urine test were done on dd/mm/yy. Reports are attached here. Fully recovered.
-> dd/mm/yy 完成血液及尿液检查，报告随附。已完全康复。
+> History of 1 episode of febrile fit on dd/mm/yy. Admitted and treated by Dr xxx of yy Hospital. Confirmed fever as cause.
+> 于 dd/mm/yy 有1次热性惊厥发作，住院并由 yy 医院 Dr xxx 医生诊治。确认为发烧所致。
+> Admitted for 1 day, discharged well. Blood and urine tests done on dd/mm/yy. Reports attached. Fully recovered.
+> 住院1天，康复出院。dd/mm/yy 完成血液及尿液检查，报告随附。已完全康复。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> - Standard case provided fully recovered & no other complications
-> - 完全康复且无其他并发症者，可标准承保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Standard if fully recovered with no complications
+> - 完全康复且无并发症者，标准承保

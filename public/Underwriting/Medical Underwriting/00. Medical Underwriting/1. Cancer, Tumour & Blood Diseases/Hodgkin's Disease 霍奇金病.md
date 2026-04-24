@@ -1,15 +1,15 @@
 #Medical_Underwriting/Cancer_Tumour_Blood_Diseases
 
-Malignant lymphoma is a cancer that starts in the lymphatic system — the body's network of lymph nodes, vessels, and immune tissue. Unlike reactive swollen nodes, malignant lymphoma involves cancerous lymphocytes that can spread throughout the body. There are two main categories: Hodgkin's lymphoma and non-Hodgkin's lymphoma.
-恶性淋巴瘤是一种起源于淋巴系统的癌症，涉及淋巴结、淋巴管及免疫组织。与普通淋巴结肿大不同，恶性淋巴瘤的癌性淋巴细胞可扩散至全身。主要分为两大类：霍奇金淋巴瘤和非霍奇金淋巴瘤。
+Hodgkin's disease (Hodgkin's lymphoma) is a type of blood cancer that starts in the lymphatic system — the network of vessels and glands that help the immune system fight infection. It is distinguished from other lymphomas by the presence of abnormal Reed-Sternberg cells on biopsy. It is one of the more treatable forms of cancer when caught early.
+霍奇金病（霍奇金淋巴瘤）是一种起源于淋巴系统的血液癌症，淋巴系统是帮助免疫系统抵抗感染的腺体和管道网络。其诊断特征是活检中发现异常的里德-斯特恩伯格细胞。早期发现时，是较易治疗的癌症之一。
 
-![[Lymphoma 01.png]]
+![[Hodgkin's Lymphoma 01.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) When was it diagnosed, and what type (Hodgkin's or non-Hodgkin's)?
-> 1) 何时确诊？是哪种类型（霍奇金或非霍奇金淋巴瘤）？
+> 1) When was it diagnosed, and at what stage?
+> 1) 何时确诊？处于哪个阶段？
 > 2) Were any investigations done (e.g. biopsy/HPE, CT/PET scan, blood tests)? If yes, state dates and results.
 > 2) 是否进行过检查（如活检/HPE、CT/PET扫描、血液检查）？如是，请说明日期及结果。
 > 3) Any treatment (e.g. chemotherapy, radiotherapy)? If yes, what type and duration?
@@ -31,8 +31,8 @@ Malignant lymphoma is a cancer that starts in the lymphatic system — the body'
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed with malignant lymphoma (non-Hodgkin's, Stage III) on dd/mm/yy by Dr xxx of yy Hospital.
-> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有恶性淋巴瘤（非霍奇金，第三期）。
+> Diagnosed with Hodgkin's lymphoma (Stage II) on dd/mm/yy by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有霍奇金淋巴瘤（第二期）。
 > Underwent chemotherapy from dd/mm/yy to dd/mm/yy. Investigation reports attached.
 > 于 dd/mm/yy 至 dd/mm/yy 接受化疗。相关检查报告随附。
 > Currently under regular medical follow-up.

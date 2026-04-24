@@ -1,7 +1,7 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-A blood vessel in the fetus connecting the pulmonary artery directly to the ascending aorta, so bypassing the pulmonary circulation. It normally closes after birth. But , it did not happened. It may close spontaneously in childhood but often requires surgical closure.
-动脉导管是胎儿体内连接肺动脉与升主动脉的血管，使血液绕过肺循环。正常情况下，动脉导管在出生后会自行关闭，但若未关闭，可能在儿童期自行闭合或需要手术干预。
+Patent ductus arteriosus (PDA) is a congenital condition where a blood vessel connecting the pulmonary artery and aorta — which normally closes shortly after birth — remains open. This causes extra blood flow to the lungs and forces the heart to work harder. Small PDAs may close on their own; larger ones require medical or surgical intervention.
+动脉导管未闭（PDA）是一种先天性疾病，指连接肺动脉与主动脉的血管（正常情况下在出生后不久自行关闭）持续开放。这会导致肺部血流量增加，心脏负荷加重。小型 PDA 可能自行关闭；较大的则需药物或手术干预。
 
 ![[Patent Ductus Arteriousus 01.png]]
 
@@ -12,44 +12,42 @@ A blood vessel in the fetus connecting the pulmonary artery directly to the asce
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such chest x-ray, ECG, echocardiogram, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 chest x-ray, ECG, echocardiogram, blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) Any surgery has been performed? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4) On medication / treatment? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc)?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis and size of the PDA (small / moderate / large)?
+> 1) 确诊日期及动脉导管大小（小型 / 中型 / 大型）？
+> 2) What investigations were done (e.g., ECG, chest X-ray, echocardiogram, blood tests)? Please provide dates and results.
+> 2) 曾进行哪些检查（如心电图、胸部X光、超声心动图、血液检查）？请提供日期及结果。
+> 3) Has any surgery or catheter procedure been performed? If yes, please state the type, date and outcome.
+> 3) 是否曾接受手术或导管介入治疗？如有，请说明类型、日期及结果。
+> 4) Is the client currently on medication? If yes, what type and for how long?
+> 4) 客户目前是否在服药？如有，请说明药物类型及疗程。
+> 5) Is the client still on medical follow-up? If yes, how frequent?
+> 5) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram.... ?
-> a) 最新相关报告/结果，如 blood / urine / chest x-ray, scan test, ECG, Echocardiogram...。
-> b) Surgical Procedures report if performed.
-> b) 如有进行，附上外科操作报告。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: echocardiogram, ECG, chest X-ray, blood & urine tests
+> a) 最新报告：超声心动图、心电图、胸部X光、血液及尿液检查
+> b) Surgical / procedure report (if applicable)
+> b) 手术或治疗程序报告（如有）
 >
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have PDA since born. Surgery has been performed at age of 8, on yearly medical follow up.
-> 先天性动脉导管未闭（PDA），8岁时已进行手术，每年进行医疗随访。
-> Echocardiogram, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成超声心动图、胸部X光、血液及尿液检查，报告随附。
+> Congenital PDA diagnosed at birth. Corrective procedure performed at age 8. Currently on yearly follow-up. Latest echocardiogram, chest X-ray and blood tests done on dd/mm/yy — reports attached.
+> 出生时确诊先天性动脉导管未闭（PDA），8岁时完成矫正手术。目前每年定期复诊。dd/mm/yy 完成最新超声心动图、胸部X光及血液检查，报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险
-> - Depends on the outcomes of Chest x-ray, ECG, examination / reports
-> - 取决于胸部X光、心电图、检查报告结果
-> - Can be standard case provided Surgery has been performed & no heart complications
-> - 手术已完成且无心脏并发症者，可以标准费率承保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Outcome depends on post-procedure cardiac status and investigation results.
+> - 核保结果取决于术后心脏状况及检查结果。
+> - Standard if procedure was successful with no residual heart complications.
+> - 若手术成功且无残留心脏并发症，可标准承保。

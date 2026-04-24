@@ -1,13 +1,9 @@
 #Medical_Underwriting/Brain_Nervous_Diseases
 
-A complex, tangled web of arteries and veins where there is an abnormal connection between arteries and veins. Large AVM’s, also called angiomas, occur in males more often than in females.
-
-It is unclear what causes AVMs. Most doctors believe they develop during pregnancy and people are born with it (congenital).
-
-Microsurgery is a term for the surgical resection of an AVM. This is a common treatment option for AVMs that are surgically accessible and often provides a complete cure.
+An arteriovenous malformation (AVM) is an abnormal tangle of blood vessels that connects arteries and veins, bypassing the normal capillary system. Most AVMs are congenital — present from birth. They most commonly occur in the brain or spine and can cause bleeding, seizures, or neurological problems. Microsurgery, stereotactic radiosurgery, or endovascular embolisation are the main treatment options.
+动静脉畸形（AVM）是一种动脉与静脉之间异常的血管团，绕过正常的毛细血管网络直接相连。大多数AVM为先天性，常发生于脑部或脊髓，可引起出血、癫痫发作或神经系统问题。主要治疗方式包括显微外科手术、立体定向放射外科手术或血管内栓塞治疗。
 
 ![[Arteriovenous Malformation 01.png]]
-
 ![[Arteriovenous Malformation 02.png]]
 
 ![Arteriovenous Malformation (AVM)](https://youtu.be/8pt_UGPXUz0)
@@ -15,51 +11,49 @@ Microsurgery is a term for the surgical resection of an AVM. This is a common tr
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如CT扫描/MRI、血液及尿液检查等）？如是，请说明日期及结果。
-> 3) Any surgery has been performed ? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4) On medication / treatment ? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it diagnosed, and what was the location (brain, spine, etc.)?
+> 1) 何时确诊？位于哪个部位（脑部、脊髓等）？
+> 2) Were any investigations done (e.g. CT/MRI scan, cerebral angiogram, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如CT/MRI扫描、脑血管造影、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Was any surgery or treatment performed (e.g. microsurgery, radiosurgery, embolisation)? If yes, state date and type.
+> 3) 是否进行过手术或治疗（如显微手术、放射外科手术、栓塞治疗）？如是，请说明日期及类型。
+> 4) Any treatment or medication? If yes, what type and for how long?
+> 4) 是否接受过治疗或服药？如是，说明类型及疗程。
+> 5) Still under medical follow-up? If yes, how often?
+> 5) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
->  a) Any relevant reports such as blood / urine / scan test ?
-> a) 任何相关报告，如 blood / urine / scan test 。
-> b) Surgery / removal report if performed.
-> b) 如有进行，附上手术/切除报告。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: CT/MRI scan（CT/MRI扫描）, cerebral angiogram（脑血管造影）, blood/urine tests
+> a) 最新报告：CT/MRI扫描、脑血管造影、血液/尿液检查
+> b) Surgery / procedure report if performed
+> b) 如有进行，附上手术/治疗报告
 >
-> 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have AVM on dd/mm/yy, seen by Dr xxx of yy Hospital. Admitted for 7 days for brain surgery to remove bleeding & clotting.
-> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有动静脉畸形（AVM）。 住院7天 for brain surgery to remove bleeding & clotting.
-> Discharged well.
-> 康复出院。
-> CT scan, blood & urine test were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成CT扫描、血液及尿液检查，报告随附。
-> On medical follow up currently
-> 目前在进行医疗随访
+> Diagnosed with AVM (brain) on dd/mm/yy by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有脑部动静脉畸形。
+> Admitted for 7 days. Brain surgery performed to remove bleeding and clot. Discharged well.
+> 住院7天，进行脑部手术清除出血及血块，康复出院。
+> CT scan, blood and urine tests done on dd/mm/yy. Reports attached. Currently on regular follow-up.
+> dd/mm/yy 完成CT扫描、血液及尿液检查，报告随附。目前仍在定期随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
 > Life / TPD:
-> 人寿保险 / 全残保险：
-> – Can be standard case provided surgery has been performed & no complication
-> – 手术已完成且无并发症者，可标准承保
+> 人寿 / 全残：
+> - Standard if surgery has been performed and there are no complications
+> - 手术已完成且无并发症者，标准承保
 >
-> CI / Medical insurance
-> 严重疾病保险 / 医疗保险
-> – Exclusion
-> – 除外承保
+> CI / Medical:
+> 严重疾病 / 医疗：
+> - Exclusion
+> - 除外承保

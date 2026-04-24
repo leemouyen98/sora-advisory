@@ -1,51 +1,51 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-Is chest pain caused by reduced blood flow to the heart muscles. Also called angina pectoris, is often described as squeezing, pressure, heaviness, tightness or pain in your chest.
+Angina is chest pain or discomfort caused by reduced blood flow to the heart muscle. It is typically triggered by physical exertion or stress, and usually eases with rest or medication. Angina is not a heart attack, but it signals that the heart is not getting enough blood and may point to underlying coronary artery disease.
+心绞痛是由心脏供血不足引起的胸痛或胸部不适，通常在体力活动或情绪紧张时发作，休息或服药后可缓解。心绞痛本身并非心脏病发作，但它提示心脏供血不足，可能与冠状动脉疾病有关。
 
 ![[Angina 01.png]]
+
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such angiogram, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如血管造影、血液及尿液检查等）？如是，请说明日期及结果。
-> 3)  Any operation has been performed ? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4)  On medication / treatment ? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis and type of angina (stable / unstable / variant)?
+> 1) 确诊日期及心绞痛类型（稳定性 / 不稳定性 / 变异型）？
+> 2) What investigations were done (e.g., ECG, stress test, angiogram, blood tests)? Please provide dates and results.
+> 2) 曾进行哪些检查（如心电图、运动负荷试验、血管造影、血液检查）？请提供日期及结果。
+> 3) Has any surgery or procedure been performed (e.g., angioplasty, stenting, bypass)? If yes, please state the type, date and outcome.
+> 3) 是否曾接受手术或治疗程序（如血管成形术、支架置入、搭桥手术）？如有，请说明类型、日期及结果。
+> 4) Is the client currently on medication? If yes, what type and for how long?
+> 4) 客户目前是否在服药？如有，请说明药物类型及疗程。
+> 5) Is the client still on medical follow-up? If yes, how frequent?
+> 5) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports / results such as blood / urine / scan test, biopsy (HPE) ?
-> a) 任何相关报告/结果，如血液/尿液/扫描检查、活检（HPE）？
-> b) Operation / removal report if performed.
-> b) 如有进行，附上手术/切除报告。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: ECG, stress test, angiogram (if performed), blood & urine tests
+> a) 最新报告：心电图、运动负荷试验、血管造影（如有）、血液及尿液检查
+> b) Surgical / procedure report (if applicable)
+> b) 手术或治疗程序报告（如有）
 >
-> 2) KIV – medical Examination/ Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 备查 – medical Examination/ 医疗随行报告（MAR） / 主治医生声明（APS）
+> Medical examination / Medical Attendant Report (MAR) / Attending Physician Statement (APS) from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> History of 1 episode of chest pain on dd/mm/yy, seen by Dr xxx of yy Hospital. Investigation tests done & revealed was due to muscle pain. Discharged well with 1 day admission.
-> dd/mm/yy 有1次胸痛发作，由 yy 医院 Dr xxx 医生诊治，检查显示为肌肉疼痛所致，住院1天后康复出院。
-> ECG, chest x-ray, blood & urine test were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成心电图、胸部X光、血液及尿液检查，报告随附。
-> medical follow up was not required.
-> 无需医疗随访。
+> 1 episode of chest pain on dd/mm/yy, seen by Dr xxx of yy Hospital. ECG, stress test and blood tests done — all results normal. Confirmed to be musculoskeletal, not cardiac. Discharged after 1 day. No medication or follow-up required.
+> dd/mm/yy 出现1次胸痛，由 yy 医院 Dr xxx 医生诊治。完成心电图、运动负荷试验及血液检查，结果均正常。确认为肌肉骨骼问题，非心脏问题。住院1天后出院，无需药物或随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> - Depends on the outcomes of investigations / examination / reports. – Standard case provided is due to muscle pain.
-> - 取决于检查报告结果。– 若为肌肉疼痛所致，可标准承保。
-> - postpone / decline if the cause was due to heart disease
-> - 若因心脏病引起，延迟或拒保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Outcome depends on investigation results and confirmed cause.
+> - 核保结果视检查结果及确认病因而定。
+> - Standard if confirmed musculoskeletal — not cardiac.
+> - 若确认为肌肉骨骼问题（非心脏问题），可标准承保。
+> - Postpone or decline if confirmed cardiac cause or ongoing symptoms.
+> - 若确认为心脏问题或症状持续，延迟承保或拒保。

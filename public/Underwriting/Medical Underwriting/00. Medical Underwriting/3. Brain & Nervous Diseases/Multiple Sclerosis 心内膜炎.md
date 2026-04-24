@@ -1,51 +1,47 @@
 #Medical_Underwriting/Brain_Nervous_Diseases
 
-An inflammation of the lining of the heart cavity (endocardium) and valves. It is most often due to Rheumatic fever or results from bacterial infection. Temporary or permanent damage to the heart valves may result. The main features are fever, changing heart murmur, heart failure and embolism.
-心内膜炎是心腔内壁（心内膜）和瓣膜的炎症，最常由风湿热或细菌感染引起，可导致心脏瓣膜暂时性或永久性损伤。主要表现为发烧、变化性心脏杂音、心脏衰竭和栓塞。
+Multiple sclerosis (MS) is a chronic autoimmune disease affecting the central nervous system, where the immune system attacks the myelin sheath — the protective covering of nerve fibres. This disrupts the transmission of nerve signals between the brain and the rest of the body, causing symptoms such as fatigue, vision problems, muscle weakness, numbness, and balance difficulties. MS is unpredictable and varies widely in severity.
+多发性硬化症（MS）是一种慢性自身免疫性疾病，免疫系统攻击神经纤维的保护性覆盖物——髓鞘。这会干扰大脑与身体其他部位之间的神经信号传导，引起疲劳、视力问题、肌肉无力、麻木及平衡困难等症状。MS病程难以预测，严重程度因人而异。
 
 ![[Multiple Sclerosis 01.png]]
-
 ![[Multiple Sclerosis 02.png]]
-
 ![[Multiple Sclerosis 03.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如CT扫描/MRI、血液及尿液检查等）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it diagnosed, and what type (e.g. relapsing-remitting, secondary progressive)?
+> 1) 何时确诊？是哪种类型（如复发-缓解型、继发进展型）？
+> 2) Were any investigations done (e.g. MRI brain/spine, lumbar puncture, visual evoked potentials, blood tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如脑部/脊髓MRI、腰椎穿刺、视觉诱发电位、血液检查）？如是，请说明日期及结果。
+> 3) Any treatment (e.g. disease-modifying therapy, steroids)? If yes, what type and for how long?
+> 3) 是否接受过治疗（如疾病调节疗法、类固醇）？如是，说明类型及疗程。
+> 4) Still under medical follow-up? If yes, how often?
+> 4) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test ?
-> a) 任何相关报告，如 blood / urine / scan test 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: MRI brain/spine（脑部/脊髓MRI）, lumbar puncture（腰椎穿刺）, blood tests
+> a) 最新报告：脑部/脊髓MRI、腰椎穿刺、血液检查
 >
-> 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have multiple sclerosis on dd/mm/yy, seen by Dr xxx of yy Hospital.
-> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有多发性硬化症。
-> CT scan, X-ray, blood & urine test were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成CT扫描、X光、血液及尿液检查，报告随附。
-> On medical follow up currently.
-> 目前在进行医疗随访。
+> Diagnosed with multiple sclerosis (RRMS) on dd/mm/yy by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有多发性硬化症（复发-缓解型）。
+> MRI and blood tests done on dd/mm/yy. Reports attached. Currently on disease-modifying therapy and regular follow-up.
+> dd/mm/yy 完成MRI及血液检查，报告随附。目前在接受疾病调节治疗并定期随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> – Decline case
-> – 拒保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Decline
+> - 拒保

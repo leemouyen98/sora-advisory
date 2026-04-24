@@ -1,52 +1,50 @@
 #Medical_Underwriting/Cancer_Tumour_Blood_Diseases
 
-A term for diseases in which abnormal cells divide without control and can invade nearby tissues. Cancer cells can also spread to other parts of the body through the blood and lymph systems.
-癌症泛指一类异常细胞不受控制地分裂并可侵入邻近组织的疾病。癌细胞也可通过血液和淋巴系统扩散至身体其他部位。
+Cancer is a broad term for diseases where abnormal cells grow and divide without control, invading nearby tissues and potentially spreading through the blood or lymphatic system to other parts of the body. There are over 100 types of cancer, each named after the organ or cell type where it begins.
+癌症是一类异常细胞不受控制地分裂生长并侵入邻近组织的疾病，可通过血液或淋巴系统扩散至全身。癌症种类繁多，超过100种，通常以起源的器官或细胞类型命名。
 
 ![[Cancer 01.png]]
 
-![YouTube - How does a person die from Cancer](https://youtu.be/87m19xZ--BE)
+![How does a person die from Cancer](https://youtu.be/87m19xZ--BE)
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1. Actual & date diagnosis ?
-> 1. 实际诊断日期？
-> 2. Any investigation tests such CT / MRI scan, biopsy (HPE), blood & urine tests etc done ? If yes, please state the dates & results.
-> 2. 是否进行过任何检查（如 CT / MRI scan, biopsy (HPE), blood & urine tests etc done）？如是，请说明日期及结果。
-> 3. Any operation / removal done ? If yes, please state the date & type of operation/ removal.
-> 3. 是否进行过任何手术/切除？如是，请说明日期及手术/切除类型。
-> 4. On medication / treatment? If yes, what type & period of treatment.
-> 4. 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5. Still on medical follow up? If yes, how frequent (weekly / monthly etc)
-> 5. 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it diagnosed, and what type of cancer?
+> 1) 何时确诊？是哪种癌症？
+> 2) Were any investigations done (e.g. CT/MRI scan, biopsy/HPE, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如CT/MRI扫描、活检/HPE、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Was any surgery or removal performed? If yes, state date and type.
+> 3) 是否进行过手术或切除？如是，请说明日期及手术类型。
+> 4) Any treatment (e.g. chemotherapy, radiotherapy, targeted therapy)? If yes, what type and duration?
+> 4) 是否接受过治疗（如化疗、放疗、靶向治疗）？如是，说明类型及疗程。
+> 5) Still under medical follow-up? If yes, how often?
+> 5) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / scan test, biopsy (HPE) ?
-> a) 最新相关报告/结果，如血液/尿液/扫描检查、活检（HPE）？
-> b) Operation / removal report if performed.
-> b) 如有进行，附上手术/切除报告。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: CT/MRI scan（CT/MRI扫描）, biopsy/HPE（活检/病理报告）, blood/urine tests
+> a) 最新报告：CT/MRI扫描、活检/病理报告、血液/尿液检查
+> b) Operation / removal report if performed
+> b) 如有进行，附上手术/切除报告
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have colon cancer on dd/mm/yy by Dr xxx of yy hospital.
-> 由 yy 医院 Dr xxx 医生于 dd/mm/yy 诊断患有结肠癌。
-> Operation to removed done on dd/mm/yy.
-> 手术切除于 dd/mm/yy 完成。
-> Blood & urine test done on dd/mm/yy is attached.
-> dd/mm/yy 完成的血液及尿液检查报告随附。
-> Still on medical follow up
-> 仍在进行定期随访
+> Diagnosed with colon cancer on dd/mm/yy by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有结肠癌。
+> Surgical removal performed on dd/mm/yy. Blood and urine tests dated dd/mm/yy attached.
+> 手术切除于 dd/mm/yy 完成。dd/mm/yy 的血液及尿液检查报告随附。
+> Currently under regular medical follow-up.
+> 目前仍在定期随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
 > - Not insurable
 > - 不可承保

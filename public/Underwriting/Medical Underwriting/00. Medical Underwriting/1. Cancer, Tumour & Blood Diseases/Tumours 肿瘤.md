@@ -1,63 +1,62 @@
 #Medical_Underwriting/Cancer_Tumour_Blood_Diseases
 
-A term that describes any swelling or abnormal mass of tissue.
-肿瘤泛指任何组织肿胀或异常肿块。
-Can be cancerous or noncancerous.
+A tumour is an abnormal mass or swelling of tissue caused by uncontrolled cell growth. Tumours can be benign (non-cancerous) or malignant (cancerous). Benign tumours do not spread to other parts of the body, while malignant tumours can invade nearby tissue and metastasize. The nature of the tumour — confirmed by biopsy — determines the underwriting outcome.
+肿瘤是由细胞不受控制地增生所形成的异常组织肿块。肿瘤分为良性（非癌性）和恶性（癌性）两类。良性肿瘤不会扩散至其他部位，而恶性肿瘤可侵入邻近组织并发生转移。肿瘤的性质需通过活检确认，并决定核保结果。
 
 ![[Tumour 01.png]]
 
-![YouTube: Neoplasm](https://youtu.be/TMEbxjQ-SI4)
+![Neoplasm](https://youtu.be/TMEbxjQ-SI4)
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1. Actual & date diagnosis ?
-> 1. 实际诊断日期？
-> 2. Any investigation tests such CT / MRI scan, biopsy (HPE), blood & urine tests etc done ? If yes, please state the dates & results.
-> 2. 是否进行过任何检查（如 CT / MRI scan, biopsy (HPE), blood & urine tests etc done）？如是，请说明日期及结果。
-> 3. Any operation / removal done ? If yes, please state the date & type of operation/removal.
-> 3. 是否进行过任何手术/切除？如是，请说明日期及手术/切除类型。
-> 4. On medication / treatment? If yes, what type & period of treatment.
-> 4. 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5. Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5. 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
-> 6. Fully recovered ?
-> 6. 是否已完全康复？
+> 1) When was it first noticed / diagnosed, and where on the body?
+> 1) 何时首次发现 / 确诊？位于身体哪个部位？
+> 2) Were any investigations done (e.g. CT/MRI scan, biopsy/HPE, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如CT/MRI扫描、活检/HPE、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Was it removed surgically? If yes, state date and type of procedure.
+> 3) 是否已手术切除？如是，请说明日期及手术类型。
+> 4) Any treatment or medication? If yes, what type and for how long?
+> 4) 是否接受过治疗或服药？如是，说明类型及疗程。
+> 5) Still under medical follow-up? If yes, how often?
+> 5) 是否仍在定期随访？如是，多久一次？
+> 6) Fully recovered?
+> 6) 是否已完全康复？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports / results such as blood / urine / scan test, biopsy (HPE) ?
-> a) 任何相关报告/结果，如血液/尿液/扫描检查、活检（HPE）？
-> b) Operation / removal report if performed.
-> b) 如有进行，附上手术/切除报告。
-> c) Growth Questionnaire by applicant
-> c) 申请人填写生长发育问卷
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: CT/MRI scan（CT/MRI扫描）, biopsy/HPE（活检/病理报告）, blood/urine tests
+> a) 最新报告：CT/MRI扫描、活检/病理报告、血液/尿液检查
+> b) Operation / removal report if performed
+> b) 如有进行，附上手术/切除报告
+> c) Growth Questionnaire completed by applicant
+> c) 申请人填写生长问卷
 >
-> 2) KIV - Medical attendant report (MAR) / Attending physician statement (APS)
-> 2) 备查 – 医疗随行报告（MAR）/ 主治医生声明（APS）
+> MAR / APS from treating doctor (where required)
+> 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Noticed to have a lump / swelling on dd/mm/yy. Seen by Dr xxx of yy Hospital.
-> dd/mm/yy 发现肿块/肿胀，由 yy 医院 Dr xxx 医生诊治。
-> Biopsy (HPE) done on dd/mm/yy, report showed benign / negative result.
-> dd/mm/yy 完成活检（HPE），报告显示良性/阴性结果。
-> Operation to remove done on dd/mm/yy. Fully recovered since.
-> dd/mm/yy 完成切除手术，自此已完全康复。
+> Noticed a lump on dd/mm/yy. Reviewed by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 发现肿块，由 yy 医院 Dr xxx 医生诊治。
+> Biopsy (HPE) done on dd/mm/yy — report showed benign result.
+> dd/mm/yy 进行活检（HPE），报告显示良性结果。
+> Surgically removed on dd/mm/yy. Fully recovered since.
+> 于 dd/mm/yy 手术切除。自此已完全康复。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
 > Life / TPD:
-> 人寿保险 / 全残保险：
-> - Standard case provided HPE / biopsy report showed negative result & not life threatening tumours / complications.
-> - 病理/活检报告呈阴性且非致命肿瘤/并发症者，可标准承保。
+> 人寿 / 全残：
+> - Standard if HPE/biopsy report shows benign result and no life-threatening complications
+> - 病理/活检报告显示良性且无危及生命的并发症者，标准承保
 >
-> CI / Medical insurance:
-> 严重疾病保险 / 医疗保险：
-> - Exclusion provided HPE/biopsy report showed negative result & no residual disability / complications.
-> - 病理/活检报告呈阴性且无残余障碍/并发症者，除外承保。
+> CI / Medical:
+> 严重疾病 / 医疗：
+> - Exclusion if HPE/biopsy report shows benign result and no residual disability or complications
+> - 病理/活检报告显示良性且无残余障碍/并发症者，除外承保

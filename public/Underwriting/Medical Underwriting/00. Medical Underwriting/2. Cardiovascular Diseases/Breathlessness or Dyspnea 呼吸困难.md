@@ -1,53 +1,54 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-Is often described as an intense tightening in the chest, air hunger, difficulty breathing, breathlessness or a feeling of suffocation. Some causes are due to asthma, pneumonia, chronic obstructive pulmonary disease (COPD).
+Breathlessness (dyspnoea) is the uncomfortable feeling of difficulty breathing or air hunger. It is a symptom, not a diagnosis — the underlying cause must be identified. Common causes include asthma, heart disease, anaemia, lung conditions and anxiety. The underwriting outcome depends entirely on what is confirmed as the root cause.
+呼吸困难是指感到难以呼吸或气促，是一种症状而非诊断，必须查明根本原因。常见原因包括哮喘、心脏病、贫血、肺部疾病及焦虑症。核保结果完全取决于确认的病因。
 
 ![[Dyspnea 01.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such chest x-ray, ECG, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 chest x-ray, ECG, blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) Any surgery has been performed? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4) On medication / treatment? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When did it first occur and how many episodes have there been?
+> 1) 首次发病日期及发作次数？
+> 2) What is the confirmed cause (e.g., asthma, cardiac, anaemia, anxiety)?
+> 2) 确认的病因是什么（如哮喘、心脏问题、贫血、焦虑）？
+> 3) What investigations were done (e.g., ECG, chest X-ray, lung function test, blood tests)? Please provide dates and results.
+> 3) 曾进行哪些检查（如心电图、胸部X光、肺功能测试、血液检查）？请提供日期及结果。
+> 4) Has any surgery or procedure been performed? If yes, please state the type, date and outcome.
+> 4) 是否曾接受手术或治疗程序？如有，请说明类型、日期及结果。
+> 5) Is the client currently on medication? If yes, what type and for how long?
+> 5) 客户目前是否在服药？如有，请说明药物类型及疗程。
+> 6) Is the client still on medical follow-up? If yes, how frequent?
+> 6) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram....?
-> a) 最新相关报告/结果，如 blood / urine / chest x-ray, scan test, ECG, Echocardiogram...。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: ECG, chest X-ray, echocardiogram (if cardiac cause suspected), lung function test (if respiratory cause), blood & urine tests
+> a) 最新报告：心电图、胸部X光、超声心动图（如怀疑心脏问题）、肺功能测试（如怀疑呼吸系统问题）、血液及尿液检查
 >
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> History of 1 episode of short of breath due to asthma dd/mm/yy, seen by Dr xxx of yy Hospital. no admission required, currently on asthmatic medication & well controlled.
-> dd/mm/yy 因哮喘有1次呼吸急促发作，由 yy 医院 Dr xxx 医生诊治，无需住院，目前服用哮喘药物并控制良好。
-> ECG, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成心电图、胸部X光、血液及尿液检查，报告随附。
-> Medical follow up if necessary
-> 必要时进行医疗随访
+> 1 episode of breathlessness on dd/mm/yy due to asthma, seen by Dr xxx of yy Hospital. No admission required. Currently on asthma medication, well controlled. ECG, chest X-ray and blood tests done — reports attached.
+> dd/mm/yy 因哮喘出现1次呼吸困难，由 yy 医院 Dr xxx 医生诊治，无需住院。目前服用哮喘药物，控制良好。心电图、胸部X光及血液检查已完成，报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
 > Life / TPD:
-> 人寿保险 / 全残保险：
-> - Standard case provided due to minor illnesses.
-> - 若因轻微疾病所致，可标准承保。
+> 人寿 / 全残：
+> - Standard if caused by a minor condition with confirmed recovery.
+> - 若因轻微疾病引起且已确认康复，可标准承保。
 >
-> CI / Medical insurance:
-> 严重疾病保险 / 医疗保险：
-> - Exclusion in medical insurance if was due to asthma
-> - 若因哮喘引起，医疗保险除外承保
+> CI / Medical:
+> 严重疾病 / 医疗：
+> - If due to asthma: medical insurance exclusion applies.
+> - 若因哮喘引起：医疗保险除外承保。
+> - If due to cardiac cause: likely decline or substandard.
+> - 若因心脏问题引起：可能拒保或次标准承保。

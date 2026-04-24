@@ -1,7 +1,7 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-A congenital defect in which the position of the heart is mirror image of its normal position, with the apex of the ventricles pointing to the right.
-右位心脏是一种先天性缺陷，心脏位置与正常位置呈镜像，心室尖端指向右侧。
+Dextrocardia is a congenital condition where the heart is positioned on the right side of the chest instead of the left. It may occur in isolation or alongside other structural heart defects. When the heart is structurally normal and functioning well, the condition usually does not significantly impact insurability.
+右位心脏是一种先天性异常，心脏位于胸腔右侧而非左侧。可单独出现，也可伴随其他心脏结构异常。若心脏结构正常且功能良好，此病通常不会显著影响可保性。
 
 ![[Dextrocardia 01.png]]
 
@@ -10,38 +10,40 @@ A congenital defect in which the position of the heart is mirror image of its no
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such chest x-ray, ECG, echocardiogram, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 chest x-ray, ECG, echocardiogram, blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) On medication / treatment? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis? Is it isolated dextrocardia or associated with other heart defects?
+> 1) 确诊日期？是单纯右位心脏还是伴随其他心脏结构异常？
+> 2) What investigations were done (e.g., ECG, chest X-ray, echocardiogram)? Please provide dates and results — specifically, was heart function confirmed normal?
+> 2) 曾进行哪些检查（如心电图、胸部X光、超声心动图）？请提供日期及结果——心脏功能是否已确认正常？
+> 3) Is the client on any medication or experiencing any symptoms?
+> 3) 客户是否在服药或有任何症状？
+> 4) Is the client still on medical follow-up? If yes, how frequent?
+> 4) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram... ?
-> a) 最新相关报告/结果，如 blood / urine / chest x-ray, scan test, ECG, Echocardiogram..。
-> b) Operation / surgical Procedures report if performed.
-> b) 如有进行，附上手术/外科操作报告。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: echocardiogram, ECG, chest X-ray, blood & urine tests
+> a) 最新报告：超声心动图、心电图、胸部X光、血液及尿液检查
+> b) Surgical report (if any procedures were performed)
+> b) 手术报告（如有进行任何治疗程序）
 >
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> History of dextrocardia since birth, seen by Dr xxx of yy Hospital on dd/mm/yy, revealed normal heart function. No medication & follow up required.
-> 先天性右位心脏，dd/mm/yy 由 yy 医院 Dr xxx 医生检查，心脏功能正常，无需药物及随访。
+> Dextrocardia since birth, seen by Dr xxx of yy Hospital on dd/mm/yy. All tests confirm normal heart structure and function. No symptoms, no medication, no follow-up required.
+> 先天性右位心脏，dd/mm/yy 由 yy 医院 Dr xxx 医生检查，所有检查确认心脏结构及功能正常。无症状，无需药物或随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险
-> - Standard case provided normal heart function
-> - 心脏功能正常者，可标准承保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Standard if isolated dextrocardia with confirmed normal heart structure and function.
+> - 若为单纯右位心脏且确认心脏结构及功能正常，可标准承保。
+> - Rated or decline if associated with structural heart defects.
+> - 若伴随心脏结构异常，额外费率或拒保。

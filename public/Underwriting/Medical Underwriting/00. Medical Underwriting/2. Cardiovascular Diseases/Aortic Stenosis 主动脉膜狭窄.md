@@ -1,7 +1,8 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-A narrowing of the opening of the aortic valve due to fusion of the cusps that comprise the valve. It may result from previous rheumatic fever.
-主动脉瓣狭窄是指主动脉瓣瓣叶融合导致开口变窄，可能由风湿热引起。
+Aortic stenosis is the narrowing of the aortic valve opening, restricting blood flow from the heart to the body. The left ventricle has to pump harder to compensate. If left untreated, it can progress to serious symptoms including chest pain, fainting and heart failure. Most cases are congenital or caused by calcium build-up on the valve with age.
+主动脉瓣狭窄是指主动脉瓣开口变窄，限制血液从心脏流向全身。左心室须更用力泵血来补偿，若不治疗，病情可逐渐进展至出现胸痛、晕厥及心脏衰竭等严重症状。多数病例属先天性，或因年龄增长导致瓣膜钙化所致。
+主动脉瓣狭窄是指主动脉瓣开口变窄，限制血液从心脏流向全身。
 
 ![[Aortic Stenosis 01.png]]
 
@@ -10,42 +11,42 @@ A narrowing of the opening of the aortic valve due to fusion of the cusps that c
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such chest x-ray, ECG, echocardiogram, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 chest x-ray, ECG, echocardiogram, blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) Any surgery has been performed? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4) On medication / treatment? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis and severity (mild / moderate / severe)?
+> 1) 确诊日期及严重程度（轻度 / 中度 / 重度）？
+> 2) What investigations were done (e.g., ECG, chest X-ray, echocardiogram, blood tests)? Please provide dates and results.
+> 2) 曾进行哪些检查（如心电图、胸部X光、超声心动图、血液检查）？请提供日期及结果。
+> 3) Has any surgery been performed (e.g., valve replacement or balloon valvuloplasty)? If yes, please state the type, date and outcome.
+> 3) 是否曾接受手术（如瓣膜置换或球囊扩张术）？如有，请说明类型、日期及结果。
+> 4) Is the client currently on medication? If yes, what type and for how long?
+> 4) 客户目前是否在服药？如有，请说明药物类型及疗程。
+> 5) Is the client still on medical follow-up? If yes, how frequent?
+> 5) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram....?
-> a) 最新相关报告/结果，如 blood / urine / chest x-ray, scan test, ECG, Echocardiogram...。
-> b) Surgery / Procedures report if performed.
-> b) 如有进行，附上手术/操作报告。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: echocardiogram, ECG, chest X-ray, blood & urine tests
+> a) 最新报告：超声心动图、心电图、胸部X光、血液及尿液检查
+> b) Surgical / procedure report (if applicable)
+> b) 手术或治疗程序报告（如有）
 >
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have aortic stenosis on dd/mm/yy. currently on medication & on regular medical follow up.
-> 于 dd/mm/yy 患有主动脉瓣狭窄。 目前在定期服药及随访。
-> Echocardiogram, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成超声心动图、胸部X光、血液及尿液检查，报告随附。
+> Diagnosed with aortic stenosis on dd/mm/yy under Dr xxx of yy Hospital. Currently on medication and attending regular follow-ups. Echocardiogram, chest X-ray and blood tests done on dd/mm/yy — reports attached.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生确诊主动脉瓣狭窄。目前在服药并定期复诊。dd/mm/yy 完成超声心动图、胸部X光及血液检查，报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险
-> - Decline case
-> - 拒保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Decline in most cases.
+> - 大多数情况下拒保。
+> - Mild cases with normal heart function may be considered individually.
+> - 轻度病例且心脏功能正常者，可个案评估。

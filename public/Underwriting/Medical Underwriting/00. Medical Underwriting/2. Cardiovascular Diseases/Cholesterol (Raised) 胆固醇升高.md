@@ -1,6 +1,7 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-Is a type of fat, or lipid, which moves throughout your body in your blood. Lipids are substances that do not dissolve in water, so they do not come apart in blood.
+High cholesterol means there is too much low-density lipoprotein (LDL) or total cholesterol in the blood, raising the risk of plaque build-up in the arteries and increasing the likelihood of heart attack and stroke. It is often managed through lifestyle changes and/or medication. The underwriting outcome depends on cholesterol levels, control and any associated conditions.
+胆固醇偏高是指血液中低密度脂蛋白（LDL）或总胆固醇过高，会增加动脉粥样硬化的风险，提高心脏病发作及中风的概率。通常可通过生活方式调整及/或药物控制。核保结果取决于胆固醇水平、控制情况及相关并发症。
 
 ![[Cholesterol 01.png]]
 ![[Cholesterol 02.png]]
@@ -8,40 +9,36 @@ Is a type of fat, or lipid, which moves throughout your body in your blood. Lipi
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such blood (Lipid profile) & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 blood (Lipid profile) & urine tests etc... done）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis? What were the cholesterol levels (total, LDL, HDL, triglycerides)?
+> 1) 确诊日期？胆固醇各项数值为何（总胆固醇、低密度脂蛋白、高密度脂蛋白、甘油三酯）？
+> 2) What investigations were done (e.g., blood lipid profile, urine test)? Please provide dates and results.
+> 2) 曾进行哪些检查（如血脂检测、尿液检查）？请提供日期及结果。
+> 3) Is the client currently on cholesterol-lowering medication (e.g., statin)? If yes, what type and for how long?
+> 3) 客户目前是否在服用降胆固醇药物（如他汀类药物）？如有，请说明药物类型及疗程。
+> 4) Is the client still on medical follow-up? If yes, how frequent?
+> 4) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood (lipid profile test) / urine ?
-> a) 任何相关报告，如 blood (lipid profile test) / urine 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest blood lipid profile (cholesterol test) report
+> a) 最新血脂检测报告
 >
-> 2) KIV – Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 备查 – 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Was told to have high cholesterol during routine check up on dd/mm/yy, seen by Dr xxx of yy Hospital. Advise d to be on lifestyle control & regular exercises, no medication required at the moment.
-> dd/mm/yy 例行体检告知胆固醇偏高，由 yy 医院 Dr xxx 医生诊治，建议生活方式调整及定期运动，目前无需药物治疗。
-> Lipid profile test is attached here.
-> 血脂检测报告随附。
-> No medical follow up is required.
-> 无需医疗随访。
+> Found to have high cholesterol during routine check-up on dd/mm/yy, seen by Dr xxx of yy Hospital. Advised on lifestyle changes and regular exercise — no medication required at this stage. No follow-up needed. Latest lipid profile report attached.
+> dd/mm/yy 例行体检发现胆固醇偏高，由 yy 医院 Dr xxx 医生诊治。建议调整生活方式及定期运动，目前无需药物治疗，无需随访。最新血脂报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> - Standard / Substandard case in view of lipid profile results.
-> - 根据血脂报告结果，可为标准或次标准承保。
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Standard or substandard depending on lipid profile results and control.
+> - 根据血脂报告结果及控制情况，标准或次标准承保。

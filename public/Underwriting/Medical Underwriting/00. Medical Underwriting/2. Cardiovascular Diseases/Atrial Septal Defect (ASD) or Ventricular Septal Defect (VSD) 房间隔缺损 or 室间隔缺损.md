@@ -1,7 +1,7 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-A hole in the partition(septum) between the left and right halves of the heart. It may be found between the two atria (atrial septal defect ASD) or between the ventricles (ventricular septal defect VSD) Large defects are closed surgically but small defects do not require treatment.
-心脏间隔缺损是指左右心房或心室之间的分隔（间隔）存在孔洞。可见于两心房之间（房间隔缺损ASD）或心室之间（室间隔缺损VSD）。大型缺损需手术修补，小型缺损则无需治疗。
+Atrial Septal Defect (ASD) and Ventricular Septal Defect (VSD) are holes in the wall dividing the two sides of the heart. Small defects often close on their own and cause no long-term problems. Larger defects typically require surgical or catheter-based repair. Post-repair outcomes with no complications are generally favourable for underwriting.
+房间隔缺损（ASD）及室间隔缺损（VSD）是指心脏左右两侧之间的隔膜存在孔洞。小型缺损通常可自行愈合，不留长期影响；较大的缺损则一般需通过手术或导管介入修补。成功修补且无并发症者，核保结果通常较为有利。
 
 ![[Atrial Septal Defect 01.png]]
 ![[Atrial Septal Defect 02.png]]
@@ -15,47 +15,44 @@ A hole in the partition(septum) between the left and right halves of the heart. 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such chest x-ray, ECG, echocardiogram, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 chest x-ray, ECG, echocardiogram, blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) Any surgery has been performed? If yes, please state the date & type of operation.
-> 3) 是否进行过任何手术？如是，请说明日期及手术类型。
-> 4) On medication / treatment? If yes, what type & period of treatment.
-> 4) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 5) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 5) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis and type of defect (ASD or VSD)? What is the size (small / large)?
+> 1) 确诊日期及缺损类型（房间隔或室间隔缺损）？缺损大小（小型 / 大型）？
+> 2) What investigations were done (e.g., ECG, chest X-ray, echocardiogram, blood tests)? Please provide dates and results.
+> 2) 曾进行哪些检查（如心电图、胸部X光、超声心动图、血液检查）？请提供日期及结果。
+> 3) Has any surgery or catheter procedure been performed? If yes, please state the type, date and outcome.
+> 3) 是否曾接受手术或导管介入治疗？如有，请说明类型、日期及结果。
+> 4) Is the client currently on medication? If yes, what type and for how long?
+> 4) 客户目前是否在服药？如有，请说明药物类型及疗程。
+> 5) Is the client still on medical follow-up? If yes, how frequent?
+> 5) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / chest x-ray, scan test, ECG, Echocardiogram... ?
-> a) 最新相关报告/结果，如 blood / urine / chest x-ray, scan test, ECG, Echocardiogram..。
-> b) Surgical Procedures report if performed.
-> b) 如有进行，附上外科操作报告。
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: echocardiogram, ECG, chest X-ray, blood & urine tests
+> a) 最新报告：超声心动图、心电图、胸部X光、血液及尿液检查
+> b) Surgical / procedure report (if applicable)
+> b) 手术或治疗程序报告（如有）
+>
+> Medical examination / MAR / APS from treating doctor
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have hole in the heart since born. Surgery has been performed at age of 8, on yearly medical follow up.
-> 先天性心脏缺损，8岁时已进行手术，每年进行医疗随访。
-> Echocardiogram, Chest x-ray, blood & urine tests were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成超声心动图、胸部X光、血液及尿液检查，报告随附。
+> Small ASD (hole in heart) diagnosed at birth. Spontaneously closed — confirmed by echocardiogram on dd/mm/yy. No symptoms, no medication, no follow-up required. Reports attached.
+> 出生时确诊小型房间隔缺损（ASD）。缺损已自行愈合，dd/mm/yy 超声心动图确认。无症状，无需药物或随访，报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> - Standard case if is the spontaneous closure & confirmed by latest
-> - 若为自发性闭合且经最新检查确认，可标准承保
-> Echocargiogram
-> 超声心动图
-> - Standard case provided Surgery has been performed more than 3 years & no heart complications
-> - 手术已超过3年且无心脏并发症者，可标准承保
-> - Postpone case for at least 1 year if corrected surgery has been performed within 1 year
-> - 若矫正手术在1年内进行，延迟承保至少1年
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Standard if spontaneous closure confirmed by latest echocardiogram.
+> - 若最新超声心动图确认自行愈合，可标准承保。
+> - Standard if corrective surgery was performed more than 3 years ago with no heart complications.
+> - 矫正手术超过3年且无心脏并发症者，可标准承保。
+> - Postpone at least 1 year if corrective surgery was within the past year.
+> - 若矫正手术在过去1年内进行，延迟承保至少1年。

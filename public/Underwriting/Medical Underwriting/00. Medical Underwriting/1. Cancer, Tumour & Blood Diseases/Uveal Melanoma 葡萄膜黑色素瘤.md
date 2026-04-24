@@ -1,50 +1,52 @@
 #Medical_Underwriting/Cancer_Tumour_Blood_Diseases
 
-The uvea is the middle layer of the wall of the eye and includes the iris, the ciliary body, and the choroid.
-Uveal melanoma of the iris is usually a small tumor that grows slowly and rarely spreads to other parts of the body.
+Uveal melanoma is a rare cancer that develops in the uvea — the middle layer of the eye, comprising the iris, ciliary body, and choroid. Melanoma of the iris tends to grow slowly and rarely spreads. Choroidal melanoma is more common and carries a higher risk of metastasis, particularly to the liver.
+葡萄膜黑色素瘤是一种罕见的眼部癌症，起源于葡萄膜——眼球的中间层，包含虹膜、睫状体和脉络膜。虹膜黑色素瘤生长缓慢，鲜少扩散；脉络膜黑色素瘤较为常见，转移风险较高，尤其是转移至肝脏。
 
 ![[Melanoma Uveal 01.png]]
+
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such biopsy (HPE), blood & urine tests etc done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如活检（HPE）、血液及尿液检查等）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it diagnosed, and which part of the eye (iris, ciliary body, or choroid)?
+> 1) 何时确诊？位于眼睛哪个部位（虹膜、睫状体或脉络膜）？
+> 2) Were any investigations done (e.g. eye ultrasound, biopsy/HPE, liver scan, blood tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如眼部超声波、活检/HPE、肝脏扫描、血液检查）？如是，请说明日期及结果。
+> 3) Any treatment (e.g. radiation therapy, surgery)? If yes, what type and duration?
+> 3) 是否接受过治疗（如放射治疗、手术）？如是，说明类型及疗程。
+> 4) Still under medical follow-up? If yes, how often?
+> 4) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test.... ?
-> a) 任何相关报告，如 blood / urine / scan test.... 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: eye ultrasound（眼部超声波）, biopsy/HPE（活检/病理报告）, CT/MRI scan（CT/MRI扫描）, blood tests
+> a) 最新报告：眼部超声波、活检/病理报告、CT/MRI扫描、血液检查
 >
-> 2) KIV – Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 备查 – 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-Diagnosed to have uveal melanoma dd/mm/yy by Dr xxx of yy hospital. Investigation reports done on dd/mm/yy is attached.
-> On regular medical follow up
-> 进行定期医疗随访
+> Diagnosed with uveal melanoma (iris, small tumour) on dd/mm/yy by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有葡萄膜黑色素瘤（虹膜，小型肿瘤）。
+> Currently under regular monitoring — no spread detected. Investigation reports dated dd/mm/yy attached.
+> 目前定期监测，未发现扩散。dd/mm/yy 的检查报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
 > Life / TPD:
-> 人寿保险 / 全残保险：
-> - Depends on the outcomes of examination/reports.
-> - 取决于检查报告结果。
-> - Standard case provided HPE/biopsy report showed negative.
-> - 病理/活检报告呈阴性者，可标准承保。
+> 人寿 / 全残：
+> - Depends on investigation results and whether the tumour has spread
+> - 视检查结果及肿瘤是否已扩散而定
+> - Standard if HPE/biopsy report shows negative / benign result with no spread
+> - 病理/活检报告显示阴性/良性且无扩散者，标准承保
 >
-> CI / Medical insurance:
-> 严重疾病保险 / 医疗保险：
-> - not insurable
+> CI / Medical:
+> 严重疾病 / 医疗：
+> - Not insurable
 > - 不可承保

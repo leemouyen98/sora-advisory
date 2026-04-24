@@ -1,59 +1,56 @@
 #Medical_Underwriting/Cardiovascular_Diseases
 
-Is a whooshing, humming or rasping sound between the heartbeat sounds. This is caused by noisy blood flow within the heart. Blood can flow abnormally through the heart for many reasons, including defective valves, congenital heart disorders and anaemia.
+A heart murmur is an abnormal whooshing or swishing sound heard between heartbeats, caused by turbulent blood flow through the heart. It may be innocent (no underlying disease) or pathological (caused by valve defects or structural problems). An innocent murmur in an otherwise healthy person does not affect insurability. UW assessment focuses on confirming the cause.
+心脏杂音是指在心跳之间听到异常的吹风样或嗡嗡声，由心脏内血液湍流引起。可能属于功能性（无潜在疾病）或病理性（由瓣膜缺陷或结构问题引起）。功能性心脏杂音在健康人群中不影响可保性。核保评估的重点在于确认杂音的成因。
 
 ![Heart Murmur](https://youtu.be/dBwr2GZCmQM)
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such echocardiogram, blood & urine tests etc... done ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 echocardiogram, blood & urine tests etc... done）？如是，请说明日期及结果。
-> 3) On medication / treatment? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) What is the date of diagnosis and type of murmur (innocent / pathological)?
+> 1) 确诊日期及杂音类型（功能性 / 病理性）？
+> 2) What investigations were done (e.g., echocardiogram, ECG, blood tests)? Please provide dates and results — specifically, was the confirmed cause documented?
+> 2) 曾进行哪些检查（如超声心动图、心电图、血液检查）？请提供日期及结果——是否已记录确认的病因？
+> 3) Has any surgery or procedure been performed? If yes, please state the type, date and outcome.
+> 3) 是否曾接受手术或治疗程序？如有，请说明类型、日期及结果。
+> 4) Is the client currently on medication? If yes, what type and for how long?
+> 4) 客户目前是否在服药？如有，请说明药物类型及疗程。
+> 5) Is the client still on medical follow-up? If yes, how frequent?
+> 5) 客户是否仍在定期复诊？如有，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any latest relevant reports / results such as blood / urine / scan test, ECG, Echocardiogram.... ?
-> a) 最新相关报告/结果，如 blood / urine / scan test, ECG, Echocardiogram...。
-> b) Operation / procedures report if performed.
-> b) 如有进行，附上手术/操作报告。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: echocardiogram, ECG, blood & urine tests
+> a) 最新报告：超声心动图、心电图、血液及尿液检查
+> b) Procedure report (if applicable)
+> b) 治疗程序报告（如有）
 >
-> 2) Medical examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> History of heart murmur on dd/mm/yy, seen by Dr xxx of yy Hospital.
-> dd/mm/yy 有心脏杂音病史，由 yy 医院 Dr xxx 医生诊治。
-> Currently on medication.
-> 目前在服药。
-> Echocardiogram, blood & urine tests were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成超声心动图、血液及尿液检查，报告随附。
-> Medical follow up on yearly basis
-> 每年进行医疗随访
+> Heart murmur detected on dd/mm/yy by Dr xxx of yy Hospital. Echocardiogram confirmed innocent murmur — no structural defect found. No medication or follow-up required. Reports attached.
+> dd/mm/yy 由 yy 医院 Dr xxx 医生发现心脏杂音。超声心动图确认为功能性杂音，无结构性缺陷。无需药物或随访，报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
 > Life / TPD:
-> 人寿保险 / 全残保险：
-> - Depends on the outcomes of examination / reports.
-> - 取决于检查报告结果。
-> - Standard case provided the causes were due to non material medical illnesses
-> - 若因非重大疾病所致，可标准承保
+> 人寿 / 全残：
+> - Innocent murmur with normal echocardiogram: standard.
+> - 功能性杂音且超声心动图正常：标准承保。
+> - Pathological murmur: outcome depends on confirmed cause and severity.
+> - 病理性杂音：结果取决于确认的病因及严重程度。
 >
-> CI / Medical insurance:
-> 严重疾病保险 / 医疗保险：
-> - Depends on the outcomes of examination/reports.
-> - 取决于检查报告结果。
-> - Standard / substandard case provided the causes were due to non material medical illnesses
-> - 若因非重大疾病所致，标准或次标准承保
+> CI / Medical:
+> 严重疾病 / 医疗：
+> - Innocent murmur: standard or no loading.
+> - 功能性杂音：标准承保或无额外费率。
+> - Pathological murmur: exclusion or decline depending on cause.
+> - 病理性杂音：除外承保或拒保，视病因而定。

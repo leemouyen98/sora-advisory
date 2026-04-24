@@ -1,47 +1,45 @@
 #Medical_Underwriting/Brain_Nervous_Diseases
 
-Or syncope, is a sudden and temporary loss of consciousness. The most common reason for fainting is a sudden drop in blood pressure, which reduces blood flow and oxygen to your brain.
-
-This causes loss of consciousness. Consciousness is usually regained quickly. Fainting might have no medical significance. Or the cause can be a serious disorder, occasionally involving the heart.
+Fainting (syncope) is a sudden, brief loss of consciousness caused by a temporary reduction in blood flow to the brain. The most common trigger is a sudden drop in blood pressure. It is usually brief and self-resolving. While often benign, recurrent or unexplained fainting may signal an underlying cardiac or neurological condition that requires investigation.
+昏厥（晕厥）是由大脑血流暂时减少引起的突发性、短暂性意识丧失。最常见的触发因素是血压骤降。通常持续时间短暂且可自行恢复。虽然多为良性，但反复发作或原因不明的昏厥可能提示潜在的心脏或神经系统问题，需进一步检查。
 
 ![[Fainting 01.png]]
+
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such CT scan / MRI, blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如CT扫描/MRI、血液及尿液检查等）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When did it occur, and what was the cause (e.g. dehydration, heat, cardiac)?
+> 1) 何时发生？原因是什么（如脱水、中暑、心脏原因）？
+> 2) Were any investigations done (e.g. ECG, CT scan, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如心电图、CT扫描、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Any treatment or medication? If yes, what type and for how long?
+> 3) 是否接受过治疗或服药？如是，说明类型及疗程。
+> 4) Still under medical follow-up? If yes, how often?
+> 4) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test ?
-> a) 任何相关报告，如 blood / urine / scan test 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: ECG（心电图）, CT scan（CT扫描）, blood/urine tests
+> a) 最新报告：心电图、CT扫描、血液/尿液检查
 >
-> 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> History of 1 episode of fainting due to long exposure to the sun on dd/mm/yy, seen by Dr xxx of yy Hospital. Investigation tests done & revealed with normal results.
-> dd/mm/yy 因长时间暴露于阳光下晕厥1次，由 yy 医院 Dr xxx 医生诊治，检查结果正常。
-> Blood & urine test were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成血液及尿液检查，报告随附。
-> Fully recovered.
-> 完全康复。
+> History of 1 episode of fainting on dd/mm/yy due to prolonged sun exposure. Treated by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 因长时间暴露于阳光下昏厥1次，由 yy 医院 Dr xxx 医生诊治。
+> Blood and urine tests done on dd/mm/yy — results normal. Fully recovered.
+> dd/mm/yy 完成血液及尿液检查，结果正常。已完全康复。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> - Standard case provided fully recovered & no other complications
-> - 完全康复且无其他并发症者，可标准承保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Standard if fully recovered with no complications
+> - 完全康复且无并发症者，标准承保
