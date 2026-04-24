@@ -1,20 +1,21 @@
 #Medical_Underwriting/Respiratory_Diseases
 
-Commonly known as sore throat, is caused by swelling in the back of the throat (pharynx) between the tonsils and the voice box (larynx). Most sore throats are caused by colds, the flu, coxsackie virus or mono (mononucleosis). Bacteria that can cause pharyngitis in some cases.
+Pharyngitis (sore throat) is inflammation of the pharynx — the back of the throat between the tonsils and voice box. It is most commonly caused by viral infections such as colds, the flu, or mononucleosis, but may also result from bacterial infections such as Streptococcus.
+咽炎（喉咙痛）是指咽部（扁桃体与声匣之间的咽喉后部）发炎，最常见的病因是病毒感染，如普通感冒、流感或单核细胞增多症，也可能由链球菌等细菌感染引起。
 
 ![[Pharyngitis 01.png]]
 
 ![[Pharyngitis 02.png]]
 
-# EXAMPLE CASE OF HOSPITAL ADMISSION
-# 住院案例示例
+## EXAMPLE CASE OF HOSPITAL ADMISSION
+## 住院案例示例
 
 > PHARYNGOTONSILLITIS WITH PHARYNGOSCOPY HAS BEEN PERFORMED IN ONE OF PRIVATE HOSPITAL ON AUGUST 2019 (3 DAYS ADMISSION) IN SEREMBAN, NEGERI SEMBILAN.
-> PHARYNGOTONSILLITIS WITH PHARYNGOSCOPY HAS BEEN PERFORMED 在某私立医院 于8月2019 (3 天住院) （森美兰州芙蓉）.
-> - TOTAL MEDICAL COST = RM4,300 + +
+> 咽扁桃体炎并进行咽喉镜检查，于2019年8月在森美兰州芙蓉某私立医院住院（住院3天）。
+> - TOTAL MEDICAL COST = RM4,300 ++
 > - 总医疗费用 = RM4,300 以上
 >
-> NOTE :
+> NOTE:
 > 注意：
 > All cost quoted is on estimated basis, it may not fully represent the actual cost.
 > 所有报价均为估算，未必完全反映实际费用。
@@ -26,37 +27,40 @@ Commonly known as sore throat, is caused by swelling in the back of the throat (
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 blood & urine tests etc...）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
+> 1) Actual date of diagnosis?
+> 1) 诊断的实际日期？
+> 2) Any investigation tests such as blood & urine tests? If yes, please state the dates & results.
+> 2) 是否进行过相关检查（如血液及尿液检查）？如是，请说明日期及结果。
+> 3) On medication / treatment? If yes, what type & period of treatment?
+> 3) 是否在服药或接受治疗？如是，请说明治疗类型及疗程。
+> 4) Still on medical follow-up? If yes, how frequent (weekly / monthly etc)?
 > 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test ?
-> a) 任何相关报告，如 blood / urine / scan test 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest relevant reports: blood, urine & scan tests
+> a) 最新相关报告：血液、尿液及扫描检查
+>
+> MAR / APS from treating doctor (where required)
+> 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> History of pharngitis on dd/mm/yy by Dr xxx of yy Hospital. Treated & discharged well after 3 days admission.
-> dd/mm/yy 有咽炎病史，由 yy 医院 Dr xxx 医生诊治，住院3天后康复出院。
-> Blood & urine test done on dd/mm/yy is attached.
+> History of pharyngitis on dd/mm/yy. Treated by Dr xxx of yy Hospital and discharged well after 3 days of admission.
+> 于 dd/mm/yy 有咽炎病史，由 yy 医院 Dr xxx 医生诊治，住院3天后康复出院。
+> Blood & urine tests done on dd/mm/yy are attached.
 > dd/mm/yy 完成的血液及尿液检查报告随附。
-> Medical follow up when necessary.
-> 必要时进行医疗随访。
+> Medical follow-up as required.
+> 如有需要，进行医疗随访。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> – Standard case if fully recovered
-> – 完全康复者，标准承保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Standard if fully recovered
+> - 完全康复者，标准承保

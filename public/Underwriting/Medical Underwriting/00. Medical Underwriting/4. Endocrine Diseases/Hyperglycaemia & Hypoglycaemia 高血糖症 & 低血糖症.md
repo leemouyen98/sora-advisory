@@ -1,60 +1,55 @@
 #Medical_Underwriting/Endocrine_Diseases
 
-# HYPERGLYCAEMIA
-# 高血糖症
+Hyperglycaemia (high blood sugar) is where blood glucose levels are above normal. It is a hallmark of diabetes and can become dangerous if not managed. The fastest treatment is fast-acting insulin or exercise to use up the excess glucose.
+高血糖症是指血糖水平高于正常值，是糖尿病的主要特征，若不及时处理可能变得危险。最快的治疗方法是使用速效胰岛素或通过运动消耗多余的葡萄糖。
 
-High blood sugar (hyperglycaemia) is where the level of sugar in your blood is too high. It mainly affects people with diabetes and can be serious if not treated.
-
-The quickest way to lower your blood sugar is to take fast-acting insulin. Exercising is another fast, effective way. In some cases, you should go to the hospital.
-# HYPOGLYCAEMIA
-# 低血糖症
-
-Is an abnormally low level of glucose in your blood (less than four millimoles per litre). When your glucose (sugar) level is too low, your body doesn’t have enough energy to carry out its activities.
+Hypoglycaemia (low blood sugar) is where blood glucose drops below 4 mmol/L, leaving the body without enough energy to function normally. It can cause shakiness, sweating, confusion, and in severe cases, unconsciousness.
+低血糖症是指血糖水平低于4mmol/L，使身体没有足够能量正常运作。可引起颤抖、出汗、意识混乱，严重时甚至导致昏迷。
 
 ![[Hyperglycaemia 01.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such blood & urine tests etc... ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 blood & urine tests etc...）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
-> 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
+> 1) When was it first detected, and is it high or low blood sugar (or both)?
+> 1) 何时首次发现？是高血糖、低血糖，还是两者都有？
+> 2) Were any investigations done (e.g. fasting blood sugar/FBS, HbA1c, blood/urine tests)? If yes, state dates and results.
+> 2) 是否进行过检查（如空腹血糖/FBS、糖化血红蛋白/HbA1c、血液/尿液检查）？如是，请说明日期及结果。
+> 3) Any treatment or medication? If yes, what type and for how long?
+> 3) 是否接受过治疗或服药？如是，说明类型及疗程。
+> 4) Still under medical follow-up? If yes, how often?
+> 4) 是否仍在定期随访？如是，多久一次？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / scan test ?
-> a) 任何相关报告，如 blood / urine / scan test 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest reports: fasting blood sugar（空腹血糖）, HbA1c（糖化血红蛋白）, blood/urine tests
+> a) 最新报告：空腹血糖、糖化血红蛋白、血液/尿液检查
 >
-> 2) Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS) from attending doctor
-> 2) 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
+> Medical examination / MAR / APS from treating doctor (where required)
+> 体格检查 / 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Noticed to hv slight high blood sugar during routine medical check up on dd/mm/yy. Seen by Dr xxx of yy Hospital.
-> dd/mm/yy 例行体检发现血糖偏高，由 yy 医院 Dr xxx 医生诊治。
-> Blood (FBS & HbA1c) & urine test were done on dd/mm/yy. Reports are attached here.
-> dd/mm/yy 完成血液（空腹血糖及糖化血红蛋白）及尿液检查，报告随附。
-> No medication needed & advised to do more exercises regularly.
-> 无需药物，建议定期运动。
+> Slightly elevated blood sugar detected during routine medical check-up on dd/mm/yy. Reviewed by Dr xxx of yy Hospital.
+> 于 dd/mm/yy 例行体检发现血糖轻微偏高，由 yy 医院 Dr xxx 医生诊治。
+> Fasting blood sugar (FBS) and HbA1c tests done on dd/mm/yy. Reports attached.
+> dd/mm/yy 完成空腹血糖及糖化血红蛋白检查，报告随附。
+> No medication required. Advised to exercise regularly and monitor diet.
+> 无需药物，建议定期运动并注意饮食。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
 > Life / TPD:
-> 人寿保险 / 全残保险：
-> – Sub-standard case provided good control & no complications
-> – 控制良好且无并发症者，次标准承保
+> 人寿 / 全残：
+> - Sub-standard if well controlled with no complications
+> - 控制良好且无并发症者，次标准承保
 >
-> CI / Medical insurance:
-> 严重疾病保险 / 医疗保险：
-> – Decline case
-> – 拒保
+> CI / Medical:
+> 严重疾病 / 医疗：
+> - Decline
+> - 拒保

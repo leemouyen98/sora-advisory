@@ -1,50 +1,49 @@
 #Medical_Underwriting/Respiratory_Diseases
 
-Refers to coughing or spitting up of blood or bloody mucus from your respiratory tract (lungs and throat). It is often the result of prolonged coughing or a chest infection.
+Haemoptysis (coughing up blood) is the coughing or spitting up of blood or blood-tinged mucus from the respiratory tract — the lungs and throat. It may result from a chest infection or prolonged coughing, but can also indicate more serious conditions such as tuberculosis, lung cancer, or pulmonary embolism. The underlying cause must always be identified.
+咯血是指从呼吸道（肺部和咽喉）咳出血液或带血黏液，可能由胸部感染或长期咳嗽引起，也可能是肺结核、肺癌或肺栓塞等较严重疾病的表现。核保前必须查明咯血的根本原因。
 
 ![[Hemoptysis 01.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1) Actual & date diagnosis ?
-> 1) 实际诊断日期？
-> 2) Any investigation tests such chest X-ray, lung function test, blood & urine tests etc.. ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 chest X-ray, lung function test, blood & urine tests etc..）？如是，请说明日期及结果。
-> 3) On medication / treatment ? If yes, what type & period of treatment.
-> 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
+> 1) Actual date of diagnosis?
+> 1) 诊断的实际日期？
+> 2) Any investigation tests such as chest X-ray, lung function test, blood & urine tests? If yes, please state the dates & results.
+> 2) 是否进行过相关检查（如胸部X光、肺功能测试、血液及尿液检查）？如是，请说明日期及结果。
+> 3) On medication / treatment? If yes, what type & period of treatment?
+> 3) 是否在服药或接受治疗？如是，请说明治疗类型及疗程。
+> 4) Still on medical follow-up? If yes, how frequent (weekly / monthly etc)?
 > 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
-> 5) Fully recovered ?
+> 5) Fully recovered?
 > 5) 是否已完全康复？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1) From client / doctor
-> 1) 来自客户 / 医生
-> a) Any relevant reports such as blood / urine / chest X-ray, scan tests ?
-> a) 任何相关报告，如 blood / urine / chest X-ray, scan tests 。
+> From client / doctor:
+> 来自客户 / 医生：
+> a) Latest relevant reports: blood, urine, chest X-ray & scan tests
+> a) 最新相关报告：血液、尿液、胸部X光及扫描检查
 >
-> 2) Medical attendant report (MAR) / Attending physician statement (APS)
-> 2) 医疗随行报告（MAR）/ 主治医生声明（APS）
+> MAR / APS from treating doctor (where required)
+> 主诊医生报告（MAR）/ 主诊医生声明（APS）（视情况而定）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have hemoptysis due to chest infection on dd/mm/yy by Dr xxx of yy Hospital.
-> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有因胸部感染引起的咯血。
-> Scanning, blood & urine test done on dd/mm/yy is attached.
-> dd/mm/yy 完成的扫描、血液及尿液检查随附。
-> On medical follow up currently.
-> 目前在进行医疗随访。
+> Diagnosed with haemoptysis due to chest infection on dd/mm/yy by Dr xxx of yy Hospital. Treated with antibiotics, currently on medical follow-up.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有因胸部感染引起的咯血，接受抗生素治疗，目前持续随访。
+> Scanning, blood & urine tests done on dd/mm/yy are attached.
+> dd/mm/yy 完成的扫描、血液及尿液检查报告随附。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD / CI / Medical insurance:
-> 人寿保险 / 全残保险 / 严重疾病保险 / 医疗保险：
-> – Depends on the outcomes of examination / reports.
-> – 取决于检查报告结果。
-> – KIV postpone / decline if the cause was due to lung disorder
-> – 若因肺部疾病引起，备查延迟或拒保
+> Life / TPD / CI / Medical:
+> 人寿 / 全残 / 严重疾病 / 医疗：
+> - Outcome depends on investigation results and underlying cause
+> - 结果取决于检查报告及潜在病因
+> - Pending postpone / decline if caused by lung disorder
+> - 若因肺部疾病引起，备查延迟或拒保

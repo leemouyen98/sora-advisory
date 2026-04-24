@@ -1,9 +1,9 @@
 #Medical_Underwriting/Urinary_Diseases
 
-Polyuria is a condition where the body produces an abnormally large volume of urine — defined as more than 3 litres per day in adults, compared to a normal daily output of 1 to 2 litres. It can be a symptom of diabetes, kidney problems, or hormonal imbalances. Identifying the underlying cause is key to appropriate management.
-多尿症是指身体每日产生尿液超过3升（正常成人日产尿量约为1至2升）的异常状态。多尿可能是糖尿病、肾脏疾病或荷尔蒙失调的症状之一，找出潜在原因是制定有效治疗方案的关键。
+Nephritis is inflammation of the kidney's filtering structures — the glomeruli and nephrons. When these microscopic units become inflamed, the kidneys lose their ability to filter waste products properly, allowing protein and blood to leak into the urine. It may be caused by infection, autoimmune conditions, or toxic exposure.
+肾炎是肾脏过滤结构（肾小球及肾单位）的炎症。当这些微小单位发炎时，肾脏无法正常过滤废物，导致蛋白质和血液渗入尿液。病因可包括感染、自身免疫疾病或毒素损伤。
 
-![[Polyuria 01.png]]
+![[Nephritis 01.png]]![[Nephritis 02.png]]
 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
@@ -33,10 +33,12 @@ Polyuria is a condition where the body produces an abnormally large volume of ur
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed with polyuria (excessive urination) on dd/mm/yy by Dr xxx of yy Hospital. Bladder check showed no abnormality; advised to reduce fluid intake.
-> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有多尿症，膀胱检查无异常，建议减少饮水量。
+> Diagnosed with nephritis on dd/mm/yy by Dr xxx of yy Hospital. Treated with medication, fully recovered with no complications.
+> 于 dd/mm/yy 由 yy 医院 Dr xxx 医生诊断患有肾炎，接受药物治疗后完全康复，无并发症。
 > Blood & urine tests were done on dd/mm/yy. Reports are attached.
 > dd/mm/yy 完成血液及尿液检查，报告随附。
+> Fully recovered since.
+> 自此已完全康复。
 
 ## UNDERWRITING OUTCOMES
 ## 核保结果
