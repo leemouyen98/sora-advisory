@@ -379,7 +379,7 @@ export default function MedicalUnderwritingPage() {
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch('/Underwriting/manifest.json')
+    fetch('/Underwriting/manifest.json', { cache: 'no-store' })
       .then(r => r.json()).then(setManifest).catch(() => setManifest([]))
       .finally(() => setLoadingManifest(false))
   }, [])
@@ -392,7 +392,7 @@ export default function MedicalUnderwritingPage() {
   useEffect(() => {
     if (!selectedCat || !selectedCond) { setMdBlocks(null); return }
     setLoadingMd(true); setMdBlocks(null)
-    fetch(conditionUrl(selectedCat.category, selectedCond))
+    fetch(conditionUrl(selectedCat.category, selectedCond), { cache: 'no-store' })
       .then(r => { if (!r.ok) throw new Error(); return r.text() })
       .then(text => setMdBlocks(parseMarkdown(text)))
       .catch(() => setMdBlocks([{ type: 'text', en: 'Content could not be loaded.', zh: null }]))
