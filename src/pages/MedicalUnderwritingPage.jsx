@@ -1246,18 +1246,20 @@ export default function MedicalUnderwritingPage() {
               display: 'flex', flexDirection: 'column',
               background: '#FAFAFA',
               animation: 'uw-slide-in-right 0.24s cubic-bezier(0.4, 0, 0.2, 1)',
-              position: 'relative',
             }}>
               {/* Progress bar */}
               <ProgressBar active={loadingMd} color={catColor} />
-              <div
-                ref={mobileDetailRef}
-                onScroll={handleDetailScroll}
-                style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 48px', WebkitOverflowScrolling: 'touch' }}
-              >
-                {renderDetailContent()}
+              {/* Scroll container — needs position:relative so BackToTopButton anchors to it */}
+              <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+                <div
+                  ref={mobileDetailRef}
+                  onScroll={handleDetailScroll}
+                  style={{ position: 'absolute', inset: 0, overflowY: 'auto', padding: '16px 16px 48px', WebkitOverflowScrolling: 'touch' }}
+                >
+                  {renderDetailContent()}
+                </div>
+                <BackToTopButton scrollRef={mobileDetailRef} color={catColor} visible={detailScrolled} />
               </div>
-              <BackToTopButton scrollRef={mobileDetailRef} color={catColor} visible={detailScrolled} />
             </div>
           )}
         </div>
