@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
+import ImageViewerModal from '../components/layout/ImageViewerModal'
 import PDFThumbnail from '../components/library/PDFThumbnail'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
@@ -549,6 +550,7 @@ export default function KnowledgeLibraryPage() {
   const [uploading,      setUploading]      = useState(false)
   const [modal,          setModal]          = useState(null)
   const [pdfViewer,      setPdfViewer]      = useState(null)
+  const [imageViewer,    setImageViewer]    = useState(null)
   const [starredIds,     setStarredIds]     = useState(new Set())
 
   // Left panel drawer (tablet)
@@ -692,6 +694,8 @@ export default function KnowledgeLibraryPage() {
   function openFile(file) {
     if (file.mime_type === 'application/pdf') {
       setPdfViewer({ fileId: file.id, fileName: file.name })
+    } else if (file.mime_type?.startsWith('image/')) {
+      setImageViewer({ fileId: file.id, fileName: file.name })
     } else {
       fetch(`/api/library/files/${file.id}/view`, { headers })
         .then(r => r.blob())
@@ -1576,6 +1580,14 @@ export default function KnowledgeLibraryPage() {
           endpoint={`/api/library/files/${pdfViewer.fileId}/view`}
           scrollMode
           onClose={() => setPdfViewer(null)} />
+      )}
+
+      {/* ── Image Viewer ────────────────────────────────────────────────────── */}
+      {imageViewer && (
+        <ImageViewerModal
+          title={imageViewer.fileName}
+          endpoint={`/api/library/files/${imageViewer.fileId}/view`}
+          onClose={() => setImageViewer(null)} />
       )}
     </div>
   )
