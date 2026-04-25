@@ -35,6 +35,7 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../hooks/useLanguage'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const BRAND = '#2E96FF'
@@ -791,6 +792,7 @@ function CategoryPanelContent({ manifest, loadingManifest, selectedCat, globalSe
 // ══════════════════════════════════════════════════════════════════════════════
 export default function MedicalUnderwritingPage() {
   useAuth()
+  const { lang: globalLang } = useLanguage()   // 'en' | 'zh' from Settings toggle
   const { isMobile, isTablet, isDesktop } = useResponsive()
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -806,7 +808,14 @@ export default function MedicalUnderwritingPage() {
   const [drawerOpen,       setDrawerOpen]       = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [mobileCondSearch, setMobileCondSearch] = useState(false)
-  const [lang,             setLang]             = useState(() => localStorage.getItem('uw-lang') || 'bilingual')
+  // Seed from global lang (Eng/中 in Settings); fall back to saved or bilingual
+  const [lang,             setLang]             = useState(() => {
+    const saved = localStorage.getItem('uw-lang')
+    // If user previously chose bilingual on this page, respect that;
+    // otherwise mirror the global app language setting.
+    if (saved === 'bilingual') return 'bilingual'
+    return globalLang || saved || 'en'
+  })
   const [recent,           setRecent]           = useState(() => {
     try { return JSON.parse(localStorage.getItem('uw-recent') || '[]') } catch { return [] }
   })
@@ -871,6 +880,12 @@ export default function MedicalUnderwritingPage() {
   }, [selectedCat, selectedCond])
 
   useEffect(() => { localStorage.setItem('uw-lang', lang) }, [lang])
+
+  // Sync with global Eng/中 toggle in Settings — preserves bilingual if user chose it locally
+  useEffect(() => {
+    setLang(prev => prev === 'bilingual' ? 'bilingual' : globalLang)
+  }, [globalLang])
+
   useEffect(() => { if (isDesktop) setDrawerOpen(false) }, [isDesktop])
   useEffect(() => { setMobileSearchOpen(false); setMobileCondSearch(false) }, [mobilePanel])
 
