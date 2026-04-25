@@ -5,6 +5,8 @@ import { useContacts } from '../hooks/useContacts'
 import { useToast } from '../hooks/useToast'
 import { useLanguage } from '../hooks/useLanguage'
 import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
+import TaskModal from '../components/dashboard/TaskModal'
+import ContactDrawer from '../components/dashboard/ContactDrawer'
 import {
   Plus, Users, CheckSquare, CalendarClock, Cake,
   Building2, FileText, Shield, Globe, Landmark,
@@ -453,10 +455,19 @@ function SectionHeader({ title, action, onAction }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { agent, token } = useAuth()
-  const { contacts, contactsLoading, contactsError } = useContacts()
+  const { contacts, contactsLoading, contactsError, toggleTask, addInteraction } = useContacts()
   const navigate = useNavigate()
   const { addToast } = useToast()
   const { t } = useLanguage()
+
+  // ── Modal / Drawer state ───────────────────────────────────────────────────
+  const [activeItem, setActiveItem] = useState(null) // item from feed
+  function handleFeedClick(item) {
+    setActiveItem(item)
+  }
+  function handleCloseOverlay() {
+    setActiveItem(null)
+  }
 
   const TYPE_LABELS = {
     task: t('dashboard.typeTask'),
@@ -494,7 +505,7 @@ export default function DashboardPage() {
         if (task.status === 'completed' || !task.dueDate) return
         const d = daysUntil(task.dueDate)
         if (d >= 0 && d <= 60)
-          items.push({ type: 'task', days: d, contact: c, title: task.title, sub: fmtShort(task.dueDate) })
+          items.push({ type: 'task', days: d, contact: c, task, title: task.title, sub: fmtShort(task.dueDate) })
       })
       if (c.reviewDate) {
         const d = daysUntil(c.reviewDate)
@@ -539,6 +550,24 @@ export default function DashboardPage() {
         @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
       `}</style>
+
+      {/* ── Task Modal (Option A) ── */}
+      {activeItem?.type === 'task' && (
+        <TaskModal
+          item={activeItem}
+          onClose={handleCloseOverlay}
+          onToggleTask={toggleTask}
+          onAddInteraction={addInteraction}
+        />
+      )}
+
+      {/* ── Contact Drawer (Option B) — reviews & birthdays ── */}
+      {(activeItem?.type === 'review' || activeItem?.type === 'birthday') && (
+        <ContactDrawer
+          item={activeItem}
+          onClose={handleCloseOverlay}
+        />
+      )}
 
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
 
@@ -718,7 +747,7 @@ export default function DashboardPage() {
                             item={item}
                             isLast={idx === allItems.length - 1}
                             TYPE_LABELS={TYPE_LABELS}
-                            onClick={() => navigate(`/contacts/${item.contact.id}`)}
+                            onClick={() => handleFeedClick(item)}
                           />
                         ))}
                       </div>
