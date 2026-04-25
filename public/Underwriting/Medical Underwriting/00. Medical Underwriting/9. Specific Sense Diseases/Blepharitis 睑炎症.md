@@ -1,6 +1,7 @@
 #Medical_Underwriting/Specific_Sense_Diseases
 
-Is inflammation of the eyelids. Blepharitis usually affects both eyes along the edges of the eyelids. Blepharitis commonly occurs when tiny oil glands near the base of the eyelashes become clogged, causing irritation and redness. 
+Is inflammation of the eyelids. Blepharitis usually affects both eyes along the edges of the eyelids. Blepharitis commonly occurs when tiny oil glands near the base of the eyelashes become clogged, causing irritation and redness.
+睑缘炎是眼睑的炎症，通常同时影响两侧眼睑边缘，常见原因是睫毛根部附近的微小皮脂腺堵塞，导致刺激和发红。
 
 Antibiotics applied to the eyelid have been shown to provide relief of symptoms and resolve bacterial infection of the eyelids. These are available in several forms, including eyedrops, creams and ointments.
 涂抹在眼睑的抗生素已被证明可缓解症状并消除眼睑细菌感染，有多种形式可供选择，包括眼药水、乳霜和软膏。
@@ -12,24 +13,24 @@ Antibiotics applied to the eyelid have been shown to provide relief of symptoms 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1)  Actual & date diagnosis ?
+> 1) Actual & date diagnosis ?
 > 1) 实际诊断日期？
-> 2)  Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 vision,  blood & urine tests etc…）？如是，请说明日期及结果。
-> 3)  On medication / treatment ? If yes, what type & period of treatment.
+> 2) Any investigation tests such as vision, blood & urine tests etc.? If yes, please state the dates & results.
+> 2) 是否进行过任何检查（如视力、验血及尿液检查等）？如是，请说明日期及结果。
+> 3) On medication / treatment ? If yes, what type & period of treatment.
 > 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
+> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 > 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1)  From client / doctor
+> 1) From client / doctor
 > 1) 来自客户 / 医生
-> a)  Any relevant reports such as blood / urine / vision test ?
-> a) 任何相关报告，如 blood / urine / vision test 。
+> a) Any relevant reports such as vision test, blood & urine test?
+> a) 任何相关报告，如视力测试、验血及尿液检查报告。
 >
-> 2)  KIV – Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
+> 2) KIV – Medical Examination / Medical attendant report (MAR) / Attending physician statement (APS)
 > 2) 备查 – 体格检查 / 医疗随行报告（MAR）/ 主治医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
@@ -42,16 +43,15 @@ Antibiotics applied to the eyelid have been shown to provide relief of symptoms 
 > Normal vision acuity presently.
 > 目前视力正常。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD/ CI:
+> Life / TPD / CI:
 > 人寿保险 / 全残保险 / 严重疾病保险：
-> – standard case
+> – Standard case
 > – 标准承保
 >
 > Medical insurance:
 > 医疗保险：
 > – Standard case if fully recovered
 > – 完全康复者，标准承保
-> 

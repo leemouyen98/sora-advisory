@@ -1,8 +1,10 @@
 #Medical_Underwriting/Specific_Sense_Diseases
 
 Is when a reaction occurs that causes nasal congestion, runny nose, sneezing, and itching. Most types of rhinitis are caused by an inflammation and are associated with symptoms in the eyes, ears, or throat.
+鼻炎是引起鼻塞、流涕、打喷嚏及发痒的炎症反应，大多数类型由炎症引起，常伴有眼部、耳部或咽喉症状。
 
 There is no cure for allergic rhinitis, but the effects of the condition can be lessened with the use of nasal sprays and antihistamine medications. A doctor may recommend immunotherapy – a treatment option that can provide long-term relief.
+过敏性鼻炎目前无法根治，但可通过鼻腔喷雾剂及抗组胺药物缓解症状，医生也可能建议接受免疫疗法以获得长期缓解。
 
 ![[Rhinitis 01.png]]
 
@@ -10,7 +12,7 @@ There is no cure for allergic rhinitis, but the effects of the condition can be 
 ## 住院案例示例
 
 > INFECTIVE RHINITIS + RHINOSCOPY IN ONE OF PRIVATE HOSPITAL ON FEBRUARY 2020 (2 DAYS ADMISSION) IN JOHOR BAHRU, JOHOR.
-> INFECTIVE RHINITIS + RHINOSCOPY 在某私立医院 于2月2020 (2 天住院) （柔佛州新山）.
+> INFECTIVE RHINITIS + RHINOSCOPY 在某私立医院 于2020年2月（住院2天）（柔佛州新山）。
 > — TOTAL MEDICAL COST = RM4,100 ++
 > — 总医疗费用 = RM4,100 以上
 >
@@ -28,42 +30,42 @@ There is no cure for allergic rhinitis, but the effects of the condition can be 
 ## FREQUENTLY ASKED QUESTIONS
 ## 常见问题
 
-> 1)  Actual & date diagnosis ?
+> 1) Actual & date diagnosis ?
 > 1) 实际诊断日期？
-> 2)  Any investigation tests such x-ray, CT / MRI,  blood & urine tests etc… ? If yes, please state the dates & results.
-> 2) 是否进行过任何检查（如 x-ray, CT / MRI,  blood & urine tests etc…）？如是，请说明日期及结果。
-> 3)  On medication / treatment ? If yes, what type & period of treatment.
+> 2) Any investigation tests such as X-ray, CT / MRI, blood & urine tests etc.? If yes, please state the dates & results.
+> 2) 是否进行过任何检查（如X光、CT/MRI、验血及尿液检查等）？如是，请说明日期及结果。
+> 3) On medication / treatment ? If yes, what type & period of treatment.
 > 3) 是否在服药/接受治疗？如是，说明治疗类型及疗程。
-> 4)  Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
+> 4) Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 > 4) 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
-> 1)  From client / doctor
+> 1) From client / doctor
 > 1) 来自客户 / 医生
-> a)  Any relevant reports such as blood / urine / x ray / scan test ?
-> a) 任何相关报告，如 blood / urine / x ray / scan test 。
-> b)  Surgery report if has been performed
+> a) Any relevant reports such as blood & urine test, X-ray or scan?
+> a) 任何相关报告，如验血、尿液、X光及扫描检查报告。
+> b) Surgery report if has been performed
 > b) 如有进行，附上手术报告
 >
-> 2)  Medical attendant report (MAR) / Attending physician statement (APS)
+> 2) Medical attendant report (MAR) / Attending physician statement (APS)
 > 2) 医疗随行报告（MAR）/ 主治医生声明（APS）
 
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
 > Diagnosed to have rhinitis on dd/mm/yy.
-> 于 dd/mm/yy 患有rhinitis。
-> on medication when necessary.
+> 于 dd/mm/yy 患有鼻炎。
+> On medication when necessary.
 > 必要时服药。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD/ CI:
+> Life / TPD / CI:
 > 人寿保险 / 全残保险 / 严重疾病保险：
-> – standard case
+> – Standard case
 > – 标准承保
 >
 > Medical insurance:

@@ -1,8 +1,10 @@
 #Medical_Underwriting/Specific_Sense_Diseases
 
-Any opacity in the lens of the eye, resulting in blurred vision. Minor degreed of cataract do not necessarily impair vision seriously. 
+Any opacity in the lens of the eye, resulting in blurred vision. Minor degrees of cataract do not necessarily impair vision seriously.
+白内障是指眼睛晶状体出现混浊，导致视力模糊。轻度白内障未必会严重影响视力。
 
-Cataract is treated by surgical removal of the affected lens (cataract extraction); patients may wear a contact lens or appropriate spectacles to compensate for the missing lens but in modern practice an intraocular lens is routinely inserted (lens implantation).
+Cataract is treated by surgical removal of the affected lens (cataract extraction); patients may wear a contact lens or appropriate spectacles to compensate for the missing lens, but in modern practice an intraocular lens is routinely inserted (lens implantation).
+白内障的治疗方法是手术摘除受影响的晶状体（白内障摘除术）；术后患者可配戴隐形眼镜或适当眼镜，现代做法通常会同时植入人工晶状体。
 
 ![[Cataract 01.png]]
 
@@ -34,20 +36,20 @@ Cataract is treated by surgical removal of the affected lens (cataract extractio
 
 > 1. Actual & date diagnosis ?
 > 1. 实际诊断日期？
-> 2. Any investigation tests such vision,  blood & urine tests etc… ? If yes, please state the dates & results. 
-> 2. 是否进行过任何检查（如 vision,  blood & urine tests etc…）？如是，请说明日期及结果。
+> 2. Any investigation tests such as vision, blood & urine tests etc.? If yes, please state the dates & results.
+> 2. 是否进行过任何检查（如视力、验血及尿液检查等）？如是，请说明日期及结果。
 > 3. On medication / treatment ? If yes, what type & period of treatment.
 > 3. 是否在服药/接受治疗？如是，说明治疗类型及疗程。
 > 4. Still on medical follow up ? If yes, how frequent (weekly / monthly etc) ?
 > 4. 是否仍在进行医疗随访？如是，多久一次（每周/每月等）？
 
 ## COMMON REQUIREMENTS
-## 一般所需文件
+## 所需文件
 
 > 1. From client / doctor
 > 1. 来自客户 / 医生
-> a)  Any relevant reports such as blood / urine / vision test ?
-> a) 任何相关报告，如 blood / urine / vision test 。
+> a) Any relevant reports such as vision test, blood & urine test?
+> a) 任何相关报告，如视力测试、验血及尿液检查报告。
 > b) Surgery report if has been performed
 > b) 如有进行，附上手术报告
 >
@@ -57,17 +59,17 @@ Cataract is treated by surgical removal of the affected lens (cataract extractio
 ## EXAMPLE OF DISCLOSURE
 ## 披露示例
 
-> Diagnosed to have left eye catarract on dd/mm/yy.  Catarract removal has been perform on dd/mm/yy.
-> 于 dd/mm/yy 患有左眼白内障。
+> Diagnosed to have left eye cataract on dd/mm/yy. Cataract removal has been performed on dd/mm/yy.
+> 于 dd/mm/yy 患有左眼白内障，白内障摘除手术已于 dd/mm/yy 进行。
 > Fully recovered with normal vision acuity presently.
 > 目前完全康复，视力正常。
 
-## POSSIBILITIES OF UNDERWRITING OUTCOMES
-## 核保结果可能性
+## UNDERWRITING OUTCOMES
+## 核保结果
 
-> Life / TPD/ CI:
+> Life / TPD / CI:
 > 人寿保险 / 全残保险 / 严重疾病保险：
-> – standard case
+> – Standard case
 > – 标准承保
 >
 > Medical insurance:
