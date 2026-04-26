@@ -800,6 +800,10 @@ export default function DashboardPage() {
                 )}
               </div>
             )}
+            {/* Favourites */}
+            <div style={{ marginTop: 20 }}>
+              <FavoritesWidget token={token} />
+            </div>
           </div>
 
           {/* Right: Sidebar */}
@@ -814,9 +818,6 @@ export default function DashboardPage() {
                 ))}
               </div>
             </div>
-
-            {/* Favourites */}
-            <FavoritesWidget token={token} />
 
           </div>
         </div>
