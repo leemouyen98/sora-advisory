@@ -1212,18 +1212,6 @@ export default function ContactDetailPage() {
                 </button>
               </span>
             ))}
-            {['Client','Prospect'].filter(t => !contact.tags.includes(t)).map(t => (
-              <button key={t} onClick={() => addTag([contact.id], t)}
-                style={{
-                  fontSize: 11, padding: '3px 8px', borderRadius: 20,
-                  border: '1.5px dashed #C7C7CC', background: 'none',
-                  color: '#8E8E93', cursor: 'pointer', transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor='#2E96FF'; e.currentTarget.style.color='#2E96FF' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor='#C7C7CC'; e.currentTarget.style.color='#8E8E93' }}>
-                + {t}
-              </button>
-            ))}
             {contact.notes && (
               <p style={{ width: '100%', fontSize: 12, color: '#8E8E93', marginTop: 4, lineHeight: 1.5 }}>
                 {contact.notes}
