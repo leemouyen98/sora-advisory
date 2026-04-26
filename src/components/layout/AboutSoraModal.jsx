@@ -88,7 +88,7 @@ export default function AboutSoraModal({ onClose }) {
         /* ── Hero ──────────────────────────────────── */
         .abt-hero {
           position: relative;
-          height: 260px;
+          height: 280px;
           flex-shrink: 0;
           overflow: hidden;
         }
@@ -186,7 +186,7 @@ export default function AboutSoraModal({ onClose }) {
             max-width: 100%;
             box-shadow: 0 -20px 60px rgba(0,0,0,0.35);
           }
-          .abt-hero { height: 220px; }
+          .abt-hero { height: 240px; }
           .abt-body { padding: 22px 20px 36px; }
           /* Single column on small phones */
           .abt-logo-grid { grid-template-columns: 1fr; }
@@ -205,7 +205,7 @@ export default function AboutSoraModal({ onClose }) {
            ════════════════════════════════════════════ */
         @media (min-width: 431px) and (max-width: 1024px) {
           .abt-card { max-width: 600px; }
-          .abt-hero { height: 250px; }
+          .abt-hero { height: 265px; }
           .abt-body { padding: 26px 28px 38px; }
         }
       `}</style>
@@ -217,7 +217,7 @@ export default function AboutSoraModal({ onClose }) {
           <ProtectedImg
             src="/assets/sora-og.jpg"
             alt="Sora — sky, clarity, perspective"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 28%' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 50%' }}
           />
 
           {/* Gradient overlay */}
