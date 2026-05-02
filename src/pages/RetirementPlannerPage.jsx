@@ -100,9 +100,9 @@ export default function RetirementPlannerPage() {
                   className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 transition-colors"
                   style={
                     step === s.n
-                      ? { backgroundColor: '#1976d2', color: '#fff' }
+                      ? { backgroundColor: '#2E96FF', color: '#fff' }
                       : step > s.n
-                        ? { backgroundColor: '#1976d2', color: '#fff' }
+                        ? { backgroundColor: '#2E96FF', color: '#fff' }
                         : { backgroundColor: 'transparent', color: '#9e9e9e', border: '2px solid #9e9e9e' }
                   }
                 >
@@ -110,7 +110,7 @@ export default function RetirementPlannerPage() {
                 </span>
                 <span
                   className="text-sm font-medium"
-                  style={{ color: step === s.n ? '#1976d2' : step > s.n ? '#1976d2' : '#9e9e9e' }}
+                  style={{ color: step === s.n ? '#2E96FF' : step > s.n ? '#2E96FF' : '#9e9e9e' }}
                 >
                   {s.label}
                 </span>

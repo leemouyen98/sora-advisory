@@ -64,6 +64,20 @@ export default {
       transitionDuration: {
         'hig': '250ms',
       },
+      keyframes: {
+        shimmer: {
+          '0%':   { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
+        fadeUp: {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        shimmer:  'shimmer 1.4s ease infinite',
+        'fade-up': 'fadeUp 0.4s ease both',
+      },
     },
   },
   plugins: [],

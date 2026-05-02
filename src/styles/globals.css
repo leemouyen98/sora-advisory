@@ -70,7 +70,7 @@
 
 @layer components {
   .hig-card {
-    @apply bg-hig-card rounded-hig shadow-hig;
+    @apply bg-hig-card rounded-hig-lg shadow-hig border border-black/[0.04];
   }
 
   .hig-input {

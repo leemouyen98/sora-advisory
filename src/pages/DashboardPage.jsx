@@ -16,14 +16,14 @@ import {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const QUICK_LINKS = [
-  { label: 'Agency Portal',      icon: Building2,     url: 'https://portal.tokiomarinelife.com.my',                                            color: '#2E96FF' },
-  { label: 'Sales Illustration', icon: FileText,       url: 'https://tmarinepro.tokiomarinelife.com.my/standalone/',                            color: '#34C759' },
-  { label: 'T-Marine Pro',       icon: Shield,         url: 'https://tmarinepro.tokiomarinelife.com.my/',                                       color: '#FF9500' },
-  { label: 'Insurance Portals',  icon: Globe,          url: 'https://portals.llhgroup.co',                                                      color: '#AF52DE' },
-  { label: 'Tokio Marine Life',  icon: Landmark,       url: 'https://www.tokiomarine.com/my/en/life.html',                                      color: '#FF2D55' },
-  { label: 'Claim Guide',        icon: FileCheck,      url: 'https://www.tokiomarine.com/my/en/life/claim/step-by-step-claim-guide.html',        color: '#FF6B35' },
-  { label: 'Service Form',       icon: ClipboardList,  url: 'https://www.tokiomarine.com/my/en/life/resources/forms.html',                      color: '#5856D6' },
-  { label: 'Funds Centre',       icon: TrendingUp,     url: 'https://www.tokiomarine.com/my/en/life/resources/fund-centre.html',                color: '#30B0C7' },
+  { label: 'Agency Portal',      icon: Building2,     url: 'https://portal.tokiomarinelife.com.my',                                         color: '#2E96FF' },
+  { label: 'Sales Illustration', icon: FileText,       url: 'https://tmarinepro.tokiomarinelife.com.my/standalone/',                         color: '#34C759' },
+  { label: 'T-Marine Pro',       icon: Shield,         url: 'https://tmarinepro.tokiomarinelife.com.my/',                                    color: '#FF9500' },
+  { label: 'Insurance Portals',  icon: Globe,          url: 'https://portals.llhgroup.co',                                                   color: '#AF52DE' },
+  { label: 'Tokio Marine Life',  icon: Landmark,       url: 'https://www.tokiomarine.com/my/en/life.html',                                   color: '#FF2D55' },
+  { label: 'Claim Guide',        icon: FileCheck,      url: 'https://www.tokiomarine.com/my/en/life/claim/step-by-step-claim-guide.html',    color: '#FF6B35' },
+  { label: 'Service Form',       icon: ClipboardList,  url: 'https://www.tokiomarine.com/my/en/life/resources/forms.html',                  color: '#5856D6' },
+  { label: 'Funds Centre',       icon: TrendingUp,     url: 'https://www.tokiomarine.com/my/en/life/resources/fund-centre.html',            color: '#30B0C7' },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -79,113 +79,92 @@ function dayGroupLabel(days) {
 }
 
 // ─── Urgency badge ────────────────────────────────────────────────────────────
+// Fully dynamic runtime colors — inline styles kept intentionally
 function UrgencyBadge({ days, type }) {
   const cfg = (() => {
-    if (days === 0) return { bg: 'rgba(255,59,48,0.10)', color: '#FF3B30', label: 'Today' }
-    if (days === 1) return { bg: 'rgba(255,149,0,0.12)', color: '#FF9500', label: 'Tomorrow' }
-    if (days <= 3) return { bg: 'rgba(255,149,0,0.10)', color: '#FF9500', label: `${days}d` }
-    if (type === 'birthday') return { bg: 'rgba(255,45,85,0.08)', color: '#FF2D55', label: `${days}d` }
-    if (type === 'review') return { bg: 'rgba(175,82,222,0.08)', color: '#AF52DE', label: `${days}d` }
+    if (days === 0) return { bg: 'rgba(255,59,48,0.10)',  color: '#FF3B30', label: 'Today'    }
+    if (days === 1) return { bg: 'rgba(255,149,0,0.12)',  color: '#FF9500', label: 'Tomorrow' }
+    if (days <= 3)  return { bg: 'rgba(255,149,0,0.10)',  color: '#FF9500', label: `${days}d` }
+    if (type === 'birthday') return { bg: 'rgba(255,45,85,0.08)',  color: '#FF2D55', label: `${days}d` }
+    if (type === 'review')   return { bg: 'rgba(175,82,222,0.08)', color: '#AF52DE', label: `${days}d` }
     return { bg: 'rgba(46,150,255,0.08)', color: '#2E96FF', label: `${days}d` }
   })()
   return (
-    <span style={{
-      background: cfg.bg, color: cfg.color,
-      fontSize: 11, fontWeight: 700,
-      padding: '3px 9px', borderRadius: 20,
-      whiteSpace: 'nowrap', flexShrink: 0,
-      letterSpacing: 0.2,
-    }}>
+    <span
+      className="shrink-0 text-[11px] font-bold tracking-[0.2px] rounded-full whitespace-nowrap"
+      style={{ background: cfg.bg, color: cfg.color, padding: '3px 9px' }}
+    >
       {cfg.label}
     </span>
   )
 }
 
 // ─── Skeleton loader ──────────────────────────────────────────────────────────
+// Gradient kept inline — backgroundSize/backgroundPosition can't be Tailwind classes
 function Skeleton({ h = 16, w = '100%', r = 6 }) {
   return (
-    <div style={{
-      height: h, width: w, borderRadius: r,
-      background: 'linear-gradient(90deg, #F2F2F7 25%, #E8E8ED 50%, #F2F2F7 75%)',
-      backgroundSize: '200% 100%',
-      animation: 'shimmer 1.4s ease infinite',
-    }} />
+    <div
+      className="animate-shimmer"
+      style={{
+        height: h, width: w, borderRadius: r,
+        background: 'linear-gradient(90deg, #F2F2F7 25%, #E8E8ED 50%, #F2F2F7 75%)',
+        backgroundSize: '200% 100%',
+      }}
+    />
   )
 }
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
+// Dynamic `color` prop drives hover effects — those stay inline. Everything else: Tailwind.
 function StatCard({ icon: Icon, label, value, sub, color, loading, onClick }) {
   const [hovered, setHovered] = useState(false)
   return (
     <button
       onClick={onClick}
-      className="text-left w-full group"
+      className="relative w-full text-left overflow-hidden bg-hig-card rounded-hig-lg border
+                 shadow-hig transition-all duration-hig cursor-pointer"
       style={{
-        background: '#FFFFFF',
-        borderRadius: 16,
-        border: hovered ? `1.5px solid ${color}30` : '1.5px solid rgba(0,0,0,0.04)',
-        boxShadow: hovered
-          ? `0 8px 24px ${color}18, 0 2px 8px rgba(0,0,0,0.06)`
-          : '0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
         padding: '20px 20px 18px',
-        transition: 'all 0.2s ease',
-        transform: hovered ? 'translateY(-1px)' : 'none',
-        overflow: 'hidden',
-        position: 'relative',
+        borderColor: hovered ? `${color}30` : 'rgba(0,0,0,0.04)',
+        boxShadow: hovered ? `0 8px 24px ${color}18, 0 2px 8px rgba(0,0,0,0.06)` : undefined,
+        transform: hovered ? 'translateY(-1px)' : undefined,
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Subtle gradient blob */}
-      <div style={{
-        position: 'absolute', top: -20, right: -20,
-        width: 80, height: 80, borderRadius: '50%',
-        background: `radial-gradient(circle, ${color}18 0%, transparent 70%)`,
-        pointerEvents: 'none',
-        transition: 'opacity 0.2s',
-        opacity: hovered ? 1 : 0.6,
-      }} />
+      {/* Subtle colour blob */}
+      <div
+        className="pointer-events-none absolute -top-5 -right-5 w-20 h-20 rounded-full transition-opacity duration-hig"
+        style={{ background: `radial-gradient(circle, ${color}18 0%, transparent 70%)`, opacity: hovered ? 1 : 0.6 }}
+      />
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 12,
-          background: `linear-gradient(135deg, ${color}22 0%, ${color}10 100%)`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: `0 2px 8px ${color}20`,
-        }}>
+      <div className="flex items-start justify-between mb-4">
+        <div
+          className="w-10 h-10 rounded-[12px] flex items-center justify-center"
+          style={{ background: `linear-gradient(135deg, ${color}22 0%, ${color}10 100%)`, boxShadow: `0 2px 8px ${color}20` }}
+        >
           <Icon size={19} style={{ color }} />
         </div>
         <ChevronRight
           size={15}
           style={{
             color: hovered ? color : '#C7C7CC',
-            transition: 'color 0.2s, transform 0.2s',
             transform: hovered ? 'translateX(2px)' : 'none',
+            transition: 'color 0.2s, transform 0.2s',
           }}
         />
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="flex flex-col gap-2">
           <Skeleton h={30} w="45%" />
           <Skeleton h={12} w="65%" />
         </div>
       ) : (
         <>
-          <p style={{
-            fontSize: 30, fontWeight: 700, color: '#1C1C1E', lineHeight: 1,
-            letterSpacing: -1,
-          }}>
-            {value}
-          </p>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#3C3C43', marginTop: 5, letterSpacing: 0.1 }}>
-            {label}
-          </p>
-          {sub && (
-            <p style={{ fontSize: 11, color: '#8E8E93', marginTop: 3, letterSpacing: 0.1 }}>
-              {sub}
-            </p>
-          )}
+          <p className="text-3xl font-bold text-hig-text leading-none tracking-[-1px]">{value}</p>
+          <p className="text-hig-footnote font-semibold text-hig-text mt-[5px] tracking-[0.1px]">{label}</p>
+          {sub && <p className="text-[11px] text-hig-gray-1 mt-[3px] tracking-[0.1px]">{sub}</p>}
         </>
       )}
     </button>
@@ -236,52 +215,37 @@ function FavoritesWidget({ token }) {
   return (
     <>
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
-          <div style={{
-            width: 24, height: 24, borderRadius: 7,
-            background: 'rgba(255,149,0,0.12)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+        <div className="flex items-center gap-1.5 mb-3">
+          <div className="w-6 h-6 rounded-[7px] bg-hig-orange/10 flex items-center justify-center">
             <Star size={12} fill="#FF9500" stroke="#FF9500" />
           </div>
-          <h2 style={{ fontSize: 14, fontWeight: 700, color: '#1C1C1E', letterSpacing: 0.1 }}>
-            Favourites
-          </h2>
+          <h2 className="text-sm font-bold text-hig-text tracking-[0.1px]">Favourites</h2>
         </div>
 
-        <div style={{
-          background: '#FFFFFF',
-          borderRadius: 14,
-          border: '1.5px solid rgba(0,0,0,0.04)',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-          overflow: 'hidden',
-        }}>
+        <div className="bg-hig-card rounded-[14px] border border-black/[0.04] shadow-hig overflow-hidden">
           {loading ? (
-            <div style={{ padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="p-3.5 flex flex-col gap-2.5">
               {[1, 2, 3].map(i => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div key={i} className="flex items-center gap-2.5">
                   <Skeleton h={28} w={28} r={8} />
-                  <div style={{ flex: 1 }}>
+                  <div className="flex-1 flex flex-col gap-[5px]">
                     <Skeleton h={12} w="75%" />
-                    <div style={{ marginTop: 5 }}><Skeleton h={10} w="50%" /></div>
+                    <Skeleton h={10} w="50%" />
                   </div>
                 </div>
               ))}
             </div>
           ) : favorites.length === 0 ? (
-            <div style={{
-              padding: '24px 16px', display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: 8, textAlign: 'center',
-            }}>
+            <div className="py-6 px-4 flex flex-col items-center gap-2 text-center">
               <Star size={20} stroke="#C7C7CC" fill="none" />
-              <p style={{ fontSize: 12, color: '#8E8E93', lineHeight: 1.5, maxWidth: 160 }}>
+              <p className="text-hig-caption1 text-hig-gray-1 max-w-[160px] leading-relaxed">
                 Star files in the Library to pin them here
               </p>
             </div>
           ) : (
             favorites.map((fav, idx) => {
-              const Icon  = fileIcon(fav.mime_type)
-              const isPDF = fav.mime_type === 'application/pdf'
+              const Icon    = fileIcon(fav.mime_type)
+              const isPDF   = fav.mime_type === 'application/pdf'
               const iconColor = isPDF ? '#FF3B30' : '#2E96FF'
               return (
                 <FavRow
@@ -312,100 +276,87 @@ function FavoritesWidget({ token }) {
 }
 
 function FavRow({ fav, Icon, iconColor, isPDF, isLast, onClick }) {
-  const [hovered, setHovered] = useState(false)
   return (
     <button
       onClick={onClick}
-      style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-        padding: '10px 14px', textAlign: 'left',
-        background: hovered ? '#F9F9FB' : 'none',
-        border: 'none', cursor: 'pointer',
-        transition: 'background 0.15s',
-        borderBottom: isLast ? 'none' : '1px solid #F2F2F7',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left
+                  hover:bg-hig-gray-6 transition-colors
+                  ${!isLast ? 'border-b border-hig-gray-6' : ''}`}
     >
-      <div style={{
-        width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-        background: `${iconColor}12`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+      <div
+        className="w-[30px] h-[30px] rounded-hig-sm shrink-0 flex items-center justify-center"
+        style={{ background: `${iconColor}12` }}
+      >
         <Icon size={14} style={{ color: iconColor }} />
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{
-          fontSize: 12, fontWeight: 600, color: '#1C1C1E',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          marginBottom: 1,
-        }}>
-          {fav.name}
-        </p>
-        <p style={{
-          fontSize: 11, color: '#8E8E93',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {fav.folder_name}
-        </p>
+      <div className="flex-1 min-w-0">
+        <p className="text-hig-caption1 font-semibold text-hig-text truncate mb-[1px]">{fav.name}</p>
+        <p className="text-[11px] text-hig-gray-1 truncate">{fav.folder_name}</p>
       </div>
       {!isPDF && (
-        <Download size={12} style={{ color: hovered ? '#2E96FF' : '#C7C7CC', flexShrink: 0, transition: 'color 0.15s' }} />
+        <Download size={12} className="text-hig-gray-3 shrink-0" />
       )}
     </button>
   )
 }
 
 // ─── Type config ──────────────────────────────────────────────────────────────
+// All class strings written out in full — Tailwind JIT requires static strings to detect them
 const TYPE_CFG = {
-  task:    { color: '#2E96FF', bg: 'rgba(46,150,255,0.10)',  label: 'Task',     Icon: CheckSquare  },
-  review:  { color: '#AF52DE', bg: 'rgba(175,82,222,0.10)',  label: 'Review',   Icon: CalendarClock },
-  birthday:{ color: '#FF2D55', bg: 'rgba(255,45,85,0.10)',   label: 'Birthday', Icon: Cake          },
+  task: {
+    iconBg:        'bg-hig-blue/10',
+    iconBgHover:   'group-hover:bg-hig-blue',
+    iconColor:     'text-hig-blue',
+    iconColorHover:'group-hover:text-white',
+    pillBg:        'bg-hig-blue/10',
+    pillText:      'text-hig-blue',
+    label:         'Task',
+    Icon:          CheckSquare,
+  },
+  review: {
+    iconBg:        'bg-hig-purple/10',
+    iconBgHover:   'group-hover:bg-hig-purple',
+    iconColor:     'text-hig-purple',
+    iconColorHover:'group-hover:text-white',
+    pillBg:        'bg-hig-purple/10',
+    pillText:      'text-hig-purple',
+    label:         'Review',
+    Icon:          CalendarClock,
+  },
+  birthday: {
+    iconBg:        'bg-hig-pink/10',
+    iconBgHover:   'group-hover:bg-hig-pink',
+    iconColor:     'text-hig-pink',
+    iconColorHover:'group-hover:text-white',
+    pillBg:        'bg-hig-pink/10',
+    pillText:      'text-hig-pink',
+    label:         'Birthday',
+    Icon:          Cake,
+  },
 }
 
 // ─── Feed row ─────────────────────────────────────────────────────────────────
 function FeedRow({ item, isLast, onClick, TYPE_LABELS }) {
-  const [hovered, setHovered] = useState(false)
-  const cfg = TYPE_CFG[item.type]
+  const cfg     = TYPE_CFG[item.type]
   const TypeIcon = cfg.Icon
 
   return (
     <button
       onClick={onClick}
-      style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-        padding: '13px 18px', textAlign: 'left',
-        background: hovered ? '#F9F9FB' : 'transparent',
-        border: 'none', cursor: 'pointer',
-        borderBottom: isLast ? 'none' : '1px solid #F5F5F7',
-        transition: 'background 0.15s',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={`group w-full flex items-center gap-3.5 px-[18px] py-[13px] text-left
+                  hover:bg-hig-gray-6 transition-colors
+                  ${!isLast ? 'border-b border-[#F5F5F7]' : ''}`}
     >
       {/* Type icon */}
-      <div style={{
-        width: 36, height: 36, borderRadius: 11, flexShrink: 0,
-        background: hovered ? cfg.color : cfg.bg,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'background 0.2s',
-        boxShadow: hovered ? `0 3px 10px ${cfg.color}30` : 'none',
-      }}>
-        <TypeIcon size={15} style={{ color: hovered ? '#fff' : cfg.color, transition: 'color 0.2s' }} />
+      <div className={`w-9 h-9 rounded-[11px] shrink-0 flex items-center justify-center transition-all
+                       ${cfg.iconBg} ${cfg.iconBgHover}`}>
+        <TypeIcon size={15} className={`transition-colors ${cfg.iconColor} ${cfg.iconColorHover}`} />
       </div>
 
       {/* Text */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{
-          fontSize: 14, fontWeight: 600, color: '#1C1C1E', marginBottom: 2,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {item.title}
-        </p>
-        <p style={{
-          fontSize: 12, color: '#8E8E93',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-hig-text mb-[2px] truncate">{item.title}</p>
+        <p className="text-hig-caption1 text-hig-gray-1 truncate">
           {item.type === 'task'
             ? `${item.contact.name}  ·  Due ${item.sub}`
             : item.sub}
@@ -413,13 +364,10 @@ function FeedRow({ item, isLast, onClick, TYPE_LABELS }) {
       </div>
 
       {/* Right: type pill + urgency */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-        <span style={{
-          fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase',
-          color: cfg.color, background: cfg.bg,
-          padding: '2px 7px', borderRadius: 20,
-          opacity: 0.9,
-        }}>
+      <div className="flex items-center gap-1.5 shrink-0">
+        <span className={`text-[10px] font-bold tracking-[0.5px] uppercase
+                          px-[7px] py-[2px] rounded-full opacity-90
+                          ${cfg.pillBg} ${cfg.pillText}`}>
           {TYPE_LABELS[item.type]}
         </span>
         <UrgencyBadge days={item.days} type={item.type} />
@@ -428,22 +376,16 @@ function FeedRow({ item, isLast, onClick, TYPE_LABELS }) {
   )
 }
 
-// ─── Section header ────────────────────────────────────────────────────────────
+// ─── Section header ───────────────────────────────────────────────────────────
 function SectionHeader({ title, action, onAction }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1C1C1E', letterSpacing: 0.1 }}>{title}</h2>
+    <div className="flex items-center justify-between mb-3">
+      <h2 className="text-hig-subhead font-bold text-hig-text tracking-[0.1px]">{title}</h2>
       {action && (
         <button
           onClick={onAction}
-          style={{
-            fontSize: 12, color: '#2E96FF', fontWeight: 600,
-            background: 'none', border: 'none', cursor: 'pointer',
-            padding: '4px 8px', borderRadius: 8,
-            transition: 'background 0.15s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(46,150,255,0.08)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'none'}
+          className="text-hig-caption1 text-hig-blue font-semibold
+                     px-2 py-1 rounded-hig-sm hover:bg-hig-blue/5 transition-colors"
         >
           {action}
         </button>
@@ -454,24 +396,19 @@ function SectionHeader({ title, action, onAction }) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const { agent, token } = useAuth()
+  const { agent, token }                                            = useAuth()
   const { contacts, contactsLoading, contactsError, toggleTask, addInteraction } = useContacts()
-  const navigate = useNavigate()
+  const navigate    = useNavigate()
   const { addToast } = useToast()
-  const { t } = useLanguage()
+  const { t }       = useLanguage()
 
-  // ── Modal / Drawer state ───────────────────────────────────────────────────
-  const [activeItem, setActiveItem] = useState(null) // item from feed
-  function handleFeedClick(item) {
-    setActiveItem(item)
-  }
-  function handleCloseOverlay() {
-    setActiveItem(null)
-  }
+  const [activeItem, setActiveItem] = useState(null)
+  function handleFeedClick(item)  { setActiveItem(item) }
+  function handleCloseOverlay()   { setActiveItem(null) }
 
   const TYPE_LABELS = {
-    task: t('dashboard.typeTask'),
-    review: t('dashboard.typeReview'),
+    task:     t('dashboard.typeTask'),
+    review:   t('dashboard.typeReview'),
     birthday: t('dashboard.typeBirthday'),
   }
 
@@ -479,9 +416,9 @@ export default function DashboardPage() {
     if (contactsError) addToast(contactsError, 'error')
   }, [contactsError, addToast])
 
-  const now = new Date()
+  const now       = new Date()
   const thisMonth = now.getMonth()
-  const thisYear = now.getFullYear()
+  const thisYear  = now.getFullYear()
 
   // ── Stats ──────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -497,7 +434,7 @@ export default function DashboardPage() {
     return { total: contacts.length, pending, reviewsMonth, bdays }
   }, [contacts, thisMonth, thisYear])
 
-  // ── Unified upcoming feed (grouped) ───────────────────────────────────────
+  // ── Unified upcoming feed ──────────────────────────────────────────────────
   const feed = useMemo(() => {
     const items = []
     contacts.forEach(c => {
@@ -546,12 +483,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <style>{`
-        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-      `}</style>
-
-      {/* ── Task Modal (Option A) ── */}
+      {/* ── Task modal ──────────────────────────────────────────────────────── */}
       {activeItem?.type === 'task' && (
         <TaskModal
           item={activeItem}
@@ -561,57 +493,37 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* ── Contact Drawer (Option B) — reviews & birthdays ── */}
+      {/* ── Contact drawer — reviews & birthdays ────────────────────────────── */}
       {(activeItem?.type === 'review' || activeItem?.type === 'birthday') && (
-        <ContactDrawer
-          item={activeItem}
-          onClose={handleCloseOverlay}
-        />
+        <ContactDrawer item={activeItem} onClose={handleCloseOverlay} />
       )}
 
-      <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+      <div className="max-w-[1120px] mx-auto animate-fade-up">
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div
+          className="mb-7 rounded-[20px] overflow-hidden relative flex flex-col gap-3"
           style={{
-            marginBottom: 28,
             padding: '22px 24px',
             background: 'linear-gradient(135deg, #040E1C 0%, #0a1f38 50%, #102845 100%)',
-            borderRadius: 20,
-            display: 'flex', flexDirection: 'column', gap: 12,
-            position: 'relative', overflow: 'hidden',
-            animation: 'fadeUp 0.4s ease',
           }}
         >
           {/* Decorative orbs */}
-          <div style={{
-            position: 'absolute', top: -30, right: -30,
-            width: 140, height: 140, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(46,150,255,0.25) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: -20, left: 100,
-            width: 100, height: 100, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(175,82,222,0.15) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
+          <div className="pointer-events-none absolute -top-8 -right-8 w-36 h-36 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(46,150,255,0.25) 0%, transparent 70%)' }} />
+          <div className="pointer-events-none absolute -bottom-5 left-[100px] w-[100px] h-[100px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(175,82,222,0.15) 0%, transparent 70%)' }} />
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
+          <div className="relative flex justify-between items-end flex-wrap gap-3">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontWeight: 500, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-                  {todayStr()}
-                </p>
-              </div>
-              <h1 style={{
-                fontSize: 24, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.25,
-                letterSpacing: -0.5,
-              }}>
+              <p className="text-[12px] text-white/45 font-medium tracking-[0.5px] uppercase mb-1">
+                {todayStr()}
+              </p>
+              <h1 className="text-2xl font-bold text-white leading-tight tracking-[-0.5px]">
                 {t(greetingKey())}{agent?.name ? `, ${agent.name.split(' ')[0]}` : ''} 👋
               </h1>
               {!contactsLoading && (
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 5, fontWeight: 400 }}>
+                <p className="text-[13px] text-white/50 mt-[5px]">
                   {stats.total > 0
                     ? `${stats.total} client${stats.total !== 1 ? 's' : ''} · ${stats.pending > 0 ? `${stats.pending} task${stats.pending !== 1 ? 's' : ''} pending` : 'all tasks clear'}`
                     : 'No clients yet — add your first one below'}
@@ -621,17 +533,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => navigate('/contacts/new')}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 7,
-                background: '#2E96FF', color: '#fff',
-                border: 'none', borderRadius: 10, cursor: 'pointer',
-                fontSize: 13, fontWeight: 700, padding: '10px 18px',
-                boxShadow: '0 4px 14px rgba(46,150,255,0.40)',
-                transition: 'all 0.2s',
-                letterSpacing: 0.1,
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#1a83f0'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#2E96FF'; e.currentTarget.style.transform = 'none' }}
+              className="inline-flex items-center gap-1.5 bg-hig-blue text-white font-bold
+                         text-[13px] px-[18px] py-2.5 rounded-[10px] tracking-[0.1px]
+                         transition-all hover:bg-blue-500 hover:-translate-y-px"
+              style={{ boxShadow: '0 4px 14px rgba(46,150,255,0.40)' }}
             >
               <Plus size={14} />
               {t('dashboard.newContact')}
@@ -640,10 +545,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Stats ───────────────────────────────────────────────────────── */}
-        <div
-          className="grid grid-cols-2 lg:grid-cols-4"
-          style={{ gap: 12, marginBottom: 24 }}
-        >
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           <StatCard
             icon={Users} label={t('dashboard.statContacts')} color="#2E96FF" loading={contactsLoading}
             value={stats.total}
@@ -672,10 +574,10 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Body: Feed + Sidebar ─────────────────────────────────────────── */}
-        <div className="flex flex-col lg:flex-row" style={{ gap: 16, alignItems: 'flex-start' }}>
+        <div className="flex flex-col lg:flex-row gap-4 items-start">
 
           {/* Left: Upcoming feed */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
             <SectionHeader
               title={t('dashboard.upcoming')}
               action={feed.length > 0 ? t('dashboard.viewAllContacts') : null}
@@ -684,22 +586,14 @@ export default function DashboardPage() {
 
             {/* Loading skeleton */}
             {contactsLoading && (
-              <div style={{
-                background: '#FFF', borderRadius: 16,
-                border: '1.5px solid rgba(0,0,0,0.04)',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-                overflow: 'hidden',
-              }}>
+              <div className="bg-hig-card rounded-hig-lg border border-black/[0.04] shadow-hig overflow-hidden">
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} style={{
-                    display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '14px 18px',
-                    borderBottom: i < 4 ? '1px solid #F5F5F7' : 'none',
-                  }}>
+                  <div key={i} className={`flex items-center gap-3.5 px-[18px] py-3.5
+                                           ${i < 4 ? 'border-b border-[#F5F5F7]' : ''}`}>
                     <Skeleton h={36} w={36} r={11} />
-                    <div style={{ flex: 1 }}>
+                    <div className="flex-1 flex flex-col gap-1.5">
                       <Skeleton h={14} w="60%" />
-                      <div style={{ marginTop: 6 }}><Skeleton h={11} w="40%" /></div>
+                      <Skeleton h={11} w="40%" />
                     </div>
                     <Skeleton h={22} w={52} r={11} />
                   </div>
@@ -709,116 +603,86 @@ export default function DashboardPage() {
 
             {/* Grouped feed */}
             {!contactsLoading && feed.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {feedGroups.map(group => {
-                  const allItems = group.items
-                  return (
-                    <div key={group.label}>
-                      {/* Group label */}
-                      <div style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        marginBottom: 6, paddingLeft: 2,
-                      }}>
-                        <span style={{
-                          fontSize: 11, fontWeight: 700, color: '#8E8E93',
-                          textTransform: 'uppercase', letterSpacing: 0.8,
-                        }}>
-                          {group.label}
-                        </span>
-                        <div style={{ flex: 1, height: 1, background: '#F2F2F7' }} />
-                        <span style={{
-                          fontSize: 10, color: '#C7C7CC', fontWeight: 600,
-                          letterSpacing: 0.2,
-                        }}>
-                          {allItems.length}
-                        </span>
-                      </div>
-
-                      {/* Items */}
-                      <div style={{
-                        background: '#FFF', borderRadius: 14,
-                        border: '1.5px solid rgba(0,0,0,0.04)',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-                        overflow: 'hidden',
-                      }}>
-                        {allItems.map((item, idx) => (
-                          <FeedRow
-                            key={`${item.type}-${item.contact.id}-${idx}`}
-                            item={item}
-                            isLast={idx === allItems.length - 1}
-                            TYPE_LABELS={TYPE_LABELS}
-                            onClick={() => handleFeedClick(item)}
-                          />
-                        ))}
-                      </div>
+              <div className="flex flex-col gap-2.5">
+                {feedGroups.map(group => (
+                  <div key={group.label}>
+                    {/* Group label */}
+                    <div className="flex items-center gap-2 mb-1.5 pl-0.5">
+                      <span className="text-[11px] font-bold text-hig-gray-1 uppercase tracking-[0.8px]">
+                        {group.label}
+                      </span>
+                      <div className="flex-1 h-px bg-hig-gray-6" />
+                      <span className="text-[10px] text-hig-gray-3 font-semibold tracking-[0.2px]">
+                        {group.items.length}
+                      </span>
                     </div>
-                  )
-                })}
+
+                    {/* Items */}
+                    <div className="bg-hig-card rounded-[14px] border border-black/[0.04] shadow-hig overflow-hidden">
+                      {group.items.map((item, idx) => (
+                        <FeedRow
+                          key={`${item.type}-${item.contact.id}-${idx}`}
+                          item={item}
+                          isLast={idx === group.items.length - 1}
+                          TYPE_LABELS={TYPE_LABELS}
+                          onClick={() => handleFeedClick(item)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
             {/* Empty state */}
             {!contactsLoading && feed.length === 0 && (
-              <div style={{
-                background: '#FFF',
-                borderRadius: 16,
-                border: '1.5px solid rgba(0,0,0,0.04)',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-                padding: '48px 24px',
-                display: 'flex', flexDirection: 'column',
-                alignItems: 'center', textAlign: 'center', gap: 12,
-              }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(52,199,89,0.15) 0%, rgba(52,199,89,0.05) 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 4px 16px rgba(52,199,89,0.15)',
-                }}>
-                  <CheckCircle2 size={26} style={{ color: '#34C759' }} />
+              <div className="bg-hig-card rounded-hig-lg border border-black/[0.04] shadow-hig
+                              px-6 py-12 flex flex-col items-center text-center gap-3">
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(52,199,89,0.15) 0%, rgba(52,199,89,0.05) 100%)',
+                    boxShadow: '0 4px 16px rgba(52,199,89,0.15)',
+                  }}
+                >
+                  <CheckCircle2 size={26} className="text-hig-green" />
                 </div>
                 <div>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1E', marginBottom: 6 }}>
+                  <p className="text-hig-headline font-bold text-hig-text mb-1.5">
                     {t('dashboard.allClear')}
                   </p>
-                  <p style={{ fontSize: 13, color: '#8E8E93', maxWidth: 260, lineHeight: 1.6 }}>
+                  <p className="text-hig-footnote text-hig-gray-1 max-w-[260px] leading-relaxed">
                     {t('dashboard.allClearDesc')}
                   </p>
                 </div>
                 {contacts.length === 0 && (
                   <button
                     onClick={() => navigate('/contacts/new')}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 7,
-                      background: '#2E96FF', color: '#fff',
-                      border: 'none', borderRadius: 10, cursor: 'pointer',
-                      fontSize: 13, fontWeight: 700, padding: '10px 18px',
-                      marginTop: 4,
-                    }}
+                    className="inline-flex items-center gap-1.5 bg-hig-blue text-white font-bold
+                               text-[13px] px-[18px] py-2.5 rounded-[10px] mt-1"
                   >
                     <Plus size={14} /> {t('dashboard.addFirstContact')}
                   </button>
                 )}
               </div>
             )}
+
             {/* Favourites */}
-            <div style={{ marginTop: 20 }}>
+            <div className="mt-5">
               <FavoritesWidget token={token} />
             </div>
           </div>
 
           {/* Right: Sidebar */}
-          <div className="lg:w-64 lg:shrink-0 w-full" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-            {/* Quick Links */}
+          <div className="lg:w-64 lg:shrink-0 w-full flex flex-col gap-5">
             <div>
               <SectionHeader title={t('dashboard.quickLinks')} />
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2" style={{ gap: 8 }}>
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-2">
                 {QUICK_LINKS.map(({ label, icon: Icon, url, color }) => (
                   <QuickLinkCard key={label} label={label} Icon={Icon} url={url} color={color} />
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -827,6 +691,7 @@ export default function DashboardPage() {
 }
 
 // ─── Quick link card ──────────────────────────────────────────────────────────
+// Dynamic `color` prop — hover effects stay inline. Everything else: Tailwind.
 function QuickLinkCard({ label, Icon, url, color }) {
   const [hovered, setHovered] = useState(false)
   return (
@@ -834,47 +699,36 @@ function QuickLinkCard({ label, Icon, url, color }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      className="flex flex-col items-center justify-center gap-2 py-3.5 px-2 text-center
+                 no-underline rounded-[14px] border transition-all duration-hig relative"
       style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: 8, padding: '14px 8px', textDecoration: 'none',
-        textAlign: 'center',
-        background: hovered ? `${color}08` : '#FFFFFF',
-        borderRadius: 14,
-        border: hovered ? `1.5px solid ${color}30` : '1.5px solid rgba(0,0,0,0.04)',
-        boxShadow: hovered ? `0 4px 14px ${color}20` : '0 1px 4px rgba(0,0,0,0.05)',
-        transition: 'all 0.2s',
-        transform: hovered ? 'translateY(-1px)' : 'none',
-        position: 'relative',
+        background:   hovered ? `${color}08` : '#FFFFFF',
+        borderColor:  hovered ? `${color}30` : 'rgba(0,0,0,0.04)',
+        boxShadow:    hovered ? `0 4px 14px ${color}20` : '0 1px 4px rgba(0,0,0,0.05)',
+        transform:    hovered ? 'translateY(-1px)' : 'none',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div style={{
-        width: 36, height: 36, borderRadius: 11,
-        background: hovered
-          ? `linear-gradient(135deg, ${color}30 0%, ${color}18 100%)`
-          : `linear-gradient(135deg, ${color}18 0%, ${color}0c 100%)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'background 0.2s',
-        boxShadow: hovered ? `0 2px 8px ${color}25` : 'none',
-      }}>
+      <div
+        className="w-9 h-9 rounded-[11px] flex items-center justify-center transition-all duration-hig"
+        style={{
+          background: hovered
+            ? `linear-gradient(135deg, ${color}30 0%, ${color}18 100%)`
+            : `linear-gradient(135deg, ${color}18 0%, ${color}0c 100%)`,
+          boxShadow: hovered ? `0 2px 8px ${color}25` : 'none',
+        }}
+      >
         <Icon size={16} style={{ color }} />
       </div>
-      <span style={{
-        fontSize: 11, color: hovered ? '#1C1C1E' : '#3C3C43',
-        fontWeight: 600, lineHeight: 1.3, letterSpacing: 0.1,
-        transition: 'color 0.15s',
-      }}>
+      <span
+        className="text-[11px] font-semibold leading-[1.3] tracking-[0.1px] transition-colors duration-hig"
+        style={{ color: hovered ? '#1C1C1E' : '#3C3C43' }}
+      >
         {label}
       </span>
       {hovered && (
-        <ArrowUpRight
-          size={9}
-          style={{
-            position: 'absolute', top: 8, right: 8,
-            color: `${color}80`,
-          }}
-        />
+        <ArrowUpRight size={9} className="absolute top-2 right-2" style={{ color: `${color}80` }} />
       )}
     </a>
   )
