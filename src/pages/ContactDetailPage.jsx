@@ -270,15 +270,9 @@ function StageSelector({ stage, onChange }) {
               <button
                 key={opt.key}
                 onClick={() => { onChange(opt.key); setOpen(false) }}
-                style={{
-                  width: '100%', padding: '8px 14px',
-                  display: 'flex', alignItems: 'center', gap: 9,
-                  border: 'none', background: 'none', cursor: 'pointer',
-                  textAlign: 'left', transition: 'background 0.1s',
-                  fontWeight: opt.key === stage ? 600 : 400,
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = '#F9F9FB'}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                className="w-full flex items-center gap-2 px-3.5 py-2 border-none bg-transparent
+                           cursor-pointer text-left transition-colors hover:bg-gray-50"
+                style={{ fontWeight: opt.key === stage ? 600 : 400 }}
               >
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: opt.color, flexShrink: 0 }} />
                 <span style={{ fontSize: 13, color: opt.key === stage ? opt.color : '#1C1C1E' }}>{opt.label}</span>
@@ -347,10 +341,9 @@ function CoverageSection({ contact, onNavigate }) {
               padding: '7px 10px', borderRadius: 9,
               background: item.covered ? item.bg : '#FAFAFA',
               border: `1px solid ${item.covered ? item.color + '25' : '#EBEBEB'}`,
-              cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left', width: '100%',
+              cursor: 'pointer', transition: 'opacity 0.15s', textAlign: 'left', width: '100%',
             }}
-            onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
-            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            className="hover:opacity-80"
           >
             {/* Status dot */}
             <span style={{
@@ -422,28 +415,15 @@ function SmartSuggestions({ contact }) {
   if (actions.length === 0) return null
 
   return (
-    <div style={{
-      background: 'white', borderRadius: 12,
-      border: '1px solid #F2F2F7',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-      marginBottom: 16, overflow: 'hidden',
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        padding: '9px 14px', borderBottom: '1px solid #F2F2F7',
-        background: '#FAFAFA',
-      }}>
-        <Zap size={12} style={{ color: '#FF9500' }} />
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#8E8E93' }}>
+    <div className="bg-hig-card rounded-hig border border-hig-gray-5 shadow-hig mb-4 overflow-hidden">
+      <div className="flex items-center gap-1.5 px-3.5 py-2.5 border-b border-hig-gray-5 bg-hig-gray-6">
+        <Zap size={12} className="text-hig-orange" />
+        <span className="text-hig-caption1 font-bold uppercase tracking-wider text-hig-text-secondary">
           Suggested Actions
         </span>
       </div>
       {actions.map(({ icon: Icon, color, text }, i) => (
-        <div key={i} style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '9px 14px',
-          borderTop: i > 0 ? '1px solid #F9F9FB' : 'none',
-        }}>
+        <div key={i} className={`flex items-center gap-2.5 px-3.5 py-2.5 ${i > 0 ? 'border-t border-hig-gray-6' : ''}`}>
           <div style={{
             width: 26, height: 26, borderRadius: 8, flexShrink: 0,
             background: `${color}12`,
@@ -915,8 +895,7 @@ export default function ContactDetailPage() {
                 color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 transition: 'background 0.15s',
               }}
-              onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.28)'}
-              onMouseLeave={e => e.currentTarget.style.background='rgba(0,0,0,0.18)'}
+              className="hover:!bg-black/30"
             >
               <ArrowLeft size={12} /> Contacts
             </button>
@@ -951,9 +930,7 @@ export default function ContactDetailPage() {
                     {isAdmin && (
                       <>
                         <button onClick={launchCashFlow}
-                          style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left' }}
-                          onMouseEnter={e => e.currentTarget.style.background='#F9F9FB'}
-                          onMouseLeave={e => e.currentTarget.style.background='none'}>
+                          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 border-none bg-transparent cursor-pointer text-left hover:bg-gray-50 transition-colors">
                           <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EBF5FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <TrendingUp size={13} style={{ color: '#2E96FF' }} />
                           </div>
@@ -967,9 +944,7 @@ export default function ContactDetailPage() {
                       </>
                     )}
                     <button onClick={() => { setShowStartPlanning(false); navigate(`/contacts/${id}/retirement`) }}
-                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left' }}
-                      onMouseEnter={e => e.currentTarget.style.background='#F9F9FB'}
-                      onMouseLeave={e => e.currentTarget.style.background='none'}>
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2.5 border-none bg-transparent cursor-pointer text-left hover:bg-gray-50 transition-colors">
                       <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EBF5FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Target size={13} style={{ color: '#2E96FF' }} />
                       </div>
@@ -979,9 +954,7 @@ export default function ContactDetailPage() {
                       {contact.retirementPlan && <CheckCircle2 size={13} style={{ color: '#34C759', marginLeft: 'auto' }} />}
                     </button>
                     <button onClick={() => { setShowStartPlanning(false); navigate(`/contacts/${id}/protection`) }}
-                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left' }}
-                      onMouseEnter={e => e.currentTarget.style.background='#F9F9FB'}
-                      onMouseLeave={e => e.currentTarget.style.background='none'}>
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2.5 border-none bg-transparent cursor-pointer text-left hover:bg-gray-50 transition-colors">
                       <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EDFAEF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Shield size={13} style={{ color: '#34C759' }} />
                       </div>
@@ -1005,8 +978,7 @@ export default function ContactDetailPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'background 0.15s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.35)'}
-                onMouseLeave={e => e.currentTarget.style.background='rgba(255,255,255,0.2)'}
+                className="hover:!bg-white/35"
               >
                 <MoreVertical size={14} style={{ color: 'white' }} />
               </button>
@@ -1028,19 +1000,15 @@ export default function ContactDetailPage() {
                       { label: t('contactDetail.insurancePlanner'), onClick: confirmResetInsurance },
                     ].map(({ label, onClick }) => (
                       <button key={label} onClick={onClick}
-                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13 }}
-                        onMouseEnter={e => e.currentTarget.style.background='#F9F9FB'}
-                        onMouseLeave={e => e.currentTarget.style.background='none'}>
+                        className="w-full flex items-center gap-2 px-3.5 py-2 border-none bg-transparent cursor-pointer text-left text-hig-footnote hover:bg-gray-50 transition-colors">
                         <RotateCcw size={13} style={{ color: '#8E8E93' }} />
                         {label}
                       </button>
                     ))}
                     <div style={{ height: 1, background: '#F2F2F7', margin: '4px 0' }} />
                     <button onClick={confirmDelete}
-                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, color: '#FF3B30' }}
-                      onMouseEnter={e => e.currentTarget.style.background='#FFF5F5'}
-                      onMouseLeave={e => e.currentTarget.style.background='none'}>
-                      <Trash2 size={13} style={{ color: '#FF3B30' }} />
+                      className="w-full flex items-center gap-2 px-3.5 py-2 border-none bg-transparent cursor-pointer text-left text-hig-footnote text-hig-red hover:bg-red-50 transition-colors">
+                      <Trash2 size={13} className="text-hig-red" />
                       {t('contactDetail.deleteContact')}
                     </button>
                   </div>
@@ -1152,39 +1120,29 @@ export default function ContactDetailPage() {
                   background: '#25D366', color: 'white',
                   fontSize: 13, fontWeight: 700,
                   boxShadow: '0 2px 6px rgba(37,211,102,0.4)',
-                  transition: 'opacity 0.15s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.opacity='0.88'}
-                onMouseLeave={e => e.currentTarget.style.opacity='1'}
+                className="transition-opacity hover:opacity-90"
               >
                 <MessageCircle size={14} /> WhatsApp
               </a>
             )}
             {contact.mobile && (
               <a href={`tel:${contact.mobile}`}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '7px 14px', borderRadius: 20, textDecoration: 'none',
-                  border: '1.5px solid #E5E5EA', background: 'white',
-                  color: '#1C1C1E', fontSize: 13, fontWeight: 500, transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor='#2E96FF'; e.currentTarget.style.color='#2E96FF' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor='#E5E5EA'; e.currentTarget.style.color='#1C1C1E' }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full no-underline
+                           border border-hig-gray-4 bg-white text-hig-text
+                           text-hig-footnote font-medium transition-all
+                           hover:border-hig-blue hover:text-hig-blue"
               >
                 <Phone size={13} /> {contact.mobile}
               </a>
             )}
             {contact.email && (
               <a href={`mailto:${contact.email}`}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '7px 14px', borderRadius: 20, textDecoration: 'none',
-                  border: '1.5px solid #E5E5EA', background: 'white',
-                  color: '#1C1C1E', fontSize: 13, fontWeight: 500, transition: 'all 0.15s',
-                  maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor='#2E96FF'; e.currentTarget.style.color='#2E96FF' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor='#E5E5EA'; e.currentTarget.style.color='#1C1C1E' }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full no-underline
+                           border border-hig-gray-4 bg-white text-hig-text
+                           text-hig-footnote font-medium transition-all
+                           hover:border-hig-blue hover:text-hig-blue
+                           max-w-[220px] overflow-hidden text-ellipsis whitespace-nowrap"
               >
                 <Mail size={13} style={{ flexShrink: 0 }} /> {contact.email}
               </a>
@@ -1192,14 +1150,10 @@ export default function ContactDetailPage() {
             {/* Edit */}
             <button
               onClick={() => navigate(`/contacts/${id}/edit`)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                padding: '7px 12px', borderRadius: 20,
-                border: '1.5px solid #E5E5EA', background: 'white',
-                fontSize: 12, fontWeight: 600, color: '#3C3C43', cursor: 'pointer', transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor='#2E96FF'; e.currentTarget.style.color='#2E96FF' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor='#E5E5EA'; e.currentTarget.style.color='#3C3C43' }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                         border border-hig-gray-4 bg-white text-hig-caption1
+                         font-semibold text-hig-text cursor-pointer transition-all
+                         hover:border-hig-blue hover:text-hig-blue"
             >
               <Pencil size={12} /> Edit
             </button>
@@ -1260,18 +1214,16 @@ export default function ContactDetailPage() {
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <button onClick={() => setTab('finances')}
-                  style={{ borderRadius: 10, padding: '10px 8px', background: '#F9F9FB', border: '1px solid #F2F2F7', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background='#F2F2F7'}
-                  onMouseLeave={e => e.currentTarget.style.background='#F9F9FB'}>
+                  className="rounded-[10px] px-2 py-2.5 bg-hig-gray-6 border border-hig-gray-5
+                             cursor-pointer text-left transition-colors hover:bg-hig-gray-5">
                   <p style={{ fontSize: 10, color: '#8E8E93', fontWeight: 600, marginBottom: 3 }}>{t('contactDetail.netWorth')}</p>
                   <p style={{ fontSize: 14, fontWeight: 800, color: sidebarFinancial.netWorth >= 0 ? '#1C1C1E' : '#FF3B30', lineHeight: 1 }}>
                     {fmtRM(sidebarFinancial.netWorth)}
                   </p>
                 </button>
                 <button onClick={() => setTab('finances')}
-                  style={{ borderRadius: 10, padding: '10px 8px', background: '#F9F9FB', border: '1px solid #F2F2F7', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background='#F2F2F7'}
-                  onMouseLeave={e => e.currentTarget.style.background='#F9F9FB'}>
+                  className="rounded-[10px] px-2 py-2.5 bg-hig-gray-6 border border-hig-gray-5
+                             cursor-pointer text-left transition-colors hover:bg-hig-gray-5">
                   <p style={{ fontSize: 10, color: '#8E8E93', fontWeight: 600, marginBottom: 3 }}>Monthly CF</p>
                   <p style={{ fontSize: 14, fontWeight: 800, color: sidebarFinancial.monthlyCashFlow >= 0 ? '#1C1C1E' : '#FF3B30', lineHeight: 1 }}>
                     {fmtRM(sidebarFinancial.monthlyCashFlow)}
@@ -1380,18 +1332,12 @@ export default function ContactDetailPage() {
                   groupTimeline(timeline).map(bucket => (
                     <div key={bucket.key}>
                       {/* Date bucket header */}
-                      <div style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        margin: '8px 0 4px',
-                      }}>
-                        <span style={{
-                          fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
-                          textTransform: 'uppercase', color: '#8E8E93',
-                        }}>
+                      <div className="flex items-center gap-2 mt-2 mb-1">
+                        <span className="text-hig-caption2 font-bold uppercase tracking-wider text-hig-text-secondary">
                           {bucket.label}
                         </span>
-                        <div style={{ flex: 1, height: 1, background: '#F2F2F7' }} />
-                        <span style={{ fontSize: 10, color: '#C7C7CC', fontWeight: 500 }}>
+                        <div className="flex-1 h-px bg-hig-gray-5" />
+                        <span className="text-hig-caption2 text-hig-gray-3 font-medium">
                           {bucket.items.length}
                         </span>
                       </div>

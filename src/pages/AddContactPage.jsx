@@ -69,13 +69,12 @@ function getInitials(name) {
 
 function Section({ title, children, hint }) {
   return (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ marginBottom: 14 }}>
-        <h3 style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
-          textTransform: 'uppercase', color: '#8E8E93', margin: 0,
-        }}>{title}</h3>
-        {hint && <p style={{ fontSize: 12, color: '#C7C7CC', marginTop: 2 }}>{hint}</p>}
+    <div className="mb-8">
+      <div className="mb-3.5">
+        <h3 className="text-hig-caption1 font-bold uppercase tracking-wider text-hig-text-secondary m-0">
+          {title}
+        </h3>
+        {hint && <p className="text-hig-caption1 text-hig-gray-3 mt-0.5">{hint}</p>}
       </div>
       {children}
     </div>
@@ -319,60 +318,39 @@ export default function AddContactPage() {
     navigate(`/contacts/${contact.id}`)
   }
 
-  const inputStyle = (hasError) => ({
-    width: '100%', padding: '11px 14px',
-    borderRadius: 10,
-    border: `1.5px solid ${hasError ? '#FF3B30' : '#E5E5EA'}`,
-    fontSize: 15, color: '#1C1C1E',
-    outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s',
-    background: 'white', boxSizing: 'border-box',
-  })
-
-  const handleInputFocus = e => {
-    e.target.style.borderColor = '#2E96FF'
-    e.target.style.boxShadow   = '0 0 0 3px rgba(46,150,255,0.12)'
-  }
-  const handleInputBlur = e => {
-    e.target.style.borderColor = e.target.closest('[data-error]') ? '#FF3B30' : '#E5E5EA'
-    e.target.style.boxShadow   = 'none'
-  }
+  // inputCls: base hig-input with optional error border override
+  const inputCls = (hasError) =>
+    `hig-input${hasError ? ' border-hig-red focus:border-hig-red focus:ring-hig-red/20' : ''}`
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', paddingBottom: 60 }}>
+    <div className="max-w-[1000px] mx-auto pb-16">
 
       {/* ── Page header ───────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 32, display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="mb-8 flex items-center gap-4">
         <button
           onClick={() => navigate('/contacts')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 14px', borderRadius: 10,
-            border: '1.5px solid #E5E5EA', background: 'white',
-            fontSize: 14, fontWeight: 500, color: '#636366',
-            cursor: 'pointer', transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = '#2E96FF'; e.currentTarget.style.color = '#2E96FF' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E5EA'; e.currentTarget.style.color = '#636366' }}
+          className="hig-btn-ghost gap-1.5 text-hig-text-secondary
+                     border border-hig-gray-4 hover:border-hig-blue hover:text-hig-blue"
         >
           <ArrowLeft size={14} /> {t('contacts.title')}
         </button>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1C1C1E', margin: 0, lineHeight: 1.2 }}>
+          <h1 className="text-hig-title2 text-hig-text m-0 leading-tight">
             {t('contacts.modalTitle')}
           </h1>
-          <p style={{ fontSize: 13, color: '#8E8E93', marginTop: 3 }}>
+          <p className="text-hig-footnote text-hig-text-secondary mt-0.5">
             {t('contacts.addSubtitle')}
           </p>
         </div>
       </div>
 
       {/* ── Main layout ───────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start' }}>
+      <div className="flex gap-7 items-start">
 
         {/* ── Form column ──────────────────────────────────────────────── */}
         <form
           onSubmit={handleSubmit}
-          style={{ flex: '1 1 0', minWidth: 0 }}
+          className="flex-1 min-w-0"
           noValidate
         >
 
@@ -380,7 +358,7 @@ export default function AddContactPage() {
           <Section title={t('contacts.sectionIdentity')} hint={t('contacts.sectionIdentityHint')}>
             {/* Name */}
             <div style={{ marginBottom: 12 }} data-error={errors.name || undefined}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 6 }}>
+              <label className="hig-label">
                 {t('contacts.fieldName')} <span style={{ color: '#FF3B30' }}>*</span>
               </label>
               <input
@@ -389,15 +367,10 @@ export default function AddContactPage() {
                 value={form.name}
                 onChange={e => set('name', e.target.value)}
                 placeholder="e.g. Ahmad Bin Ali"
-                style={{
-                  ...inputStyle(!!errors.name),
-                  fontSize: 17, fontWeight: 500,
-                }}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
+                className={`${inputCls(!!errors.name)} text-hig-headline font-medium`}
               />
               {errors.name && (
-                <p style={{ fontSize: 12, color: '#FF3B30', marginTop: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <p className="flex items-center gap-1 text-hig-caption1 text-hig-red mt-1">
                   <AlertCircle size={12} /> {errors.name}
                 </p>
               )}
@@ -405,7 +378,7 @@ export default function AddContactPage() {
 
             {/* DOB + age preview */}
             <div style={{ marginBottom: 4 }} data-error={errors.dob || undefined}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 6 }}>
+              <label className="hig-label">
                 {t('contacts.fieldDob')} <span style={{ color: '#FF3B30' }}>*</span>
               </label>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -443,7 +416,7 @@ export default function AddContactPage() {
                 </div>
               </div>
               {errors.dob && (
-                <p style={{ fontSize: 12, color: '#FF3B30', marginTop: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <p className="flex items-center gap-1 text-hig-caption1 text-hig-red mt-1">
                   <AlertCircle size={12} /> {errors.dob}
                 </p>
               )}
@@ -455,7 +428,7 @@ export default function AddContactPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {/* Mobile */}
               <div>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 6 }}>
+                <label className="hig-label">
                   {t('contacts.fieldMobile')}
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -468,16 +441,14 @@ export default function AddContactPage() {
                     value={form.mobile}
                     onChange={e => set('mobile', e.target.value)}
                     placeholder="012-3456789"
-                    style={{ ...inputStyle(false), paddingLeft: 36 }}
-                    onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
+                    className={`${inputCls(false)} pl-9`}
                   />
                 </div>
               </div>
 
               {/* Email */}
               <div>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 6 }}>
+                <label className="hig-label">
                   {t('contacts.email')}
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -490,9 +461,7 @@ export default function AddContactPage() {
                     value={form.email}
                     onChange={e => set('email', e.target.value)}
                     placeholder="email@example.com"
-                    style={{ ...inputStyle(false), paddingLeft: 36 }}
-                    onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
+                    className={`${inputCls(false)} pl-9`}
                   />
                 </div>
               </div>
@@ -503,7 +472,7 @@ export default function AddContactPage() {
           <Section title={t('contacts.sectionPipeline')} hint={t('contacts.pipelineHint')}>
             {/* Stage pills */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 10 }}>
+              <label className="hig-label mb-2.5">
                 {t('contacts.fieldStage')}
               </label>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -544,7 +513,7 @@ export default function AddContactPage() {
 
             {/* Referred by */}
             <div>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 6 }}>
+              <label className="hig-label">
                 {t('contacts.referredBy')}
               </label>
               <div style={{ position: 'relative' }}>
@@ -557,9 +526,7 @@ export default function AddContactPage() {
                   value={form.referredBy}
                   onChange={e => set('referredBy', e.target.value)}
                   placeholder={t('contacts.referredByPh')}
-                  style={{ ...inputStyle(false), paddingLeft: 36 }}
-                  onFocus={handleInputFocus}
-                  onBlur={handleInputBlur}
+                  className={`${inputCls(false)} pl-9`}
                 />
               </div>
             </div>
@@ -569,7 +536,7 @@ export default function AddContactPage() {
           <Section title={t('contacts.sectionBackground')} hint={t('contacts.backgroundHint')}>
             {/* Employment cards */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 10 }}>
+              <label className="hig-label mb-2.5">
                 {t('contacts.fieldEmployment')}
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -616,7 +583,7 @@ export default function AddContactPage() {
 
             {/* Income bracket */}
             <div>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 10 }}>
+              <label className="hig-label mb-2.5">
                 {t('contacts.monthlyIncome')}
               </label>
               <div style={{
@@ -664,13 +631,8 @@ export default function AddContactPage() {
                 onChange={e => set('notes', e.target.value)}
                 placeholder="Referral context, goals mentioned, key objections, urgency..."
                 maxLength={500}
-                style={{
-                  ...inputStyle(false),
-                  minHeight: 96, resize: 'vertical',
-                  fontFamily: 'inherit', lineHeight: 1.5,
-                }}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
+                className={inputCls(false)}
+                style={{ minHeight: 96, resize: 'vertical' }}
               />
               <span style={{
                 position: 'absolute', bottom: 10, right: 12,
@@ -704,32 +666,26 @@ export default function AddContactPage() {
             </button>
 
             {showOptional && (
-              <div style={{
-                marginTop: 12, padding: '20px',
-                borderRadius: 12, background: '#FAFAFA',
-                border: '1.5px solid #F2F2F7',
-                display: 'flex', flexDirection: 'column', gap: 14,
-              }}>
-                <p style={{ fontSize: 11, color: '#8E8E93', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', margin: 0 }}>
+              <div className="mt-3 p-5 rounded-hig-sm bg-hig-bg border border-hig-gray-5
+                              flex flex-col gap-3.5">
+                <p className="text-hig-caption1 font-bold uppercase tracking-wider text-hig-text-secondary m-0">
                   {t('contacts.planningDefaults')}
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 6 }}>
+                    <label className="hig-label">
                       {t('contacts.fieldRetAge')}
                     </label>
                     <input
                       type="number" min={40} max={80}
                       value={form.retirementAge}
                       onChange={e => set('retirementAge', parseInt(e.target.value) || 55)}
-                      style={inputStyle(false)}
-                      onFocus={handleInputFocus}
-                      onBlur={handleInputBlur}
+                      className={inputCls(false)}
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', display: 'block', marginBottom: 6 }}>
+                    <label className="hig-label">
                       {t('contacts.firstReviewDate')}
                     </label>
                     <DatePicker
@@ -771,21 +727,11 @@ export default function AddContactPage() {
           </div>
 
           {/* ─ Submit actions ─────────────────────────────────────────── */}
-          <div style={{
-            display: 'flex', gap: 10, alignItems: 'center',
-            paddingTop: 8,
-          }}>
+          <div className="flex gap-2.5 items-center pt-2">
             <button
               type="button"
               onClick={() => navigate('/contacts')}
-              style={{
-                padding: '12px 20px', borderRadius: 12,
-                border: '1.5px solid #E5E5EA', background: 'white',
-                fontSize: 14, fontWeight: 500, color: '#636366',
-                cursor: 'pointer', transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#C7C7CC' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E5EA' }}
+              className="hig-btn-secondary"
             >
               {t('common.cancel')}
             </button>
@@ -793,18 +739,11 @@ export default function AddContactPage() {
             <button
               type="submit"
               disabled={submitting}
+              className="hig-btn-primary flex-1 gap-2"
               style={{
-                flex: 1, padding: '13px 24px', borderRadius: 12,
-                border: 'none',
-                background: submitting ? '#C7C7CC' : 'linear-gradient(135deg, #2E96FF, #007AFF)',
-                fontSize: 14, fontWeight: 700, color: 'white',
-                cursor: submitting ? 'not-allowed' : 'pointer',
-                transition: 'opacity 0.15s',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                background: submitting ? undefined : 'linear-gradient(135deg, #2E96FF, #007AFF)',
                 boxShadow: submitting ? 'none' : '0 2px 8px rgba(46,150,255,0.30)',
               }}
-              onMouseEnter={e => { if (!submitting) e.currentTarget.style.opacity = '0.9' }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
             >
               {submitting ? t('contacts.creating') : t('contacts.createContact')}
               {!submitting && <ChevronRight size={15} />}
@@ -812,14 +751,14 @@ export default function AddContactPage() {
           </div>
 
           {/* Required fields notice */}
-          <p style={{ fontSize: 12, color: '#C7C7CC', marginTop: 10, textAlign: 'center' }}>
+          <p className="text-hig-caption1 text-hig-gray-3 mt-2.5 text-center">
             {t('contacts.nameAndDobNote')}
           </p>
 
         </form>
 
         {/* ── Preview column (desktop only) ─────────────────────────── */}
-        <div style={{ width: 300, flexShrink: 0 }} className="hidden lg:block">
+        <div className="hidden lg:block w-[300px] shrink-0">
           <PreviewCard form={form} age={age} />
         </div>
 

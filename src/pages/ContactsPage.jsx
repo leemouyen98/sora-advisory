@@ -381,14 +381,9 @@ function KanbanCard({ contact, onNavigate, onStageChange }) {
         <div style={{ position: 'relative', marginTop: 8 }}>
           <button
             onClick={e => { e.stopPropagation(); setShowMoveMenu(s => !s) }}
-            style={{
-              width: '100%', padding: '4px 8px', borderRadius: 6,
-              border: '1px dashed #E5E5EA', background: 'none',
-              fontSize: 11, color: '#8E8E93', cursor: 'pointer',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#2E96FF'; e.currentTarget.style.color = '#2E96FF' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E5EA'; e.currentTarget.style.color = '#8E8E93' }}
+            className="w-full py-1 px-2 rounded-md border border-dashed border-hig-gray-4
+                       bg-transparent text-hig-caption1 text-hig-text-secondary
+                       cursor-pointer transition-all hover:border-hig-blue hover:text-hig-blue"
           >
             {t('contacts.moveStage')}
           </button>
@@ -404,15 +399,9 @@ function KanbanCard({ contact, onNavigate, onStageChange }) {
                   <button
                     key={s.key}
                     onClick={e => { e.stopPropagation(); onStageChange(contact.id, s.key); setShowMoveMenu(false) }}
-                    style={{
-                      width: '100%', padding: '7px 12px',
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      border: 'none', background: 'none', cursor: 'pointer',
-                      fontSize: 12, color: '#1C1C1E', textAlign: 'left',
-                      transition: 'background 0.1s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#F9F9FB'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 border-none
+                               bg-transparent cursor-pointer text-hig-caption1
+                               text-hig-text text-left hover:bg-gray-50 transition-colors"
                   >
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
                     {s.label}

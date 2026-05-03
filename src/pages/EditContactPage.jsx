@@ -173,39 +173,27 @@ function StagePicker({ value, onChange }) {
 
 function ConfirmDeleteModal({ name, onConfirm, onCancel }) {
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-      zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
-    }} onClick={onCancel}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: 'white', borderRadius: 16,
-        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-        width: '100%', maxWidth: 380, padding: 24,
-      }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: '50%', background: '#FFF1F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <AlertTriangle size={18} style={{ color: '#FF3B30' }} />
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+      onClick={onCancel}>
+      <div onClick={e => e.stopPropagation()}
+        className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-sm p-6">
+        <div className="flex gap-3 items-start mb-4">
+          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-hig-red" />
           </div>
           <div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1C1C1E', marginBottom: 4 }}>Delete Contact</h3>
-            <p style={{ fontSize: 13, color: '#8E8E93', lineHeight: 1.5 }}>
+            <h3 className="text-hig-callout font-bold text-hig-text mb-1">Delete Contact</h3>
+            <p className="text-hig-footnote text-hig-text-secondary leading-relaxed">
               This will permanently delete <strong>{name}</strong> and all their data including financials, timeline, and plans. This cannot be undone.
             </p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+        <div className="flex gap-2 justify-end">
           <button type="button" onClick={onCancel} className="hig-btn-secondary">Cancel</button>
           <button
             type="button"
             onClick={onConfirm}
-            style={{
-              padding: '8px 16px', borderRadius: 10, border: 'none',
-              background: '#FF3B30', color: 'white', fontWeight: 600, fontSize: 14,
-              cursor: 'pointer',
-            }}
+            className="hig-btn-primary bg-hig-red hover:bg-red-600"
           >
             Delete Contact
           </button>
@@ -390,10 +378,7 @@ export default function EditContactPage() {
         </div>
 
         {/* ── Section 1: Identity ─────────────────────────────────────────── */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: 20,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-        }}>
+        <div className="hig-card p-5">
           <SectionHeader icon={User} label="Identity" color="#2E96FF" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ gridColumn: '1 / -1' }}>
@@ -430,10 +415,7 @@ export default function EditContactPage() {
         </div>
 
         {/* ── Section 2: Contact Details ───────────────────────────────────── */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: 20,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-        }}>
+        <div className="hig-card p-5">
           <SectionHeader icon={Phone} label="Contact Details" color="#34C759" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Field label="Mobile Number" error={errors.mobile} hint="e.g. 012-3456789">
@@ -460,28 +442,19 @@ export default function EditContactPage() {
         </div>
 
         {/* ── Section 3: Employment ───────────────────────────────────────── */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: 20,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-        }}>
+        <div className="hig-card p-5">
           <SectionHeader icon={Briefcase} label="Employment" color="#FF9500" />
           <EmploymentSelector value={form.employment} onChange={v => set('employment', v)} />
         </div>
 
         {/* ── Section 4: Pipeline Stage ────────────────────────────────────── */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: 20,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-        }}>
+        <div className="hig-card p-5">
           <SectionHeader icon={Target} label="Pipeline Stage" color="#AF52DE" />
           <StagePicker value={form.stage} onChange={v => set('stage', v)} />
         </div>
 
         {/* ── Section 5: Review Schedule ───────────────────────────────────── */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: 20,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-        }}>
+        <div className="hig-card p-5">
           <SectionHeader icon={Clock} label="Review Schedule" color="#30B0C7" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Field label="Next Review Date">
@@ -505,10 +478,7 @@ export default function EditContactPage() {
         </div>
 
         {/* ── Section 6: Notes ────────────────────────────────────────────── */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: 20,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-        }}>
+        <div className="hig-card p-5">
           <SectionHeader icon={Users} label="Notes" color="#8E8E93" />
           <Field label="Internal Notes" hint="Referral source, key context, family situation — not visible to client">
             <textarea
@@ -532,30 +502,21 @@ export default function EditContactPage() {
         </button>
 
         {/* ── Danger zone ─────────────────────────────────────────────────── */}
-        <div style={{
-          background: '#FFF8F8', borderRadius: 16, padding: 20,
-          border: '1px solid #FFE0DE',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#1C1C1E', marginBottom: 2 }}>Delete Contact</p>
-              <p style={{ fontSize: 12, color: '#8E8E93', lineHeight: 1.5 }}>
+        <div className="rounded-hig-lg p-5 bg-red-50 border border-red-100">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <p className="text-hig-subhead font-semibold text-hig-text mb-0.5">Delete Contact</p>
+              <p className="text-hig-footnote text-hig-text-secondary leading-relaxed">
                 Permanently removes {contact.name} and all associated data — financials, timeline, plans. Irreversible.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '8px 14px', borderRadius: 10,
-                border: '1.5px solid #FF3B30', background: 'white',
-                color: '#FF3B30', fontWeight: 600, fontSize: 13,
-                cursor: 'pointer', flexShrink: 0,
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#FFF1F0' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'white' }}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-hig-sm
+                         border border-hig-red bg-white text-hig-red
+                         text-hig-footnote font-semibold cursor-pointer shrink-0
+                         transition-colors hover:bg-red-50"
             >
               <Trash2 size={13} />
               Delete
