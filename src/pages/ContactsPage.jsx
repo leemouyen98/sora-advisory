@@ -7,7 +7,8 @@
  * · Sort: Last Activity | Review Date | Name | Stage
  * · View toggle: List (table) | Pipeline (Kanban)
  * · Enhanced rows: stage pill, coverage dots, last-activity, overdue badge
- * · Add contact modal: name, dob, mobile, email, employment, stage, notes
+ * · Add contact: full-page form at /contacts/new (AddContactPage) — name,
+ *   dob, mobile, email, employment, stage, notes
  */
 
 import { useState, useMemo } from 'react'
@@ -19,7 +20,7 @@ import {
   ChevronRight, Phone, AlertCircle,
   Target, Shield, CheckCircle2,
   LayoutList, Columns, AlertTriangle,
-  SortAsc,
+  SortAsc, Briefcase, UserCheck, Building2, Umbrella, GraduationCap, HelpCircle,
 } from 'lucide-react'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -32,6 +33,19 @@ export const STAGES = [
   { key: 'Dormant',  label: 'Dormant',  color: '#FF3B30', bg: '#FFF1F0' },
 ]
 
+// Shared by AddContactPage and EditContactPage — was previously defined
+// verbatim in both files. Icon/color are language-independent; `label` is an
+// English fallback for the one caller (EditContactPage) that doesn't wire up
+// translations for this selector yet.
+export const EMPLOYMENT_OPTIONS = [
+  { key: 'Employed',       label: 'Employed',       Icon: Briefcase,     color: '#2E96FF' },
+  { key: 'Self-Employed',  label: 'Self-Employed',  Icon: UserCheck,     color: '#34C759' },
+  { key: 'Business Owner', label: 'Business Owner', Icon: Building2,     color: '#FF9500' },
+  { key: 'Retired',        label: 'Retired',        Icon: Umbrella,      color: '#AF52DE' },
+  { key: 'Student',        label: 'Student',        Icon: GraduationCap, color: '#30B0C7' },
+  { key: 'Other',          label: 'Other',          Icon: HelpCircle,    color: '#8E8E93' },
+]
+
 const STAGE_PIPELINE = ['Lead', 'Prospect', 'Proposal', 'Client'] // Kanban columns (Dormant separate)
 const STAGE_MAP = Object.fromEntries(STAGES.map(s => [s.key, s]))
 
@@ -41,6 +55,34 @@ export function getEffectiveStage(contact) {
   if (contact.tags?.includes('Client'))   return 'Client'
   if (contact.tags?.includes('Prospect')) return 'Prospect'
   return 'Lead'
+}
+
+const MOBILE_RE = /^[0-9\-\+\s()]{7,15}$/
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/**
+ * Shared Add/Edit contact validation. Previously Add only required name+dob
+ * (no format checks), while Edit additionally validated mobile/email format
+ * — so a contact could be created with garbage contact info and only get
+ * flagged the first time someone edited it. Returns error CODES, not
+ * translated strings, so each caller (Add uses t(), Edit doesn't yet) maps
+ * them to its own message.
+ */
+export function validateContactForm(form, age) {
+  const errs = {}
+  if (!form.name.trim()) errs.name = 'required'
+  if (!form.dob) errs.dob = 'required'
+  // age === null is calcAge()'s own signal for "empty or out of 0-129 range" —
+  // deliberately NOT re-adding Add's old age>100 cap here. An advisor's book
+  // can legitimately include clients past 100 (or family members added for
+  // estate/legacy planning); a hard cutoff would block editing THEIR EXISTING
+  // record forever, not just prevent creating a new one. Under this rule the
+  // one behavior change is Add becoming slightly more permissive (up to 129
+  // instead of 100) — not Edit becoming more restrictive.
+  else if (age === null) errs.dob = 'invalid'
+  if (form.mobile && !MOBILE_RE.test(form.mobile.replace(/\s/g, ''))) errs.mobile = 'invalid'
+  if (form.email && !EMAIL_RE.test(form.email)) errs.email = 'invalid'
+  return errs
 }
 
 // Coverage check — derived from financials.insurance array
@@ -503,6 +545,39 @@ const SORT_KEYS = [
 
 const STAGE_ORDER = { Lead: 0, Prospect: 1, Proposal: 2, Client: 3, Dormant: 4 }
 
+// ─── Confirm Bulk Delete Modal ─────────────────────────────────────────────────
+// Single-contact delete (EditContactPage.jsx) already confirms before deleting;
+// bulk delete previously didn't — one click hard-deleted N contacts, no undo.
+function ConfirmBulkDeleteModal({ count, onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onCancel}>
+      <div onClick={e => e.stopPropagation()} className="bg-white rounded-hig-lg shadow-hig-lg w-full max-w-sm p-6">
+        <div className="flex gap-3 items-start mb-4">
+          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-hig-red" />
+          </div>
+          <div>
+            <h3 className="text-hig-callout font-bold text-hig-text mb-1">Delete {count} contact{count === 1 ? '' : 's'}?</h3>
+            <p className="text-hig-footnote text-hig-text-secondary leading-relaxed">
+              This will permanently delete {count === 1 ? 'this contact' : `these ${count} contacts`} and all associated data — financials, timeline, and plans. This cannot be undone.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button type="button" onClick={onCancel} className="hig-btn-secondary">Cancel</button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="hig-btn-primary bg-hig-red hover:bg-red-600"
+          >
+            Delete {count === 1 ? 'Contact' : `${count} Contacts`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function ContactsPage() {
   const { contacts, contactsLoading, contactsError, deleteContacts, addTag, updateContact } = useContacts()
   const { t } = useLanguage()
@@ -516,6 +591,7 @@ export default function ContactsPage() {
   const [selected,    setSelected]    = useState(new Set())
   const [showBulkMenu,setShowBulkMenu]= useState(false)
   const [showSort,    setShowSort]    = useState(false)
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
 
   const now = new Date()
   now.setHours(0,0,0,0)
@@ -577,9 +653,14 @@ export default function ContactsPage() {
 
   const handleBulkDelete = () => {
     if (!selected.size) return
+    setShowBulkMenu(false)
+    setConfirmBulkDelete(true)
+  }
+
+  const confirmBulkDeleteNow = () => {
     deleteContacts([...selected])
     setSelected(new Set())
-    setShowBulkMenu(false)
+    setConfirmBulkDelete(false)
   }
 
   const handleBulkTag = (tag) => {
@@ -757,6 +838,14 @@ export default function ContactsPage() {
             ))
           )}
         </div>
+      )}
+
+      {confirmBulkDelete && (
+        <ConfirmBulkDeleteModal
+          count={selected.size}
+          onConfirm={confirmBulkDeleteNow}
+          onCancel={() => setConfirmBulkDelete(false)}
+        />
       )}
 
     </div>

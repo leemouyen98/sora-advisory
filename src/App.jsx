@@ -1,6 +1,8 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
+import { useContacts } from './hooks/useContacts'
+import { useToast } from './hooks/useToast'
 import AppShell from './components/layout/AppShell'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -47,6 +49,20 @@ function AdminRoute({ children }) {
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const { agent } = useAuth()
+  const { mutationError, clearMutationError } = useContacts()
+  const { addToast } = useToast()
+
+  // Surfaces contact add/update/delete failures from anywhere in the app —
+  // these used to fail silently (see useContacts.jsx). Cleared right after
+  // showing so an identical error message on a later failure still re-fires
+  // the toast (a plain useEffect on the message string wouldn't re-trigger
+  // if the text happens to repeat).
+  useEffect(() => {
+    if (mutationError) {
+      addToast(mutationError, 'error')
+      clearMutationError()
+    }
+  }, [mutationError, addToast, clearMutationError])
 
   if (!agent) {
     return (

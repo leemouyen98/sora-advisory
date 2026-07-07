@@ -10,6 +10,12 @@ export function ContactsProvider({ children }) {
   const [contacts, setContacts] = useState([])
   const [contactsLoading, setContactsLoading] = useState(true)
   const [contactsError, setContactsError] = useState(null)
+  // Separate from contactsError (which only covers the initial GET). Every
+  // write below used to end in `.catch(() => {})` — a failed save/add/delete
+  // left the optimistic UI state unchanged and showed nothing, so the advisor
+  // believed it worked when it hadn't. Mutations now roll back on failure and
+  // set this so a consuming component can surface it (see App.jsx).
+  const [mutationError, setMutationError] = useState(null)
 
   // Auth header helper
   const authHeaders = useCallback(() => ({
@@ -37,14 +43,21 @@ export function ContactsProvider({ children }) {
   }, [token])
 
   // ─── Background sync: push a full contact to the API ─────────────────────
-  // Uses a ref so the sync function never needs to be in dependency arrays
-  const syncContact = useCallback((contact) => {
+  // On failure, roll back to the snapshot taken before the optimistic update
+  // and surface an error — previously this silently swallowed failures,
+  // leaving the UI showing a "saved" state that was never actually persisted.
+  const syncContact = useCallback((contact, previousContacts) => {
     if (!token) return
     fetch(`/api/contacts/${contact.id}`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify(contact),
-    }).catch(() => {})
+    }).then((r) => {
+      if (!r.ok) throw new Error(`Save failed (${r.status})`)
+    }).catch(() => {
+      setContacts(previousContacts)
+      setMutationError(`Couldn't save changes to ${contact.name || 'contact'} — please try again.`)
+    })
   }, [token, authHeaders])
 
   // Helper: update one contact in state and sync it
@@ -52,7 +65,7 @@ export function ContactsProvider({ children }) {
     setContacts((prev) => {
       const next = prev.map((c) => c.id === id ? updater(c) : c)
       const updated = next.find((c) => c.id === id)
-      if (updated) syncContact(updated)
+      if (updated) syncContact(updated, prev)
       return next
     })
   }, [syncContact])
@@ -73,13 +86,19 @@ export function ContactsProvider({ children }) {
     }
     // Optimistic: show immediately
     setContacts((prev) => [newContact, ...prev])
-    // Persist in background
+    // Persist in background — roll back the optimistic insert on failure
+    // instead of leaving a contact that only ever existed client-side.
     if (token) {
       fetch('/api/contacts', {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify(newContact),
-      }).catch(() => {})
+      }).then((r) => {
+        if (!r.ok) throw new Error(`Create failed (${r.status})`)
+      }).catch(() => {
+        setContacts((prev) => prev.filter((c) => c.id !== id))
+        setMutationError(`Couldn't create ${data.name || 'contact'} — please try again.`)
+      })
     }
     return newContact
   }, [token, authHeaders])
@@ -89,15 +108,28 @@ export function ContactsProvider({ children }) {
   }, [updateOne])
 
   const deleteContacts = useCallback((ids) => {
-    setContacts((prev) => prev.filter((c) => !ids.includes(c.id)))
-    if (token) {
-      ids.forEach((id) => {
-        fetch(`/api/contacts/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` },
-        }).catch(() => {})
-      })
-    }
+    setContacts((prev) => {
+      const remaining = prev.filter((c) => !ids.includes(c.id))
+      if (token) {
+        Promise.all(ids.map((id) =>
+          fetch(`/api/contacts/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` },
+          }).then((r) => { if (!r.ok) throw new Error(`Delete failed (${r.status})`) })
+        )).catch(() => {
+          // At least one delete failed server-side — restore the full
+          // pre-delete list rather than leaving a partial, ambiguous state
+          // where some contacts are gone locally but still exist on the server.
+          setContacts(prev)
+          setMutationError(
+            ids.length > 1
+              ? "Couldn't delete some contacts — please try again."
+              : "Couldn't delete contact — please try again."
+          )
+        })
+      }
+      return remaining
+    })
   }, [token])
 
   // ─── Tags ─────────────────────────────────────────────────────────────────
@@ -107,7 +139,11 @@ export function ContactsProvider({ children }) {
       const next = prev.map((c) =>
         ids.includes(c.id) && !c.tags.includes(tag) ? { ...c, tags: [...c.tags, tag] } : c
       )
-      next.filter((c) => ids.includes(c.id)).forEach(syncContact)
+      // NOTE: pass `prev` explicitly — `.forEach(syncContact)` would pass
+      // forEach's own (index, array) as syncContact's 2nd/3rd args, silently
+      // turning the rollback snapshot into a number and corrupting state
+      // on failure. Same fix applied in removeTag below.
+      next.filter((c) => ids.includes(c.id)).forEach((c) => syncContact(c, prev))
       return next
     })
   }, [syncContact])
@@ -117,7 +153,7 @@ export function ContactsProvider({ children }) {
       const next = prev.map((c) =>
         ids.includes(c.id) ? { ...c, tags: c.tags.filter((t) => t !== tag) } : c
       )
-      next.filter((c) => ids.includes(c.id)).forEach(syncContact)
+      next.filter((c) => ids.includes(c.id)).forEach((c) => syncContact(c, prev))
       return next
     })
   }, [syncContact])
@@ -185,6 +221,8 @@ export function ContactsProvider({ children }) {
         contacts,
         contactsLoading,
         contactsError,
+        mutationError,
+        clearMutationError: () => setMutationError(null),
         addContact,
         updateContact,
         deleteContacts,

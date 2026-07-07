@@ -21,19 +21,11 @@ import {
   Users, Building2, GraduationCap, Umbrella, HelpCircle,
   UserCheck, MessageSquare, TrendingUp, Clock,
 } from 'lucide-react'
-import { STAGES } from './ContactsPage'
+import { STAGES, EMPLOYMENT_OPTIONS, validateContactForm } from './ContactsPage'
+import { calcAge } from '../lib/formatters'
 import DatePicker from '../components/ui/DatePicker'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const EMPLOYMENT_OPTIONS = [
-  { key: 'Employed',      label: 'Employed',      Icon: Briefcase,    color: '#2E96FF' },
-  { key: 'Self-Employed', label: 'Self-Employed',  Icon: UserCheck,    color: '#34C759' },
-  { key: 'Business Owner',label: 'Business Owner', Icon: Building2,    color: '#FF9500' },
-  { key: 'Retired',       label: 'Retired',        Icon: Umbrella,     color: '#AF52DE' },
-  { key: 'Student',       label: 'Student',        Icon: GraduationCap,color: '#30B0C7' },
-  { key: 'Other',         label: 'Other',          Icon: HelpCircle,   color: '#8E8E93' },
-]
 
 const INCOME_BRACKETS = [
   { key: 'below-3k',  label: '< RM 3k',    sub: 'per month' },
@@ -48,17 +40,6 @@ const REVIEW_FREQ = ['Annually', 'Semi-annually', 'Quarterly']
 const PIPELINE_STAGES = STAGES.filter(s => s.key !== 'Dormant')
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function calcAge(dob) {
-  if (!dob) return null
-  const d = new Date(dob)
-  if (isNaN(d)) return null
-  const now = new Date()
-  let age = now.getFullYear() - d.getFullYear()
-  if (now.getMonth() < d.getMonth() ||
-     (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) age--
-  return age >= 0 && age < 130 ? age : null
-}
 
 function getInitials(name) {
   if (!name) return '?'
@@ -302,10 +283,15 @@ export default function AddContactPage() {
   }
 
   const validate = () => {
+    // Shared with EditContactPage (ContactsPage.jsx) so Add can't create a
+    // contact with garbage mobile/email that only gets flagged on first edit.
+    const codes = validateContactForm(form, age)
     const errs = {}
-    if (!form.name.trim())  errs.name = t('contacts.errNameRequired')
-    if (!form.dob)          errs.dob  = t('contacts.errDobRequired')
-    else if (age === null || age < 0 || age > 100) errs.dob = t('contacts.errDobInvalid')
+    if (codes.name)    errs.name    = t('contacts.errNameRequired')
+    if (codes.dob === 'required') errs.dob = t('contacts.errDobRequired')
+    if (codes.dob === 'invalid')  errs.dob = t('contacts.errDobInvalid')
+    if (codes.mobile)  errs.mobile  = t('contacts.errMobileInvalid')
+    if (codes.email)   errs.email   = t('contacts.errEmailInvalid')
     return errs
   }
 
@@ -441,9 +427,14 @@ export default function AddContactPage() {
                     value={form.mobile}
                     onChange={e => set('mobile', e.target.value)}
                     placeholder="012-3456789"
-                    className={`${inputCls(false)} pl-9`}
+                    className={`${inputCls(!!errors.mobile)} pl-9`}
                   />
                 </div>
+                {errors.mobile && (
+                  <p className="flex items-center gap-1 text-hig-caption1 text-hig-red mt-1">
+                    <AlertCircle size={12} /> {errors.mobile}
+                  </p>
+                )}
               </div>
 
               {/* Email */}
@@ -461,9 +452,14 @@ export default function AddContactPage() {
                     value={form.email}
                     onChange={e => set('email', e.target.value)}
                     placeholder="email@example.com"
-                    className={`${inputCls(false)} pl-9`}
+                    className={`${inputCls(!!errors.email)} pl-9`}
                   />
                 </div>
+                {errors.email && (
+                  <p className="flex items-center gap-1 text-hig-caption1 text-hig-red mt-1">
+                    <AlertCircle size={12} /> {errors.email}
+                  </p>
+                )}
               </div>
             </div>
           </Section>

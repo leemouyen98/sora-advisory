@@ -7,7 +7,10 @@
  * · Mirrors AddContactPage aesthetics — visual selectors, live preview
  * · Pre-populated from existing contact data
  * · Grouped sections: Identity, Contact, Employment, Planning, Notes
- * · Unsaved changes guard — prompts before navigating away
+ * · Unsaved changes guard — Back/Cancel buttons confirm before discarding
+ *   (browser back/forward and other nav is not intercepted — this app uses
+ *   classic BrowserRouter, not a data router, so full useBlocker-style
+ *   guarding isn't available without a larger routing migration)
  * · Danger zone at bottom (delete contact)
  */
 
@@ -17,37 +20,17 @@ import { useContacts } from '../hooks/useContacts'
 import {
   ArrowLeft, User, Phone, Mail, Briefcase, Calendar,
   Check, AlertCircle, Clock, Shield, Target,
-  Users, Building2, GraduationCap, Umbrella, HelpCircle,
-  UserCheck, Trash2, AlertTriangle, Save, X,
+  Users, Trash2, AlertTriangle, Save, X,
 } from 'lucide-react'
-import { STAGES } from './ContactsPage'
+import { STAGES, EMPLOYMENT_OPTIONS, validateContactForm } from './ContactsPage'
+import { calcAge } from '../lib/formatters'
 import DatePicker from '../components/ui/DatePicker'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const EMPLOYMENT_OPTIONS = [
-  { key: 'Employed',      label: 'Employed',      Icon: Briefcase,    color: '#2E96FF' },
-  { key: 'Self-Employed', label: 'Self-Employed',  Icon: UserCheck,    color: '#34C759' },
-  { key: 'Business Owner',label: 'Business Owner', Icon: Building2,    color: '#FF9500' },
-  { key: 'Retired',       label: 'Retired',        Icon: Umbrella,     color: '#AF52DE' },
-  { key: 'Student',       label: 'Student',        Icon: GraduationCap,color: '#30B0C7' },
-  { key: 'Other',         label: 'Other',          Icon: HelpCircle,   color: '#8E8E93' },
-]
-
 const REVIEW_FREQ = ['Annually', 'Semi-annually', 'Quarterly']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function calcAge(dob) {
-  if (!dob) return null
-  const d = new Date(dob)
-  if (isNaN(d)) return null
-  const now = new Date()
-  let age = now.getFullYear() - d.getFullYear()
-  if (now.getMonth() < d.getMonth() ||
-     (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) age--
-  return age >= 0 && age < 130 ? age : null
-}
 
 function nameHue(name = '') {
   let h = 0
@@ -250,15 +233,15 @@ export default function EditContactPage() {
     if (errors[key]) setErrors(e => ({ ...e, [key]: '' }))
   }
 
+  // Shared with AddContactPage (ContactsPage.jsx) — same rules, same regexes.
   function validate() {
+    const codes = validateContactForm(form, age)
     const e = {}
-    if (!form.name.trim())  e.name = 'Name is required'
-    if (!form.dob)          e.dob  = 'Date of birth is required'
-    if (form.dob && age === null) e.dob = 'Invalid date'
-    if (form.mobile && !/^[0-9\-\+\s()]{7,15}$/.test(form.mobile.replace(/\s/g, '')))
-      e.mobile = 'Enter a valid Malaysian mobile number'
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      e.email = 'Enter a valid email address'
+    if (codes.name)               e.name   = 'Name is required'
+    if (codes.dob === 'required') e.dob    = 'Date of birth is required'
+    if (codes.dob === 'invalid')  e.dob    = 'Invalid date'
+    if (codes.mobile)             e.mobile = 'Enter a valid Malaysian mobile number'
+    if (codes.email)              e.email  = 'Enter a valid email address'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -292,6 +275,15 @@ export default function EditContactPage() {
     navigate('/contacts')
   }
 
+  // Partial unsaved-changes guard: covers the Back and Cancel buttons below.
+  // Does NOT catch browser back/forward or sidebar nav links — this app uses
+  // classic BrowserRouter (not a data router), so full navigation blocking via
+  // useBlocker isn't available without a larger routing migration.
+  function confirmLeave() {
+    if (dirty && !window.confirm('You have unsaved changes. Leave without saving?')) return
+    navigate(`/contacts/${id}`)
+  }
+
   if (!contact) return null
 
   return (
@@ -304,7 +296,7 @@ export default function EditContactPage() {
       }}>
         <button
           type="button"
-          onClick={() => navigate(`/contacts/${id}`)}
+          onClick={confirmLeave}
           className="hig-btn-ghost gap-1.5"
           style={{ marginLeft: -8 }}
         >
@@ -325,7 +317,7 @@ export default function EditContactPage() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             type="button"
-            onClick={() => navigate(`/contacts/${id}`)}
+            onClick={confirmLeave}
             className="hig-btn-secondary"
           >
             Cancel

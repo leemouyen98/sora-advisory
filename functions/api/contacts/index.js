@@ -6,7 +6,11 @@ function parseContact(row) {
     name: row.name,
     dob: row.dob || '',
     mobile: row.mobile || '',
+    email: row.email || '',
     employment: row.employment || 'Employed',
+    incomeBracket: row.income_bracket || '',
+    stage: row.stage || '',
+    referredBy: row.referred_by || '',
     retirementAge: Number(row.retirement_age) || 55,
     reviewDate: row.review_date || '',
     reviewFrequency: row.review_frequency || 'Annually',
@@ -58,18 +62,23 @@ export async function onRequestPost({ request, env }) {
 
     await env.DB.prepare(`
       INSERT INTO contacts
-        (id, agent_code, name, dob, mobile, employment, retirement_age,
+        (id, agent_code, name, dob, mobile, email, employment, income_bracket,
+         stage, referred_by, retirement_age,
          review_date, review_frequency,
          notes, tags, interactions, tasks, activities,
          retirement_plan, protection_plan, financials)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       data.id,
       agent.sub,
       data.name,
       data.dob || '',
       data.mobile || '',
+      data.email || '',
       data.employment || 'Employed',
+      data.incomeBracket || '',
+      data.stage || '',
+      data.referredBy || '',
       Number(data.retirementAge) || 55,
       data.reviewDate || '',
       data.reviewFrequency || 'Annually',

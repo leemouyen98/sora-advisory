@@ -204,6 +204,8 @@ const translations = {
     errNameRequired:    { en: 'Full name is required',   zh: '请填写全名'  },
     errDobRequired:     { en: 'Date of birth is required', zh: '请填写出生日期' },
     errDobInvalid:      { en: 'Enter a valid date of birth', zh: '请输入有效的出生日期' },
+    errMobileInvalid:   { en: 'Enter a valid mobile number', zh: '请输入有效的手机号码' },
+    errEmailInvalid:    { en: 'Enter a valid email address', zh: '请输入有效的电邮地址' },
     nameAndDobNote:     { en: '* Name and date of birth are required', zh: '* 全名和出生日期为必填项' },
     yearsOld:           { en: 'years old',               zh: '岁'          },
     referredByLabel:    { en: 'Referred by',             zh: '介绍人：'    },
