@@ -22,6 +22,63 @@ function fmtK(n) {
   return `RM ${Math.round(n)}`
 }
 
+const SEVERITY_ORDER = { critical: 0, warning: 1, info: 2, ok: 3 }
+
+// ─── Severity rule tables ─────────────────────────────────────────────────────
+// These bands encode advisory judgement, not just arithmetic. Keep them here,
+// documented, so the next person doesn't reintroduce a flat "50% = critical"
+// cutoff without thinking about what the risk actually means.
+
+// Protection: coverage-% bands per risk. Death/TPD are irreversible loss of
+// earning capacity — held to a high bar. Advanced-stage CI is severe but
+// survivable. Early-stage CI is a bridge/buffer, not a catastrophic loss, so
+// it gets the most tolerance. "Worst % across all 4 risks" alone would let a
+// client at 60% ECI (fine) drag the whole block to the same severity as a
+// client at 60% death cover (not fine) — this fixes that.
+const PROTECTION_RISK_BANDS = {
+  death: { critical: 50, warning: 80 },
+  tpd:   { critical: 50, warning: 80 },
+  aci:   { critical: 40, warning: 70 },
+  eci:   { critical: 20, warning: 50 },
+}
+
+function riskSeverity(risk, pct) {
+  const band = PROTECTION_RISK_BANDS[risk] ?? { critical: 30, warning: 70 }
+  if (pct < band.critical) return 'critical'
+  if (pct < band.warning) return 'warning'
+  return 'info'
+}
+
+// Retirement: severity depends on time-to-retirement, not just coverage %.
+// A 35-year-old at 40% funded has decades to fix it; a 58-year-old at 40%
+// funded is a fire. Once retired (or at the line) there's no runway left to
+// course-correct, so the bar tightens hard.
+function retirementSeverity({ pct, yearsToRetirement, fundsRunOutWithRec, lifeExpectancy }) {
+  const life = lifeExpectancy ?? 100
+  const runoutGapYears = life - (fundsRunOutWithRec ?? life) // years short of life expectancy
+
+  if (yearsToRetirement <= 0) {
+    return pct < 90 ? 'critical' : 'warning'
+  }
+  if (yearsToRetirement <= 10) {
+    return (pct < 70 || runoutGapYears > 5) ? 'critical' : 'warning'
+  }
+  return pct < 30 ? 'critical' : 'warning'
+}
+
+// Cash flow: a deficit is worse than a thin surplus, but a deficit *while
+// premiums are already running* is worse still — it's a lapse risk on cover
+// the client is relying on (breaks "medical must sustain to 100"). That
+// distinction, not just the raw number, decides critical vs warning.
+function cashFlowSeverity({ afterPlans, totalLinked, income }) {
+  const ratio = afterPlans / Math.max(1, income)
+  if (afterPlans < 0) {
+    return totalLinked > 0 ? 'critical' : 'warning'
+  }
+  if (ratio < 0.1) return 'warning'
+  return 'info'
+}
+
 // ─── Protection Priority ─────────────────────────────────────────────────────
 function protectionFlag(contact) {
   const prot = contact?.protectionPlan
@@ -47,7 +104,6 @@ function protectionFlag(contact) {
     return { type: 'protection', severity: 'info', message: 'No protection needs entered', detail: 'Add needs in Step 1' }
   }
 
-  const worst = active.reduce((w, s) => s.coveragePercent < w.coveragePercent ? s : w)
   const allFunded = active.every(s => s.coveragePercent >= 100)
   const totalGap = active.reduce((s, r) => s + r.shortfall, 0)
 
@@ -66,11 +122,19 @@ function protectionFlag(contact) {
     }
   }
 
-  const pct = worst.coveragePercent
+  // "Worst" = most severe risk band (death/TPD > ACI > ECI at equal %), tie-broken
+  // by lowest coverage % — not just whichever risk happens to have the lowest number.
+  const scored = active.map(s => ({ ...s, sev: riskSeverity(s.risk, s.coveragePercent) }))
+  const worst = scored.reduce((w, s) => {
+    if (SEVERITY_ORDER[s.sev] < SEVERITY_ORDER[w.sev]) return s
+    if (SEVERITY_ORDER[s.sev] === SEVERITY_ORDER[w.sev] && s.coveragePercent < w.coveragePercent) return s
+    return w
+  })
+
   return {
     type: 'protection',
-    severity: pct < 30 ? 'critical' : pct < 70 ? 'warning' : 'info',
-    message: `${worst.label} at ${pct}% — ${active.filter(s => s.shortfall > 0).length} of ${active.length} risks with gaps`,
+    severity: worst.sev,
+    message: `${worst.label} at ${worst.coveragePercent}% — ${active.filter(s => s.shortfall > 0).length} of ${active.length} risks with gaps`,
     detail: totalGap > 0 ? `Total gap ${fmtK(totalGap)}` : '',
     shortfall: totalGap,
     worst,
@@ -94,6 +158,7 @@ function retirementFlag(contact) {
 
   const proj = generateRetirementProjection({ ...plan, currentAge })
   const pct = Math.round(proj.coveragePercent)
+  const yearsToRetirement = (plan.retirementAge ?? 55) - currentAge
 
   // Monthly from selected recommendations
   const monthlyRec = (plan.recommendations ?? [])
@@ -106,20 +171,29 @@ function retirementFlag(contact) {
       message: `Retirement ${pct}% funded`,
       detail: `Funds last to ${proj.fundsRunOutWithRec ?? plan.lifeExpectancy}`,
       coveragePercent: pct,
+      yearsToRetirement,
       monthlyRec,
       projection: proj,
     }
   }
 
+  const severity = retirementSeverity({
+    pct,
+    yearsToRetirement,
+    fundsRunOutWithRec: proj.fundsRunOutWithRec,
+    lifeExpectancy: plan.lifeExpectancy,
+  })
+
   return {
     type: 'retirement',
-    severity: pct < 50 ? 'critical' : 'warning',
+    severity,
     message: `Retirement ${pct}% funded`,
     detail: proj.fundsRunOutAge < (plan.lifeExpectancy ?? 100)
       ? `Funds run out at ${proj.fundsRunOutAge} — shortfall ${fmtK(proj.shortfall)}`
       : `Shortfall ${fmtK(proj.shortfall)}`,
     shortfall: proj.shortfall,
     coveragePercent: pct,
+    yearsToRetirement,
     monthlyRec,
     projection: proj,
   }
@@ -156,8 +230,7 @@ function cashFlowFlag(contact) {
   const totalLinked = protMonthly + retMonthly
   const afterPlans = surplus - totalLinked
 
-  const ratio = afterPlans / Math.max(1, income)
-  const severity = afterPlans < 0 ? 'warning' : ratio < 0.1 ? 'warning' : 'info'
+  const severity = cashFlowSeverity({ afterPlans, totalLinked, income })
 
   return {
     type: 'cashflow',
@@ -174,7 +247,6 @@ function cashFlowFlag(contact) {
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
-const SEVERITY_ORDER = { critical: 0, warning: 1, info: 2, ok: 3 }
 
 /**
  * Returns all advisory flags for a contact, sorted by severity.

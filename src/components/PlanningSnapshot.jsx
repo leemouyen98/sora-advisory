@@ -18,6 +18,16 @@ function fmtRM(n) {
   return `${sign}RM ${Math.round(abs).toLocaleString()}`
 }
 
+// Months between an ISO date string and now — used for the staleness badge.
+function monthsSince(iso) {
+  if (!iso) return null
+  const then = new Date(iso)
+  if (Number.isNaN(then.getTime())) return null
+  const now = new Date()
+  const months = (now.getFullYear() - then.getFullYear()) * 12 + (now.getMonth() - then.getMonth())
+  return Math.max(0, months)
+}
+
 // ─── Severity colours ─────────────────────────────────────────────────────────
 const SEVERITY = {
   critical: { bg: '#FFF1F0', border: '#FFCCC7', text: '#FF3B30', icon: XCircle },
@@ -37,8 +47,10 @@ function SeverityBadge({ severity, label }) {
 }
 
 // ─── Block: one of the three plan areas ───────────────────────────────────────
-function PlanBlock({ icon: Icon, iconColor, title, flag, onNavigate, children }) {
+function PlanBlock({ icon: Icon, iconColor, title, flag, onNavigate, updatedAt, children }) {
   const s = flag ? (SEVERITY[flag.severity] ?? SEVERITY.info) : SEVERITY.ok
+  const staleMonths = monthsSince(updatedAt)
+  const isStale = staleMonths !== null && staleMonths > 12
   return (
     <button
       onClick={onNavigate}
@@ -57,12 +69,22 @@ function PlanBlock({ icon: Icon, iconColor, title, flag, onNavigate, children })
           <Icon size={14} style={{ color: iconColor }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: '#1C1C1E' }}>{title}</span>
         </div>
-        {flag && <SeverityBadge severity={flag.severity} label={
-          flag.severity === 'ok' ? 'Covered' :
-          flag.severity === 'critical' ? 'Action' :
-          flag.severity === 'warning' ? 'Review' : 'Info'
-        } />}
-        {onNavigate && <ChevronRight size={13} style={{ color: '#C7C7CC', marginLeft: 2 }} />}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {staleMonths !== null && (
+            <span style={{
+              fontSize: 10, fontWeight: isStale ? 700 : 500,
+              color: isStale ? '#FF9500' : '#C7C7CC',
+            }}>
+              {staleMonths === 0 ? 'Reviewed this month' : `Reviewed ${staleMonths}mo ago`}
+            </span>
+          )}
+          {flag && <SeverityBadge severity={flag.severity} label={
+            flag.severity === 'ok' ? 'Covered' :
+            flag.severity === 'critical' ? 'Action' :
+            flag.severity === 'warning' ? 'Review' : 'Info'
+          } />}
+          {onNavigate && <ChevronRight size={13} style={{ color: '#C7C7CC', marginLeft: 2 }} />}
+        </div>
       </div>
       {children}
     </button>
@@ -78,9 +100,9 @@ function StatRow({ label, value, color }) {
   )
 }
 
-// ─── Top Priority callout ─────────────────────────────────────────────────────
-function TopPriority({ flag }) {
-  if (!flag || flag.severity === 'ok') return null
+// ─── Priority callouts ─────────────────────────────────────────────────────────
+// Renders one flag as a callout card.
+function PriorityCallout({ flag }) {
   const s = SEVERITY[flag.severity] ?? SEVERITY.info
   const Icon = s.icon
   return (
@@ -102,6 +124,23 @@ function TopPriority({ flag }) {
   )
 }
 
+// Decides which flags earn a callout. A single "top priority" hides a second
+// critical issue behind an identical-looking block card below — if protection
+// AND retirement are both critical, the advisor needs to see both, not just
+// whichever sorts first. Only fall back to a single callout when there's
+// exactly one non-ok flag (so a lone warning still gets surfaced as before).
+function PriorityCallouts({ flags }) {
+  const nonOk = flags.filter(f => f && f.severity !== 'ok')
+  const criticals = nonOk.filter(f => f.severity === 'critical')
+  const toShow = criticals.length > 0 ? criticals : nonOk.slice(0, 1)
+  if (!toShow.length) return null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {toShow.map(flag => <PriorityCallout key={flag.type} flag={flag} />)}
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function PlanningSnapshot({ contact, onNavigate }) {
   const [protFlag, retFlag, cfFlag] = useMemo(() => {
@@ -110,12 +149,7 @@ export default function PlanningSnapshot({ contact, onNavigate }) {
     return [byType.protection, byType.retirement, byType.cashflow]
   }, [contact])
 
-  const topFlag = [protFlag, retFlag, cfFlag]
-    .filter(Boolean)
-    .sort((a, b) => {
-      const order = { critical: 0, warning: 1, info: 2, ok: 3 }
-      return (order[a.severity] ?? 4) - (order[b.severity] ?? 4)
-    })[0]
+  const allFlags = [protFlag, retFlag, cfFlag].filter(Boolean)
 
   const hasAnyPlan = contact?.retirementPlan || contact?.protectionPlan
 
@@ -145,8 +179,8 @@ export default function PlanningSnapshot({ contact, onNavigate }) {
         </h3>
       </div>
 
-      {/* Top Priority callout */}
-      <TopPriority flag={topFlag} />
+      {/* Priority callouts — every critical flag, not just one */}
+      <PriorityCallouts flags={allFlags} />
 
       {/* Protection block */}
       <PlanBlock
@@ -154,6 +188,7 @@ export default function PlanningSnapshot({ contact, onNavigate }) {
         iconColor="#FF9500"
         title="Protection"
         flag={protFlag}
+        updatedAt={contact?.protectionPlan?.updatedAt}
         onNavigate={onNavigate ? () => onNavigate('insurance') : undefined}
       >
         {protFlag ? (
@@ -186,6 +221,7 @@ export default function PlanningSnapshot({ contact, onNavigate }) {
         iconColor="#2E96FF"
         title="Retirement"
         flag={retFlag}
+        updatedAt={contact?.retirementPlan?.updatedAt}
         onNavigate={onNavigate ? () => onNavigate('retirement') : undefined}
       >
         {retFlag ? (

@@ -162,12 +162,17 @@ export function ContactsProvider({ children }) {
 
   // ─── Plans ────────────────────────────────────────────────────────────────
 
+  // Stamp updatedAt on every plan save so the Planning Snapshot can show staleness.
+  // Contacts only carry one row-level updated_at, which conflates edits to any
+  // field (tags, notes, stage...) with an actual plan review — not granular enough.
   const saveRetirementPlan = useCallback((contactId, plan) => {
-    updateOne(contactId, (c) => ({ ...c, retirementPlan: plan }))
+    const stamped = plan ? { ...plan, updatedAt: new Date().toISOString() } : plan
+    updateOne(contactId, (c) => ({ ...c, retirementPlan: stamped }))
   }, [updateOne])
 
   const saveProtectionPlan = useCallback((contactId, plan) => {
-    updateOne(contactId, (c) => ({ ...c, protectionPlan: plan }))
+    const stamped = plan ? { ...plan, updatedAt: new Date().toISOString() } : plan
+    updateOne(contactId, (c) => ({ ...c, protectionPlan: stamped }))
   }, [updateOne])
 
   const saveFinancials = useCallback((contactId, financials) => {
