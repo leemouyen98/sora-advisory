@@ -1,9 +1,14 @@
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
 import { INVESTMENT_DEFAULT_RETURN } from './constants'
-// toMonthly/calcMonthlyRepayment now live in lib/calculations.js — re-exported
-// here so existing imports (`from './helpers'`) keep working unchanged.
-export { toMonthly, calcMonthlyRepayment } from '../../../lib/calculations'
+// toMonthly/calcMonthlyRepayment now live in lib/calculations.js. Imported (not
+// just re-exported) because this file also calls toMonthly itself below, in
+// computeSummary() — a bare `export { x } from 'y'` re-export does NOT create
+// a local binding, so that call would throw "toMonthly is not defined" at
+// runtime despite `npx vite build` passing clean (this is a build-succeeds,
+// crashes-in-browser class of bug — build passing is not sufficient proof).
+import { toMonthly, calcMonthlyRepayment } from '../../../lib/calculations'
+export { toMonthly, calcMonthlyRepayment }
 
 // NOTE on 'epf-all'.growthRate (5.2%): this is an informational figure shown
 // on the Financial Info asset row only — it is NOT read by the Cash Flow
