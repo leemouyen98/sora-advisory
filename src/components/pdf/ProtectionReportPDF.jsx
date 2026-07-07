@@ -1,7 +1,7 @@
 import {
   Document, Page, Text, View, StyleSheet, Image, PDFDownloadLink,
 } from '@react-pdf/renderer'
-import { formatRMFull } from '../../lib/calculations'
+import { formatRMFull, toMonthly } from '../../lib/calculations'
 
 const getLogo = () => `${window.location.origin}/assets/sora-logo.png`
 
@@ -11,6 +11,7 @@ const C = {
   blue:   '#2E96FF',
   green:  '#34C759',
   orange: '#FF9500',
+  yellow: '#FFCC00',
   red:    '#FF3B30',
   purple: '#AF52DE',
   gray1:  '#1C1C1E',
@@ -366,9 +367,11 @@ export function ProtectionReportDocument({ plan, summaryData, contact, agentName
                 const coveredRisks = (['death', 'tpd', 'aci', 'eci']).filter(
                   (rk) => (!('riskType' in rec) && rec[rk] > 0) || (rec.riskType === rk && rec.coverageAmount > 0)
                 )
+                const recMonthly = toMonthly(rec.premiumAmount, rec.frequency)
+                const recTermYears = rec.termYears || rec.periodYears || 1
                 return (
                   <View key={rec.id || i} style={styles.recCard}>
-                    <Text style={styles.recTitle}>{rec.label || `Solution ${i + 1}`}</Text>
+                    <Text style={styles.recTitle}>{rec.name || rec.label || `Solution ${i + 1}`}</Text>
                     {coveredRisks.length > 0 && (
                       <View style={styles.recRiskRow}>
                         {coveredRisks.map((rk) => (
@@ -378,9 +381,9 @@ export function ProtectionReportDocument({ plan, summaryData, contact, agentName
                         ))}
                       </View>
                     )}
-                    {rec.premium > 0 && (
+                    {recMonthly > 0 && (
                       <Text style={styles.recDetail}>
-                        Premium: {fmtRM(rec.premium)}/month · Total: {fmtRM((rec.premium || 0) * 12 * (rec.term || 1))} over {rec.term || '—'} years
+                        Premium: {fmtRM(recMonthly)}/month · Total: {fmtRM(recMonthly * 12 * recTermYears)} over {recTermYears} years
                       </Text>
                     )}
                   </View>
@@ -425,7 +428,7 @@ export function ProtectionReportDocument({ plan, summaryData, contact, agentName
               { label: 'Protection Readiness', value: `${overallPct}%`,          color: coverageColor(overallPct) },
               { label: 'Total Gap',            value: fmtRM(totalGap),            color: totalGap > 0 ? C.red : C.green },
               { label: 'Monthly Premium',      value: (() => {
-                const pm = recommendations.reduce((s, r) => s + (Number(r.premium || r.monthly) || 0), 0)
+                const pm = recommendations.reduce((s, r) => s + toMonthly(r.premiumAmount, r.frequency), 0)
                 return pm > 0 ? `${fmtRM(pm)}/mo` : '—'
               })() },
             ].map(({ label, value, color }) => (
@@ -497,13 +500,13 @@ export function ProtectionReportDocument({ plan, summaryData, contact, agentName
               <SectionHead title="Recommended Solutions" />
               <View style={{ gap: 6, marginBottom: 12 }}>
                 {recommendations.map((rec, i) => {
-                  const pm = Number(rec.premium || rec.monthly) || 0
+                  const pm = toMonthly(rec.premiumAmount, rec.frequency)
                   return (
                     <View key={rec.id || i} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.white, borderRadius: 7, padding: 10, borderWidth: 1, borderColor: C.gray5 }}>
                       <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: C.blue + '18', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
                         <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: C.blue }}>{i + 1}</Text>
                       </View>
-                      <Text style={{ fontSize: 8.5, fontFamily: 'Helvetica-Bold', flex: 1 }}>{rec.label || `Solution ${i + 1}`}</Text>
+                      <Text style={{ fontSize: 8.5, fontFamily: 'Helvetica-Bold', flex: 1 }}>{rec.name || rec.label || `Solution ${i + 1}`}</Text>
                       {pm > 0 && (
                         <Text style={{ fontSize: 8, color: C.blue, fontFamily: 'Helvetica-Bold' }}>{fmtRM(pm)}/mo</Text>
                       )}

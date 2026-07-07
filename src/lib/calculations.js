@@ -80,7 +80,7 @@ export function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
 export function computeLinkedPlanPremiums(contact) {
   const protectionMonthly = (contact?.protectionPlan?.recommendations ?? [])
     .filter(r => r.isSelected)
-    .reduce((s, r) => s + (Number(r.monthly || r.premium) || 0), 0)
+    .reduce((s, r) => s + toMonthly(r.premiumAmount, r.frequency), 0)
   const retirementMonthly = (contact?.retirementPlan?.recommendations ?? [])
     .filter(r => r.isSelected !== false)
     .reduce((s, r) => s + (Number(r.monthly) || 0), 0)

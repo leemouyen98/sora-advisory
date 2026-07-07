@@ -104,7 +104,7 @@ function protectionFlag(contact) {
   // Monthly premium from selected recommendations
   const monthlyPremium = (prot.recommendations ?? [])
     .filter(r => r.isSelected)
-    .reduce((s, r) => s + (Number(r.monthly || r.premium) || 0), 0)
+    .reduce((s, r) => s + toMonthly(r.premiumAmount, r.frequency), 0)
 
   if (allFunded) {
     return {
