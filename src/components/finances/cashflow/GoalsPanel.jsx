@@ -14,9 +14,14 @@ const ICONS = {
 export default function GoalsPanel({ goals, onAddGoal, onToggleGoal, onRemoveGoal, currentAge }) {
   const [draft, setDraft] = useState({ label: '', age: currentAge + 5, amount: 0, icon: 'home' })
   const [open, setOpen] = useState(false)
+  const [error, setError] = useState('')
 
   const submit = () => {
-    if (!draft.label || !draft.amount) return
+    if (!draft.label || !draft.amount) {
+      setError('Enter a goal name and an amount greater than 0.')
+      return
+    }
+    setError('')
     onAddGoal(draft)
     setDraft({ label: '', age: currentAge + 5, amount: 0, icon: 'home' })
     setOpen(false)
@@ -27,7 +32,7 @@ export default function GoalsPanel({ goals, onAddGoal, onToggleGoal, onRemoveGoa
       title="Financial Goals"
       subtitle="Place major cash events into the timeline."
       action={
-        <button className="hig-btn-ghost gap-1.5" onClick={() => setOpen((value) => !value)}>
+        <button className="hig-btn-ghost gap-1.5" onClick={() => { setError(''); setOpen((value) => !value) }}>
           <Plus size={14} /> Add goal
         </button>
       }
@@ -60,8 +65,11 @@ export default function GoalsPanel({ goals, onAddGoal, onToggleGoal, onRemoveGoa
               </select>
             </FormField>
           </div>
+          {error ? (
+            <p className="mt-2 text-hig-caption2 text-hig-red">{error}</p>
+          ) : null}
           <div className="mt-3 flex justify-end gap-2">
-            <button className="hig-btn-ghost" onClick={() => setOpen(false)}>Cancel</button>
+            <button className="hig-btn-ghost" onClick={() => { setError(''); setOpen(false) }}>Cancel</button>
             <button className="hig-btn-primary" onClick={submit}>Save goal</button>
           </div>
         </div>

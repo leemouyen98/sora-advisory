@@ -7,7 +7,10 @@ const STATUS_STYLES = {
   tight: 'bg-amber-50 text-amber-700',
 }
 
-export default function CashFlowSummary({ annualIncome, annualExpenses, annualRepayments = 0, shortfallSummary, milestones }) {
+export default function CashFlowSummary({ annualIncome, annualExpenses, annualRepayments = 0, annualLinkedPremiums = 0, shortfallSummary, milestones }) {
+  // "Expenses" here already includes loan repayments and any selected
+  // Protection/Retirement premiums — same basis the Planning Snapshot
+  // dashboard uses for "surplus after plans", so this number matches there.
   const annualSurplus = annualIncome - annualExpenses
 
   return (
@@ -15,11 +18,13 @@ export default function CashFlowSummary({ annualIncome, annualExpenses, annualRe
       <div className="grid grid-cols-3 gap-2">
         <Stat label="Income" value={formatRMCompact(annualIncome)} tone="text-hig-blue" />
         <Stat label="Expenses" value={formatRMCompact(annualExpenses)} tone="text-hig-red" />
-        <Stat label="Surplus" value={formatRMCompact(annualSurplus)} tone={annualSurplus >= 0 ? 'text-hig-green' : 'text-hig-red'} />
+        <Stat label="Surplus after plans" value={formatRMCompact(annualSurplus)} tone={annualSurplus >= 0 ? 'text-hig-green' : 'text-hig-red'} />
       </div>
-      {annualRepayments > 0 && (
+      {(annualRepayments > 0 || annualLinkedPremiums > 0) && (
         <p className="mt-2 text-hig-caption2 text-hig-text-secondary">
-          Incl. {formatRMCompact(annualRepayments)} loan repayments/yr in expenses
+          Incl.{annualRepayments > 0 ? ` ${formatRMCompact(annualRepayments)} loan repayments/yr` : ''}
+          {annualRepayments > 0 && annualLinkedPremiums > 0 ? ' +' : ''}
+          {annualLinkedPremiums > 0 ? ` ${formatRMCompact(annualLinkedPremiums)} linked protection/retirement premiums/yr` : ''} in expenses
         </p>
       )}
 

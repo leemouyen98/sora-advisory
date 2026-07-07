@@ -13,12 +13,13 @@ import CashFlowEmptyState from './cashflow/CashFlowEmptyState'
 import FinancialInfo from './FinancialInfo'
 import {
   buildInsurancePlans,
+  buildCashFlowRecommendations,
   getCashFlowMilestones,
   projectCashFlow,
   summarizeShortfall,
   toAnnual,
 } from '../../lib/cashflow'
-import { calcMonthlyRepayment } from './financial-info/helpers'
+import { calcMonthlyRepayment, computeLinkedPlanPremiums } from '../../lib/calculations'
 
 function getCurrentAge(dob) {
   if (!dob) return 30
@@ -127,6 +128,7 @@ export default function CashFlowTab({ financials, contact, onSaveFinancials, onD
     const expenses = Array.isArray(localFinancials?.expenses) ? localFinancials.expenses : []
     const assets = Array.isArray(localFinancials?.assets) ? localFinancials.assets : []
     const liabilities = Array.isArray(localFinancials?.liabilities) ? localFinancials.liabilities : []
+    const investments = Array.isArray(localFinancials?.investments) ? localFinancials.investments : []
 
     const annualPassiveIncome = income
       .filter((row) => row.type !== 'Employment')
@@ -135,29 +137,53 @@ export default function CashFlowTab({ financials, contact, onSaveFinancials, onD
       .filter((row) => row.type === 'Employment')
       .reduce((sum, row) => sum + toAnnual(row.amount, row.frequency), 0)
 
-    const annualBaseExpenses = expenses.reduce((sum, row) => sum + toAnnual(row.amount, row.frequency), 0)
+    const annualLivingExpenses = expenses.reduce((sum, row) => sum + toAnnual(row.amount, row.frequency), 0)
     const annualRepayments = liabilities.reduce(
       (sum, row) => sum + calcMonthlyRepayment(row.principal, row.interestRate, row.loanPeriod) * 12,
       0,
     )
 
+    // Premiums/contributions already committed in the Protection and Retirement
+    // planners. Shared helper so this matches the "surplus after plans" figure
+    // the Planning Snapshot dashboard shows for the same contact — previously
+    // this tab never subtracted them, so the two screens could disagree.
+    const { totalMonthly: linkedPremiumsMonthly } = computeLinkedPlanPremiums(contact)
+    const annualLinkedPremiums = linkedPremiumsMonthly * 12
+
+    const initialInvestments = investments.reduce((sum, row) => sum + (Number(row.currentValue) || 0), 0)
+    const investmentGrowthRate = initialInvestments > 0
+      ? investments.reduce((sum, row) => sum + (Number(row.currentValue) || 0) * (Number(row.growthRate) || 0), 0) / initialInvestments
+      : 0
+
     return {
       annualPassiveIncome,
       annualEmploymentIncome,
       annualIncome: annualPassiveIncome + annualEmploymentIncome,
-      annualExpenses: annualBaseExpenses + annualRepayments,
+      annualLivingExpenses,
       annualRepayments,
+      annualLinkedPremiums,
+      linkedPremiumsMonthly,
+      // "Current year" total outflow — matches what afterPlans subtracts on the
+      // dashboard, so the summary card and the dashboard agree on one number.
+      annualExpenses: annualLivingExpenses + annualRepayments + annualLinkedPremiums,
+      liabilities,
       initialSavings: Number(assets.find((row) => row.id === 'savings-cash')?.amount) || 0,
       initialEpf: Number(assets.find((row) => row.id === 'epf-all')?.amount) || 0,
+      initialInvestments,
+      investmentGrowthRate,
     }
-  }, [localFinancials])
+  }, [localFinancials, contact])
 
   const chartData = useMemo(() => projectCashFlow({
     annualPassiveIncome: summary.annualPassiveIncome,
     annualEmploymentIncome: summary.annualEmploymentIncome,
-    annualExpenses: summary.annualExpenses,
+    annualLivingExpenses: summary.annualLivingExpenses,
+    liabilities: summary.liabilities,
+    linkedPremiumsMonthly: summary.linkedPremiumsMonthly,
     initialSavings: summary.initialSavings,
     initialEpf: summary.initialEpf,
+    initialInvestments: summary.initialInvestments,
+    investmentGrowthRate: summary.investmentGrowthRate,
     currentAge,
     expectedAge: assumptions.expectedAge,
     retirementAge: assumptions.retirementAge,
@@ -170,7 +196,10 @@ export default function CashFlowTab({ financials, contact, onSaveFinancials, onD
 
   const shortfallSummary = useMemo(() => summarizeShortfall(chartData), [chartData])
   const insurancePlans = useMemo(() => buildInsurancePlans(localFinancials), [localFinancials])
-  const milestones = useMemo(() => getCashFlowMilestones(chartData), [chartData])
+  const milestones = useMemo(() => getCashFlowMilestones(chartData, assumptions.retirementAge), [chartData, assumptions.retirementAge])
+  const recommendations = useMemo(() => buildCashFlowRecommendations({
+    financials: localFinancials, scenarios, shortfallSummary, t,
+  }), [localFinancials, scenarios, shortfallSummary, t])
 
   const updateAssumption = (key, value) => {
     setAssumptions((current) => ({ ...current, [key]: value }))
@@ -288,6 +317,7 @@ export default function CashFlowTab({ financials, contact, onSaveFinancials, onD
               annualIncome={summary.annualIncome}
               annualExpenses={summary.annualExpenses}
               annualRepayments={summary.annualRepayments}
+              annualLinkedPremiums={summary.annualLinkedPremiums}
               shortfallSummary={shortfallSummary}
               milestones={milestones}
             />
@@ -301,6 +331,7 @@ export default function CashFlowTab({ financials, contact, onSaveFinancials, onD
 
             <RecommendationsPanel
               insurancePlans={insurancePlans}
+              recommendations={recommendations}
             />
           </>
         )}

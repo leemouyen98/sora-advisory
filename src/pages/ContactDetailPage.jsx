@@ -18,6 +18,7 @@ import CashFlowTab from '../components/finances/CashFlowTab'
 import PlanningSnapshot from '../components/PlanningSnapshot'
 import { STAGES, getEffectiveStage } from './ContactsPage'
 import DatePicker from '../components/ui/DatePicker'
+import { toMonthly as toMonthlyCF, calcMonthlyRepayment } from '../lib/calculations'
 import {
   ArrowLeft, Phone, Calendar, Briefcase, Target, Shield,
   Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock,
@@ -62,10 +63,6 @@ function fmtRM(val) {
   return val < 0 ? `−${str}` : str
 }
 
-function toMonthlyCF(amount, frequency) {
-  const map = { Monthly: 1, Yearly: 1/12, Quarterly: 1/3, 'Semi-annually': 1/6, 'One-Time': 0 }
-  return (Number(amount) || 0) * (map[frequency] ?? 1)
-}
 
 function getAge(dob) {
   const d = new Date(dob)
@@ -738,14 +735,8 @@ export default function ContactDetailPage() {
     const totalLiab    = liabilities.reduce((s, r) => s + (Number(r.principal) || 0), 0)
     const monthlyIncome   = income.reduce((s, r) => s + toMonthlyCF(r.amount, r.frequency), 0)
     const monthlyExpenses = expenses.reduce((s, r) => s + toMonthlyCF(r.amount, r.frequency), 0)
-    const monthlyLoanRepayments = liabilities.reduce((s, l) => {
-      const P = Number(l.principal) || 0
-      const r = (Number(l.interestRate) || 0) / 100 / 12
-      const n = Number(l.loanPeriod) || 1
-      if (P === 0) return s
-      const pmt = r === 0 ? P / n : P * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1)
-      return s + pmt
-    }, 0)
+    const monthlyLoanRepayments = liabilities.reduce((s, l) =>
+      s + calcMonthlyRepayment(l.principal, l.interestRate, l.loanPeriod), 0)
     const netWorth        = totalAssets + totalInv - totalLiab
     const monthlyCashFlow = monthlyIncome - monthlyExpenses - monthlyLoanRepayments
     const hasData         = monthlyIncome > 0 || monthlyExpenses > 0 || totalAssets > 0 || totalInv > 0

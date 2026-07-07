@@ -36,6 +36,61 @@ export function formatPercent(val) {
   return `${Number(val).toFixed(1)}%`
 }
 
+// ─── Frequency & Amortization Helpers ────────────────────────────────────────
+// Canonical home for two calculations that were independently reimplemented
+// across priorityEngine.js, lib/cashflow.js, financial-info/helpers.js,
+// FinancialRatios.jsx, FinancesTab.jsx, and ContactDetailPage.jsx — six copies
+// of the same frequency-conversion table and three copies of the same
+// amortization formula. All of those now import from here instead.
+
+const FREQUENCY_TO_MONTHLY = {
+  Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6,
+  'One-Time': 0, 'Lump Sum': 0,
+}
+
+export function toMonthly(amount, frequency) {
+  return (Number(amount) || 0) * (FREQUENCY_TO_MONTHLY[frequency] ?? 1)
+}
+
+export function toAnnual(amount, frequency) {
+  return toMonthly(amount, frequency) * 12
+}
+
+/**
+ * Monthly repayment for a reducing-balance (amortizing) loan.
+ * loanPeriod is in MONTHS (matches the app's liability data model, e.g. 360
+ * for a 30-year home loan, 84 for a 7-year car loan).
+ */
+export function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
+  const P = Number(principal) || 0
+  const r = (Number(interestRate) || 0) / 100 / 12
+  const n = Math.max(0, Number(loanPeriod) || 0)
+  if (P === 0 || n === 0) return 0
+  if (r === 0) return P / n
+  return P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
+}
+
+/**
+ * Sums the monthly premium/contribution commitments a contact has already
+ * selected in the Protection and Retirement planners. Shared by
+ * priorityEngine.js and the Cash Flow module so "surplus after plans" means
+ * the same thing everywhere it's shown, instead of two independently-derived
+ * numbers that can silently disagree.
+ */
+export function computeLinkedPlanPremiums(contact) {
+  const protectionMonthly = (contact?.protectionPlan?.recommendations ?? [])
+    .filter(r => r.isSelected)
+    .reduce((s, r) => s + (Number(r.monthly || r.premium) || 0), 0)
+  const retirementMonthly = (contact?.retirementPlan?.recommendations ?? [])
+    .filter(r => r.isSelected !== false)
+    .reduce((s, r) => s + (Number(r.monthly) || 0), 0)
+  return {
+    protectionMonthly,
+    retirementMonthly,
+    totalMonthly: protectionMonthly + retirementMonthly,
+  }
+}
+
 // ─── Core TVM (Time Value of Money) ──────────────────────────────────────────
 
 /**

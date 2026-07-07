@@ -1,23 +1,8 @@
-const ANNUAL_MULTIPLIER = {
-  Monthly: 12,
-  Yearly: 1,
-  Quarterly: 4,
-  'Semi-annually': 2,
-  'One-Time': 0,
-  'Lump Sum': 0,
-}
-
-export function toAnnual(amount, frequency) {
-  return (Number(amount) || 0) * (ANNUAL_MULTIPLIER[frequency] ?? 12)
-}
-
-
-export function toMonthly(amount, frequency) {
-  const annual = toAnnual(amount, frequency)
-  return annual / 12
-}
-
-
+// toAnnual/toMonthly/calcMonthlyRepayment now live in lib/calculations.js —
+// this used to be one of six independent copies of the same frequency table.
+// Re-exported here so existing imports (`from '../../lib/cashflow'`) keep working.
+export { toAnnual, toMonthly, calcMonthlyRepayment } from './calculations'
+import { calcMonthlyRepayment } from './calculations'
 
 export function formatRMCompact(value) {
   if (value === undefined || value === null || Number.isNaN(Number(value))) return '—'
@@ -41,9 +26,13 @@ export function formatAxisLabel(value) {
 export function projectCashFlow({
   annualPassiveIncome,
   annualEmploymentIncome,
-  annualExpenses,
+  annualLivingExpenses,          // base lifestyle costs only — inflates every year
+  liabilities = [],              // [{ principal, interestRate, loanPeriod (months), startAge }] — fixed installments, do NOT inflate, and drop off once the term ends
+  linkedPremiumsMonthly = 0,     // protection + retirement premiums already selected — fixed, non-inflating (see computeLinkedPlanPremiums in lib/calculations.js)
   initialSavings,
   initialEpf,
+  initialInvestments = 0,        // sum of investments[].currentValue — no recurring contribution field exists in the data model, so this compounds as a lump sum only
+  investmentGrowthRate = 0,      // value-weighted average of investments[].growthRate
   currentAge,
   expectedAge,
   retirementAge,
@@ -56,9 +45,12 @@ export function projectCashFlow({
   const rows = []
   let pool = Number(initialSavings) || 0
   let epfBalance = Number(initialEpf) || 0
+  let invPool = Number(initialInvestments) || 0
   const inflation = (Number(inflationRate) || 0) / 100
   const savingsGrowth = (Number(savingsRate) || 0) / 100
   const epfGrowth = (Number(epfDividendRate) || 0) / 100
+  const investmentGrowth = (Number(investmentGrowthRate) || 0) / 100
+  const annualLinkedPremiums = (Number(linkedPremiumsMonthly) || 0) * 12
 
   const ciScenario = scenarios.find((item) => item.id === 'ci' && item.active)
   const disabilityScenario = scenarios.find((item) => item.id === 'disability' && item.active)
@@ -80,11 +72,25 @@ export function projectCashFlow({
     const goalLumpSum = goals
       .filter((goal) => goal.active && goal.age === age)
       .reduce((sum, goal) => sum + (Number(goal.amount) || 0), 0)
-    const inflatedExpenses = annualExpenses * Math.pow(1 + inflation, yearIndex) + goalLumpSum
+
+    // Loan repayments: fixed installment amounts, only charged while the loan
+    // is actually active (startAge <= age < startAge + term). Unlike lifestyle
+    // expenses, a fixed-rate installment does not inflate — and it must drop
+    // out of the projection once the loan matures, not run through to expectedAge.
+    const activeLoanRepayments = liabilities.reduce((sum, l) => {
+      const start = Number(l.startAge) ?? currentAge
+      const termYears = Math.ceil((Number(l.loanPeriod) || 0) / 12)
+      if (termYears <= 0 || age < start || age >= start + termYears) return sum
+      return sum + calcMonthlyRepayment(l.principal, l.interestRate, l.loanPeriod) * 12
+    }, 0)
+
+    const inflatedLivingExpenses = annualLivingExpenses * Math.pow(1 + inflation, yearIndex)
+    const inflatedExpenses = inflatedLivingExpenses + activeLoanRepayments + annualLinkedPremiums + goalLumpSum
 
     let passiveIncomeUsed = 0
     let takeHomeIncomeUsed = 0
     let cashUsed = 0
+    let investmentsUsed = 0
     let shortfall = 0
     let remaining = inflatedExpenses
 
@@ -102,12 +108,23 @@ export function projectCashFlow({
     const incomeSurplus = (activePassiveIncome - fromPassive) + (activeEmploymentIncome - fromEmployment)
     pool = pool * (1 + savingsGrowth) + incomeSurplus
 
+    // Investments compound as a lump sum (no recurring contribution field exists yet)
+    if (invPool > 0) invPool *= (1 + investmentGrowth)
+
     // Step 3: cash savings drawdown
     if (remaining > 0) {
       const fromCash = Math.min(pool, remaining)
       cashUsed = fromCash
       pool -= fromCash
       remaining -= fromCash
+    }
+
+    // Step 3b: investment drawdown — after cash, before declaring a shortfall
+    if (remaining > 0) {
+      const fromInv = Math.min(invPool, remaining)
+      investmentsUsed = fromInv
+      invPool -= fromInv
+      remaining -= fromInv
     }
 
     // Step 4: shortfall (EPF not drawn — managed in the Retirement Planner)
@@ -120,9 +137,11 @@ export function projectCashFlow({
       age,
       takeHomeIncomeUsed: Math.round(takeHomeIncomeUsed),
       cashUsed: Math.round(cashUsed),
+      investmentsUsed: Math.round(investmentsUsed),
       passiveIncomeUsed: Math.round(passiveIncomeUsed),
       shortfall: Math.round(shortfall),
       cashSavingsEOY: Math.round(pool),
+      investmentsEOY: Math.round(invPool),
       epfEOY: Math.round(epfBalance),
     })
   }
@@ -140,8 +159,11 @@ export function summarizeShortfall(chartData) {
   }
 }
 
-export function getCashFlowMilestones(chartData, ages = [55, 60, 65]) {
-  return ages.map((age) => {
+// Milestone ages default to the plan's own retirementAge (+5/+10) instead of a
+// hardcoded [55, 60, 65] that ignored whatever retirement age the advisor set.
+export function getCashFlowMilestones(chartData, retirementAge = 55, ages = null) {
+  const milestoneAges = ages ?? [retirementAge, retirementAge + 5, retirementAge + 10]
+  return milestoneAges.map((age) => {
     const row = chartData.find((item) => item.age === age)
     return {
       age,

@@ -7,12 +7,7 @@ import {
 import FinancialInfo from './FinancialInfo'
 import InsuranceTab from './InsuranceTab'
 import FinancialRatios from './FinancialRatios'
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function toMonthly(amount, frequency) {
-  const map = { Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6, 'One-Time': 0, 'Lump Sum': 0 }
-  return (Number(amount) || 0) * (map[frequency] ?? 1)
-}
+import { toMonthly, calcMonthlyRepayment } from '../../lib/calculations'
 
 function fmtRM(val) {
   if (!val && val !== 0) return '—'
@@ -215,15 +210,9 @@ export default function FinancesTab({ contact, onUpdateFinancials, autoOpenEdit,
     // Monthly expenses
     const monthlyExpenses = (f.expenses || []).reduce((s, e) => s + toMonthly(e.amount, e.frequency), 0)
 
-    // Monthly loan repayments (rough monthly from principal, interest, term)
-    const monthlyLoanRepayments = (f.liabilities || []).reduce((s, l) => {
-      const P = Number(l.principal) || 0
-      const r = (Number(l.interestRate) || 0) / 100 / 12
-      const n = Number(l.loanPeriod) || 1
-      if (P === 0) return s
-      const pmt = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
-      return s + pmt
-    }, 0)
+    // Monthly loan repayments
+    const monthlyLoanRepayments = (f.liabilities || []).reduce((s, l) =>
+      s + calcMonthlyRepayment(l.principal, l.interestRate, l.loanPeriod), 0)
 
     // Total assets
     const totalAssets = (f.assets || []).reduce((s, a) => s + (Number(a.amount) || 0), 0)

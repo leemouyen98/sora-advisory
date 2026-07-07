@@ -7,14 +7,8 @@
  * severity: 'critical' | 'warning' | 'info' | 'ok'
  */
 
-import { generateRetirementProjection, generateProtectionSummary } from './calculations'
+import { generateRetirementProjection, generateProtectionSummary, toMonthly, calcMonthlyRepayment, computeLinkedPlanPremiums } from './calculations'
 import { getAge } from './formatters'
-
-// Minimal toMonthly — mirrors the one in financial-info/helpers.js
-function toMonthly(amount, frequency) {
-  const map = { Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6, 'One-Time': 0 }
-  return (Number(amount) || 0) * (map[frequency] ?? 1)
-}
 
 function fmtK(n) {
   if (n >= 1_000_000) return `RM ${(n / 1_000_000).toFixed(1)}M`
@@ -202,8 +196,6 @@ function retirementFlag(contact) {
 // ─── Cash Flow Priority ──────────────────────────────────────────────────────
 function cashFlowFlag(contact) {
   const fin = contact?.financials
-  const prot = contact?.protectionPlan
-  const plan = contact?.retirementPlan
 
   if (!fin) return null
 
@@ -211,23 +203,14 @@ function cashFlowFlag(contact) {
   if (income === 0) return null
 
   const expenses = (fin.expenses || []).reduce((s, r) => s + toMonthly(r.amount, r.frequency), 0)
-  const loanRepayments = (fin.liabilities || []).reduce((s, l) => {
-    const P = Number(l.principal) || 0
-    const r = (Number(l.interestRate) || 0) / 100 / 12
-    const n = Number(l.loanPeriod) || 1
-    if (P === 0) return s
-    const pmt = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
-    return s + pmt
-  }, 0)
+  const loanRepayments = (fin.liabilities || []).reduce((s, l) =>
+    s + calcMonthlyRepayment(l.principal, l.interestRate, l.loanPeriod), 0)
   const surplus = income - expenses - loanRepayments
 
-  const protMonthly = (prot?.recommendations ?? [])
-    .filter(r => r.isSelected)
-    .reduce((s, r) => s + (Number(r.monthly || r.premium) || 0), 0)
-  const retMonthly = (plan?.recommendations ?? [])
-    .filter(r => r.isSelected !== false)
-    .reduce((s, r) => s + (Number(r.monthly) || 0), 0)
-  const totalLinked = protMonthly + retMonthly
+  // Shared with the Cash Flow module (lib/cashflow.js via CashFlowTab.jsx) so
+  // "surplus after plans" is the same number everywhere it's shown, instead of
+  // two independently-derived figures that can silently disagree.
+  const { totalMonthly: totalLinked } = computeLinkedPlanPremiums(contact)
   const afterPlans = surplus - totalLinked
 
   const severity = cashFlowSeverity({ afterPlans, totalLinked, income })

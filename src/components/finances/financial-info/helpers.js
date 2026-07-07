@@ -1,21 +1,18 @@
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
 import { INVESTMENT_DEFAULT_RETURN } from './constants'
+// toMonthly/calcMonthlyRepayment now live in lib/calculations.js — re-exported
+// here so existing imports (`from './helpers'`) keep working unchanged.
+export { toMonthly, calcMonthlyRepayment } from '../../../lib/calculations'
 
-export function toMonthly(amount, frequency) {
-  const map = { Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6, 'One-Time': 0 }
-  return (Number(amount) || 0) * (map[frequency] ?? 1)
-}
-
-export function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
-  const P = Number(principal) || 0
-  const r = (Number(interestRate) || 0) / 100 / 12
-  const n = Number(loanPeriod) || 1
-  if (P === 0) return 0
-  if (r === 0) return P / n
-  return P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
-}
-
+// NOTE on 'epf-all'.growthRate (5.2%): this is an informational figure shown
+// on the Financial Info asset row only — it is NOT read by the Cash Flow
+// projection. The Cash Flow module has its own, separately editable
+// "EPF dividend" planning assumption (CashFlowTab.jsx, default 5.5%) that
+// actually drives projectCashFlow(). The two numbers are intentionally
+// independent (see project convention: planning modules don't cross-couple),
+// but an advisor comparing this screen to the Cash Flow tab may notice they
+// differ — that's expected, not a bug, just worth knowing if asked about it.
 function getDefaultFixedAssets() {
   return [
     { id: 'savings-cash', fixed: true, type: 'Savings Cash',       description: 'Savings (Cash)',        growthRate: 0.25, amount: 0 },

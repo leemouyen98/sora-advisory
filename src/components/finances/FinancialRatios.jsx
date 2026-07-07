@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { AlertTriangle, CheckCircle, MinusCircle, Info } from 'lucide-react'
-import { formatRMFull } from '../../lib/calculations'
+import { formatRMFull, toMonthly, calcMonthlyRepayment } from '../../lib/calculations'
 
 /**
  * Financial Ratios — standard advisory benchmarks
@@ -69,21 +69,6 @@ const STATUS_CONFIG = {
   fair: { icon: MinusCircle, color: 'text-hig-orange', bg: 'bg-hig-orange/10', label: 'Needs Attention' },
   poor: { icon: AlertTriangle, color: 'text-hig-red', bg: 'bg-hig-red/10', label: 'Action Required' },
   na: { icon: Info, color: 'text-hig-gray-1', bg: 'bg-hig-gray-6', label: 'No Data' },
-}
-
-// ─── Helpers (duplicated to avoid cross-file import) ─────────────────────────
-function toMonthly(amount, frequency) {
-  const map = { Monthly: 1, Yearly: 1 / 12, Quarterly: 1 / 3, 'Semi-annually': 1 / 6, 'One-Time': 0 }
-  return (Number(amount) || 0) * (map[frequency] ?? 1)
-}
-
-function calcMonthlyRepayment(principal, interestRate, loanPeriod) {
-  const P = Number(principal) || 0
-  const r = (Number(interestRate) || 0) / 100 / 12
-  const n = Number(loanPeriod) || 1
-  if (P === 0) return 0
-  if (r === 0) return P / n
-  return P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
 }
 
 export default function FinancialRatios({ financials, contact }) {
