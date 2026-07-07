@@ -4,6 +4,7 @@ import { useContacts } from '../hooks/useContacts'
 import { useLanguage } from '../hooks/useLanguage'
 import { useAuth } from '../hooks/useAuth'
 import { getAge } from '../lib/formatters'
+import { DEFAULT_EPF_GROWTH_RATE } from '../lib/calculations'
 import { ArrowLeft, Settings, Presentation } from 'lucide-react'
 import BasicInfo from '../components/retirement/BasicInfo'
 import ExistingProvision from '../components/retirement/ExistingProvision'
@@ -42,7 +43,7 @@ export default function RetirementPlannerPage() {
       postRetirementReturn: 1,
       includeEPF: false,
       epfBalance: 0,
-      epfGrowthRate: 6,
+      epfGrowthRate: DEFAULT_EPF_GROWTH_RATE,
       annualIncome: 0,
       incomeGrowthRate: 3,
       provisions: [],

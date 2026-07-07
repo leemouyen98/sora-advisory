@@ -3,6 +3,19 @@
  * All calculations are pure functions. No side effects. Fully testable.
  */
 
+// ─── Shared retirement default assumptions ────────────────────────────────────
+// These were previously three separate magic numbers (5%, 5%, 6%, 1%) scattered
+// across this file and RetirementPlanner.jsx with no comment tying them together.
+// Naming them here makes the relationship a documented decision, not a
+// coincidence that can silently drift if one gets tuned without the others.
+export const DEFAULT_PROVISION_RETURN = 1      // existing/generic savings — conservative default (e.g. FD-like)
+export const DEFAULT_RECOMMENDATION_RATE = 5   // advisor-recommended growth vehicle (unit trust/ILP-style)
+export const DEFAULT_EPF_GROWTH_RATE = 6       // EPF dividends have ranged ~4.25%-6.9% since 2015; 6% is a mid-range planning assumption
+// The pre-retirement "ideal corpus" glide-path curve assumes the client's savings
+// grow at the same rate as the recommended vehicle — so it uses that same constant
+// rather than an independent, undocumented 5%.
+export const IDEAL_CORPUS_DISCOUNT_RATE = DEFAULT_RECOMMENDATION_RATE
+
 // ─── Currency & Format Helpers ───────────────────────────────────────────────
 
 export function formatRM(amount) {
@@ -111,10 +124,14 @@ export function tvmSolve(params, solveFor) {
  *   Monthly salary > RM5,000  : Employee 11% + Employer 12% = 23% of annual income
  * Rate is evaluated each year as income grows past the threshold.
  */
-export function getEPFRate(_annualIncome) {
-  // GoalsMapper uses a flat 23% (11% employee + 12% employer) for all income levels.
-  // The Third Schedule's higher 13% employer rate for wages ≤ RM 5,000 is NOT applied.
-  return 0.23
+export function getEPFRate(annualIncome) {
+  // Third Schedule, EPF Act 1991 — employer rate steps down once monthly salary
+  // exceeds RM 5,000. Employee rate is a flat 11% regardless of salary.
+  // (Age 60+ reduced-rate contributions are a separate rule, not modeled here.)
+  const monthlySalary = (annualIncome || 0) / 12
+  const employeeRate = 0.11
+  const employerRate = monthlySalary > 0 && monthlySalary <= 5000 ? 0.13 : 0.12
+  return employeeRate + employerRate
 }
 
 export function projectEPF({ currentBalance, growthRate, annualIncome, incomeGrowthRate, currentAge, retirementAge }) {
@@ -134,7 +151,7 @@ export function projectEPF({ currentBalance, growthRate, annualIncome, incomeGro
     })
     if (y < years) {
       const contribution = income * epfRate
-      balance = (balance + contribution) * (1 + (growthRate || 6) / 100)
+      balance = (balance + contribution) * (1 + (growthRate || DEFAULT_EPF_GROWTH_RATE) / 100)
       income = income * (1 + (incomeGrowthRate || 0) / 100)
     }
   }
@@ -165,7 +182,7 @@ function getFrequencyMultiplier(freq) {
  * Any existing balance compounds as a lump sum (annual compounding) to retirement.
  */
 export function projectProvision(provision, yearsToRetirement) {
-  const { amount, frequency, preRetirementReturn: rate = 1, currentBalance = 0 } = provision
+  const { amount, frequency, preRetirementReturn: rate = DEFAULT_PROVISION_RETURN, currentBalance = 0 } = provision
   // Compound any existing balance (annual compounding, matches GoalsMapper)
   const balanceFV = currentBalance > 0 ? fvLumpSum(currentBalance, rate, yearsToRetirement) : 0
   if (frequency === 'One-Time') {
@@ -278,13 +295,13 @@ export function generateRetirementProjection({
       // Preset monthly recommendation — two-phase: contribute then coast
       recommendationsAtRetirement += recMonthlyFV(
         r.monthlyAmount,
-        r.growthRate || 5,
+        r.growthRate || DEFAULT_RECOMMENDATION_RATE,
         r.periodYears || 10,
         yearsToRetirement,
       )
     } else if (r.lumpSum > 0) {
       // Preset lump sum — annual compounding to retirement
-      const fv = r.lumpSum * Math.pow(1 + (r.growthRate || 5) / 100, yearsToRetirement)
+      const fv = r.lumpSum * Math.pow(1 + (r.growthRate || DEFAULT_RECOMMENDATION_RATE) / 100, yearsToRetirement)
       recommendationsAtRetirement += Math.round(fv)
     }
   })
@@ -330,12 +347,12 @@ export function generateRetirementProjection({
       if (includeEPF) {
         const epfRate = getEPFRate(epfIncome)
         const contribution = epfIncome * epfRate
-        epfBal = (epfBal + contribution) * (1 + (epfGrowthRate || 6) / 100)
+        epfBal = (epfBal + contribution) * (1 + (epfGrowthRate || DEFAULT_EPF_GROWTH_RATE) / 100)
         epfIncome *= (1 + (incomeGrowthRate || 0) / 100)
         // Mirror for no-rec scenario
         const epfRateNoRec = getEPFRate(epfIncomeNoRec)
         const contribNoRec = epfIncomeNoRec * epfRateNoRec
-        epfBalNoRec = (epfBalNoRec + contribNoRec) * (1 + (epfGrowthRate || 6) / 100)
+        epfBalNoRec = (epfBalNoRec + contribNoRec) * (1 + (epfGrowthRate || DEFAULT_EPF_GROWTH_RATE) / 100)
         epfIncomeNoRec *= (1 + (incomeGrowthRate || 0) / 100)
       }
 
@@ -348,7 +365,7 @@ export function generateRetirementProjection({
       })
       // Use weighted average return across provisions, fallback to 1%
       const avgProvReturn = (provisions || []).length > 0
-        ? provisions.reduce((s, p) => s + (p.preRetirementReturn || 1), 0) / provisions.length
+        ? provisions.reduce((s, p) => s + (p.preRetirementReturn || DEFAULT_PROVISION_RETURN), 0) / provisions.length
         : 1
       provBal = (provBal + provContrib) * (1 + avgProvReturn / 100)
       provBalNoRec = (provBalNoRec + provContrib) * (1 + avgProvReturn / 100)
@@ -366,7 +383,7 @@ export function generateRetirementProjection({
       })
       // Use weighted average growth rate, fallback to 5%
       const avgRecRate = selectedRecs.length > 0
-        ? selectedRecs.reduce((s, r) => s + (r.growthRate || 5), 0) / selectedRecs.length
+        ? selectedRecs.reduce((s, r) => s + (r.growthRate || DEFAULT_RECOMMENDATION_RATE), 0) / selectedRecs.length
         : 5
       recBal = (recBal + recContrib) * (1 + avgRecRate / 100)
 
@@ -374,14 +391,14 @@ export function generateRetirementProjection({
       // ── Retirement Year (annuity-due: first withdrawal happens AT retirement age) ──
       // Step 1: Final accumulation growth tick
       const avgRecRate = selectedRecs.length > 0
-        ? selectedRecs.reduce((s, r) => s + (r.growthRate || 5), 0) / selectedRecs.length
+        ? selectedRecs.reduce((s, r) => s + (r.growthRate || DEFAULT_RECOMMENDATION_RATE), 0) / selectedRecs.length
         : 5
       const avgProvReturn = (provisions || []).length > 0
-        ? provisions.reduce((s, p) => s + (p.preRetirementReturn || 1), 0) / provisions.length
+        ? provisions.reduce((s, p) => s + (p.preRetirementReturn || DEFAULT_PROVISION_RETURN), 0) / provisions.length
         : 1
       if (includeEPF) {
-        epfBal *= (1 + (epfGrowthRate || 6) / 100)
-        epfBalNoRec *= (1 + (epfGrowthRate || 6) / 100)
+        epfBal *= (1 + (epfGrowthRate || DEFAULT_EPF_GROWTH_RATE) / 100)
+        epfBalNoRec *= (1 + (epfGrowthRate || DEFAULT_EPF_GROWTH_RATE) / 100)
       }
       provBal *= (1 + avgProvReturn / 100)
       provBalNoRec *= (1 + avgProvReturn / 100)
@@ -453,10 +470,12 @@ export function generateRetirementProjection({
     // ── Required Corpus Curve ───────────────────────────────────────────────
     // Represents the amount you SHOULD have at each age to stay on track.
     //
-    // Pre-retirement: discount targetAmount backward using a standard 5% accumulation rate.
-    //   i.e. the PV of the required corpus, growing at 5% each year.
-    //   At currentAge  → targetAmount / (1.05)^yearsToRetirement  (smallest)
-    //   At retirementAge → targetAmount                            (peak)
+    // Pre-retirement: discount targetAmount backward using IDEAL_CORPUS_DISCOUNT_RATE
+    //   (= DEFAULT_RECOMMENDATION_RATE — the glide path assumes savings grow at the
+    //   same rate as the advisor-recommended vehicle, not an independent guess).
+    //   i.e. the PV of the required corpus, growing at that rate each year.
+    //   At currentAge  → targetAmount / (1 + rate)^yearsToRetirement  (smallest)
+    //   At retirementAge → targetAmount                                (peak)
     //
     // Post-retirement: PV of all remaining withdrawals from this age onward,
     //   discounted at real rate (postRetirementReturn − inflationRate).
@@ -464,7 +483,7 @@ export function generateRetirementProjection({
     let idealCorpus = 0
     if (age < retirementAge) {
       const yearsFromRetirement = retirementAge - age
-      idealCorpus = targetAmount / Math.pow(1.05, yearsFromRetirement)
+      idealCorpus = targetAmount / Math.pow(1 + IDEAL_CORPUS_DISCOUNT_RATE / 100, yearsFromRetirement)
     } else if (age === retirementAge) {
       idealCorpus = targetAmount
     } else {
@@ -567,9 +586,9 @@ export function generateRetirementProjection({
  */
 export function recMonthlyPMT(shortfall, annualRate, contribYears, totalYears) {
   if (!shortfall || contribYears <= 0 || totalYears <= 0) return 0
-  const r = annualRate / 100 / 12
-  const n = contribYears * 12
-  const fvOrd = r === 0 ? n : (Math.pow(1 + r, n) - 1) / r
+  // fvOrd(1, ...) = the same ordinary-annuity FV factor fvAnnuity() already computes —
+  // reuse it instead of re-deriving the formula, so there's one implementation to trust.
+  const fvOrd = fvAnnuity(1, annualRate, contribYears, 12)
   const remainingYears = Math.max(0, totalYears - contribYears)
   const growthFactor = Math.pow(1 + annualRate / 100, remainingYears)
   return Math.round(shortfall / (fvOrd * growthFactor))
@@ -590,8 +609,8 @@ export function recMonthlyPMT(shortfall, annualRate, contribYears, totalYears) {
 export function recMonthlyFV(pmt, annualRate, contribYears, totalYears) {
   if (!pmt || contribYears <= 0 || totalYears <= 0) return 0
   const r = annualRate / 100 / 12
-  const n = contribYears * 12
-  const fvOrd = r === 0 ? pmt * n : pmt * ((Math.pow(1 + r, n) - 1) / r)
+  // Reuse fvAnnuity() for the ordinary-annuity core instead of re-deriving it.
+  const fvOrd = fvAnnuity(pmt, annualRate, contribYears, 12)
   const fvDue = fvOrd * (1 + r)                            // annuity-due adjustment
   const remainingYears = Math.max(0, totalYears - contribYears)
   return Math.round(fvDue * Math.pow(1 + annualRate / 100, remainingYears))
@@ -607,7 +626,8 @@ export function recMonthlyFV(pmt, annualRate, contribYears, totalYears) {
  */
 export function recLumpSum(shortfall, annualRate, totalYears) {
   if (!shortfall || totalYears <= 0) return 0
-  return Math.round(shortfall / Math.pow(1 + annualRate / 100, totalYears))
+  // Same formula as pvLumpSum() — reuse it rather than duplicating the discounting math.
+  return Math.round(pvLumpSum(shortfall, annualRate, totalYears))
 }
 
 // ─── Protection Calculations ─────────────────────────────────────────────────

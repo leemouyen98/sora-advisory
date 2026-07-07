@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { formatRMFull, generateRetirementProjection, tvmSolve, projectProvision, recMonthlyPMT, recLumpSum, recMonthlyFV } from '../../lib/calculations'
+import { formatRMFull, generateRetirementProjection, tvmSolve, projectProvision, recMonthlyPMT, recLumpSum, recMonthlyFV, DEFAULT_RECOMMENDATION_RATE, DEFAULT_EPF_GROWTH_RATE } from '../../lib/calculations'
 import { Plus, ChevronDown, ChevronUp, Trash2, CheckCircle2, ArrowLeft, MoreVertical, X } from 'lucide-react'
 import RetirementChart from './RetirementChart'
 import PlanningAssumptions from './PlanningAssumptions'
@@ -22,7 +22,7 @@ export default function RetirementPlanner({
 
   const [showCustom,       setShowCustom]       = useState(false)
   const [customCalcFor,    setCustomCalcFor]    = useState('fv')
-  const [customForm,       setCustomForm]       = useState({ fv: 0, rate: 5, pv: 0, pmt: 0, n: 10 })
+  const [customForm,       setCustomForm]       = useState({ fv: 0, rate: DEFAULT_RECOMMENDATION_RATE, pv: 0, pmt: 0, n: 10 })
   const [deleteConfirmRec, setDeleteConfirmRec] = useState(null)   // { id, name }
   const [showBreakdownRec, setShowBreakdownRec] = useState(null)   // rec id
   const [savedFlash,       setSavedFlash]       = useState(false)
@@ -35,31 +35,41 @@ export default function RetirementPlanner({
   }, [])
 
   // ── Projection ──────────────────────────────────────────────────────────────
-  const projection = useMemo(() => {
+  // On error, this used to silently hand back a zeroed-out projection with only
+  // a console.error — the advisor would see a plausible-looking "RM 0 / 0%" plan
+  // with no indication it's actually broken. Now the error surfaces in the UI
+  // (see projectionError banner below) instead of masquerading as a real result.
+  const { projection, projectionError } = useMemo(() => {
     try {
-      return generateRetirementProjection({
-        currentAge,
-        retirementAge:      plan.retirementAge || 55,
-        lifeExpectancy:     plan.lifeExpectancy || 80,
-        monthlyExpenses:    plan.monthlyExpenses || 0,
-        inflationRate:      plan.inflationRate ?? 4,
-        postRetirementReturn: plan.postRetirementReturn ?? 1,
-        includeEPF:         plan.includeEPF || false,
-        epfBalance:         plan.epfBalance || 0,
-        epfGrowthRate:      plan.epfGrowthRate ?? 6,
-        annualIncome:       Math.max(plan.annualIncome || 0, linkedGrossMonthly * 12),
-        incomeGrowthRate:   plan.incomeGrowthRate ?? 3,
-        provisions:         plan.provisions || [],
-        recommendations:    plan.recommendations || [],
-      })
+      return {
+        projection: generateRetirementProjection({
+          currentAge,
+          retirementAge:      plan.retirementAge || 55,
+          lifeExpectancy:     plan.lifeExpectancy || 80,
+          monthlyExpenses:    plan.monthlyExpenses || 0,
+          inflationRate:      plan.inflationRate ?? 4,
+          postRetirementReturn: plan.postRetirementReturn ?? 1,
+          includeEPF:         plan.includeEPF || false,
+          epfBalance:         plan.epfBalance || 0,
+          epfGrowthRate:      plan.epfGrowthRate ?? DEFAULT_EPF_GROWTH_RATE,
+          annualIncome:       Math.max(plan.annualIncome || 0, linkedGrossMonthly * 12),
+          incomeGrowthRate:   plan.incomeGrowthRate ?? 3,
+          provisions:         plan.provisions || [],
+          recommendations:    plan.recommendations || [],
+        }),
+        projectionError: null,
+      }
     } catch (err) {
       console.error('Projection error:', err)
       return {
-        targetAmount: 0, totalCovered: 0, shortfall: 0, surplus: 0,
-        coveragePercent: 0, monthlyAtRetirement: 0, epfAtRetirement: 0,
-        provisionsAtRetirement: 0, recommendationsAtRetirement: 0,
-        provisionDetails: [], fundsRunOutAge: 0, fundsRunOutWithRec: 0,
-        isFullyFunded: false, chartData: [], yearsToRetirement: 0, retirementDuration: 0,
+        projection: {
+          targetAmount: 0, totalCovered: 0, shortfall: 0, surplus: 0,
+          coveragePercent: 0, monthlyAtRetirement: 0, epfAtRetirement: 0,
+          provisionsAtRetirement: 0, recommendationsAtRetirement: 0,
+          provisionDetails: [], fundsRunOutAge: 0, fundsRunOutWithRec: 0,
+          isFullyFunded: false, chartData: [], yearsToRetirement: 0, retirementDuration: 0,
+        },
+        projectionError: err?.message || 'Could not calculate this projection — check the plan inputs.',
       }
     }
   }, [plan, currentAge, linkedGrossMonthly])
@@ -71,21 +81,22 @@ export default function RetirementPlanner({
   const statusColor = projection.isFullyFunded ? '#34C759' : projection.coveragePercent >= 75 ? '#FF9500' : '#FF3B30'
   const statusLabel = projection.isFullyFunded ? t('retirement.onTrack') : projection.coveragePercent >= 75 ? t('retirement.progressing') : t('retirement.atRisk')
 
-  // ── Recommendation tiers (GoalsMapper-verified formulas) ──────────────────
-  // Default investment rate matches GoalsMapper hardcoded default: 5% p.a.
+  // ── Recommendation tiers ────────────────────────────────────────────────────
+  // Default investment rate uses the same DEFAULT_RECOMMENDATION_RATE constant
+  // that generateRetirementProjection() falls back to for recommendation growth —
+  // so the number shown here always matches what the projection actually assumes.
   // Option 1: contribute for min(10, yearsToRet) years, FV grows for remaining years
   // Option 2: contribute for min(20, yearsToRet) years, FV grows for remaining years
   // Option 3: lump sum today, annual discounting only (no monthly compounding)
   const tiers = useMemo(() => {
-    const DEFAULT_RATE = 5
     const yearsToRet = Math.max(1, (plan.retirementAge || 55) - currentAge)
     const y10 = Math.min(10, yearsToRet)
     const y20 = Math.min(20, yearsToRet)
 
     return {
-      tenYear:        { monthly: recMonthlyPMT(shortfallAmount, DEFAULT_RATE, y10, yearsToRet), years: y10,  lumpSum: 0 },
-      twentyYear:     { monthly: recMonthlyPMT(shortfallAmount, DEFAULT_RATE, y20, yearsToRet), years: y20,  lumpSum: 0 },
-      oneTime:        { monthly: 0, years: yearsToRet, lumpSum: recLumpSum(shortfallAmount, DEFAULT_RATE, yearsToRet) },
+      tenYear:        { monthly: recMonthlyPMT(shortfallAmount, DEFAULT_RECOMMENDATION_RATE, y10, yearsToRet), years: y10,  lumpSum: 0 },
+      twentyYear:     { monthly: recMonthlyPMT(shortfallAmount, DEFAULT_RECOMMENDATION_RATE, y20, yearsToRet), years: y20,  lumpSum: 0 },
+      oneTime:        { monthly: 0, years: yearsToRet, lumpSum: recLumpSum(shortfallAmount, DEFAULT_RECOMMENDATION_RATE, yearsToRet) },
       yearsToRet,
     }
   }, [shortfallAmount, plan.retirementAge, currentAge])
@@ -94,7 +105,7 @@ export default function RetirementPlanner({
   const addPreset = (monthly, years, lumpSum = 0) => {
     onChange({ recommendations: [...(plan.recommendations || []), {
       id: uid(), type: 'preset', monthlyAmount: monthly, periodYears: years,
-      lumpSum, growthRate: 5, isSelected: true,
+      lumpSum, growthRate: DEFAULT_RECOMMENDATION_RATE, isSelected: true,
     }]})
     flashSaved()
   }
@@ -144,6 +155,18 @@ export default function RetirementPlanner({
 
       {/* ── Left: Summary + Chart + Situation ────────────────────────────── */}
       <div className="flex-1 min-w-0 space-y-3">
+
+        {/* Projection error banner — the numbers below are NOT real when this shows */}
+        {projectionError && (
+          <div className="hig-card p-3" style={{ background: '#FFF1F0', border: '1px solid #FFCCC7' }}>
+            <p className="text-hig-subhead font-medium" style={{ color: '#FF3B30' }}>
+              Couldn't calculate this projection
+            </p>
+            <p className="text-hig-caption1" style={{ color: '#636366' }}>
+              {projectionError} — the figures below are placeholders, not a real result. Check the plan inputs (retirement age, life expectancy, provisions).
+            </p>
+          </div>
+        )}
 
         {/* Summary bar */}
         <div className="hig-card p-4">

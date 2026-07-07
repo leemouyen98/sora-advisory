@@ -197,11 +197,16 @@ export default function BasicInfo({
                   </div>
                 )}
 
-                {effectiveAnnualIncome > 0 ? (
-                  <p className="text-hig-caption1 text-hig-text-secondary mt-1">
-                    {t('retirement.epfContribNote', { total: 23, er: 12, suffix: '' })}
-                  </p>
-                ) : (
+                {effectiveAnnualIncome > 0 ? (() => {
+                  // Third Schedule: employer rate is 13% at/below RM 5,000 monthly, else 12%.
+                  const isHighEarner = (effectiveAnnualIncome / 12) > 5000
+                  const er = isHighEarner ? 12 : 13
+                  return (
+                    <p className="text-hig-caption1 text-hig-text-secondary mt-1">
+                      {t('retirement.epfContribNote', { total: 11 + er, er, suffix: '' })}
+                    </p>
+                  )
+                })() : (
                   <p className="text-hig-caption2 text-hig-text-secondary mt-1">
                     {isLinked
                       ? t('retirement.epfSetGrossIncome')
