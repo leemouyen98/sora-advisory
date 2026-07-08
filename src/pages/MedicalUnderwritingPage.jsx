@@ -31,15 +31,19 @@ import {
   Stethoscope, Search, X, ChevronRight, ChevronLeft, ArrowLeft,
   PanelLeftClose, PanelLeftOpen, ArrowUp,
   Heart, Brain, Activity, Droplets, Wind, Utensils, Bone, Eye,
-  Users, Flame, FlaskConical, ShieldAlert, Dna, Clock,
+  Flame, ShieldAlert, Dna, Clock,
   BookOpen,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
+import UnderwritingPDFViewerModal from '../components/layout/UnderwritingPDFViewerModal'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const BRAND = '#2E96FF'
 
+// Family History and Diagnostic & Tests were retired (unfinished content, dropped
+// from manifest.json — see commit 5eb0baf) so these arrays cover the 12 categories
+// that remain, in manifest order. STD & AIDS keeps its original designated color/icon.
 const CAT_COLORS = [
   '#FF3B30', // 1  Cancer, Tumour & Blood Diseases
   '#FF2D55', // 2  Cardiovascular Diseases
@@ -52,14 +56,12 @@ const CAT_COLORS = [
   '#007AFF', // 9  Specific Sense Diseases
   '#6366F1', // 10 Mental Diseases
   '#F97316', // 11 Biliary Diseases
-  '#10B981', // 12 Family History
-  '#2E96FF', // 13 Diagnostic & Tests
-  '#EC4899', // 14 STD & AIDS
+  '#EC4899', // 12 STD & AIDS
 ]
 
 const CAT_ICONS = [
   Dna, Heart, Brain, Activity, Droplets, Wind,
-  Utensils, Bone, Eye, Brain, Flame, Users, FlaskConical, ShieldAlert,
+  Utensils, Bone, Eye, Brain, Flame, ShieldAlert,
 ]
 
 // ── Category bilingual names ───────────────────────────────────────────────────
@@ -139,8 +141,13 @@ function conditionUrl(category, condition) {
     encodeURIComponent(condition) + '.md'
   )
 }
-function mediaUrl(f) {
-  return '/Underwriting/' + encodeURIComponent('Media Folder') + '/' + encodeURIComponent(f)
+// This content is gated by functions/Underwriting/_middleware.js. <img> tags can't
+// send an Authorization header, so media URLs carry the JWT as a query param — the
+// middleware accepts either. manifest.json/condition fetches use the header instead
+// (see loadManifest/condition effects below), since those go through JS fetch().
+function mediaUrl(f, token) {
+  const base = '/Underwriting/' + encodeURIComponent('Media Folder') + '/' + encodeURIComponent(f)
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base
 }
 function youTubeId(url) {
   const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]+)/)
@@ -315,7 +322,7 @@ function ConditionRowSkeleton({ count = 6 }) {
 }
 
 // ── MarkdownContent — v4: richer typography ────────────────────────────────────
-function MarkdownContent({ blocks, lang, catColor }) {
+function MarkdownContent({ blocks, lang, catColor, token }) {
   const showEn = lang !== 'zh'
   const showZh = lang !== 'en'
   const accent = catColor || BRAND
@@ -376,7 +383,7 @@ function MarkdownContent({ blocks, lang, catColor }) {
               boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
             }}>
               <img
-                src={mediaUrl(block.name)}
+                src={mediaUrl(block.name, token)}
                 alt={block.name.replace(/\s*\d+\.(png|jpg|jpeg)$/i, '')}
                 style={{ display: 'block', width: '100%', height: 'auto' }}
                 loading="lazy"
@@ -656,7 +663,7 @@ function SearchDropdown({ query, results, manifest, onSelect }) {
 }
 
 // ── CategoryPanelContent (sidebar + drawer) ────────────────────────────────────
-function CategoryPanelContent({ manifest, loadingManifest, selectedCat, globalSearch, setGlobalSearch, setSelectedCat, recent, setDrawerOpen, openCondition, searchRef, lang = 'en', inDrawer = false }) {
+function CategoryPanelContent({ manifest, loadingManifest, selectedCat, globalSearch, setGlobalSearch, setSelectedCat, recent, setDrawerOpen, openCondition, searchRef, lang = 'en', inDrawer = false, onOpenHandbook }) {
   const debouncedGlobal = useDebounced(globalSearch)
 
   const searchResults = useMemo(() => {
@@ -687,12 +694,21 @@ function CategoryPanelContent({ manifest, loadingManifest, selectedCat, globalSe
               )}
             </div>
           </div>
-          {inDrawer && (
-            <button onClick={() => setDrawerOpen(false)}
-              style={{ width: 28, height: 28, borderRadius: 14, background: '#F2F2F7', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
-              <X size={13} style={{ color: '#6B7280' }} />
-            </button>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {onOpenHandbook && (
+              <button onClick={onOpenHandbook} title="Underwriting Handbook (PDF)"
+                className="uw-press"
+                style={{ width: 28, height: 28, borderRadius: 14, background: hexAlpha(BRAND, 0.08), display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+                <BookOpen size={13} style={{ color: BRAND }} />
+              </button>
+            )}
+            {inDrawer && (
+              <button onClick={() => setDrawerOpen(false)}
+                style={{ width: 28, height: 28, borderRadius: 14, background: '#F2F2F7', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+                <X size={13} style={{ color: '#6B7280' }} />
+              </button>
+            )}
+          </div>
         </div>
         <div style={{ position: 'relative' }}>
           <SearchBar value={globalSearch} onChange={setGlobalSearch} inputRef={searchRef} compact={true} />
@@ -823,7 +839,7 @@ function CategoryPanelContent({ manifest, loadingManifest, selectedCat, globalSe
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════════════════════
 export default function MedicalUnderwritingPage() {
-  useAuth()
+  const { token } = useAuth()
   const { lang: globalLang } = useLanguage()   // 'en' | 'zh' from Settings toggle
   const { isMobile, isTablet, isDesktop } = useResponsive()
 
@@ -853,6 +869,7 @@ export default function MedicalUnderwritingPage() {
   })
   const [focusedCondIdx,   setFocusedCondIdx]   = useState(-1)
   const [detailScrolled,   setDetailScrolled]   = useState(false)
+  const [showHandbook,     setShowHandbook]     = useState(false)
 
   const searchRef    = useRef(null)
   const condListRef  = useRef(null)
@@ -884,10 +901,11 @@ export default function MedicalUnderwritingPage() {
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch('/Underwriting/manifest.json', { cache: 'no-store' })
-      .then(r => r.json()).then(setManifest).catch(() => setManifest([]))
+    fetch('/Underwriting/manifest.json', { cache: 'no-store', headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(setManifest).catch(() => setManifest([]))
       .finally(() => setLoadingManifest(false))
-  }, [])
+  }, [token])
 
   useEffect(() => {
     setSelectedCond(null)
@@ -904,12 +922,12 @@ export default function MedicalUnderwritingPage() {
     detailRef.current?.scrollTo({ top: 0, behavior: 'instant' })
     mobileDetailRef.current?.scrollTo({ top: 0, behavior: 'instant' })
     setDetailScrolled(false)
-    fetch(conditionUrl(selectedCat.category, selectedCond), { cache: 'no-store' })
+    fetch(conditionUrl(selectedCat.category, selectedCond), { cache: 'no-store', headers: { Authorization: `Bearer ${token}` } })
       .then(r => { if (!r.ok) throw new Error(); return r.text() })
       .then(text => setMdBlocks(parseMarkdown(text)))
       .catch(() => setMdBlocks([{ type: 'text', en: 'Content could not be loaded. Please check your connection and try again.', zh: null }]))
       .finally(() => setLoadingMd(false))
-  }, [selectedCat, selectedCond])
+  }, [selectedCat, selectedCond, token])
 
   useEffect(() => { localStorage.setItem('uw-lang', lang) }, [lang])
 
@@ -1007,7 +1025,7 @@ export default function MedicalUnderwritingPage() {
         <p style={{ fontSize: 14, margin: 0 }}>No content available for this condition.</p>
       </div>
     )
-    return <MarkdownContent blocks={mdBlocks} lang={lang} catColor={catColor} />
+    return <MarkdownContent blocks={mdBlocks} lang={lang} catColor={catColor} token={token} />
   }
 
   // ════════════════════════════════════════════════════════════════════════════
@@ -1082,6 +1100,21 @@ export default function MedicalUnderwritingPage() {
 
             {/* Right actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+              {mobilePanel === 0 && (
+                <button
+                  onClick={() => setShowHandbook(true)}
+                  className="uw-press"
+                  title="Underwriting Handbook (PDF)"
+                  style={{
+                    width: 36, height: 36, borderRadius: 10,
+                    background: 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: 'none', cursor: 'pointer',
+                    color: '#6B7280',
+                  }}>
+                  <BookOpen size={18} />
+                </button>
+              )}
               {mobilePanel === 0 && (
                 <button
                   onClick={() => { setMobileSearchOpen(v => !v); if (mobileSearchOpen) setGlobalSearch('') }}
@@ -1339,6 +1372,7 @@ export default function MedicalUnderwritingPage() {
               openCondition={openCondition} searchRef={searchRef}
               lang={lang}
               inDrawer={true}
+              onOpenHandbook={() => setShowHandbook(true)}
             />
           </div>
         )}
@@ -1397,6 +1431,7 @@ export default function MedicalUnderwritingPage() {
                 openCondition={openCondition} searchRef={searchRef}
                 lang={lang}
                 inDrawer={false}
+                onOpenHandbook={() => setShowHandbook(true)}
               />
             </div>
           )}
@@ -1657,6 +1692,9 @@ export default function MedicalUnderwritingPage() {
         <div style={{ flex: 1, minHeight: 0 }}>{renderMobile()}</div>
       ) : (
         <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>{renderDesktop()}</div>
+      )}
+      {showHandbook && (
+        <UnderwritingPDFViewerModal onClose={() => setShowHandbook(false)} />
       )}
     </div>
   )
