@@ -336,11 +336,11 @@ function MarkdownContent({ blocks, lang, catColor, token }) {
           return (
             <div key={i}>
               {showEn && block.en && (
-                <p style={{ fontSize: 15, color: '#1C1C1E', lineHeight: 1.78, margin: 0, letterSpacing: '-0.01em' }}>{block.en}</p>
+                <p style={{ fontSize: 17, color: '#1C1C1E', lineHeight: 1.7, margin: 0, letterSpacing: '-0.01em' }}>{block.en}</p>
               )}
               {showZh && block.zh && (
                 <p style={{
-                  fontSize: 14, color: '#3C3C43', lineHeight: 1.8,
+                  fontSize: 16, color: '#3C3C43', lineHeight: 1.75,
                   margin: showEn && block.en ? '4px 0 0' : 0,
                   fontFamily: '"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif',
                 }}>{block.zh}</p>
@@ -429,11 +429,11 @@ function MarkdownContent({ blocks, lang, catColor, token }) {
                 return (
                   <div key={j}>
                     {showEn && pair.en && (
-                      <p style={{ fontSize: 13.5, color: '#1C1C1E', lineHeight: 1.65, margin: 0 }}>{pair.en}</p>
+                      <p style={{ fontSize: 15.5, color: '#1C1C1E', lineHeight: 1.6, margin: 0 }}>{pair.en}</p>
                     )}
                     {showZh && pair.zh && (
                       <p style={{
-                        fontSize: 13, color: '#3C3C43', lineHeight: 1.7,
+                        fontSize: 14.5, color: '#3C3C43', lineHeight: 1.65,
                         margin: showEn && pair.en ? '4px 0 0' : 0,
                         fontFamily: '"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif',
                       }}>{pair.zh}</p>
@@ -504,11 +504,11 @@ function ConditionRow({ cond, active, color, onClick, focused }) {
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
-          fontSize: 13.5, fontWeight: active ? 600 : 400,
+          fontSize: 15, fontWeight: active ? 600 : 400,
           color: active ? color : '#1C1C1E',
           margin: 0, lineHeight: 1.3,
         }}>{en}</p>
-        {cn && <p style={{ fontSize: 11.5, color: '#8E8E93', margin: '2px 0 0', lineHeight: 1.3 }}>{cn}</p>}
+        {cn && <p style={{ fontSize: 12.5, color: '#8E8E93', margin: '2px 0 0', lineHeight: 1.3 }}>{cn}</p>}
       </div>
       <ChevronRight
         size={13}
@@ -645,8 +645,8 @@ function SearchDropdown({ query, results, manifest, onSelect }) {
               <Icon size={13} style={{ color }} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 13.5, fontWeight: 500, color: '#1C1C1E', margin: 0, lineHeight: 1.3 }}>{engName(r.condition)}</p>
-              {cnName(r.condition) && <p style={{ fontSize: 11.5, color: '#8E8E93', margin: '1px 0 0' }}>{cnName(r.condition)}</p>}
+              <p style={{ fontSize: 15, fontWeight: 500, color: '#1C1C1E', margin: 0, lineHeight: 1.3 }}>{engName(r.condition)}</p>
+              {cnName(r.condition) && <p style={{ fontSize: 12.5, color: '#8E8E93', margin: '1px 0 0' }}>{cnName(r.condition)}</p>}
             </div>
             <span style={{
               fontSize: 10.5, color, background: hexAlpha(color, 0.1),
@@ -775,14 +775,14 @@ function CategoryPanelContent({ manifest, loadingManifest, selectedCat, globalSe
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <span style={{
-                  fontSize: 12, lineHeight: 1.3, display: 'block',
+                  fontSize: 13.5, lineHeight: 1.3, display: 'block',
                   color: active ? '#1C1C1E' : '#374151',
                   fontWeight: active ? 600 : 400,
                 }}>
                   {catPrimary(cat.category, lang)}
                 </span>
                 {lang === 'bilingual' && CAT_ZH[cat.category.replace(/^\d+\.\s*/, '')] && (
-                  <span style={{ fontSize: 9.5, color: '#AEAEB2', display: 'block', lineHeight: 1.2, marginTop: 1 }}>
+                  <span style={{ fontSize: 10.5, color: '#AEAEB2', display: 'block', lineHeight: 1.2, marginTop: 1 }}>
                     {CAT_ZH[cat.category.replace(/^\d+\.\s*/, '')]}
                   </span>
                 )}
@@ -1255,8 +1255,8 @@ export default function MedicalUnderwritingPage() {
                             <div style={{ padding: '8px 12px 12px' }}>
                               {(() => { const { primary, secondary } = catLabel(cat.category, lang); return (
                                 <>
-                                  <p style={{ fontSize: 12.5, fontWeight: 600, color: '#1C1C1E', lineHeight: 1.3, margin: 0 }}>{primary}</p>
-                                  {secondary && <p style={{ fontSize: 10, color: '#9CA3AF', lineHeight: 1.25, margin: '2px 0 0' }}>{secondary}</p>}
+                                  <p style={{ fontSize: 13.5, fontWeight: 600, color: '#1C1C1E', lineHeight: 1.3, margin: 0 }}>{primary}</p>
+                                  {secondary && <p style={{ fontSize: 11, color: '#9CA3AF', lineHeight: 1.25, margin: '2px 0 0' }}>{secondary}</p>}
                                 </>
                               )})()}
                               <p style={{ fontSize: 11, color, fontWeight: 600, margin: '4px 0 0' }}>{cat.conditions.length}</p>
@@ -1544,8 +1544,8 @@ export default function MedicalUnderwritingPage() {
                           <div style={{ padding: '8px 12px 12px' }}>
                             {(() => { const { primary, secondary } = catLabel(cat.category, lang); return (
                               <>
-                                <p style={{ fontSize: 12, fontWeight: 600, color: '#1C1C1E', lineHeight: 1.3, margin: 0 }}>{primary}</p>
-                                {secondary && <p style={{ fontSize: 10, color: '#9CA3AF', lineHeight: 1.25, margin: '2px 0 0' }}>{secondary}</p>}
+                                <p style={{ fontSize: 13.5, fontWeight: 600, color: '#1C1C1E', lineHeight: 1.3, margin: 0 }}>{primary}</p>
+                                {secondary && <p style={{ fontSize: 11, color: '#9CA3AF', lineHeight: 1.25, margin: '2px 0 0' }}>{secondary}</p>}
                               </>
                             )})()}
                             <p style={{ fontSize: 11, color, fontWeight: 600, margin: '4px 0 0' }}>{cat.conditions.length} conditions</p>
@@ -1606,8 +1606,8 @@ export default function MedicalUnderwritingPage() {
                             <Icon size={15} style={{ color }} />
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 13.5, fontWeight: 500, color: '#1C1C1E', margin: 0 }}>{engName(r.condition)}</p>
-                            {cnName(r.condition) && <p style={{ fontSize: 11.5, color: '#8E8E93', margin: '1px 0 0' }}>{cnName(r.condition)}</p>}
+                            <p style={{ fontSize: 15, fontWeight: 500, color: '#1C1C1E', margin: 0 }}>{engName(r.condition)}</p>
+                            {cnName(r.condition) && <p style={{ fontSize: 12.5, color: '#8E8E93', margin: '1px 0 0' }}>{cnName(r.condition)}</p>}
                           </div>
                           <span style={{ fontSize: 10.5, color, background: hexAlpha(color, 0.1), padding: '2px 8px', borderRadius: 20, flexShrink: 0, fontWeight: 600 }}>
                             {catPrimary(r.category, lang)}
