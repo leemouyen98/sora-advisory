@@ -67,17 +67,19 @@ export default function ProtectionPlannerPage() {
     return Number(row?.amount) || 0
   }, [contact?.financials?.income])
 
-  // Auto-compute existing coverage totals from the Insurance Tab
-  // ci field in insurance covers critical illness broadly — used for both ACI and ECI
+  // Auto-compute existing coverage totals from the Insurance Tab.
+  // coverage.life is a combined Death & TPD sum assured (MY policies pay TPD
+  // as an acceleration of the death benefit, not a separate quantum) — it
+  // offsets both the death and TPD need. CI is now split ACI/ECI at entry.
   const insuranceTotals = useMemo(() => {
     const policies = (contact?.financials?.insurance || []).filter(
       (p) => p.status !== 'Lapsed' && p.status !== 'Surrendered' && p.status !== 'Matured'
     )
     return {
-      death: policies.reduce((s, p) => s + (Number(p.coverageDetails?.death) || 0), 0),
-      tpd:   policies.reduce((s, p) => s + (Number(p.coverageDetails?.tpd)   || 0), 0),
-      aci:   policies.reduce((s, p) => s + (Number(p.coverageDetails?.ci)    || 0), 0),
-      eci:   policies.reduce((s, p) => s + (Number(p.coverageDetails?.ci)    || 0), 0),
+      death: policies.reduce((s, p) => s + (Number(p.coverage?.life?.sumAssured) || 0), 0),
+      tpd:   policies.reduce((s, p) => s + (Number(p.coverage?.life?.sumAssured) || 0), 0),
+      aci:   policies.reduce((s, p) => s + (Number(p.coverage?.ci?.aci) || 0), 0),
+      eci:   policies.reduce((s, p) => s + (Number(p.coverage?.ci?.eci) || 0), 0),
       count: policies.length,
       totalPolicies: (contact?.financials?.insurance || []).length,
     }

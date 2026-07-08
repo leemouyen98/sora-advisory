@@ -125,8 +125,9 @@ export default function FinancialRatios({ financials, contact }) {
     const monthlyIncome = grossMonthly + (annualBonus / 12)
     const monthlyCashFlow = monthlyIncome - totalMonthlyExpenses
 
-    // Insurance total sum assured
-    const totalSumAssured = policies.reduce((s, p) => s + (Number(p.coverageDetails?.death) || Number(p.sumAssured) || 0), 0)
+    // Insurance total sum assured — coverage.life.sumAssured is the combined
+    // Death & TPD benefit (see PolicyFormWizard.jsx)
+    const totalSumAssured = policies.reduce((s, p) => s + (Number(p.coverage?.life?.sumAssured) || 0), 0)
 
     return {
       emergencyFund:    totalMonthlyExpenses > 0 ? liquidAssets / totalMonthlyExpenses : null,

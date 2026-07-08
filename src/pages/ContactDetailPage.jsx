@@ -41,10 +41,23 @@ const ACTIVITY_TYPE_CFG = {
 }
 
 const POLICY_CATEGORIES = {
-  life:    { label: 'Life',    color: '#1C1C1E', bg: '#F2F2F7',  keywords: ['whole life','term','life','endowment','investment-linked'] },
-  medical: { label: 'Medical', color: '#FF3B30', bg: '#FFF1F0',  keywords: ['medical','health'] },
-  ci:      { label: 'CI',      color: '#FF9500', bg: '#FFF8EC',  keywords: ['critical'] },
-  pa:      { label: 'PA',      color: '#AF52DE', bg: '#F5EEFF',  keywords: ['personal accident','personal'] },
+  life:    { label: 'Life',    color: '#1C1C1E', bg: '#F2F2F7'  },
+  medical: { label: 'Medical', color: '#FF3B30', bg: '#FFF1F0'  },
+  ci:      { label: 'CI',      color: '#FF9500', bg: '#FFF8EC'  },
+  pa:      { label: 'PA',      color: '#AF52DE', bg: '#F5EEFF'  },
+}
+
+// Coverage schema (see PolicyFormWizard.jsx): coverage.life is the base
+// contract (company/policy no/dates/nominee + a combined Death & TPD sum
+// assured), coverage.pa is Personal Accident, coverage.ci splits ACI/ECI,
+// coverage.medical has roomBoard/annualLimit/lifetimeLimit.
+function policyHasBenefit(p, key) {
+  const c = p.coverage || {}
+  if (key === 'life') return Number(c.life?.sumAssured) > 0
+  if (key === 'medical') return Number(c.medical?.annualLimit) > 0 || Number(c.medical?.roomBoard) > 0 || Number(c.medical?.lifetimeLimit) > 0
+  if (key === 'ci') return Number(c.ci?.aci) > 0 || Number(c.ci?.eci) > 0
+  if (key === 'pa') return Number(c.pa) > 0
+  return false
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -86,23 +99,18 @@ const daysUntilDate = daysUntil
 function getCoverageStatus(contact) {
   const policies = contact.financials?.insurance || []
   const active = policies.filter(p => !p.status || p.status === 'Active')
-  const types  = active.map(p => (p.type || '').toLowerCase())
   return {
-    life:    types.some(t => POLICY_CATEGORIES.life.keywords.some(k => t.includes(k.split(' ')[0]))),
-    medical: types.some(t => POLICY_CATEGORIES.medical.keywords.some(k => t.includes(k))),
-    ci:      types.some(t => POLICY_CATEGORIES.ci.keywords.some(k => t.includes(k))),
-    pa:      types.some(t => POLICY_CATEGORIES.pa.keywords.some(k => t.includes(k.split(' ')[0]))),
+    life:    active.some(p => policyHasBenefit(p, 'life')),
+    medical: active.some(p => policyHasBenefit(p, 'medical')),
+    ci:      active.some(p => policyHasBenefit(p, 'ci')),
+    pa:      active.some(p => policyHasBenefit(p, 'pa')),
   }
 }
 
 // Compute annual premium equivalents across all active policies
 function getAPE(contact) {
   const policies = (contact.financials?.insurance || []).filter(p => !p.status || p.status === 'Active')
-  return policies.reduce((sum, p) => {
-    const amt = Number(p.annualPremium || p.premium || 0)
-    const monthly = p.premiumFrequency === 'Monthly'
-    return sum + (monthly ? amt * 12 : amt)
-  }, 0)
+  return policies.reduce((sum, p) => sum + (Number(p.annualPremium) || 0), 0)
 }
 
 // Days until next birthday (0 = today, negative = already passed this year)
@@ -302,12 +310,8 @@ function CoverageSection({ contact, onNavigate }) {
   const policies = (contact.financials?.insurance || []).filter(p => !p.status || p.status === 'Active')
 
   const getPolicyName = (key) => {
-    const cat = POLICY_CATEGORIES[key]
-    const found = policies.find(p => {
-      const t = (p.type || '').toLowerCase()
-      return cat.keywords.some(k => t.includes(k.split(' ')[0]))
-    })
-    return found?.name || found?.insurer || null
+    const found = policies.find(p => policyHasBenefit(p, key))
+    return found?.planName || found?.coverage?.life?.company || null
   }
 
   const items = Object.entries(POLICY_CATEGORIES).map(([key, cfg]) => ({

@@ -174,25 +174,49 @@ export function getCashFlowMilestones(chartData, retirementAge = 55, ages = null
   })
 }
 
+// Coverage schema (see PolicyFormWizard.jsx / InsuranceTab.jsx):
+//   coverage.life            — base contract: company, policy no, coverage/premium
+//                               dates, nominee, sumAssured (Death & TPD combined)
+//   coverage.pa               — Personal Accident sum assured (rider)
+//   coverage.ci.aci / .eci    — Critical Illness, early-stage / advanced-stage (rider)
+//   coverage.medical.*        — roomBoard / annualLimit / lifetimeLimit / notes (rider)
+const BENEFIT_LABELS = { life: 'Life', pa: 'PA', ci: 'CI', medical: 'Medical' }
+
+function policyBenefits(policy) {
+  const c = policy.coverage || {}
+  const has = {
+    life: Number(c.life?.sumAssured) > 0,
+    pa: Number(c.pa) > 0,
+    ci: Number(c.ci?.aci) > 0 || Number(c.ci?.eci) > 0,
+    medical: Number(c.medical?.annualLimit) > 0 || Number(c.medical?.roomBoard) > 0 || Number(c.medical?.lifetimeLimit) > 0,
+  }
+  return Object.entries(has).filter(([, v]) => v).map(([k]) => BENEFIT_LABELS[k])
+}
+
 export function buildInsurancePlans(financials) {
   return (Array.isArray(financials?.insurance) ? financials.insurance : []).map((policy) => ({
     id: policy.id,
-    name: policy.name || 'Policy',
-    type: policy.type || '',
-    insurer: policy.insurer || '',
-    policyNo: policy.policyNumber || '',
+    name: policy.planName || 'Policy',
+    type: policyBenefits(policy).join(', '),
+    insurer: policy.coverage?.life?.company || '',
+    policyNo: policy.coverage?.life?.policyNo || '',
   }))
 }
 
 export function buildCashFlowRecommendations({ financials, scenarios, shortfallSummary, t }) {
   const policies = Array.isArray(financials?.insurance) ? financials.insurance : []
-  const hasPolicy = (...keywords) =>
-    policies.some((policy) =>
-      keywords.some((keyword) => {
-        const target = keyword.toLowerCase()
-        return (policy.type ?? '').toLowerCase().includes(target) || (policy.name ?? '').toLowerCase().includes(target)
-      })
-    )
+  // Gap-detection is done off actual coverage amounts, not keyword-matching a
+  // policy "type" field — the Add Policy wizard no longer has a free-text/
+  // single-select type, coverage is entered per-benefit (Life/PA/CI/Medical).
+  const hasCoverage = (benefit) =>
+    policies.some((policy) => {
+      const c = policy.coverage || {}
+      if (benefit === 'life') return Number(c.life?.sumAssured) > 0
+      if (benefit === 'pa') return Number(c.pa) > 0
+      if (benefit === 'ci') return Number(c.ci?.aci) > 0 || Number(c.ci?.eci) > 0
+      if (benefit === 'medical') return Number(c.medical?.annualLimit) > 0 || Number(c.medical?.roomBoard) > 0 || Number(c.medical?.lifetimeLimit) > 0
+      return false
+    })
 
   const ciActive = scenarios.find((item) => item.id === 'ci' && item.active)
   const disabilityActive = scenarios.find((item) => item.id === 'disability' && item.active)
@@ -200,7 +224,7 @@ export function buildCashFlowRecommendations({ financials, scenarios, shortfallS
   const hasShortfall = Boolean(shortfallSummary)
   const recommendations = []
 
-  if (!hasPolicy('critical', 'ci')) {
+  if (!hasCoverage('ci')) {
     const triggered = ciActive && hasShortfall
     recommendations.push({
       id: 'ci',
@@ -212,7 +236,9 @@ export function buildCashFlowRecommendations({ financials, scenarios, shortfallS
     })
   }
 
-  if (!hasPolicy('disability', 'tpd', 'income protection')) {
+  // TPD is tracked as part of the combined "Life (Death & TPD)" coverage
+  // field, not a standalone benefit — see PolicyFormWizard.jsx.
+  if (!hasCoverage('life')) {
     const triggered = disabilityActive && hasShortfall
     recommendations.push({
       id: 'tpd',
@@ -224,7 +250,7 @@ export function buildCashFlowRecommendations({ financials, scenarios, shortfallS
     })
   }
 
-  if (!hasPolicy('life', 'term', 'death', 'whole life', 'wholelife')) {
+  if (!hasCoverage('life')) {
     const triggered = deathActive && hasShortfall
     recommendations.push({
       id: 'life',
@@ -236,7 +262,7 @@ export function buildCashFlowRecommendations({ financials, scenarios, shortfallS
     })
   }
 
-  if (!hasPolicy('hospital', 'medical', 'h&s', 'surgical')) {
+  if (!hasCoverage('medical')) {
     recommendations.push({
       id: 'medical',
       label: t ? t('cashflow.recHospital') : 'Hospital and surgical cover',

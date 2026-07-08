@@ -76,18 +76,19 @@ const s = StyleSheet.create({
   notesText:     { fontSize: 7, color: C.gray2, fontStyle: 'italic', marginTop: 2, paddingLeft: 6 },
 })
 
-const COL = { no: '8%', company: '14%', plan: '18%', type: '12%', sum: '14%', premium: '14%', status: '10%', dates: '10%' }
+const COL = { no: '8%', company: '15%', plan: '22%', sum: '15%', premium: '15%', status: '13%', dates: '12%' }
 
 function InsurancePoliciesDocument({ policies, contact, agentName }) {
   const activePolicies   = policies.filter(p => p.status === 'Active')
   const totalAnnualPrem  = policies.reduce((s, p) => s + (Number(p.annualPremium) || 0), 0)
-  const totalSumAssured  = policies.reduce((s, p) => s + (Number(p.sumAssured) || 0), 0)
-  const totalDeath       = policies.reduce((s, p) => s + (Number(p.coverageDetails?.death) || 0), 0)
-  const totalTPD         = policies.reduce((s, p) => s + (Number(p.coverageDetails?.tpd) || 0), 0)
-  const totalCI          = policies.reduce((s, p) => s + (Number(p.coverageDetails?.ci) || 0), 0)
-  const totalMedical     = policies.reduce((s, p) => s + (Number(p.coverageDetails?.medicalCard) || 0), 0)
-  const totalPA          = policies.reduce((s, p) => s + (Number(p.coverageDetails?.paDb) || 0), 0)
-  const hasCoverage      = totalDeath || totalTPD || totalCI || totalMedical || totalPA
+  // coverage.life is the base contract (company/policy no/dates/nominee + a
+  // combined Death & TPD sum assured) — see PolicyFormWizard.jsx
+  const totalLife         = policies.reduce((s, p) => s + (Number(p.coverage?.life?.sumAssured) || 0), 0)
+  const totalPA            = policies.reduce((s, p) => s + (Number(p.coverage?.pa) || 0), 0)
+  const totalACI           = policies.reduce((s, p) => s + (Number(p.coverage?.ci?.aci) || 0), 0)
+  const totalECI           = policies.reduce((s, p) => s + (Number(p.coverage?.ci?.eci) || 0), 0)
+  const totalMedicalLimit  = policies.reduce((s, p) => s + (Number(p.coverage?.medical?.annualLimit) || 0), 0)
+  const hasCoverage        = totalLife || totalPA || totalACI || totalECI || totalMedicalLimit
 
   return (
     <Document>
@@ -109,7 +110,7 @@ function InsurancePoliciesDocument({ policies, contact, agentName }) {
             { label: 'Total Policies', value: String(policies.length) },
             { label: 'Active',         value: String(activePolicies.length) },
             { label: 'Annual Premium', value: fmtRM(totalAnnualPrem) },
-            { label: 'Sum Assured',    value: fmtRM(totalSumAssured) },
+            { label: 'Sum Assured',    value: fmtRM(totalLife) },
           ].map(({ label, value }) => (
             <View key={label}>
               <Text style={s.clientLabel}>{label}</Text>
@@ -120,11 +121,11 @@ function InsurancePoliciesDocument({ policies, contact, agentName }) {
 
         <View style={s.summaryRow}>
           {[
-            { label: 'Death',   value: totalDeath   },
-            { label: 'TPD',     value: totalTPD     },
-            { label: 'CI',      value: totalCI      },
-            { label: 'Medical', value: totalMedical },
-            { label: 'PA / DB', value: totalPA      },
+            { label: 'Life (Death & TPD)', value: totalLife         },
+            { label: 'PA',                 value: totalPA           },
+            { label: 'CI (Early)',         value: totalACI          },
+            { label: 'CI (Advanced)',      value: totalECI          },
+            { label: 'Medical (Annual)',   value: totalMedicalLimit },
           ].map(c => (
             <View key={c.label} style={s.summaryCard}>
               <Text style={s.summaryLabel}>{c.label}</Text>
@@ -139,7 +140,6 @@ function InsurancePoliciesDocument({ policies, contact, agentName }) {
           <Text style={[s.tableHeaderTx, { width: COL.no }]}>No.</Text>
           <Text style={[s.tableHeaderTx, { width: COL.company }]}>Company</Text>
           <Text style={[s.tableHeaderTx, { width: COL.plan }]}>Plan Name</Text>
-          <Text style={[s.tableHeaderTx, { width: COL.type }]}>Type</Text>
           <Text style={[s.tableHeaderTx, { width: COL.sum, textAlign: 'right' }]}>Sum Assured</Text>
           <Text style={[s.tableHeaderTx, { width: COL.premium, textAlign: 'right' }]}>Annual Prem.</Text>
           <Text style={[s.tableHeaderTx, { width: COL.status, textAlign: 'center' }]}>Status</Text>
@@ -149,18 +149,17 @@ function InsurancePoliciesDocument({ policies, contact, agentName }) {
         {policies.map((p, i) => (
           <View key={i} wrap={false}>
             <View style={[s.tableRow, i % 2 === 1 ? s.tableRowAlt : {}]}>
-              <Text style={[s.tableCell,     { width: COL.no }]}>{p.policyNo || `#${i + 1}`}</Text>
-              <Text style={[s.tableCell,     { width: COL.company }]}>{p.company || '—'}</Text>
+              <Text style={[s.tableCell,     { width: COL.no }]}>{p.coverage?.life?.policyNo || `#${i + 1}`}</Text>
+              <Text style={[s.tableCell,     { width: COL.company }]}>{p.coverage?.life?.company || '—'}</Text>
               <Text style={[s.tableCellBold, { width: COL.plan }]}>{p.planName || '—'}</Text>
-              <Text style={[s.tableCell,     { width: COL.type }]}>{p.type || '—'}</Text>
-              <Text style={[s.tableCell,     { width: COL.sum, textAlign: 'right' }]}>{fmtRM(p.sumAssured)}</Text>
+              <Text style={[s.tableCell,     { width: COL.sum, textAlign: 'right' }]}>{fmtRM(p.coverage?.life?.sumAssured)}</Text>
               <Text style={[s.tableCell,     { width: COL.premium, textAlign: 'right' }]}>{fmtRM(p.annualPremium)}</Text>
               <View style={{ width: COL.status, alignItems: 'center' }}>
                 <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[p.status] || C.gray3) + '22' }]}>
                   <Text style={[s.statusText, { color: STATUS_COLOR[p.status] || C.gray3 }]}>{p.status}</Text>
                 </View>
               </View>
-              <Text style={[s.tableCell, { width: COL.dates, textAlign: 'right' }]}>{fmtDate(p.commencementDate)}</Text>
+              <Text style={[s.tableCell, { width: COL.dates, textAlign: 'right' }]}>{fmtDate(p.coverage?.life?.coverageStartDate)}</Text>
             </View>
             {p.notes ? <Text style={s.notesText}>{p.notes}</Text> : null}
           </View>
@@ -170,34 +169,35 @@ function InsurancePoliciesDocument({ policies, contact, agentName }) {
           <>
             <Text style={s.sectionTitle}>Coverage Breakdown by Policy</Text>
             <View style={s.tableHeader}>
-              <Text style={[s.tableHeaderTx, { width: '26%' }]}>Policy</Text>
-              <Text style={[s.tableHeaderTx, { width: '15%', textAlign: 'right' }]}>Death</Text>
-              <Text style={[s.tableHeaderTx, { width: '15%', textAlign: 'right' }]}>TPD</Text>
-              <Text style={[s.tableHeaderTx, { width: '15%', textAlign: 'right' }]}>CI</Text>
-              <Text style={[s.tableHeaderTx, { width: '15%', textAlign: 'right' }]}>Medical</Text>
-              <Text style={[s.tableHeaderTx, { width: '14%', textAlign: 'right' }]}>PA / DB</Text>
+              <Text style={[s.tableHeaderTx, { width: '22%' }]}>Policy</Text>
+              <Text style={[s.tableHeaderTx, { width: '16%', textAlign: 'right' }]}>Life (Death & TPD)</Text>
+              <Text style={[s.tableHeaderTx, { width: '15%', textAlign: 'right' }]}>PA</Text>
+              <Text style={[s.tableHeaderTx, { width: '15%', textAlign: 'right' }]}>ACI</Text>
+              <Text style={[s.tableHeaderTx, { width: '15%', textAlign: 'right' }]}>ECI</Text>
+              <Text style={[s.tableHeaderTx, { width: '17%', textAlign: 'right' }]}>Medical (Annual)</Text>
             </View>
             {policies.map((p, i) => {
-              const cd = p.coverageDetails || {}
-              if (!cd.death && !cd.tpd && !cd.ci && !cd.medicalCard && !cd.paDb) return null
+              const c = p.coverage || {}
+              const hasAny = c.life?.sumAssured || c.pa || c.ci?.aci || c.ci?.eci || c.medical?.annualLimit
+              if (!hasAny) return null
               return (
                 <View key={i} style={[s.coverageRow, i % 2 === 1 ? s.tableRowAlt : {}]} wrap={false}>
-                  <Text style={[s.tableCellBold, { width: '26%' }]}>{p.planName || p.type || `Policy #${i + 1}`}</Text>
-                  <Text style={[s.tableCell, { width: '15%', textAlign: 'right' }]}>{cd.death       ? fmtRM(cd.death)       : '—'}</Text>
-                  <Text style={[s.tableCell, { width: '15%', textAlign: 'right' }]}>{cd.tpd         ? fmtRM(cd.tpd)         : '—'}</Text>
-                  <Text style={[s.tableCell, { width: '15%', textAlign: 'right' }]}>{cd.ci          ? fmtRM(cd.ci)          : '—'}</Text>
-                  <Text style={[s.tableCell, { width: '15%', textAlign: 'right' }]}>{cd.medicalCard  ? fmtRM(cd.medicalCard) : '—'}</Text>
-                  <Text style={[s.tableCell, { width: '14%', textAlign: 'right' }]}>{cd.paDb        ? fmtRM(cd.paDb)        : '—'}</Text>
+                  <Text style={[s.tableCellBold, { width: '22%' }]}>{p.planName || `Policy #${i + 1}`}</Text>
+                  <Text style={[s.tableCell, { width: '16%', textAlign: 'right' }]}>{c.life?.sumAssured ? fmtRM(c.life.sumAssured) : '—'}</Text>
+                  <Text style={[s.tableCell, { width: '15%', textAlign: 'right' }]}>{c.pa             ? fmtRM(c.pa)               : '—'}</Text>
+                  <Text style={[s.tableCell, { width: '15%', textAlign: 'right' }]}>{c.ci?.aci        ? fmtRM(c.ci.aci)          : '—'}</Text>
+                  <Text style={[s.tableCell, { width: '15%', textAlign: 'right' }]}>{c.ci?.eci        ? fmtRM(c.ci.eci)          : '—'}</Text>
+                  <Text style={[s.tableCell, { width: '17%', textAlign: 'right' }]}>{c.medical?.annualLimit ? fmtRM(c.medical.annualLimit) : '—'}</Text>
                 </View>
               )
             })}
             <View style={[s.coverageRow, { backgroundColor: C.navy, borderRadius: 4, marginTop: 2 }]}>
-              <Text style={[s.tableCellBold, { width: '26%', color: C.white }]}>TOTAL</Text>
-              <Text style={[s.tableCellBold, { width: '15%', textAlign: 'right', color: C.white }]}>{fmtRM(totalDeath)}</Text>
-              <Text style={[s.tableCellBold, { width: '15%', textAlign: 'right', color: C.white }]}>{fmtRM(totalTPD)}</Text>
-              <Text style={[s.tableCellBold, { width: '15%', textAlign: 'right', color: C.white }]}>{fmtRM(totalCI)}</Text>
-              <Text style={[s.tableCellBold, { width: '15%', textAlign: 'right', color: C.white }]}>{fmtRM(totalMedical)}</Text>
-              <Text style={[s.tableCellBold, { width: '14%', textAlign: 'right', color: C.white }]}>{fmtRM(totalPA)}</Text>
+              <Text style={[s.tableCellBold, { width: '22%', color: C.white }]}>TOTAL</Text>
+              <Text style={[s.tableCellBold, { width: '16%', textAlign: 'right', color: C.white }]}>{fmtRM(totalLife)}</Text>
+              <Text style={[s.tableCellBold, { width: '15%', textAlign: 'right', color: C.white }]}>{fmtRM(totalPA)}</Text>
+              <Text style={[s.tableCellBold, { width: '15%', textAlign: 'right', color: C.white }]}>{fmtRM(totalACI)}</Text>
+              <Text style={[s.tableCellBold, { width: '15%', textAlign: 'right', color: C.white }]}>{fmtRM(totalECI)}</Text>
+              <Text style={[s.tableCellBold, { width: '17%', textAlign: 'right', color: C.white }]}>{fmtRM(totalMedicalLimit)}</Text>
             </View>
           </>
         )}

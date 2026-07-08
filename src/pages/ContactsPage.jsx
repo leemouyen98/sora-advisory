@@ -90,16 +90,19 @@ export function validateContactForm(form, age) {
   return errs
 }
 
-// Coverage check — derived from financials.insurance array
+// Coverage check — derived from financials.insurance array.
+// Coverage schema (see PolicyFormWizard.jsx): coverage.life is the base
+// contract (company/policy no/dates/nominee + a combined Death & TPD sum
+// assured), coverage.pa is Personal Accident, coverage.ci splits ACI/ECI,
+// coverage.medical has roomBoard/annualLimit/lifetimeLimit.
 function getCoverage(contact) {
   const policies = contact.financials?.insurance || []
   const active = policies.filter(p => !p.status || p.status === 'Active')
-  const types  = active.map(p => (p.type || '').toLowerCase())
   return {
-    life:    types.some(t => ['whole life','term','life','endowment','investment-linked'].some(k => t.includes(k.split(' ')[0]))),
-    medical: types.some(t => t.includes('medical') || t.includes('health')),
-    ci:      types.some(t => t.includes('critical')),
-    pa:      types.some(t => t.includes('personal')),
+    life:    active.some(p => Number(p.coverage?.life?.sumAssured) > 0),
+    medical: active.some(p => Number(p.coverage?.medical?.annualLimit) > 0 || Number(p.coverage?.medical?.roomBoard) > 0 || Number(p.coverage?.medical?.lifetimeLimit) > 0),
+    ci:      active.some(p => Number(p.coverage?.ci?.aci) > 0 || Number(p.coverage?.ci?.eci) > 0),
+    pa:      active.some(p => Number(p.coverage?.pa) > 0),
   }
 }
 

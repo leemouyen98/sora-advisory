@@ -1,18 +1,32 @@
 /**
  * PolicyFormWizard — 4-step add / edit policy modal
  *
- * Step 1 · Insurer & Type    (visual grid selection)
- * Step 2 · Policy Details    (number, plan name, dates, status)
- * Step 3 · Premiums          (sum assured + annual/monthly with auto-sync)
- * Step 4 · Coverage & More   (death/tpd/ci/medical/pa + nominee + notes)
+ * Step 1 · Plan & Status      (plan name, status)
+ * Step 2 · Coverage           (tabbed: Life · PA · Critical Illness · Medical)
+ * Step 3 · Premiums           (annual/monthly with auto-sync)
+ * Step 4 · Notes
+ *
+ * Coverage schema:
+ *   coverage.life             — the base contract: company, policy no, coverage
+ *                                start/end date, premium start/end date, nominee,
+ *                                and sumAssured (Death & TPD combined — MY policies
+ *                                typically pay TPD as an acceleration of the death
+ *                                benefit, not a separate quantum)
+ *   coverage.pa                — Personal Accident sum assured (rider on the base policy)
+ *   coverage.ci.aci / .eci     — Critical Illness, early-stage / advanced-stage (rider)
+ *   coverage.medical.*         — roomBoard (per day) / annualLimit / lifetimeLimit / notes (rider)
+ *   hasPremiumWaiver           — policy-level flag, surfaced in the Medical tab
+ *
+ * PA / CI / Medical carry only their own amounts — they're riders on the Life
+ * tab's base contract, not separate policies with their own company/number/dates.
  */
 
 import { useState, useRef, useEffect } from 'react'
 import {
   X, Check, ChevronRight, ChevronLeft,
-  Shield, Clock, PiggyBank, Activity, Zap, AlertTriangle,
-  TrendingUp, Heart, ArrowLeftRight, UserCheck, FileText,
-  CreditCard, Calendar, ToggleLeft, ToggleRight,
+  Heart, Zap, Activity, UserCheck,
+  ArrowLeftRight, FileText, CreditCard, Calendar,
+  ToggleLeft, ToggleRight,
 } from 'lucide-react'
 import DatePicker from '../ui/DatePicker'
 
@@ -31,17 +45,6 @@ const COMPANIES = [
   { name: 'Other',        abbr: '•••', color: '#8E8E93' },
 ]
 
-const TYPES = [
-  { name: 'Whole Life',        icon: Shield,       color: '#040E1C' },
-  { name: 'Term',              icon: Clock,        color: '#2E96FF' },
-  { name: 'Endowment',         icon: PiggyBank,    color: '#34C759' },
-  { name: 'Medical & Health',  icon: Activity,     color: '#FF3B30' },
-  { name: 'Critical Illness',  icon: Zap,          color: '#FF9500' },
-  { name: 'Personal Accident', icon: AlertTriangle, color: '#AF52DE' },
-  { name: 'Investment-Linked', icon: TrendingUp,   color: '#30B0C7' },
-  { name: 'Life',              icon: Heart,        color: '#FF2D55' },
-]
-
 const STATUSES = [
   { value: 'Active',      color: '#34C759' },
   { value: 'Lapsed',      color: '#FF3B30' },
@@ -49,11 +52,18 @@ const STATUSES = [
   { value: 'Surrendered', color: '#FF9500' },
 ]
 
+const COVERAGE_TABS = [
+  { key: 'life',    label: 'Life',    icon: Heart,     color: '#FF2D55' },
+  { key: 'pa',      label: 'PA',      icon: UserCheck, color: '#AF52DE' },
+  { key: 'ci',      label: 'CI',      icon: Zap,       color: '#FF3B30' },
+  { key: 'medical', label: 'Medical', icon: Activity,  color: '#2E96FF' },
+]
+
 const STEPS = [
-  { n: 1, label: 'Insurer & Type' },
-  { n: 2, label: 'Policy Details' },
-  { n: 3, label: 'Premiums'       },
-  { n: 4, label: 'Protection'     },
+  { n: 1, label: 'Plan & Status' },
+  { n: 2, label: 'Coverage'      },
+  { n: 3, label: 'Premiums'      },
+  { n: 4, label: 'Notes'         },
 ]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -68,6 +78,18 @@ function fmtRM(val) {
 function rmVal(str) {
   const n = parseFloat(String(str).replace(/,/g, ''))
   return isNaN(n) ? 0 : n
+}
+
+/** Does a given coverage tab have any value filled in? (drives the tab dot indicator) */
+function tabHasValue(key, coverage) {
+  if (key === 'life') return Number(coverage?.life?.sumAssured) > 0
+  if (key === 'pa') return Number(coverage?.pa) > 0
+  if (key === 'ci') return Number(coverage?.ci?.aci) > 0 || Number(coverage?.ci?.eci) > 0
+  if (key === 'medical') {
+    const m = coverage?.medical || {}
+    return Number(m.roomBoard) > 0 || Number(m.annualLimit) > 0 || Number(m.lifetimeLimit) > 0
+  }
+  return false
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -121,9 +143,8 @@ function Stepper({ current }) {
 
 /** Compact context chip shown at top of steps 2-4 */
 function ContextChip({ form }) {
-  const co = COMPANIES.find(c => c.name === form.company)
-  const ty = TYPES.find(t => t.name === form.type)
-  if (!co && !ty) return null
+  const co = COMPANIES.find(c => c.name === form.coverage?.life?.company)
+  if (!co && !form.planName) return null
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
@@ -138,13 +159,8 @@ function ContextChip({ form }) {
         }}>{co.abbr.slice(0,2)}</span>
       )}
       {co && <span style={{ fontSize: 12, fontWeight: 600, color: '#1C1C1E' }}>{co.name}</span>}
-      {co && ty && <span style={{ fontSize: 11, color: '#AEAEB2' }}>·</span>}
-      {ty && (
-        <>
-          <ty.icon size={12} color={ty.color} />
-          <span style={{ fontSize: 12, color: '#636366' }}>{ty.name}</span>
-        </>
-      )}
+      {co && form.planName && <span style={{ fontSize: 11, color: '#AEAEB2' }}>·</span>}
+      {form.planName && <span style={{ fontSize: 12, color: '#636366' }}>{form.planName}</span>}
     </div>
   )
 }
@@ -195,215 +211,21 @@ function RMField({ label, value, onChange, hint, autoFocus }) {
   )
 }
 
-/** Coverage card with icon */
-function CoverageCard({ icon: Icon, label, sublabel, color, value, onChange }) {
-  return (
-    <div style={{
-      background: '#F8F8FA', border: '1.5px solid #E5E5EA',
-      borderRadius: 12, padding: '12px 14px',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <div style={{
-          width: 28, height: 28, borderRadius: 8,
-          background: color + '18',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-        }}>
-          <Icon size={14} color={color} />
-        </div>
-        <div>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', lineHeight: 1.2 }}>{label}</p>
-          {sublabel && <p style={{ fontSize: 10, color: '#AEAEB2' }}>{sublabel}</p>}
-        </div>
-      </div>
-      <div style={{ position: 'relative' }}>
-        <span style={{
-          position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
-          fontSize: 12, fontWeight: 600, color: '#8E8E93',
-        }}>RM</span>
-        <input
-          type="number"
-          min="0"
-          value={value || ''}
-          onChange={e => onChange(e.target.value)}
-          style={{
-            width: '100%', boxSizing: 'border-box',
-            paddingLeft: 34, paddingRight: 10,
-            paddingTop: 9, paddingBottom: 9,
-            fontSize: 14, fontWeight: 600, color: '#1C1C1E',
-            background: '#fff', border: '1.5px solid #E5E5EA',
-            borderRadius: 8, outline: 'none',
-            fontVariantNumeric: 'tabular-nums',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-          }}
-          onFocus={e => {
-            e.target.style.borderColor = color
-            e.target.style.boxShadow = `0 0 0 3px ${color}20`
-          }}
-          onBlur={e => {
-            e.target.style.borderColor = '#E5E5EA'
-            e.target.style.boxShadow = 'none'
-          }}
-          placeholder="0"
-        />
-      </div>
-    </div>
-  )
-}
-
 // ─── Step screens ─────────────────────────────────────────────────────────────
 
 function Step1({ form, update }) {
   return (
-    <div>
-      {/* Company */}
-      <p style={{ fontSize: 13, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10 }}>
-        Insurance Company
-      </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 24 }}>
-        {COMPANIES.map(co => {
-          const sel = form.company === co.name
-          return (
-            <button
-              key={co.name}
-              type="button"
-              onClick={() => update('company', co.name)}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                padding: '10px 4px',
-                background: sel ? co.color + '12' : '#F8F8FA',
-                border: sel ? `2px solid ${co.color}` : '2px solid transparent',
-                borderRadius: 12, cursor: 'pointer',
-                transition: 'all 0.15s',
-                position: 'relative',
-              }}
-            >
-              {/* Checkmark badge */}
-              {sel && (
-                <div style={{
-                  position: 'absolute', top: -5, right: -5,
-                  width: 16, height: 16, borderRadius: '50%',
-                  background: co.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Check size={9} color="#fff" strokeWidth={3} />
-                </div>
-              )}
-              {/* Avatar */}
-              <div style={{
-                width: 36, height: 36, borderRadius: '50%',
-                background: sel ? co.color : co.color + '22',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background 0.15s',
-              }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: sel ? '#fff' : co.color, letterSpacing: '-0.5px' }}>
-                  {co.abbr}
-                </span>
-              </div>
-              <span style={{ fontSize: 9, fontWeight: sel ? 600 : 400, color: sel ? co.color : '#636366', textAlign: 'center', lineHeight: 1.3 }}>
-                {co.name}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Policy Type */}
-      <p style={{ fontSize: 13, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10 }}>
-        Policy Type
-      </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-        {TYPES.map(ty => {
-          const sel = form.type === ty.name
-          const Icon = ty.icon
-          return (
-            <button
-              key={ty.name}
-              type="button"
-              onClick={() => update('type', ty.name)}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
-                padding: '14px 8px',
-                background: sel ? ty.color + '14' : '#F8F8FA',
-                border: sel ? `2px solid ${ty.color}` : '2px solid transparent',
-                borderRadius: 12, cursor: 'pointer',
-                transition: 'all 0.15s',
-                position: 'relative',
-              }}
-            >
-              {sel && (
-                <div style={{
-                  position: 'absolute', top: -5, right: -5,
-                  width: 16, height: 16, borderRadius: '50%',
-                  background: ty.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Check size={9} color="#fff" strokeWidth={3} />
-                </div>
-              )}
-              <div style={{
-                width: 32, height: 32, borderRadius: 9,
-                background: sel ? ty.color : ty.color + '18',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background 0.15s',
-              }}>
-                <Icon size={16} color={sel ? '#fff' : ty.color} />
-              </div>
-              <span style={{ fontSize: 10, fontWeight: sel ? 600 : 400, color: sel ? ty.color : '#636366', textAlign: 'center', lineHeight: 1.3 }}>
-                {ty.name}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-function Step2({ form, update }) {
-  return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <ContextChip form={form} />
-
-      {/* Plan name + Policy no */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        <Field label="Plan Name" icon={FileText}>
-          <input
-            type="text"
-            value={form.planName}
-            onChange={e => update('planName', e.target.value)}
-            className="hig-input"
-            placeholder="e.g. TM Shield Plus"
-            autoFocus
-          />
-        </Field>
-        <Field label="Policy Number" icon={CreditCard}>
-          <input
-            type="text"
-            value={form.policyNo}
-            onChange={e => update('policyNo', e.target.value)}
-            className="hig-input"
-            placeholder="e.g. TML-123456"
-          />
-        </Field>
-      </div>
-
-      {/* Dates */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        <Field label="Policy Start Date" icon={Calendar}>
-          <DatePicker
-            value={form.commencementDate}
-            onChange={v => update('commencementDate', v)}
-            placeholder="Select start date"
-          />
-        </Field>
-        <Field label="Maturity Date" icon={Calendar}>
-          <DatePicker
-            value={form.maturityDate}
-            onChange={v => update('maturityDate', v)}
-            placeholder="Select maturity date"
-            min={form.commencementDate || undefined}
-          />
-        </Field>
-      </div>
+      <Field label="Plan Name" icon={FileText}>
+        <input
+          type="text"
+          value={form.planName}
+          onChange={e => update('planName', e.target.value)}
+          className="hig-input"
+          placeholder="e.g. TM Shield Plus"
+          autoFocus
+        />
+      </Field>
 
       {/* Status — segmented control */}
       <div>
@@ -438,6 +260,279 @@ function Step2({ form, update }) {
   )
 }
 
+function LifeTab({ form, updateLife }) {
+  const life = form.coverage?.life || {}
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      {/* Company */}
+      <div>
+        <p style={{ fontSize: 13, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10 }}>
+          Insurance Company
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+          {COMPANIES.map(co => {
+            const sel = life.company === co.name
+            return (
+              <button
+                key={co.name}
+                type="button"
+                onClick={() => updateLife('company', co.name)}
+                style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                  padding: '10px 4px',
+                  background: sel ? co.color + '12' : '#F8F8FA',
+                  border: sel ? `2px solid ${co.color}` : '2px solid transparent',
+                  borderRadius: 12, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  position: 'relative',
+                }}
+              >
+                {sel && (
+                  <div style={{
+                    position: 'absolute', top: -5, right: -5,
+                    width: 16, height: 16, borderRadius: '50%',
+                    background: co.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Check size={9} color="#fff" strokeWidth={3} />
+                  </div>
+                )}
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: sel ? co.color : co.color + '22',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'background 0.15s',
+                }}>
+                  <span style={{ fontSize: 9, fontWeight: 800, color: sel ? '#fff' : co.color, letterSpacing: '-0.5px' }}>
+                    {co.abbr}
+                  </span>
+                </div>
+                <span style={{ fontSize: 9, fontWeight: sel ? 600 : 400, color: sel ? co.color : '#636366', textAlign: 'center', lineHeight: 1.3 }}>
+                  {co.name}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <RMField
+        label="Death & TPD Sum Assured"
+        value={life.sumAssured}
+        onChange={v => updateLife('sumAssured', v)}
+        hint="Combined life + total permanent disability benefit"
+      />
+
+      <Field label="Policy Number" icon={CreditCard}>
+        <input
+          type="text"
+          value={life.policyNo || ''}
+          onChange={e => updateLife('policyNo', e.target.value)}
+          className="hig-input"
+          placeholder="e.g. TML-123456"
+        />
+      </Field>
+
+      {/* Coverage dates */}
+      <div>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10 }}>
+          Coverage Period
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <Field label="Coverage Start" icon={Calendar}>
+            <DatePicker
+              value={life.coverageStartDate}
+              onChange={v => updateLife('coverageStartDate', v)}
+              placeholder="Select start date"
+            />
+          </Field>
+          <Field label="Coverage End" icon={Calendar}>
+            <DatePicker
+              value={life.coverageEndDate}
+              onChange={v => updateLife('coverageEndDate', v)}
+              placeholder="Select end date"
+              min={life.coverageStartDate || undefined}
+            />
+          </Field>
+        </div>
+      </div>
+
+      {/* Premium dates */}
+      <div>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10 }}>
+          Premium Payment Period
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <Field label="Premium Start" icon={Calendar}>
+            <DatePicker
+              value={life.premiumStartDate}
+              onChange={v => updateLife('premiumStartDate', v)}
+              placeholder="Select start date"
+            />
+          </Field>
+          <Field label="Premium End" icon={Calendar}>
+            <DatePicker
+              value={life.premiumEndDate}
+              onChange={v => updateLife('premiumEndDate', v)}
+              placeholder="Select end date"
+              min={life.premiumStartDate || undefined}
+            />
+          </Field>
+        </div>
+        <p style={{ fontSize: 11, color: '#AEAEB2', marginTop: 6 }}>
+          For limited-pay plans, this is usually shorter than the coverage period
+        </p>
+      </div>
+
+      <Field label="Nominee 受益人" icon={UserCheck}>
+        <input
+          type="text"
+          value={life.nominee || ''}
+          onChange={e => updateLife('nominee', e.target.value)}
+          className="hig-input"
+          placeholder="e.g. Spouse, Children"
+        />
+      </Field>
+    </div>
+  )
+}
+
+function Step2({ form, update, updateLife, updateCoverage, updateCoverageCI, updateCoverageMedical }) {
+  const [tab, setTab] = useState('life')
+  const coverage = form.coverage || {}
+
+  return (
+    <div>
+      <ContextChip form={form} />
+
+      {/* Tab bar */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+        {COVERAGE_TABS.map(t => {
+          const Icon = t.icon
+          const sel = tab === t.key
+          const filled = tabHasValue(t.key, coverage)
+          return (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTab(t.key)}
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                padding: '10px 6px', borderRadius: 10,
+                border: sel ? `2px solid ${t.color}` : '2px solid #E5E5EA',
+                background: sel ? t.color + '12' : '#F8F8FA',
+                cursor: 'pointer', transition: 'all 0.15s', position: 'relative',
+              }}
+            >
+              <Icon size={14} color={sel ? t.color : '#8E8E93'} />
+              <span style={{ fontSize: 12, fontWeight: sel ? 700 : 500, color: sel ? t.color : '#636366' }}>{t.label}</span>
+              {filled && (
+                <span style={{
+                  position: 'absolute', top: -4, right: -4,
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: '#34C759', border: '1.5px solid #fff',
+                }} />
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Tab content */}
+      {tab === 'life' && <LifeTab form={form} updateLife={updateLife} />}
+
+      {tab === 'pa' && (
+        <RMField
+          label="Personal Accident Sum Assured"
+          value={coverage.pa}
+          onChange={v => updateCoverage('pa', v)}
+          hint="Accidental death & dismemberment"
+          autoFocus
+        />
+      )}
+
+      {tab === 'ci' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <RMField
+            label="Early Stage (ACI)"
+            value={coverage.ci?.aci}
+            onChange={v => updateCoverageCI('aci', v)}
+            hint="Payout on early-stage critical illness diagnosis"
+            autoFocus
+          />
+          <RMField
+            label="Advanced Stage (ECI)"
+            value={coverage.ci?.eci}
+            onChange={v => updateCoverageCI('eci', v)}
+            hint="Payout on advanced / late-stage critical illness diagnosis"
+          />
+        </div>
+      )}
+
+      {tab === 'medical' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <RMField
+              label="Room & Board / day"
+              value={coverage.medical?.roomBoard}
+              onChange={v => updateCoverageMedical('roomBoard', v)}
+              autoFocus
+            />
+            <RMField
+              label="Annual Limit"
+              value={coverage.medical?.annualLimit}
+              onChange={v => updateCoverageMedical('annualLimit', v)}
+            />
+          </div>
+          <RMField
+            label="Lifetime Limit"
+            value={coverage.medical?.lifetimeLimit}
+            onChange={v => updateCoverageMedical('lifetimeLimit', v)}
+          />
+
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8 }}>
+              Medical Card Notes
+            </label>
+            <textarea
+              value={coverage.medical?.notes || ''}
+              onChange={e => updateCoverageMedical('notes', e.target.value)}
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                padding: '10px 14px', borderRadius: 10,
+                border: '1.5px solid #E5E5EA', background: '#F8F8FA',
+                fontSize: 14, color: '#1C1C1E', resize: 'vertical',
+                minHeight: 60, outline: 'none', lineHeight: 1.5,
+                fontFamily: 'inherit',
+              }}
+              placeholder="Panel/non-panel, co-insurance, deductible, ward tier…"
+            />
+          </div>
+
+          {/* Premium Waiver toggle */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            background: '#F8F8FA', borderRadius: 12, padding: '14px 16px',
+            border: form.hasPremiumWaiver ? '1.5px solid #2E96FF' : '1.5px solid transparent',
+            transition: 'border-color 0.2s',
+            cursor: 'pointer',
+          }}
+            onClick={() => update('hasPremiumWaiver', !form.hasPremiumWaiver)}
+          >
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#1C1C1E' }}>Premium Waiver <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>免缴保费</span></p>
+              <p style={{ fontSize: 12, color: '#8E8E93', marginTop: 2 }}>Premium waived on total disability or critical illness</p>
+            </div>
+            {form.hasPremiumWaiver
+              ? <ToggleRight size={28} color="#2E96FF" />
+              : <ToggleLeft size={28} color="#AEAEB2" />
+            }
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Step3({ form, update }) {
   // Auto-sync annual ↔ monthly
   const handleAnnual = (val) => {
@@ -458,16 +553,6 @@ function Step3({ form, update }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       <ContextChip form={form} />
 
-      {/* Sum Assured */}
-      <RMField
-        label="Sum Assured"
-        value={form.sumAssured}
-        onChange={v => update('sumAssured', v)}
-        hint="Total coverage amount (death benefit)"
-        autoFocus
-      />
-
-      {/* Premium sync block */}
       <div>
         <label style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10, display: 'block' }}>
           Premium
@@ -539,84 +624,15 @@ function Step3({ form, update }) {
           Editing either field auto-updates the other
         </p>
       </div>
-
-      {/* Premium Waiver toggle */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: '#F8F8FA', borderRadius: 12, padding: '14px 16px',
-        border: form.hasPremiumWaiver ? '1.5px solid #2E96FF' : '1.5px solid transparent',
-        transition: 'border-color 0.2s',
-        cursor: 'pointer',
-      }}
-        onClick={() => update('hasPremiumWaiver', !form.hasPremiumWaiver)}
-      >
-        <div>
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#1C1C1E' }}>Premium Waiver <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>免缴保费</span></p>
-          <p style={{ fontSize: 12, color: '#8E8E93', marginTop: 2 }}>Premium waived on total disability or critical illness</p>
-        </div>
-        {form.hasPremiumWaiver
-          ? <ToggleRight size={28} color="#2E96FF" />
-          : <ToggleLeft size={28} color="#AEAEB2" />
-        }
-      </div>
     </div>
   )
 }
 
-function Step4({ form, update, updateCoverage }) {
-  const coverageFields = [
-    { key: 'death',      icon: Shield,        label: 'Death',           sublabel: 'Life coverage',         color: '#040E1C' },
-    { key: 'tpd',        icon: AlertTriangle, label: 'TPD',             sublabel: 'Total Permanent Disab.', color: '#FF9500' },
-    { key: 'ci',         icon: Zap,           label: 'Critical Illness', sublabel: '36–100+ conditions',    color: '#FF3B30' },
-    { key: 'medicalCard',icon: Activity,      label: 'Medical Card',    sublabel: 'Hospitalisation',        color: '#2E96FF' },
-    { key: 'paDb',       icon: UserCheck,     label: 'PA / DB',         sublabel: 'Personal Accident',      color: '#AF52DE' },
-  ]
-
-  const totalCoverage = coverageFields.reduce((s, f) => s + (Number(form.coverageDetails?.[f.key]) || 0), 0)
-
+function Step4({ form, update }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <ContextChip form={form} />
 
-      {/* Coverage breakdown */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-            Coverage Breakdown
-          </label>
-          {totalCoverage > 0 && (
-            <span style={{ fontSize: 11, color: '#2E96FF', fontWeight: 600 }}>
-              Total: RM {totalCoverage.toLocaleString('en-MY')}
-            </span>
-          )}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {coverageFields.map(f => (
-            <CoverageCard
-              key={f.key}
-              icon={f.icon}
-              label={f.label}
-              sublabel={f.sublabel}
-              color={f.color}
-              value={form.coverageDetails?.[f.key]}
-              onChange={v => updateCoverage(f.key, v)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Nominee */}
-      <Field label="Nominee 受益人" icon={UserCheck}>
-        <input
-          type="text"
-          value={form.nominee}
-          onChange={e => update('nominee', e.target.value)}
-          className="hig-input"
-          placeholder="e.g. Spouse, Children"
-        />
-      </Field>
-
-      {/* Notes */}
       <div>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8 }}>
           Notes
@@ -658,31 +674,41 @@ function Field({ label, icon: Icon, children }) {
 // ─── Review mini-summary (shown in footer of step 4) ─────────────────────────
 
 function ReviewSummary({ form }) {
-  const annual  = Number(form.annualPremium) || 0
-  const assured = Number(form.sumAssured)    || 0
-  if (!form.company && !annual && !assured) return null
+  const annual = Number(form.annualPremium) || 0
+  const life   = Number(form.coverage?.life?.sumAssured) || 0
+  const pa     = Number(form.coverage?.pa) || 0
+  const aci    = Number(form.coverage?.ci?.aci) || 0
+  const eci    = Number(form.coverage?.ci?.eci) || 0
+  const company = form.coverage?.life?.company
+  if (!company && !form.planName && !annual && !life && !pa && !aci && !eci) return null
   return (
     <div style={{
       display: 'flex', gap: 16, padding: '10px 14px',
       background: '#F2F2F7', borderRadius: 10, marginBottom: 14,
       flexWrap: 'wrap',
     }}>
-      {form.company && (
+      {company && (
         <div>
           <p style={{ fontSize: 10, color: '#AEAEB2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Company</p>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', marginTop: 2 }}>{form.company}</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', marginTop: 2 }}>{company}</p>
         </div>
       )}
-      {form.type && (
+      {life > 0 && (
         <div>
-          <p style={{ fontSize: 10, color: '#AEAEB2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Type</p>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', marginTop: 2 }}>{form.type}</p>
+          <p style={{ fontSize: 10, color: '#AEAEB2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Life (Death & TPD)</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', marginTop: 2 }}>RM {life.toLocaleString('en-MY')}</p>
         </div>
       )}
-      {assured > 0 && (
+      {(aci > 0 || eci > 0) && (
         <div>
-          <p style={{ fontSize: 10, color: '#AEAEB2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sum Assured</p>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', marginTop: 2 }}>RM {assured.toLocaleString('en-MY')}</p>
+          <p style={{ fontSize: 10, color: '#AEAEB2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>CI (ACI / ECI)</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', marginTop: 2 }}>RM {aci.toLocaleString('en-MY')} / RM {eci.toLocaleString('en-MY')}</p>
+        </div>
+      )}
+      {pa > 0 && (
+        <div>
+          <p style={{ fontSize: 10, color: '#AEAEB2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>PA</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#1C1C1E', marginTop: 2 }}>RM {pa.toLocaleString('en-MY')}</p>
         </div>
       )}
       {annual > 0 && (
@@ -695,13 +721,6 @@ function ReviewSummary({ form }) {
   )
 }
 
-// ─── Step 1 validation ────────────────────────────────────────────────────────
-
-function stepValid(step, form) {
-  if (step === 1) return !!(form.company && form.type)
-  return true // steps 2-4 are all optional — save anytime
-}
-
 // ─── Main Wizard ─────────────────────────────────────────────────────────────
 
 export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit }) {
@@ -711,9 +730,21 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
   const [animKey, setAnimKey] = useState(0)
 
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
+  const updateLife = (key, value) => setForm(prev => ({
+    ...prev,
+    coverage: { ...prev.coverage, life: { ...prev.coverage?.life, [key]: value } },
+  }))
   const updateCoverage = (key, value) => setForm(prev => ({
     ...prev,
-    coverageDetails: { ...prev.coverageDetails, [key]: value },
+    coverage: { ...prev.coverage, [key]: value },
+  }))
+  const updateCoverageCI = (key, value) => setForm(prev => ({
+    ...prev,
+    coverage: { ...prev.coverage, ci: { ...prev.coverage?.ci, [key]: value } },
+  }))
+  const updateCoverageMedical = (key, value) => setForm(prev => ({
+    ...prev,
+    coverage: { ...prev.coverage, medical: { ...prev.coverage?.medical, [key]: value } },
   }))
 
   const go = (target) => {
@@ -725,24 +756,37 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
   const handleSave = () => {
     const coerced = {
       ...form,
-      sumAssured:    Number(form.sumAssured)    || 0,
       annualPremium: Number(form.annualPremium) || 0,
       monthlyPremium:Number(form.monthlyPremium)|| 0,
       hasPremiumWaiver: !!form.hasPremiumWaiver,
-      nominee: form.nominee || '',
-      coverageDetails: {
-        death:      Number(form.coverageDetails?.death)      || 0,
-        tpd:        Number(form.coverageDetails?.tpd)        || 0,
-        ci:         Number(form.coverageDetails?.ci)         || 0,
-        medicalCard:Number(form.coverageDetails?.medicalCard)|| 0,
-        paDb:       Number(form.coverageDetails?.paDb)       || 0,
+      coverage: {
+        life: {
+          company:           form.coverage?.life?.company || '',
+          policyNo:          form.coverage?.life?.policyNo || '',
+          coverageStartDate: form.coverage?.life?.coverageStartDate || '',
+          coverageEndDate:   form.coverage?.life?.coverageEndDate || '',
+          premiumStartDate:  form.coverage?.life?.premiumStartDate || '',
+          premiumEndDate:    form.coverage?.life?.premiumEndDate || '',
+          nominee:           form.coverage?.life?.nominee || '',
+          sumAssured:        Number(form.coverage?.life?.sumAssured) || 0,
+        },
+        pa: Number(form.coverage?.pa) || 0,
+        ci: {
+          aci: Number(form.coverage?.ci?.aci) || 0,
+          eci: Number(form.coverage?.ci?.eci) || 0,
+        },
+        medical: {
+          roomBoard:     Number(form.coverage?.medical?.roomBoard)     || 0,
+          annualLimit:   Number(form.coverage?.medical?.annualLimit)   || 0,
+          lifetimeLimit: Number(form.coverage?.medical?.lifetimeLimit) || 0,
+          notes:         form.coverage?.medical?.notes || '',
+        },
       },
     }
     onSave(coerced)
   }
 
   const isLastStep = step === 4
-  const canAdvance = stepValid(step, form)
 
   // Determine button label
   const nextLabel = isLastStep
@@ -836,9 +880,18 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
           >
             <div key={animKey} className={slideClass}>
               {step === 1 && <Step1 form={form} update={update} />}
-              {step === 2 && <Step2 form={form} update={update} />}
+              {step === 2 && (
+                <Step2
+                  form={form}
+                  update={update}
+                  updateLife={updateLife}
+                  updateCoverage={updateCoverage}
+                  updateCoverageCI={updateCoverageCI}
+                  updateCoverageMedical={updateCoverageMedical}
+                />
+              )}
               {step === 3 && <Step3 form={form} update={update} />}
-              {step === 4 && <Step4 form={form} update={update} updateCoverage={updateCoverage} />}
+              {step === 4 && <Step4 form={form} update={update} />}
             </div>
           </div>
 
@@ -891,12 +944,12 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
                   <button
                     key={s.n}
                     type="button"
-                    onClick={() => { if (s.n < step || (s.n === step + 1 && canAdvance)) go(s.n) }}
+                    onClick={() => go(s.n)}
                     style={{
                       width: s.n === step ? 20 : 6,
                       height: 6, borderRadius: 3,
                       background: s.n === step ? '#2E96FF' : s.n < step ? '#34C759' : '#E5E5EA',
-                      border: 'none', cursor: s.n <= step ? 'pointer' : 'default',
+                      border: 'none', cursor: 'pointer',
                       transition: 'all 0.2s', padding: 0,
                     }}
                   />
@@ -909,32 +962,24 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
               <button
                 type="button"
                 onClick={() => isLastStep ? handleSave() : go(step + 1)}
-                disabled={!canAdvance}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '10px 20px', borderRadius: 10,
-                  background: canAdvance ? '#2E96FF' : '#E5E5EA',
+                  background: '#2E96FF',
                   border: 'none',
                   fontSize: 14, fontWeight: 600,
-                  color: canAdvance ? '#fff' : '#AEAEB2',
-                  cursor: canAdvance ? 'pointer' : 'not-allowed',
+                  color: '#fff',
+                  cursor: 'pointer',
                   transition: 'all 0.15s',
                 }}
-                onMouseEnter={e => { if (canAdvance) e.currentTarget.style.background = '#1A7FE8' }}
-                onMouseLeave={e => { if (canAdvance) e.currentTarget.style.background = '#2E96FF' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#1A7FE8'}
+                onMouseLeave={e => e.currentTarget.style.background = '#2E96FF'}
               >
                 {isLastStep ? <Check size={16} /> : null}
                 {nextLabel}
                 {!isLastStep && <ChevronRight size={16} />}
               </button>
             </div>
-
-            {/* Step 1 hint */}
-            {step === 1 && !canAdvance && (
-              <p style={{ textAlign: 'center', fontSize: 11, color: '#AEAEB2', marginTop: 10 }}>
-                Select a company and policy type to continue
-              </p>
-            )}
           </div>
         </div>
       </div>

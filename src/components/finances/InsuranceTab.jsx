@@ -5,51 +5,36 @@ import { InsuranceExportButton } from '../pdf/InsurancePoliciesPDF'
 import { useAuth } from '../../hooks/useAuth'
 import PolicyFormWizard from './PolicyFormWizard'
 
-const POLICY_TYPES = [
-  'Life',
-  'Medical & Health',
-  'Critical Illness',
-  'Personal Accident',
-  'Investment-Linked',
-  'Endowment',
-  'Term',
-  'Whole Life',
-]
-
-const COMPANIES = [
-  'Tokio Marine',
-  'AIA',
-  'Prudential',
-  'Great Eastern',
-  'Manulife',
-  'Allianz',
-  'Zurich',
-  'AXA Affin',
-  'Sun Life',
-  'Other',
-]
-
+// Coverage schema (see PolicyFormWizard.jsx):
+//   coverage.life            — the base contract: company, policy no, coverage
+//                               start/end date, premium start/end date, nominee,
+//                               sumAssured (Death & TPD combined)
+//   coverage.pa               — Personal Accident sum assured (rider)
+//   coverage.ci.aci / .eci    — Critical Illness, early-stage / advanced-stage (rider)
+//   coverage.medical.*        — roomBoard / annualLimit / lifetimeLimit / notes (rider)
+const EMPTY_LIFE = {
+  company: '', policyNo: '',
+  coverageStartDate: '', coverageEndDate: '',
+  premiumStartDate: '', premiumEndDate: '',
+  nominee: '', sumAssured: 0,
+}
 const EMPTY_POLICY = {
-  policyNo: '',
-  company: '',
-  type: '',
   planName: '',
-  sumAssured: 0,
   annualPremium: 0,
   monthlyPremium: 0,
-  commencementDate: '',
-  maturityDate: '',
   status: 'Active',
-  nominee: '',
   hasPremiumWaiver: false,
   notes: '',
-  coverageDetails: {
-    death: 0,
-    tpd: 0,
-    ci: 0,
-    medicalCard: 0,
-    paDb: 0,
+  coverage: {
+    life: { ...EMPTY_LIFE },
+    pa: 0,
+    ci: { aci: 0, eci: 0 },
+    medical: { roomBoard: 0, annualLimit: 0, lifetimeLimit: 0, notes: '' },
   },
+}
+
+function newPolicyId() {
+  return (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `pol_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
 }
 
 export default function InsuranceTab({ financials, onSave, contact }) {
@@ -61,20 +46,43 @@ export default function InsuranceTab({ financials, onSave, contact }) {
   // ─── Summary ────────────────────────────────────────────────────────────
 
   const totalAnnualPremium = policies.reduce((s, p) => s + (Number(p.annualPremium) || 0), 0)
-  const totalDeath = policies.reduce((s, p) => s + (Number(p.coverageDetails?.death) || 0), 0)
-  const totalTPD = policies.reduce((s, p) => s + (Number(p.coverageDetails?.tpd) || 0), 0)
-  const totalCI = policies.reduce((s, p) => s + (Number(p.coverageDetails?.ci) || 0), 0)
-  const totalMedical = policies.reduce((s, p) => s + (Number(p.coverageDetails?.medicalCard) || 0), 0)
+  const totalLife = policies.reduce((s, p) => s + (Number(p.coverage?.life?.sumAssured) || 0), 0)
+  const totalPA = policies.reduce((s, p) => s + (Number(p.coverage?.pa) || 0), 0)
+  const totalACI = policies.reduce((s, p) => s + (Number(p.coverage?.ci?.aci) || 0), 0)
+  const totalECI = policies.reduce((s, p) => s + (Number(p.coverage?.ci?.eci) || 0), 0)
+  const totalMedicalAnnualLimit = policies.reduce((s, p) => s + (Number(p.coverage?.medical?.annualLimit) || 0), 0)
 
   // ─── Handlers ───────────────────────────────────────────────────────────
 
   const openAdd = () =>
-    setWizardState({ form: { ...EMPTY_POLICY, coverageDetails: { ...EMPTY_POLICY.coverageDetails } }, idx: 'new' })
+    setWizardState({
+      form: {
+        ...EMPTY_POLICY,
+        id: newPolicyId(),
+        coverage: {
+          life: { ...EMPTY_LIFE },
+          pa: 0,
+          ci: { ...EMPTY_POLICY.coverage.ci },
+          medical: { ...EMPTY_POLICY.coverage.medical },
+        },
+      },
+      idx: 'new',
+    })
 
   const openEdit = (idx) => {
     const p = policies[idx]
     setWizardState({
-      form: { ...EMPTY_POLICY, ...p, coverageDetails: { ...EMPTY_POLICY.coverageDetails, ...p.coverageDetails } },
+      form: {
+        ...EMPTY_POLICY,
+        ...p,
+        id: p.id || newPolicyId(),
+        coverage: {
+          life: { ...EMPTY_LIFE, ...p.coverage?.life },
+          pa: p.coverage?.pa || 0,
+          ci: { ...EMPTY_POLICY.coverage.ci, ...p.coverage?.ci },
+          medical: { ...EMPTY_POLICY.coverage.medical, ...p.coverage?.medical },
+        },
+      },
       idx,
     })
   }
@@ -123,13 +131,14 @@ export default function InsuranceTab({ financials, onSave, contact }) {
   return (
     <div className="space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
         {[
           { label: 'Annual Premium', value: totalAnnualPremium, color: 'text-hig-blue' },
-          { label: 'Death', value: totalDeath, color: 'text-hig-text' },
-          { label: 'TPD', value: totalTPD, color: 'text-hig-text' },
-          { label: 'CI', value: totalCI, color: 'text-hig-text' },
-          { label: 'Medical', value: totalMedical, color: 'text-hig-text' },
+          { label: 'Life (Death & TPD)', value: totalLife, color: 'text-hig-text' },
+          { label: 'PA', value: totalPA, color: 'text-hig-text' },
+          { label: 'CI (Early)', value: totalACI, color: 'text-hig-text' },
+          { label: 'CI (Advanced)', value: totalECI, color: 'text-hig-text' },
+          { label: 'Medical (Annual Limit)', value: totalMedicalAnnualLimit, color: 'text-hig-text' },
         ].map((s) => (
           <div key={s.label} className="hig-card p-3 text-center">
             <p className="text-hig-caption1 text-hig-text-secondary mb-1">{s.label}</p>
@@ -150,7 +159,7 @@ export default function InsuranceTab({ financials, onSave, contact }) {
 
       {/* Policy Cards */}
       {policies.map((p, idx) => (
-        <div key={idx} className="hig-card">
+        <div key={p.id || idx} className="hig-card">
           <div
             className="p-4 flex items-center gap-4 cursor-pointer hover:bg-hig-gray-6/50 transition-colors rounded-hig"
             onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
@@ -160,7 +169,7 @@ export default function InsuranceTab({ financials, onSave, contact }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-hig-subhead font-medium text-hig-text truncate">{p.planName || p.type || 'Unnamed Policy'}</p>
+                <p className="text-hig-subhead font-medium text-hig-text truncate">{p.planName || 'Unnamed Policy'}</p>
                 <span className={`text-hig-caption2 px-2 py-0.5 rounded-full ${p.status === 'Active' ? 'bg-hig-green/10 text-hig-green' : 'bg-hig-gray-6 text-hig-gray-1'}`}>
                   {p.status}
                 </span>
@@ -168,10 +177,10 @@ export default function InsuranceTab({ financials, onSave, contact }) {
                   <span className="text-hig-caption2 px-2 py-0.5 rounded-full bg-hig-blue/10 text-hig-blue">PWV</span>
                 )}
               </div>
-              <p className="text-hig-caption1 text-hig-text-secondary">{p.company} · {p.policyNo || 'No policy no.'}</p>
+              <p className="text-hig-caption1 text-hig-text-secondary">{p.coverage?.life?.company || 'No insurer set'} · {p.coverage?.life?.policyNo || 'No policy no.'}</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-hig-subhead font-medium">{formatRMFull(p.sumAssured)}</p>
+              <p className="text-hig-subhead font-medium">{formatRMFull(p.coverage?.life?.sumAssured)}</p>
               <p className="text-hig-caption1 text-hig-text-secondary">{formatRMFull(p.annualPremium)}/yr</p>
             </div>
             {expandedIdx === idx ? <ChevronUp size={16} className="text-hig-gray-1" /> : <ChevronDown size={16} className="text-hig-gray-1" />}
@@ -181,11 +190,13 @@ export default function InsuranceTab({ financials, onSave, contact }) {
             <div className="px-4 pb-4 pt-0 border-t border-hig-gray-5 mt-0">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
                 {[
-                  { label: 'Death', value: p.coverageDetails?.death },
-                  { label: 'TPD', value: p.coverageDetails?.tpd },
-                  { label: 'Critical Illness', value: p.coverageDetails?.ci },
-                  { label: 'Medical Card', value: p.coverageDetails?.medicalCard },
-                  { label: 'PA / DB', value: p.coverageDetails?.paDb },
+                  { label: 'Life (Death & TPD)', value: p.coverage?.life?.sumAssured },
+                  { label: 'Personal Accident', value: p.coverage?.pa },
+                  { label: 'CI — Early Stage', value: p.coverage?.ci?.aci },
+                  { label: 'CI — Advanced Stage', value: p.coverage?.ci?.eci },
+                  { label: 'Medical — Annual Limit', value: p.coverage?.medical?.annualLimit },
+                  { label: 'Medical — Lifetime Limit', value: p.coverage?.medical?.lifetimeLimit },
+                  { label: 'Medical — Room & Board', value: p.coverage?.medical?.roomBoard },
                 ].filter(c => c.value > 0).map((c) => (
                   <div key={c.label} className="py-1">
                     <p className="text-hig-caption1 text-hig-text-secondary">{c.label}</p>
@@ -193,10 +204,16 @@ export default function InsuranceTab({ financials, onSave, contact }) {
                   </div>
                 ))}
               </div>
-              {p.nominee && (
+              {p.coverage?.life?.nominee && (
                 <div className="py-1 mt-1">
                   <p className="text-hig-caption1 text-hig-text-secondary">Nominee</p>
-                  <p className="text-hig-subhead font-medium">{p.nominee}</p>
+                  <p className="text-hig-subhead font-medium">{p.coverage.life.nominee}</p>
+                </div>
+              )}
+              {p.coverage?.medical?.notes && (
+                <div className="py-1 mt-1">
+                  <p className="text-hig-caption1 text-hig-text-secondary">Medical Card Notes</p>
+                  <p className="text-hig-subhead font-medium">{p.coverage.medical.notes}</p>
                 </div>
               )}
               {p.notes && <p className="text-hig-caption1 text-hig-text-secondary mt-2 pt-2 border-t border-hig-gray-5">{p.notes}</p>}
@@ -222,26 +239,6 @@ export default function InsuranceTab({ financials, onSave, contact }) {
           onClose={() => setWizardState(null)}
         />
       )}
-    </div>
-  )
-}
-
-// dead code placeholder to avoid breaking imports during transition
-function _unused({ label, value, onChange }) {
-  return (
-    <div>
-      <label className="hig-label">{label}</label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hig-text-secondary text-hig-subhead">RM</span>
-        <input
-          type="number"
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          className="hig-input pl-10 tabular-nums"
-          placeholder="0"
-          min="0"
-        />
-      </div>
     </div>
   )
 }
