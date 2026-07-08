@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getAge } from '../../lib/formatters'
 import {
   X, CalendarClock, Cake, ExternalLink, PhoneCall, Mail,
   Users, MessageSquare, CheckSquare, Clock, ChevronRight,
@@ -23,14 +24,6 @@ function fmtShort(str) {
   const d = new Date(str)
   if (isNaN(d)) return str
   return d.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-
-function getAge(dob) {
-  const d = new Date(dob)
-  const n = new Date()
-  let a = n.getFullYear() - d.getFullYear()
-  if (n.getMonth() < d.getMonth() || (n.getMonth() === d.getMonth() && n.getDate() < d.getDate())) a--
-  return a
 }
 
 function nameHue(name = '') {

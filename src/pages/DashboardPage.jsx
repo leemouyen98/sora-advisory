@@ -7,12 +7,22 @@ import { useLanguage } from '../hooks/useLanguage'
 import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
 import TaskModal from '../components/dashboard/TaskModal'
 import ContactDrawer from '../components/dashboard/ContactDrawer'
+import { computePriorities } from '../lib/priorityEngine'
+import { getAge } from '../lib/formatters'
 import {
   Plus, Users, CheckSquare, CalendarClock, Cake,
   Building2, FileText, Shield, Globe, Landmark,
   ChevronRight, CheckCircle2, FileCheck, ClipboardList, TrendingUp,
   Star, File, FileImage, FileSpreadsheet, Download, ArrowUpRight,
+  DollarSign, XCircle,
 } from 'lucide-react'
+
+// Route each priority-flag type to where the advisor can actually act on it.
+const PRIORITY_TYPE_CFG = {
+  protection: { label: 'Protection', icon: Shield,      iconColor: '#FF9500', route: id => `/contacts/${id}/protection` },
+  retirement: { label: 'Retirement', icon: TrendingUp,  iconColor: '#AF52DE', route: id => `/contacts/${id}/retirement` },
+  cashflow:   { label: 'Cash Flow',  icon: DollarSign,  iconColor: '#FF3B30', route: id => `/contacts/${id}` },
+}
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const QUICK_LINKS = [
@@ -36,14 +46,6 @@ function todayStr() {
   return new Date().toLocaleDateString('en-MY', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
-}
-
-function getAge(dob) {
-  const d = new Date(dob)
-  const n = new Date()
-  let a = n.getFullYear() - d.getFullYear()
-  if (n.getMonth() < d.getMonth() || (n.getMonth() === d.getMonth() && n.getDate() < d.getDate())) a--
-  return a
 }
 
 function fmtShort(str) {
@@ -185,15 +187,18 @@ function fileIcon(mimeType) {
 function FavoritesWidget({ token }) {
   const [favorites, setFavorites] = useState([])
   const [loading,   setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [pdfViewer, setPdfViewer] = useState(null)
+  const { addToast } = useToast()
 
   useEffect(() => {
     if (!token) return
     setLoading(true)
+    setLoadError(false)
     fetch('/api/library/favorites', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(d => setFavorites(d.favorites ?? []))
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false))
   }, [token])
 
@@ -202,13 +207,14 @@ function FavoritesWidget({ token }) {
       setPdfViewer({ fileId: fav.id, fileName: fav.name })
     } else {
       fetch(`/api/library/files/${fav.id}/view`, { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => r.blob())
+        .then(r => { if (!r.ok) throw new Error(); return r.blob() })
         .then(blob => {
           const url = URL.createObjectURL(blob)
           const a   = document.createElement('a')
           a.href = url; a.download = fav.name; a.click()
           URL.revokeObjectURL(url)
         })
+        .catch(() => addToast('Could not open file', 'error'))
     }
   }
 
@@ -234,6 +240,13 @@ function FavoritesWidget({ token }) {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : loadError ? (
+            <div className="py-6 px-4 flex flex-col items-center gap-2 text-center">
+              <Star size={20} stroke="#C7C7CC" fill="none" />
+              <p className="text-hig-caption1 text-hig-gray-1 max-w-[160px] leading-relaxed">
+                Couldn&rsquo;t load favourites — check your connection
+              </p>
             </div>
           ) : favorites.length === 0 ? (
             <div className="py-6 px-4 flex flex-col items-center gap-2 text-center">
@@ -421,18 +434,50 @@ export default function DashboardPage() {
   const thisYear  = now.getFullYear()
 
   // ── Stats ──────────────────────────────────────────────────────────────────
+  // "This Month" stats count only from today through the end of the current
+  // calendar month — NOT every date that happens to fall in this month.
+  // Previously these counted overdue/past dates too (e.g. a review 20 days
+  // ago still counted as "this month"), which could show a stat card number
+  // that visibly disagreed with the Upcoming feed below it (which is always
+  // forward-looking). Matching "today onward" here keeps the two consistent.
   const stats = useMemo(() => {
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const endOfMonth    = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
     let pending = 0, reviewsMonth = 0, bdays = 0
     contacts.forEach(c => {
       pending += (c.tasks || []).filter(t => t.status !== 'completed').length
       if (c.reviewDate) {
         const r = new Date(c.reviewDate)
-        if (r.getMonth() === thisMonth && r.getFullYear() === thisYear) reviewsMonth++
+        const rLocal = new Date(r.getFullYear(), r.getMonth(), r.getDate())
+        if (rLocal >= todayMidnight && rLocal <= endOfMonth) reviewsMonth++
       }
-      if (c.dob && new Date(c.dob).getMonth() === thisMonth) bdays++
+      if (c.dob) {
+        const b = new Date(c.dob)
+        const bThisYear = new Date(now.getFullYear(), b.getMonth(), b.getDate())
+        if (bThisYear >= todayMidnight && bThisYear <= endOfMonth) bdays++
+      }
     })
     return { total: contacts.length, pending, reviewsMonth, bdays }
   }, [contacts, thisMonth, thisYear])
+
+  // ── Priority flags (retirement/protection/cashflow gaps) ────────────────────
+  // computePriorities marks "no plan started" as critical/warning on its own —
+  // that's correct signal on the per-contact Planning Snapshot, but would be pure
+  // noise here (most contacts haven't been planned yet). Only surface a flag for
+  // contacts who've actually started at least one plan, matching the same
+  // hasAnyPlan gate PlanningSnapshot.jsx uses to avoid flooding this screen.
+  const priorityAlerts = useMemo(() => {
+    const items = []
+    contacts.forEach(c => {
+      const hasAnyPlan = c?.retirementPlan || c?.protectionPlan
+      if (!hasAnyPlan) return
+      computePriorities(c)
+        .filter(f => f.severity === 'critical')
+        .forEach(flag => items.push({ contact: c, flag }))
+    })
+    return items
+  }, [contacts])
 
   // ── Unified upcoming feed ──────────────────────────────────────────────────
   const feed = useMemo(() => {
@@ -572,6 +617,45 @@ export default function DashboardPage() {
             onClick={() => navigate('/contacts?filter=birthdays')}
           />
         </div>
+
+        {/* ── Needs Attention: critical retirement/protection/cashflow gaps ──── */}
+        {!contactsLoading && priorityAlerts.length > 0 && (
+          <div className="mb-6">
+            <SectionHeader title={`Needs Attention (${priorityAlerts.length})`} />
+            <div className="bg-hig-card rounded-[14px] border border-black/[0.04] shadow-hig overflow-hidden">
+              {priorityAlerts.map(({ contact, flag }, idx) => {
+                const cfg  = PRIORITY_TYPE_CFG[flag.type] ?? PRIORITY_TYPE_CFG.protection
+                const Icon = cfg.icon
+                return (
+                  <button
+                    key={`${contact.id}-${flag.type}`}
+                    onClick={() => navigate(cfg.route(contact.id))}
+                    className={`group w-full flex items-center gap-3.5 px-[18px] py-[13px] text-left
+                                hover:bg-hig-gray-6 transition-colors
+                                ${idx < priorityAlerts.length - 1 ? 'border-b border-[#F5F5F7]' : ''}`}
+                  >
+                    <div className="w-9 h-9 rounded-[11px] shrink-0 flex items-center justify-center bg-hig-red/10">
+                      <Icon size={15} style={{ color: cfg.iconColor }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-hig-text mb-[2px] truncate">{contact.name}</p>
+                      <p className="text-hig-caption1 text-hig-gray-1 truncate">
+                        {cfg.label} · {flag.message}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.5px]
+                                       uppercase px-[7px] py-[2px] rounded-full bg-hig-red/10 text-hig-red">
+                        <XCircle size={10} /> Critical
+                      </span>
+                      <ChevronRight size={13} className="text-hig-gray-3 shrink-0" />
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ── Body: Feed + Sidebar ─────────────────────────────────────────── */}
         <div className="flex flex-col lg:flex-row gap-4 items-start">

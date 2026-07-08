@@ -19,6 +19,7 @@ import PlanningSnapshot from '../components/PlanningSnapshot'
 import { STAGES, getEffectiveStage } from './ContactsPage'
 import DatePicker from '../components/ui/DatePicker'
 import { toMonthly as toMonthlyCF, calcMonthlyRepayment } from '../lib/calculations'
+import { getAge } from '../lib/formatters'
 import {
   ArrowLeft, Phone, Calendar, Briefcase, Target, Shield,
   Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock,
@@ -63,15 +64,6 @@ function fmtRM(val) {
   return val < 0 ? `−${str}` : str
 }
 
-
-function getAge(dob) {
-  const d = new Date(dob)
-  const now = new Date()
-  let a = now.getFullYear() - d.getFullYear()
-  if (now.getMonth() < d.getMonth() ||
-     (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) a--
-  return a
-}
 
 function daysUntilDate(dateStr) {
   if (!dateStr) return null

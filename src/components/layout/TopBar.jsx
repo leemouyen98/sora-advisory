@@ -4,6 +4,7 @@ import { Menu, Search, ChevronDown, LogOut, Settings, Globe, X } from 'lucide-re
 import { useAuth } from '../../hooks/useAuth'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useContacts } from '../../hooks/useContacts'
+import { getAge } from '../../lib/formatters'
 
 export default function TopBar({ onMenuToggle }) {
   const { agent, logout } = useAuth()
@@ -116,15 +117,6 @@ export default function TopBar({ onMenuToggle }) {
     if (location.pathname.startsWith('/admin')) return t('nav.admin')
     return 'Sora Advisory'
   })()
-
-  const getAge = (dob) => {
-    if (!dob) return null
-    const d = new Date(dob)
-    const now = new Date()
-    let a = now.getFullYear() - d.getFullYear()
-    if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) a--
-    return a
-  }
 
   return (
     <header

@@ -15,6 +15,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { useLanguage } from '../hooks/useLanguage'
+import { getAge } from '../lib/formatters'
 import {
   Plus, Search, Trash2, Tag, MoreHorizontal,
   ChevronRight, Phone, AlertCircle,
@@ -104,15 +105,6 @@ function getLastActivity(contact) {
     ...(contact.interactions  || []).map(i => i.date),
   ].filter(Boolean).map(d => new Date(d)).filter(d => !isNaN(d))
   return dates.length ? new Date(Math.max(...dates)) : null
-}
-
-function getAge(dob) {
-  const d = new Date(dob)
-  const now = new Date()
-  let age = now.getFullYear() - d.getFullYear()
-  if (now.getMonth() < d.getMonth() ||
-     (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) age--
-  return age
 }
 
 function daysUntilReview(reviewDate) {
