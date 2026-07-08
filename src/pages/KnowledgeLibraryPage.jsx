@@ -20,6 +20,7 @@ import {
   Check, ArrowLeft, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { useToast } from '../hooks/useToast'
 import SecurePDFViewerModal from '../components/layout/SecurePDFViewerModal'
 import ImageViewerModal from '../components/layout/ImageViewerModal'
 import PDFThumbnail from '../components/library/PDFThumbnail'
@@ -30,6 +31,23 @@ const FOLDER_PALETTE = [
   '#2E96FF', '#34C759', '#FF9500', '#AF52DE',
   '#FF2D55', '#30B0C7', '#5856D6', '#FF6B35',
 ]
+
+// Fast client-side feedback only — the server (functions/api/library/files/index.js)
+// is the enforced source of truth for these limits, keep both in sync.
+const UPLOAD_LIMITS = {
+  maxSize: 25 * 1024 * 1024, // 25 MB
+  allowedMimeTypes: new Set([
+    'application/pdf',
+    'image/png', 'image/jpeg', 'image/webp', 'image/gif',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-powerpoint',
+  ]),
+}
 
 // ── Responsive hook ────────────────────────────────────────────────────────────
 function useResponsive() {
@@ -552,6 +570,7 @@ function SectionDivider({ icon, label, count }) {
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function KnowledgeLibraryPage() {
   const { token, isAdmin } = useAuth()
+  const { addToast } = useToast()
   const { isMobile, isTablet, isDesktop } = useResponsive()
   const fileInputRef = useRef(null)
 
@@ -610,22 +629,30 @@ export default function KnowledgeLibraryPage() {
     try {
       const url = parentId ? `/api/library/folders?parentId=${parentId}` : '/api/library/folders'
       const res  = await fetch(url, { headers })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Could not load folders')
       setSubfolders(data.folders ?? [])
+    } catch (err) {
+      addToast(err.message, 'error')
+      setSubfolders([])
     } finally { setLoadingFolders(false) }
-  }, [headers])
+  }, [headers, addToast])
 
   const loadFiles = useCallback(async (folderId) => {
     setLoadingFiles(true)
     setFiles([])
     try {
       const res  = await fetch(`/api/library/folders/${folderId}/files`, { headers })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Could not load files')
       const list = data.files ?? []
       setFiles(list)
       setStarredIds(new Set(list.filter(f => f.is_starred).map(f => f.id)))
+    } catch (err) {
+      addToast(err.message, 'error')
+      setFiles([])
     } finally { setLoadingFiles(false) }
-  }, [headers])
+  }, [headers, addToast])
 
   useEffect(() => {
     loadSubfolders(currentFolderId)
@@ -633,37 +660,57 @@ export default function KnowledgeLibraryPage() {
     else setFiles([])
   }, [currentFolderId, loadSubfolders, loadFiles])
 
+  // Shared response helper — reads the JSON body and throws with the server's
+  // error message on non-2xx, so every caller can just try/catch.
+  async function parseOrThrow(res, fallback) {
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || fallback)
+    return data
+  }
+
   // Folder CRUD
   async function createFolder(name) {
-    const res = await fetch('/api/library/folders', {
-      method: 'POST',
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, parentId: currentFolderId }),
-    })
-    if (res.ok) { loadSubfolders(currentFolderId); setModal(null) }
+    try {
+      const res = await fetch('/api/library/folders', {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, parentId: currentFolderId }),
+      })
+      await parseOrThrow(res, 'Could not create folder')
+      loadSubfolders(currentFolderId)
+      setModal(null)
+    } catch (err) {
+      addToast(err.message, 'error')
+    }
   }
 
   async function renameFolder(name) {
-    const res = await fetch(`/api/library/folders/${modal.target.id}`, {
-      method: 'PATCH',
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    })
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/library/folders/${modal.target.id}`, {
+        method: 'PATCH',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      await parseOrThrow(res, 'Could not rename folder')
       setFolderStack(prev => prev.map(f => f.id === modal.target.id ? { ...f, name } : f))
       loadSubfolders(currentFolderId)
       setModal(null)
+    } catch (err) {
+      addToast(err.message, 'error')
     }
   }
 
   async function deleteFolder() {
     const tid = modal.target.id
-    const res = await fetch(`/api/library/folders/${tid}`, { method: 'DELETE', headers })
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/library/folders/${tid}`, { method: 'DELETE', headers })
+      await parseOrThrow(res, 'Could not delete folder')
       const idx = folderStack.findIndex(f => f.id === tid)
       if (idx >= 0) setFolderStack(prev => prev.slice(0, idx))
       else loadSubfolders(currentFolderId)
       setModal(null)
+    } catch (err) {
+      addToast(err.message, 'error')
     }
   }
 
@@ -671,37 +718,78 @@ export default function KnowledgeLibraryPage() {
   async function uploadFiles(fileList) {
     if (!currentFolderId || !fileList.length) return
     setUploading(true)
-    for (const file of Array.from(fileList)) {
-      const fd = new FormData()
-      fd.append('folderId', currentFolderId)
-      fd.append('file', file)
-      await fetch('/api/library/files', { method: 'POST', headers, body: fd })
+    const files = Array.from(fileList)
+    let succeeded = 0
+    const failures = []
+
+    for (const file of files) {
+      if (file.size > UPLOAD_LIMITS.maxSize) {
+        failures.push(`${file.name}: exceeds ${UPLOAD_LIMITS.maxSize / (1024 * 1024)}MB limit`)
+        continue
+      }
+      if (file.type && !UPLOAD_LIMITS.allowedMimeTypes.has(file.type)) {
+        failures.push(`${file.name}: file type not allowed`)
+        continue
+      }
+      try {
+        const fd = new FormData()
+        fd.append('folderId', currentFolderId)
+        fd.append('file', file)
+        const res = await fetch('/api/library/files', { method: 'POST', headers, body: fd })
+        await parseOrThrow(res, 'Upload failed')
+        succeeded++
+      } catch (err) {
+        failures.push(`${file.name}: ${err.message}`)
+      }
     }
+
     setUploading(false)
-    loadFiles(currentFolderId)
+    if (succeeded) loadFiles(currentFolderId)
+
+    if (failures.length === 0) {
+      addToast(`${succeeded} file${succeeded === 1 ? '' : 's'} uploaded`, 'success')
+    } else if (succeeded > 0) {
+      addToast(`${succeeded} uploaded, ${failures.length} failed — ${failures[0]}${failures.length > 1 ? ` (+${failures.length - 1} more)` : ''}`, 'warning')
+    } else {
+      addToast(failures.length === 1 ? failures[0] : `${failures.length} files failed to upload`, 'error')
+    }
   }
 
   async function renameFile(name) {
-    const res = await fetch(`/api/library/files/${modal.target.id}`, {
-      method: 'PATCH',
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    })
-    if (res.ok) { loadFiles(currentFolderId); setModal(null) }
+    try {
+      const res = await fetch(`/api/library/files/${modal.target.id}`, {
+        method: 'PATCH',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      await parseOrThrow(res, 'Could not rename file')
+      loadFiles(currentFolderId)
+      setModal(null)
+    } catch (err) {
+      addToast(err.message, 'error')
+    }
   }
 
   async function deleteFile() {
-    const res = await fetch(`/api/library/files/${modal.target.id}`, { method: 'DELETE', headers })
-    if (res.ok) { loadFiles(currentFolderId); setModal(null) }
+    try {
+      const res = await fetch(`/api/library/files/${modal.target.id}`, { method: 'DELETE', headers })
+      await parseOrThrow(res, 'Could not delete file')
+      loadFiles(currentFolderId)
+      setModal(null)
+    } catch (err) {
+      addToast(err.message, 'error')
+    }
   }
 
   async function toggleStar(e, fileId) {
     e.stopPropagation()
     setStarredIds(prev => { const n = new Set(prev); n.has(fileId) ? n.delete(fileId) : n.add(fileId); return n })
     try {
-      await fetch(`/api/library/files/${fileId}/star`, { method: 'POST', headers })
-    } catch {
+      const res = await fetch(`/api/library/files/${fileId}/star`, { method: 'POST', headers })
+      if (!res.ok) throw new Error('Could not update star')
+    } catch (err) {
       setStarredIds(prev => { const n = new Set(prev); n.has(fileId) ? n.delete(fileId) : n.add(fileId); return n })
+      addToast(err.message, 'error')
     }
   }
 
@@ -712,13 +800,17 @@ export default function KnowledgeLibraryPage() {
       setImageViewer({ fileId: file.id, fileName: file.name })
     } else {
       fetch(`/api/library/files/${file.id}/view`, { headers })
-        .then(r => r.blob())
+        .then(res => {
+          if (!res.ok) throw new Error('Could not open file')
+          return res.blob()
+        })
         .then(blob => {
           const url = URL.createObjectURL(blob)
           const a = document.createElement('a')
           a.href = url; a.download = file.name; a.click()
           URL.revokeObjectURL(url)
         })
+        .catch(err => addToast(err.message, 'error'))
     }
   }
 

@@ -5,6 +5,7 @@
  *      body: { name, parentId? }
  */
 import { getAgent, json, cors } from '../../_auth.js'
+import { requireAdmin } from '../../admin/_adminAuth.js'
 
 export const onRequestOptions = () => cors()
 
@@ -27,11 +28,8 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const agent = await getAgent(request, env)
-  if (!agent) return json({ error: 'Unauthorized' }, 401)
-
-  const row = await env.DB.prepare('SELECT role FROM agents WHERE code = ?').bind(agent.sub).first()
-  if (!row || row.role !== 'admin') return json({ error: 'Forbidden' }, 403)
+  const { error, agent } = await requireAdmin(request, env)
+  if (error) return error
 
   const { name, parentId = null } = await request.json()
   if (!name?.trim()) return json({ error: 'name is required' }, 400)
@@ -41,6 +39,16 @@ export async function onRequestPost({ request, env }) {
     const parent = await env.DB.prepare('SELECT id FROM knowledge_folders WHERE id = ?').bind(parentId).first()
     if (!parent) return json({ error: 'Parent folder not found' }, 404)
   }
+
+  // Reject a duplicate name within the same parent (case-insensitive)
+  const existing = parentId
+    ? await env.DB.prepare(
+        'SELECT id FROM knowledge_folders WHERE parent_id = ? AND name = ? COLLATE NOCASE'
+      ).bind(parentId, name.trim()).first()
+    : await env.DB.prepare(
+        'SELECT id FROM knowledge_folders WHERE parent_id IS NULL AND name = ? COLLATE NOCASE'
+      ).bind(name.trim()).first()
+  if (existing) return json({ error: `A folder named "${name.trim()}" already exists here` }, 409)
 
   const id = crypto.randomUUID()
   await env.DB.prepare(

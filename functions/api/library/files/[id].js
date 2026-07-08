@@ -2,17 +2,10 @@
  * PATCH  /api/library/files/:id — rename file (admin only)
  * DELETE /api/library/files/:id — delete file from R2 + D1 (admin only)
  */
-import { getAgent, json, cors } from '../../_auth.js'
+import { json, cors } from '../../_auth.js'
+import { requireAdmin } from '../../admin/_adminAuth.js'
 
 export const onRequestOptions = () => cors()
-
-async function requireAdmin(request, env) {
-  const agent = await getAgent(request, env)
-  if (!agent) return { error: json({ error: 'Unauthorized' }, 401) }
-  const row = await env.DB.prepare('SELECT role FROM agents WHERE code = ?').bind(agent.sub).first()
-  if (!row || row.role !== 'admin') return { error: json({ error: 'Forbidden' }, 403) }
-  return { agent }
-}
 
 export async function onRequestPatch({ request, env, params }) {
   const { error } = await requireAdmin(request, env)
