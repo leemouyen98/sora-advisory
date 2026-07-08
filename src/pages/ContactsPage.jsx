@@ -15,7 +15,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useContacts } from '../hooks/useContacts'
 import { useLanguage } from '../hooks/useLanguage'
-import { getAge } from '../lib/formatters'
+import { getAge, daysUntil } from '../lib/formatters'
 import {
   Plus, Search, Trash2, Tag, MoreHorizontal,
   ChevronRight, Phone, AlertCircle,
@@ -58,7 +58,11 @@ export function getEffectiveStage(contact) {
   return 'Lead'
 }
 
-const MOBILE_RE = /^[0-9\-\+\s()]{7,15}$/
+// Real Malaysian mobile format: 01[0-9] prefix + 7-8 digit subscriber number
+// (7 digits → 10 total, e.g. 012-3456789; 8 digits → 11 total, e.g. 011-12345678),
+// optionally prefixed with a +60/60 country code. Input is stripped of spaces/
+// dashes/parens before testing (see validateContactForm below).
+const MOBILE_RE = /^(?:\+?60|0)1[0-9]\d{7,8}$/
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /**
@@ -81,7 +85,7 @@ export function validateContactForm(form, age) {
   // one behavior change is Add becoming slightly more permissive (up to 129
   // instead of 100) — not Edit becoming more restrictive.
   else if (age === null) errs.dob = 'invalid'
-  if (form.mobile && !MOBILE_RE.test(form.mobile.replace(/\s/g, ''))) errs.mobile = 'invalid'
+  if (form.mobile && !MOBILE_RE.test(form.mobile.replace(/[\s\-()]/g, ''))) errs.mobile = 'invalid'
   if (form.email && !EMAIL_RE.test(form.email)) errs.email = 'invalid'
   return errs
 }
@@ -107,14 +111,9 @@ function getLastActivity(contact) {
   return dates.length ? new Date(Math.max(...dates)) : null
 }
 
-function daysUntilReview(reviewDate) {
-  if (!reviewDate) return null
-  const target = new Date(reviewDate)
-  target.setHours(0,0,0,0)
-  const now = new Date()
-  now.setHours(0,0,0,0)
-  return Math.round((target - now) / 86400000)
-}
+// Thin alias — real implementation (timezone-safe local-date parsing) lives
+// in lib/formatters.js, shared with ContactDetailPage's equivalent daysUntilDate().
+const daysUntilReview = daysUntil
 
 function fmtRelativeDate(date) {
   if (!date) return null
@@ -269,20 +268,30 @@ function StatsBar({ contacts, activeFilter, onFilter }) {
 }
 
 // List row
-function ContactRow({ contact, onClick }) {
+function ContactRow({ contact, onClick, selected, onToggleSelect }) {
   const { t } = useLanguage()
   const stage       = getEffectiveStage(contact)
   const lastAct     = getLastActivity(contact)
   const age         = getAge(contact.dob)
   const pendingTasks = (contact.tasks || []).filter(task => task.status !== 'completed').length
+  const isSelected  = selected?.has(contact.id)
 
   return (
     <div
       onClick={onClick}
       className="border-b border-hig-gray-5 last:border-b-0 hover:bg-hig-gray-6/50 transition-colors cursor-pointer"
+      style={isSelected ? { background: 'rgba(46,150,255,0.06)' } : undefined}
     >
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-3 px-4 py-3">
+        <input
+          type="checkbox"
+          checked={!!isSelected}
+          onClick={e => e.stopPropagation()}
+          onChange={() => onToggleSelect?.(contact.id)}
+          className="shrink-0"
+          style={{ width: 16, height: 16 }}
+        />
         <div style={{
           width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
           background: '#2E96FF18', color: '#2E96FF',
@@ -309,7 +318,15 @@ function ContactRow({ contact, onClick }) {
 
       {/* Desktop */}
       <div className="hidden md:grid items-center px-4 py-3"
-        style={{ gridTemplateColumns: '1fr 110px 90px 110px 90px 32px' }}>
+        style={{ gridTemplateColumns: '28px 1fr 110px 90px 110px 90px 32px' }}>
+        {/* Select */}
+        <input
+          type="checkbox"
+          checked={!!isSelected}
+          onClick={e => e.stopPropagation()}
+          onChange={() => onToggleSelect?.(contact.id)}
+          style={{ width: 16, height: 16 }}
+        />
         {/* Name + age */}
         <div>
           <div className="flex items-center gap-2">
@@ -369,7 +386,7 @@ function ContactRow({ contact, onClick }) {
 }
 
 // Kanban card
-function KanbanCard({ contact, onNavigate, onStageChange }) {
+function KanbanCard({ contact, onNavigate, onStageChange, selected, onToggleSelect }) {
   const { t } = useLanguage()
   const [showMoveMenu, setShowMoveMenu] = useState(false)
   const stage    = getEffectiveStage(contact)
@@ -377,16 +394,27 @@ function KanbanCard({ contact, onNavigate, onStageChange }) {
   const age      = getAge(contact.dob)
   const reviewD  = daysUntilReview(contact.reviewDate)
   const isOverdue = reviewD !== null && reviewD < 0
+  const isSelected = selected?.has(contact.id)
 
   const nextStages = STAGES.filter(s => s.key !== stage && s.key !== 'Dormant')
 
   return (
     <div
       className="hig-card"
-      style={{ padding: '10px 12px', cursor: 'pointer', marginBottom: 8, position: 'relative' }}
+      style={{
+        padding: '10px 12px', cursor: 'pointer', marginBottom: 8, position: 'relative',
+        ...(isSelected ? { outline: '2px solid #2E96FF', outlineOffset: -1 } : {}),
+      }}
     >
       <div onClick={onNavigate}>
         <div className="flex items-start justify-between gap-2 mb-2">
+          <input
+            type="checkbox"
+            checked={!!isSelected}
+            onClick={e => e.stopPropagation()}
+            onChange={() => onToggleSelect?.(contact.id)}
+            style={{ width: 14, height: 14, flexShrink: 0, marginTop: 2 }}
+          />
           <div style={{
             width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
             background: '#2E96FF18', color: '#2E96FF',
@@ -451,7 +479,7 @@ function KanbanCard({ contact, onNavigate, onStageChange }) {
 }
 
 // Kanban pipeline view
-function PipelineView({ contacts, onNavigate, onStageChange }) {
+function PipelineView({ contacts, onNavigate, onStageChange, selected, onToggleSelect }) {
   const { t } = useLanguage()
   return (
     <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
@@ -495,6 +523,8 @@ function PipelineView({ contacts, onNavigate, onStageChange }) {
                   contact={c}
                   onNavigate={() => onNavigate(c.id)}
                   onStageChange={onStageChange}
+                  selected={selected}
+                  onToggleSelect={onToggleSelect}
                 />
               ))}
             </div>
@@ -642,6 +672,14 @@ export default function ContactsPage() {
 
     return list
   }, [contacts, search, filter, sortBy, now])
+
+  const toggleSelect = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   const handleBulkDelete = () => {
     if (!selected.size) return
@@ -799,13 +837,24 @@ export default function ContactsPage() {
           contacts={filtered}
           onNavigate={id => navigate(`/contacts/${id}`)}
           onStageChange={handleStageChange}
+          selected={selected}
+          onToggleSelect={toggleSelect}
         />
       ) : (
         <div className="hig-card overflow-hidden">
           {/* Table header */}
           <div className="hidden md:grid items-center px-4 py-2.5 bg-hig-gray-6 border-b border-hig-gray-5
                           text-hig-caption2 font-semibold text-hig-text-secondary uppercase tracking-wide"
-            style={{ gridTemplateColumns: '1fr 110px 90px 110px 90px 32px' }}>
+            style={{ gridTemplateColumns: '28px 1fr 110px 90px 110px 90px 32px' }}>
+            <input
+              type="checkbox"
+              checked={filtered.length > 0 && filtered.every(c => selected.has(c.id))}
+              onChange={() => {
+                const allSelected = filtered.length > 0 && filtered.every(c => selected.has(c.id))
+                setSelected(allSelected ? new Set() : new Set(filtered.map(c => c.id)))
+              }}
+              style={{ width: 16, height: 16 }}
+            />
             <span>{t('contacts.colContact')}</span>
             <span>{t('contacts.colStage')}</span>
             <span>{t('contacts.colLastActivity')}</span>
@@ -825,6 +874,8 @@ export default function ContactsPage() {
               <ContactRow
                 key={c.id}
                 contact={c}
+                selected={selected}
+                onToggleSelect={toggleSelect}
                 onClick={() => navigate(`/contacts/${c.id}`)}
               />
             ))

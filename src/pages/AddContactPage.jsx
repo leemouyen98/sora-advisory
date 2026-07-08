@@ -27,7 +27,7 @@ import DatePicker from '../components/ui/DatePicker'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const INCOME_BRACKETS = [
+export const INCOME_BRACKETS = [
   { key: 'below-3k',  label: '< RM 3k',    sub: 'per month' },
   { key: '3k-6k',     label: 'RM 3–6k',    sub: 'per month' },
   { key: '6k-15k',    label: 'RM 6–15k',   sub: 'per month' },
@@ -238,7 +238,7 @@ const EMPTY_FORM = {
 
 export default function AddContactPage() {
   const navigate   = useNavigate()
-  const { addContact } = useContacts()
+  const { addContact, contacts } = useContacts()
   const { t } = useLanguage()
   const nameRef    = useRef(null)
 
@@ -253,6 +253,20 @@ export default function AddContactPage() {
   }, [])
 
   const age = useMemo(() => calcAge(form.dob), [form.dob])
+
+  // Client-side duplicate warning — non-blocking, catches the common case of
+  // re-adding an existing lead/client (typo'd search, forgotten they exist).
+  // Mobile match is the strong signal (numbers are unique per person in
+  // practice); name match is a softer hint since names collide legitimately.
+  const dupWarning = useMemo(() => {
+    const normMobile = form.mobile.replace(/[\s\-()]/g, '')
+    const mobileHit = normMobile && contacts.find(c => c.mobile && c.mobile.replace(/[\s\-()]/g, '') === normMobile)
+    if (mobileHit) return { type: 'mobile', contact: mobileHit }
+    const normName = form.name.trim().toLowerCase()
+    const nameHit = normName.length > 2 && contacts.find(c => c.name?.trim().toLowerCase() === normName)
+    if (nameHit) return { type: 'name', contact: nameHit }
+    return null
+  }, [form.mobile, form.name, contacts])
 
   // Translated options (inside component so t() is available)
   const EMPLOYMENT_OPTS = [
@@ -462,6 +476,21 @@ export default function AddContactPage() {
                 )}
               </div>
             </div>
+            {dupWarning && (
+              <div style={{
+                display: 'flex', alignItems: 'flex-start', gap: 8,
+                marginTop: 12, padding: '10px 12px', borderRadius: 10,
+                background: '#FFF9EC', border: '1px solid #FFE8B0',
+              }}>
+                <AlertCircle size={14} style={{ color: '#B8860B', marginTop: 1, flexShrink: 0 }} />
+                <p style={{ fontSize: 12, color: '#8A6D1F', lineHeight: 1.5 }}>
+                  {dupWarning.type === 'mobile'
+                    ? <>This mobile number already belongs to <strong>{dupWarning.contact.name}</strong>. Continuing will create a separate contact.</>
+                    : <>A contact named <strong>{dupWarning.contact.name}</strong> already exists. Continuing will create a separate contact.</>
+                  }
+                </p>
+              </div>
+            )}
           </Section>
 
           {/* ─ Section: Pipeline ──────────────────────────────────────── */}

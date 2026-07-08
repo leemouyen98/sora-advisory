@@ -17,9 +17,10 @@ import FinancesTab from '../components/finances/FinancesTab'
 import CashFlowTab from '../components/finances/CashFlowTab'
 import PlanningSnapshot from '../components/PlanningSnapshot'
 import { STAGES, getEffectiveStage } from './ContactsPage'
+import { INCOME_BRACKETS } from './AddContactPage'
 import DatePicker from '../components/ui/DatePicker'
 import { toMonthly as toMonthlyCF, calcMonthlyRepayment } from '../lib/calculations'
-import { getAge } from '../lib/formatters'
+import { getAge, parseYMD, daysUntil } from '../lib/formatters'
 import {
   ArrowLeft, Phone, Calendar, Briefcase, Target, Shield,
   Plus, Check, FileText, PhoneCall, Users, MessageSquare, Clock,
@@ -65,14 +66,10 @@ function fmtRM(val) {
 }
 
 
-function daysUntilDate(dateStr) {
-  if (!dateStr) return null
-  const target = new Date(dateStr)
-  target.setHours(0,0,0,0)
-  const now = new Date()
-  now.setHours(0,0,0,0)
-  return Math.round((target - now) / 86400000)
-}
+// Thin alias — kept so call sites below don't need renaming. Real
+// implementation (and the timezone-safe local-date parsing) lives in
+// lib/formatters.js, shared with ContactsPage's equivalent daysUntilReview().
+const daysUntilDate = daysUntil
 
 function getCoverageStatus(contact) {
   const policies = contact.financials?.insurance || []
@@ -98,28 +95,38 @@ function getAPE(contact) {
 
 // Days until next birthday (0 = today, negative = already passed this year)
 function daysUntilBirthday(dob) {
-  if (!dob) return null
+  const bd = parseYMD(dob)
+  if (!bd) return null
   const today = new Date()
   today.setHours(0,0,0,0)
-  const bd = new Date(dob)
   const next = new Date(today.getFullYear(), bd.getMonth(), bd.getDate())
   if (next < today) next.setFullYear(today.getFullYear() + 1)
   return Math.round((next - today) / 86400000)
 }
 
-// Merge all timeline items into one sorted array
+// Merge all timeline items into one sorted array.
+// _sortDate is left null (not '0') when an item has no real date — e.g. a
+// task created without a due date. `new Date('0')` used to silently parse
+// to 1999-12-31 instead of failing, which sank undated tasks to the bottom
+// of the "Earlier" bucket. null is handled explicitly below instead.
 function buildTimeline(contact) {
   const items = []
   ;(contact.interactions || []).forEach(i =>
-    items.push({ ...i, _kind: 'note', _sortDate: i.date || '0' })
+    items.push({ ...i, _kind: 'note', _sortDate: i.date || null })
   )
   ;(contact.activities || []).forEach(a =>
-    items.push({ ...a, _kind: 'activity', _sortDate: a.date || '0' })
+    items.push({ ...a, _kind: 'activity', _sortDate: a.date || null })
   )
   ;(contact.tasks || []).forEach(t =>
-    items.push({ ...t, _kind: 'task', _sortDate: t.dueDate || t.date || '0' })
+    items.push({ ...t, _kind: 'task', _sortDate: t.dueDate || t.date || null })
   )
-  return items.sort((a, b) => new Date(b._sortDate) - new Date(a._sortDate))
+  // Undated items sort as "now" so they surface near the top of Today
+  // instead of being pushed around by a meaningless date.
+  const sortTime = (item) => {
+    const d = parseYMD(item._sortDate)
+    return d ? d.getTime() : Date.now()
+  }
+  return items.sort((a, b) => sortTime(b) - sortTime(a))
 }
 
 // Group timeline items by date bucket
@@ -139,13 +146,15 @@ function groupTimeline(items) {
   ]
 
   items.forEach(item => {
-    const d = new Date(item._sortDate)
-    d.setHours(0, 0, 0, 0)
-    if (d >= now)         buckets[0].items.push(item)
-    else if (d >= yesterday) buckets[1].items.push(item)
-    else if (d >= weekAgo)   buckets[2].items.push(item)
-    else if (d >= monthAgo)  buckets[3].items.push(item)
-    else                     buckets[4].items.push(item)
+    // No date at all (e.g. a task with no due date) → needs attention now,
+    // not buried at the bottom. Route straight to Today.
+    const d = parseYMD(item._sortDate)
+    if (!d)                  buckets[0].items.push(item)
+    else if (d >= now)        buckets[0].items.push(item)
+    else if (d >= yesterday)  buckets[1].items.push(item)
+    else if (d >= weekAgo)    buckets[2].items.push(item)
+    else if (d >= monthAgo)   buckets[3].items.push(item)
+    else                      buckets[4].items.push(item)
   })
 
   return buckets.filter(b => b.items.length > 0)
@@ -705,6 +714,8 @@ export default function ContactDetailPage() {
   const [showOptionsMenu,   setShowOptionsMenu]   = useState(false)
   const [confirmAction,     setConfirmAction]      = useState(null)
   const [autoOpenFinancialEdit, setAutoOpenFinancialEdit] = useState(false)
+  const [addingTag,     setAddingTag]     = useState(false)
+  const [tagInput,      setTagInput]      = useState('')
 
   const hasFinancialData = useMemo(() => {
     const fin = contact?.financials
@@ -765,6 +776,15 @@ export default function ContactDetailPage() {
     setShowStartPlanning(false)
     if (!hasFinancialData) setShowCFPrompt(true)
     else setShowCashFlow(true)
+  }
+
+  const submitTag = () => {
+    const value = tagInput.trim()
+    if (value && !(contact.tags || []).includes(value)) {
+      addTag([contact.id], value)
+    }
+    setTagInput('')
+    setAddingTag(false)
   }
 
   const askConfirm = action => { setShowOptionsMenu(false); setConfirmAction(action) }
@@ -1039,6 +1059,7 @@ export default function ContactDetailPage() {
               </div>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 3 }}>
                 Age {age}{contact.employment ? ` · ${contact.employment}` : ''}
+                {contact.incomeBracket ? ` · ${INCOME_BRACKETS.find(b => b.key === contact.incomeBracket)?.label || contact.incomeBracket}` : ''}
                 {contact.reviewFrequency ? ` · ${contact.reviewFrequency} review` : ''}
               </p>
             </div>
@@ -1160,9 +1181,42 @@ export default function ContactDetailPage() {
                 </button>
               </span>
             ))}
+            {addingTag ? (
+              <input
+                autoFocus
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') submitTag()
+                  if (e.key === 'Escape') { setTagInput(''); setAddingTag(false) }
+                }}
+                onBlur={submitTag}
+                placeholder="New tag…"
+                style={{
+                  fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20,
+                  border: '1px solid #2E96FF', outline: 'none', width: 100,
+                }}
+              />
+            ) : (
+              <button
+                onClick={() => setAddingTag(true)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 3,
+                  fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20,
+                  border: '1px dashed #C7C7CC', background: 'none', color: '#8E8E93', cursor: 'pointer',
+                }}
+              >
+                <Plus size={9} /> Tag
+              </button>
+            )}
             {contact.notes && (
               <p style={{ width: '100%', fontSize: 12, color: '#8E8E93', marginTop: 4, lineHeight: 1.5 }}>
                 {contact.notes}
+              </p>
+            )}
+            {contact.referredBy && (
+              <p style={{ width: '100%', fontSize: 12, color: '#8E8E93', marginTop: contact.notes ? 0 : 4, lineHeight: 1.5 }}>
+                Referred by {contact.referredBy}
               </p>
             )}
           </div>

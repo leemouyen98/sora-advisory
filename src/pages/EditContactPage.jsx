@@ -23,6 +23,7 @@ import {
   Users, Trash2, AlertTriangle, Save, X,
 } from 'lucide-react'
 import { STAGES, EMPLOYMENT_OPTIONS, validateContactForm } from './ContactsPage'
+import { INCOME_BRACKETS } from './AddContactPage'
 import { calcAge } from '../lib/formatters'
 import DatePicker from '../components/ui/DatePicker'
 
@@ -121,6 +122,44 @@ function EmploymentSelector({ value, onChange }) {
   )
 }
 
+// ─── Income Bracket Selector ──────────────────────────────────────────────────
+
+function IncomeSelector({ value, onChange }) {
+  return (
+    <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+      {INCOME_BRACKETS.map(b => {
+        const active = value === b.key
+        return (
+          <button
+            key={b.key}
+            type="button"
+            onClick={() => onChange(active ? '' : b.key)}
+            style={{
+              flexShrink: 0, padding: '9px 14px',
+              borderRadius: 10,
+              border: `2px solid ${active ? '#2E96FF' : '#E5E5EA'}`,
+              background: active ? '#EBF5FF' : 'white',
+              cursor: 'pointer', transition: 'all 0.15s',
+              textAlign: 'center',
+            }}
+          >
+            <p style={{
+              fontSize: 12, fontWeight: active ? 700 : 600,
+              color: active ? '#2E96FF' : '#1C1C1E',
+              margin: 0, transition: 'color 0.15s',
+            }}>
+              {b.label}
+            </p>
+            <p style={{ fontSize: 10, color: active ? '#2E96FF99' : '#C7C7CC', margin: 0, marginTop: 1 }}>
+              {b.sub}
+            </p>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // ─── Stage Selector ───────────────────────────────────────────────────────────
 
 function StagePicker({ value, onChange }) {
@@ -203,6 +242,7 @@ export default function EditContactPage() {
     email:            contact.email || '',
     employment:       contact.employment || '',
     incomeBracket:    contact.incomeBracket || '',
+    referredBy:       contact.referredBy || '',
     retirementAge:    contact.retirementAge ?? 55,
     stage:            contact.stage || 'Lead',
     reviewDate:       contact.reviewDate || '',
@@ -256,6 +296,7 @@ export default function EditContactPage() {
       email:           form.email.trim(),
       employment:      form.employment,
       incomeBracket:   form.incomeBracket,
+      referredBy:      form.referredBy.trim(),
       retirementAge:   Number(form.retirementAge) || 55,
       stage:           form.stage,
       reviewDate:      form.reviewDate,
@@ -430,6 +471,16 @@ export default function EditContactPage() {
                 style={{ borderColor: errors.email ? '#FF3B30' : undefined }}
               />
             </Field>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <Field label="Referred By" hint="Who made the introduction?">
+                <input
+                  value={form.referredBy}
+                  onChange={e => set('referredBy', e.target.value)}
+                  className="hig-input"
+                  placeholder="e.g. David Lim"
+                />
+              </Field>
+            </div>
           </div>
         </div>
 
@@ -437,6 +488,11 @@ export default function EditContactPage() {
         <div className="hig-card p-5">
           <SectionHeader icon={Briefcase} label="Employment" color="#FF9500" />
           <EmploymentSelector value={form.employment} onChange={v => set('employment', v)} />
+          <div style={{ marginTop: 16 }}>
+            <Field label="Monthly Income Bracket">
+              <IncomeSelector value={form.incomeBracket} onChange={v => set('incomeBracket', v)} />
+            </Field>
+          </div>
         </div>
 
         {/* ── Section 4: Pipeline Stage ────────────────────────────────────── */}

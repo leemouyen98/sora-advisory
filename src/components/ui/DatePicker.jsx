@@ -23,6 +23,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { parseYMD } from '../../lib/formatters'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -32,12 +33,10 @@ const MONTHS = [
 ]
 const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa']
 
-function parseYMD(str) {
-  if (!str) return null
-  const [y, m, d] = str.split('-').map(Number)
-  if (!y || !m || !d) return null
-  return new Date(y, m - 1, d)
-}
+// parseYMD now lives in lib/formatters.js (single source of truth) — re-export
+// here so existing `import { parseYMD } from '.../DatePicker'` call sites
+// elsewhere in the app keep working without a churny find-replace.
+export { parseYMD }
 
 function toYMD(date) {
   if (!date) return ''
