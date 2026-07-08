@@ -56,6 +56,18 @@ function fmtDate(d) {
   return date.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+// Normalize a saved mobile number into wa.me's expected format (country
+// code + digits, no punctuation). Previously only stripped a leading '0'
+// and spaces/dashes — a number saved with a '+60' prefix, parentheses, or
+// any other formatting slipped through unstripped and produced a dead link.
+function toWhatsAppNumber(mobile) {
+  const digits = (mobile || '').replace(/\D/g, '')
+  if (!digits) return ''
+  if (digits.startsWith('60')) return digits
+  if (digits.startsWith('0')) return '60' + digits.slice(1)
+  return '60' + digits
+}
+
 function fmtRM(val) {
   if (val === undefined || val === null) return '—'
   const abs = Math.abs(val)
@@ -567,14 +579,84 @@ function ComposeForm({ actionKey, contactId, onSubmit, onCancel, addInteraction,
   )
 }
 
-// Single timeline item
-function TimelineItem({ item, contactId, onToggleTask }) {
+// Hover-revealed edit/delete icon row — shared across all timeline item kinds
+function ItemActions({ onEdit, onDelete }) {
+  return (
+    <div className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+      <button
+        onClick={onEdit}
+        aria-label="Edit"
+        style={{ width: 22, height: 22, borderRadius: 6, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E8E93' }}
+        className="hover:bg-hig-gray-6"
+      >
+        <Pencil size={12} />
+      </button>
+      <button
+        onClick={onDelete}
+        aria-label="Delete"
+        style={{ width: 22, height: 22, borderRadius: 6, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E8E93' }}
+        className="hover:bg-red-50 hover:!text-hig-red"
+      >
+        <Trash2 size={12} />
+      </button>
+    </div>
+  )
+}
+
+// Single timeline item — supports inline edit + delete for every kind.
+// All hooks are declared unconditionally up front (not inside the
+// per-kind branches below) so the hook call order never varies — item._kind
+// is fixed for the lifetime of a given item.id, but keeping hooks outside
+// conditionals avoids relying on that invariant.
+function TimelineItem({ item, contactId, onToggleTask, onUpdate, onDelete }) {
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(item.title || '')
+  const [dueDate, setDueDate] = useState(item.dueDate || '')
+  const [text, setText] = useState(item.description || item.content || '')
+
+  // ── Task ──────────────────────────────────────────────────────────────
   if (item._kind === 'task') {
     const done = item.status === 'completed'
+
+    if (editing) {
+      return (
+        <div style={{ padding: '10px 0', borderTop: '1px solid #F2F2F7' }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+            <input
+              autoFocus
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className="hig-input"
+              style={{ flex: '1 1 200px' }}
+              placeholder="Task title..."
+            />
+            <div style={{ width: 180, flexShrink: 0 }}>
+              <DatePicker value={dueDate} onChange={setDueDate} placeholder="Due date" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <button type="button" onClick={() => setEditing(false)} className="hig-btn-secondary" style={{ padding: '5px 12px', fontSize: 12 }}>Cancel</button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!title.trim()) return
+                onUpdate({ title: title.trim(), dueDate })
+                setEditing(false)
+              }}
+              className="hig-btn-primary" style={{ padding: '5px 12px', fontSize: 12 }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )
+    }
+
     return (
-      <div style={{ display: 'flex', gap: 12, padding: '10px 0', borderTop: '1px solid #F2F2F7' }}>
+      <div className="group" style={{ display: 'flex', gap: 12, padding: '10px 0', borderTop: '1px solid #F2F2F7', alignItems: 'flex-start' }}>
         <button
           onClick={() => onToggleTask(contactId, item.id)}
+          aria-label={done ? 'Mark task as not done' : 'Mark task as done'}
           style={{
             width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
             border: `2px solid ${done ? '#34C759' : '#C7C7CC'}`,
@@ -615,15 +697,46 @@ function TimelineItem({ item, contactId, onToggleTask }) {
             </span>
           </div>
         </div>
+        <ItemActions onEdit={() => setEditing(true)} onDelete={onDelete} />
       </div>
     )
   }
 
+  // ── Activity (call / meeting / email) ───────────────────────────────────
   if (item._kind === 'activity') {
     const cfg = ACTIVITY_TYPE_CFG[item.type] || ACTIVITY_TYPE_CFG.Call
     const Icon = cfg.Icon
+
+    if (editing) {
+      return (
+        <div style={{ padding: '10px 0', borderTop: '1px solid #F2F2F7' }}>
+          <textarea
+            autoFocus
+            value={text}
+            onChange={e => setText(e.target.value)}
+            className="hig-input"
+            style={{ minHeight: 64, resize: 'vertical', marginBottom: 8 }}
+          />
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <button type="button" onClick={() => setEditing(false)} className="hig-btn-secondary" style={{ padding: '5px 12px', fontSize: 12 }}>Cancel</button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!text.trim()) return
+                onUpdate({ description: text.trim() })
+                setEditing(false)
+              }}
+              className="hig-btn-primary" style={{ padding: '5px 12px', fontSize: 12 }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )
+    }
+
     return (
-      <div style={{ display: 'flex', gap: 12, padding: '10px 0', borderTop: '1px solid #F2F2F7' }}>
+      <div className="group" style={{ display: 'flex', gap: 12, padding: '10px 0', borderTop: '1px solid #F2F2F7', alignItems: 'flex-start' }}>
         <div style={{
           width: 28, height: 28, borderRadius: 8, flexShrink: 0,
           background: cfg.bg,
@@ -643,13 +756,42 @@ function TimelineItem({ item, contactId, onToggleTask }) {
             </span>
           </div>
         </div>
+        <ItemActions onEdit={() => setEditing(true)} onDelete={onDelete} />
       </div>
     )
   }
 
-  // note
+  // ── Note ──────────────────────────────────────────────────────────────
+  if (editing) {
+    return (
+      <div style={{ padding: '10px 0', borderTop: '1px solid #F2F2F7' }}>
+        <textarea
+          autoFocus
+          value={text}
+          onChange={e => setText(e.target.value)}
+          className="hig-input"
+          style={{ minHeight: 64, resize: 'vertical', marginBottom: 8 }}
+        />
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <button type="button" onClick={() => setEditing(false)} className="hig-btn-secondary" style={{ padding: '5px 12px', fontSize: 12 }}>Cancel</button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!text.trim()) return
+              onUpdate({ content: text.trim() })
+              setEditing(false)
+            }}
+            className="hig-btn-primary" style={{ padding: '5px 12px', fontSize: 12 }}
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div style={{ display: 'flex', gap: 12, padding: '10px 0', borderTop: '1px solid #F2F2F7' }}>
+    <div className="group" style={{ display: 'flex', gap: 12, padding: '10px 0', borderTop: '1px solid #F2F2F7', alignItems: 'flex-start' }}>
       <div style={{
         width: 28, height: 28, borderRadius: 8, flexShrink: 0,
         background: '#F2F2F7',
@@ -661,6 +803,7 @@ function TimelineItem({ item, contactId, onToggleTask }) {
         <p style={{ fontSize: 13, color: '#1C1C1E', lineHeight: 1.5 }}>{item.content}</p>
         <p style={{ fontSize: 11, color: '#8E8E93', marginTop: 2 }}>{fmtDate(item.date)}</p>
       </div>
+      <ItemActions onEdit={() => setEditing(true)} onDelete={onDelete} />
     </div>
   )
 }
@@ -699,7 +842,9 @@ export default function ContactDetailPage() {
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
   const {
-    contacts, addInteraction, addTask, toggleTask, addActivity,
+    contacts, addInteraction, updateInteraction, deleteInteraction,
+    addTask, updateTask, deleteTask, toggleTask,
+    addActivity, updateActivity, deleteActivity,
     updateContact, deleteContacts, saveFinancials, addTag, removeTag,
   } = useContacts()
 
@@ -788,6 +933,28 @@ export default function ContactDetailPage() {
   }
 
   const askConfirm = action => { setShowOptionsMenu(false); setConfirmAction(action) }
+
+  // Timeline item edit/delete — dispatches to the right mutation based on
+  // _kind since notes/tasks/activities are stored as separate arrays.
+  const handleTimelineUpdate = (item, updates) => {
+    if (item._kind === 'task') updateTask(contact.id, item.id, updates)
+    else if (item._kind === 'activity') updateActivity(contact.id, item.id, updates)
+    else updateInteraction(contact.id, item.id, updates)
+  }
+
+  const handleTimelineDelete = (item) => {
+    const kindLabel = item._kind === 'task' ? 'task' : item._kind === 'activity' ? 'logged activity' : 'note'
+    askConfirm({
+      title: `Delete this ${kindLabel}?`,
+      body: 'This cannot be undone.',
+      danger: true,
+      onConfirm: () => {
+        if (item._kind === 'task') deleteTask(contact.id, item.id)
+        else if (item._kind === 'activity') deleteActivity(contact.id, item.id)
+        else deleteInteraction(contact.id, item.id)
+      },
+    })
+  }
 
   const confirmDelete = () => askConfirm({
     title: t('contactDetail.deleteContact'),
@@ -975,6 +1142,7 @@ export default function ContactDetailPage() {
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowOptionsMenu(s => !s)}
+                aria-label="More options"
                 style={{
                   width: 30, height: 30, borderRadius: '50%',
                   background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)',
@@ -1116,7 +1284,7 @@ export default function ContactDetailPage() {
             {/* WhatsApp — primary CTA */}
             {contact.mobile && (
               <a
-                href={`https://wa.me/${contact.mobile.replace(/^0/, '60').replace(/[\s\-]/g, '')}`}
+                href={`https://wa.me/${toWhatsAppNumber(contact.mobile)}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
@@ -1169,14 +1337,14 @@ export default function ContactDetailPage() {
 
           {/* Tags + notes */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            {contact.tags.map(tag => (
+            {(contact.tags || []).map(tag => (
               <span key={tag} style={{
                 display: 'flex', alignItems: 'center', gap: 4,
                 fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20,
                 background: '#EBF5FF', color: '#2E96FF',
               }}>
                 {tag}
-                <button onClick={() => removeTag([contact.id], tag)} style={{ color: '#2E96FF60', border: 'none', background: 'none', cursor: 'pointer', display: 'flex' }}>
+                <button onClick={() => removeTag([contact.id], tag)} aria-label={`Remove tag ${tag}`} style={{ color: '#2E96FF60', border: 'none', background: 'none', cursor: 'pointer', display: 'flex' }}>
                   <X size={9} />
                 </button>
               </span>
@@ -1384,6 +1552,8 @@ export default function ContactDetailPage() {
                           item={item}
                           contactId={contact.id}
                           onToggleTask={toggleTask}
+                          onUpdate={updates => handleTimelineUpdate(item, updates)}
+                          onDelete={() => handleTimelineDelete(item)}
                         />
                       ))}
                     </div>
@@ -1413,7 +1583,7 @@ export default function ContactDetailPage() {
               <div className="w-10 h-10 rounded-hig-sm bg-orange-100 flex items-center justify-center shrink-0">
                 <TrendingUp size={20} className="text-orange-500" />
               </div>
-              <button onClick={() => setShowCFPrompt(false)} className="p-1.5 rounded-hig-sm hover:bg-hig-gray-6 text-hig-text-secondary">
+              <button onClick={() => setShowCFPrompt(false)} aria-label="Close" className="p-1.5 rounded-hig-sm hover:bg-hig-gray-6 text-hig-text-secondary">
                 <X size={16} />
               </button>
             </div>

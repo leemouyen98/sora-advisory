@@ -196,6 +196,51 @@ export function ContactsProvider({ children }) {
     }))
   }, [updateOne])
 
+  // Edit/delete — timeline entries were previously add-only and permanent;
+  // a typo in a logged call or a task's due date had no way to be corrected
+  // short of deleting the whole contact record and starting over.
+  const updateInteraction = useCallback((contactId, interactionId, updates) => {
+    updateOne(contactId, (c) => ({
+      ...c,
+      interactions: c.interactions.map((i) => i.id === interactionId ? { ...i, ...updates } : i),
+    }))
+  }, [updateOne])
+
+  const deleteInteraction = useCallback((contactId, interactionId) => {
+    updateOne(contactId, (c) => ({
+      ...c,
+      interactions: c.interactions.filter((i) => i.id !== interactionId),
+    }))
+  }, [updateOne])
+
+  const updateTask = useCallback((contactId, taskId, updates) => {
+    updateOne(contactId, (c) => ({
+      ...c,
+      tasks: c.tasks.map((t) => t.id === taskId ? { ...t, ...updates } : t),
+    }))
+  }, [updateOne])
+
+  const deleteTask = useCallback((contactId, taskId) => {
+    updateOne(contactId, (c) => ({
+      ...c,
+      tasks: c.tasks.filter((t) => t.id !== taskId),
+    }))
+  }, [updateOne])
+
+  const updateActivity = useCallback((contactId, activityId, updates) => {
+    updateOne(contactId, (c) => ({
+      ...c,
+      activities: c.activities.map((a) => a.id === activityId ? { ...a, ...updates } : a),
+    }))
+  }, [updateOne])
+
+  const deleteActivity = useCallback((contactId, activityId) => {
+    updateOne(contactId, (c) => ({
+      ...c,
+      activities: c.activities.filter((a) => a.id !== activityId),
+    }))
+  }, [updateOne])
+
   // ─── Plans ────────────────────────────────────────────────────────────────
 
   // Stamp updatedAt on every plan save so the Planning Snapshot can show staleness.
@@ -229,9 +274,15 @@ export function ContactsProvider({ children }) {
         addTag,
         removeTag,
         addInteraction,
+        updateInteraction,
+        deleteInteraction,
         addTask,
+        updateTask,
+        deleteTask,
         toggleTask,
         addActivity,
+        updateActivity,
+        deleteActivity,
         saveRetirementPlan,
         saveProtectionPlan,
         saveFinancials,
