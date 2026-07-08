@@ -1,10 +1,11 @@
 /**
- * PolicyFormWizard — 4-step add / edit policy modal
+ * PolicyFormWizard — single-page Add / Edit policy modal
  *
- * Step 1 · Plan & Status      (plan name, status)
- * Step 2 · Coverage           (tabbed: Life · PA · Critical Illness · Medical)
- * Step 3 · Premiums           (annual/monthly with auto-sync)
- * Step 4 · Notes
+ * One scroll, four sections:
+ *   Plan & Status   — plan name, status
+ *   Coverage        — tabbed: Life · PA · Critical Illness · Medical
+ *   Premiums        — annual/monthly with auto-sync
+ *   Notes
  *
  * Coverage schema:
  *   coverage.life             — the base contract: company, policy no, coverage
@@ -21,9 +22,9 @@
  * tab's base contract, not separate policies with their own company/number/dates.
  */
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import {
-  X, Check, ChevronRight, ChevronLeft,
+  X, Check,
   Heart, Zap, Activity, UserCheck,
   ArrowLeftRight, FileText, CreditCard, Calendar,
   ToggleLeft, ToggleRight,
@@ -59,13 +60,6 @@ const COVERAGE_TABS = [
   { key: 'medical', label: 'Medical', icon: Activity,  color: '#2E96FF' },
 ]
 
-const STEPS = [
-  { n: 1, label: 'Plan & Status' },
-  { n: 2, label: 'Coverage'      },
-  { n: 3, label: 'Premiums'      },
-  { n: 4, label: 'Notes'         },
-]
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function fmtRM(val) {
@@ -94,54 +88,19 @@ function tabHasValue(key, coverage) {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-/** Top progress stepper */
-function Stepper({ current }) {
+/** Section header — replaces the old step titles */
+function SectionHeader({ label }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', padding: '0 4px', marginBottom: 24 }}>
-      {STEPS.map((s, i) => {
-        const done   = current > s.n
-        const active = current === s.n
-        return (
-          <div key={s.n} style={{ display: 'flex', alignItems: 'center', flex: i < STEPS.length - 1 ? 1 : 'none' }}>
-            {/* Circle */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: done ? '#34C759' : active ? '#2E96FF' : '#E5E5EA',
-                transition: 'background 0.25s',
-                flexShrink: 0,
-              }}>
-                {done
-                  ? <Check size={13} color="#fff" strokeWidth={2.5} />
-                  : <span style={{ fontSize: 11, fontWeight: 700, color: active ? '#fff' : '#AEAEB2' }}>{s.n}</span>
-                }
-              </div>
-              <span style={{
-                fontSize: 10, fontWeight: active ? 600 : 400,
-                color: active ? '#2E96FF' : done ? '#34C759' : '#AEAEB2',
-                whiteSpace: 'nowrap', letterSpacing: '-0.1px',
-              }}>
-                {s.label}
-              </span>
-            </div>
-            {/* Connector line */}
-            {i < STEPS.length - 1 && (
-              <div style={{
-                flex: 1, height: 2, marginTop: -16,
-                background: done ? '#34C759' : '#E5E5EA',
-                transition: 'background 0.25s',
-                marginLeft: 6, marginRight: 6,
-              }} />
-            )}
-          </div>
-        )
-      })}
-    </div>
+    <p style={{
+      fontSize: 12, fontWeight: 700, color: '#8E8E93', textTransform: 'uppercase',
+      letterSpacing: '0.6px', marginBottom: 14,
+    }}>
+      {label}
+    </p>
   )
 }
 
-/** Compact context chip shown at top of steps 2-4 */
+/** Compact context chip shown next to the Coverage section */
 function ContextChip({ form }) {
   const co = COMPANIES.find(c => c.name === form.coverage?.life?.company)
   if (!co && !form.planName) return null
@@ -149,7 +108,7 @@ function ContextChip({ form }) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
       background: '#F2F2F7', borderRadius: 20,
-      padding: '5px 12px', marginBottom: 20, alignSelf: 'flex-start',
+      padding: '5px 12px', marginBottom: 16, alignSelf: 'flex-start',
     }}>
       {co && (
         <span style={{
@@ -166,9 +125,7 @@ function ContextChip({ form }) {
 }
 
 /** RM big input */
-function RMField({ label, value, onChange, hint, autoFocus }) {
-  const inputRef = useRef()
-  useEffect(() => { if (autoFocus && inputRef.current) inputRef.current.focus() }, [autoFocus])
+function RMField({ label, value, onChange, hint }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <label style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
@@ -180,7 +137,6 @@ function RMField({ label, value, onChange, hint, autoFocus }) {
           fontSize: 15, fontWeight: 600, color: '#8E8E93',
         }}>RM</span>
         <input
-          ref={inputRef}
           type="number"
           min="0"
           value={value || ''}
@@ -211,11 +167,25 @@ function RMField({ label, value, onChange, hint, autoFocus }) {
   )
 }
 
-// ─── Step screens ─────────────────────────────────────────────────────────────
+/** Reusable labelled field wrapper */
+function Field({ label, icon: Icon, children }) {
+  return (
+    <div>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8 }}>
+        {Icon && <Icon size={11} />}
+        {label}
+      </label>
+      {children}
+    </div>
+  )
+}
 
-function Step1({ form, update }) {
+// ─── Sections ─────────────────────────────────────────────────────────────────
+
+function PlanSection({ form, update }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <SectionHeader label="Plan & Status" />
       <Field label="Plan Name" icon={FileText}>
         <input
           type="text"
@@ -223,11 +193,9 @@ function Step1({ form, update }) {
           onChange={e => update('planName', e.target.value)}
           className="hig-input"
           placeholder="e.g. TM Shield Plus"
-          autoFocus
         />
       </Field>
 
-      {/* Status — segmented control */}
       <div>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10 }}>
           Policy Status
@@ -396,12 +364,13 @@ function LifeTab({ form, updateLife }) {
   )
 }
 
-function Step2({ form, update, updateLife, updateCoverage, updateCoverageCI, updateCoverageMedical }) {
+function CoverageSection({ form, update, updateLife, updateCoverage, updateCoverageCI, updateCoverageMedical }) {
   const [tab, setTab] = useState('life')
   const coverage = form.coverage || {}
 
   return (
     <div>
+      <SectionHeader label="Coverage" />
       <ContextChip form={form} />
 
       {/* Tab bar */}
@@ -446,7 +415,6 @@ function Step2({ form, update, updateLife, updateCoverage, updateCoverageCI, upd
           value={coverage.pa}
           onChange={v => updateCoverage('pa', v)}
           hint="Accidental death & dismemberment"
-          autoFocus
         />
       )}
 
@@ -457,7 +425,6 @@ function Step2({ form, update, updateLife, updateCoverage, updateCoverageCI, upd
             value={coverage.ci?.aci}
             onChange={v => updateCoverageCI('aci', v)}
             hint="Payout on early-stage critical illness diagnosis"
-            autoFocus
           />
           <RMField
             label="Advanced Stage (ECI)"
@@ -475,7 +442,6 @@ function Step2({ form, update, updateLife, updateCoverage, updateCoverageCI, upd
               label="Room & Board / day"
               value={coverage.medical?.roomBoard}
               onChange={v => updateCoverageMedical('roomBoard', v)}
-              autoFocus
             />
             <RMField
               label="Annual Limit"
@@ -533,7 +499,7 @@ function Step2({ form, update, updateLife, updateCoverage, updateCoverageCI, upd
   )
 }
 
-function Step3({ form, update }) {
+function PremiumSection({ form, update }) {
   // Auto-sync annual ↔ monthly
   const handleAnnual = (val) => {
     update('annualPremium', val)
@@ -550,128 +516,103 @@ function Step3({ form, update }) {
   const monthly = Number(form.monthlyPremium) || 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-      <ContextChip form={form} />
-
-      <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10, display: 'block' }}>
-          Premium
-        </label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 10, alignItems: 'center' }}>
-          {/* Annual */}
-          <div style={{ background: '#F8F8FA', border: '1.5px solid #E5E5EA', borderRadius: 12, padding: '12px 14px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Annual</p>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: '#8E8E93' }}>RM</span>
-              <input
-                type="number"
-                min="0"
-                value={form.annualPremium || ''}
-                onChange={e => handleAnnual(e.target.value)}
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  paddingLeft: 28, paddingRight: 0,
-                  paddingTop: 4, paddingBottom: 4,
-                  fontSize: 18, fontWeight: 700, color: '#1C1C1E',
-                  background: 'transparent', border: 'none', outline: 'none',
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-                placeholder="0"
-              />
-            </div>
-            {annual > 0 && (
-              <p style={{ fontSize: 10, color: '#AEAEB2', marginTop: 4 }}>
-                RM {fmtRM(annual)} / year
-              </p>
-            )}
+    <div>
+      <SectionHeader label="Premiums" />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 10, alignItems: 'center' }}>
+        {/* Annual */}
+        <div style={{ background: '#F8F8FA', border: '1.5px solid #E5E5EA', borderRadius: 12, padding: '12px 14px' }}>
+          <p style={{ fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Annual</p>
+          <div style={{ position: 'relative' }}>
+            <span style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: '#8E8E93' }}>RM</span>
+            <input
+              type="number"
+              min="0"
+              value={form.annualPremium || ''}
+              onChange={e => handleAnnual(e.target.value)}
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                paddingLeft: 28, paddingRight: 0,
+                paddingTop: 4, paddingBottom: 4,
+                fontSize: 18, fontWeight: 700, color: '#1C1C1E',
+                background: 'transparent', border: 'none', outline: 'none',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+              placeholder="0"
+            />
           </div>
-
-          {/* Sync icon */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <ArrowLeftRight size={16} color="#AEAEB2" />
-            <span style={{ fontSize: 9, color: '#AEAEB2' }}>÷ 12</span>
-          </div>
-
-          {/* Monthly */}
-          <div style={{ background: '#F8F8FA', border: '1.5px solid #E5E5EA', borderRadius: 12, padding: '12px 14px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Monthly</p>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: '#8E8E93' }}>RM</span>
-              <input
-                type="number"
-                min="0"
-                value={form.monthlyPremium || ''}
-                onChange={e => handleMonthly(e.target.value)}
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  paddingLeft: 28, paddingRight: 0,
-                  paddingTop: 4, paddingBottom: 4,
-                  fontSize: 18, fontWeight: 700, color: '#1C1C1E',
-                  background: 'transparent', border: 'none', outline: 'none',
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-                placeholder="0"
-              />
-            </div>
-            {monthly > 0 && (
-              <p style={{ fontSize: 10, color: '#AEAEB2', marginTop: 4 }}>
-                RM {fmtRM(monthly)} / month
-              </p>
-            )}
-          </div>
+          {annual > 0 && (
+            <p style={{ fontSize: 10, color: '#AEAEB2', marginTop: 4 }}>
+              RM {fmtRM(annual)} / year
+            </p>
+          )}
         </div>
-        <p style={{ fontSize: 11, color: '#AEAEB2', marginTop: 8, textAlign: 'center' }}>
-          Editing either field auto-updates the other
-        </p>
+
+        {/* Sync icon */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <ArrowLeftRight size={16} color="#AEAEB2" />
+          <span style={{ fontSize: 9, color: '#AEAEB2' }}>÷ 12</span>
+        </div>
+
+        {/* Monthly */}
+        <div style={{ background: '#F8F8FA', border: '1.5px solid #E5E5EA', borderRadius: 12, padding: '12px 14px' }}>
+          <p style={{ fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Monthly</p>
+          <div style={{ position: 'relative' }}>
+            <span style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: '#8E8E93' }}>RM</span>
+            <input
+              type="number"
+              min="0"
+              value={form.monthlyPremium || ''}
+              onChange={e => handleMonthly(e.target.value)}
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                paddingLeft: 28, paddingRight: 0,
+                paddingTop: 4, paddingBottom: 4,
+                fontSize: 18, fontWeight: 700, color: '#1C1C1E',
+                background: 'transparent', border: 'none', outline: 'none',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+              placeholder="0"
+            />
+          </div>
+          {monthly > 0 && (
+            <p style={{ fontSize: 10, color: '#AEAEB2', marginTop: 4 }}>
+              RM {fmtRM(monthly)} / month
+            </p>
+          )}
+        </div>
       </div>
+      <p style={{ fontSize: 11, color: '#AEAEB2', marginTop: 8, textAlign: 'center' }}>
+        Editing either field auto-updates the other
+      </p>
     </div>
   )
 }
 
-function Step4({ form, update }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <ContextChip form={form} />
-
-      <div>
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8 }}>
-          Notes
-        </label>
-        <textarea
-          value={form.notes}
-          onChange={e => update('notes', e.target.value)}
-          style={{
-            width: '100%', boxSizing: 'border-box',
-            padding: '10px 14px', borderRadius: 10,
-            border: '1.5px solid #E5E5EA', background: '#F8F8FA',
-            fontSize: 14, color: '#1C1C1E', resize: 'vertical',
-            minHeight: 72, outline: 'none', lineHeight: 1.5,
-            transition: 'border-color 0.2s',
-            fontFamily: 'inherit',
-          }}
-          onFocus={e => { e.target.style.borderColor = '#2E96FF'; e.target.style.background = '#fff' }}
-          onBlur={e => { e.target.style.borderColor = '#E5E5EA'; e.target.style.background = '#F8F8FA' }}
-          placeholder="Rider details, exclusions, special terms…"
-        />
-      </div>
-    </div>
-  )
-}
-
-/** Reusable labelled field wrapper */
-function Field({ label, icon: Icon, children }) {
+function NotesSection({ form, update }) {
   return (
     <div>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8 }}>
-        {Icon && <Icon size={11} />}
-        {label}
-      </label>
-      {children}
+      <SectionHeader label="Notes" />
+      <textarea
+        value={form.notes}
+        onChange={e => update('notes', e.target.value)}
+        style={{
+          width: '100%', boxSizing: 'border-box',
+          padding: '10px 14px', borderRadius: 10,
+          border: '1.5px solid #E5E5EA', background: '#F8F8FA',
+          fontSize: 14, color: '#1C1C1E', resize: 'vertical',
+          minHeight: 72, outline: 'none', lineHeight: 1.5,
+          transition: 'border-color 0.2s',
+          fontFamily: 'inherit',
+        }}
+        onFocus={e => { e.target.style.borderColor = '#2E96FF'; e.target.style.background = '#fff' }}
+        onBlur={e => { e.target.style.borderColor = '#E5E5EA'; e.target.style.background = '#F8F8FA' }}
+        placeholder="Rider details, exclusions, special terms…"
+      />
     </div>
   )
 }
 
-// ─── Review mini-summary (shown in footer of step 4) ─────────────────────────
+// ─── Review mini-summary (shown in footer) ────────────────────────────────────
 
 function ReviewSummary({ form }) {
   const annual = Number(form.annualPremium) || 0
@@ -721,13 +662,10 @@ function ReviewSummary({ form }) {
   )
 }
 
-// ─── Main Wizard ─────────────────────────────────────────────────────────────
+// ─── Main modal ──────────────────────────────────────────────────────────────
 
 export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit }) {
-  const [step, setStep]   = useState(1)
-  const [dir, setDir]     = useState(1)   // 1 = forward, -1 = backward
-  const [form, setForm]   = useState(initialForm)
-  const [animKey, setAnimKey] = useState(0)
+  const [form, setForm] = useState(initialForm)
 
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
   const updateLife = (key, value) => setForm(prev => ({
@@ -746,12 +684,6 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
     ...prev,
     coverage: { ...prev.coverage, medical: { ...prev.coverage?.medical, [key]: value } },
   }))
-
-  const go = (target) => {
-    setDir(target > step ? 1 : -1)
-    setAnimKey(k => k + 1)
-    setStep(target)
-  }
 
   const handleSave = () => {
     const coerced = {
@@ -786,32 +718,8 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
     onSave(coerced)
   }
 
-  const isLastStep = step === 4
-
-  // Determine button label
-  const nextLabel = isLastStep
-    ? (isEdit ? 'Save Changes' : 'Add Policy')
-    : 'Continue'
-
-  // Slide animation direction
-  const slideClass = dir > 0 ? 'wiz-slide-right' : 'wiz-slide-left'
-
   return (
     <>
-      {/* Keyframe styles injected once */}
-      <style>{`
-        @keyframes wizSlideRight {
-          from { opacity: 0; transform: translateX(28px); }
-          to   { opacity: 1; transform: translateX(0);    }
-        }
-        @keyframes wizSlideLeft {
-          from { opacity: 0; transform: translateX(-28px); }
-          to   { opacity: 1; transform: translateX(0);     }
-        }
-        .wiz-slide-right { animation: wizSlideRight 0.22s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-        .wiz-slide-left  { animation: wizSlideLeft  0.22s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-      `}</style>
-
       {/* Backdrop */}
       <div
         onClick={onClose}
@@ -843,17 +751,12 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
           {/* ── Modal header ── */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '18px 24px 0',
-            flexShrink: 0,
+            padding: '18px 24px', flexShrink: 0,
+            borderBottom: '1px solid #F2F2F7',
           }}>
-            <div>
-              <p style={{ fontSize: 18, fontWeight: 700, color: '#1C1C1E' }}>
-                {isEdit ? 'Edit Policy' : 'Add Policy'}
-              </p>
-              <p style={{ fontSize: 12, color: '#8E8E93', marginTop: 2 }}>
-                Step {step} of 4 · {STEPS[step - 1].label}
-              </p>
-            </div>
+            <p style={{ fontSize: 18, fontWeight: 700, color: '#1C1C1E' }}>
+              {isEdit ? 'Edit Policy' : 'Add Policy'}
+            </p>
             <button
               onClick={onClose}
               style={{
@@ -869,115 +772,60 @@ export default function PolicyFormWizard({ initialForm, onSave, onClose, isEdit 
             </button>
           </div>
 
-          {/* ── Stepper ── */}
-          <div style={{ padding: '16px 24px 0', flexShrink: 0 }}>
-            <Stepper current={step} />
-          </div>
-
-          {/* ── Scrollable content ── */}
-          <div
-            style={{ flex: 1, overflowY: 'auto', padding: '4px 24px 0' }}
-          >
-            <div key={animKey} className={slideClass}>
-              {step === 1 && <Step1 form={form} update={update} />}
-              {step === 2 && (
-                <Step2
-                  form={form}
-                  update={update}
-                  updateLife={updateLife}
-                  updateCoverage={updateCoverage}
-                  updateCoverageCI={updateCoverageCI}
-                  updateCoverageMedical={updateCoverageMedical}
-                />
-              )}
-              {step === 3 && <Step3 form={form} update={update} />}
-              {step === 4 && <Step4 form={form} update={update} />}
+          {/* ── Scrollable body — everything in one page ── */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+              <PlanSection form={form} update={update} />
+              <CoverageSection
+                form={form}
+                update={update}
+                updateLife={updateLife}
+                updateCoverage={updateCoverage}
+                updateCoverageCI={updateCoverageCI}
+                updateCoverageMedical={updateCoverageMedical}
+              />
+              <PremiumSection form={form} update={update} />
+              <NotesSection form={form} update={update} />
             </div>
           </div>
 
           {/* ── Footer ── */}
           <div style={{ padding: '16px 24px 20px', flexShrink: 0, borderTop: '1px solid #F2F2F7' }}>
-            {step === 4 && <ReviewSummary form={form} />}
+            <ReviewSummary form={form} />
 
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              {/* Back */}
-              {step > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => go(step - 1)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    padding: '10px 18px', borderRadius: 10,
-                    border: '1.5px solid #E5E5EA', background: '#fff',
-                    fontSize: 14, fontWeight: 600, color: '#636366',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#F8F8FA'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-                >
-                  <ChevronLeft size={16} />
-                  Back
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onClose}
-                  style={{
-                    padding: '10px 18px', borderRadius: 10,
-                    border: '1.5px solid #E5E5EA', background: '#fff',
-                    fontSize: 14, fontWeight: 600, color: '#636366',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#F8F8FA'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-                >
-                  Cancel
-                </button>
-              )}
-
-              {/* Spacer */}
-              <div style={{ flex: 1 }} />
-
-              {/* Step dots — clickable quick navigation */}
-              <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-                {STEPS.map(s => (
-                  <button
-                    key={s.n}
-                    type="button"
-                    onClick={() => go(s.n)}
-                    style={{
-                      width: s.n === step ? 20 : 6,
-                      height: 6, borderRadius: 3,
-                      background: s.n === step ? '#2E96FF' : s.n < step ? '#34C759' : '#E5E5EA',
-                      border: 'none', cursor: 'pointer',
-                      transition: 'all 0.2s', padding: 0,
-                    }}
-                  />
-                ))}
-              </div>
-
-              <div style={{ flex: 1 }} />
-
-              {/* Next / Save */}
+            <div style={{ display: 'flex', gap: 10 }}>
               <button
                 type="button"
-                onClick={() => isLastStep ? handleSave() : go(step + 1)}
+                onClick={onClose}
+                style={{
+                  padding: '10px 18px', borderRadius: 10,
+                  border: '1.5px solid #E5E5EA', background: '#fff',
+                  fontSize: 14, fontWeight: 600, color: '#636366',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#F8F8FA'}
+                onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+              >
+                Cancel
+              </button>
+
+              <div style={{ flex: 1 }} />
+
+              <button
+                type="button"
+                onClick={handleSave}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '10px 20px', borderRadius: 10,
-                  background: '#2E96FF',
-                  border: 'none',
-                  fontSize: 14, fontWeight: 600,
-                  color: '#fff',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
+                  background: '#2E96FF', border: 'none',
+                  fontSize: 14, fontWeight: 600, color: '#fff',
+                  cursor: 'pointer', transition: 'all 0.15s',
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = '#1A7FE8'}
                 onMouseLeave={e => e.currentTarget.style.background = '#2E96FF'}
               >
-                {isLastStep ? <Check size={16} /> : null}
-                {nextLabel}
-                {!isLastStep && <ChevronRight size={16} />}
+                <Check size={16} />
+                {isEdit ? 'Save Changes' : 'Add Policy'}
               </button>
             </div>
           </div>
