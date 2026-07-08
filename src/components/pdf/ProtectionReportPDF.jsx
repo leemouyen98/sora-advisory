@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from 'react'
 import {
-  Document, Page, Text, View, StyleSheet, Image, PDFDownloadLink,
+  Document, Page, Text, View, StyleSheet, Image, usePDF,
 } from '@react-pdf/renderer'
 import { formatRMFull, toMonthly } from '../../lib/calculations'
 
@@ -368,7 +369,12 @@ export function ProtectionReportDocument({ plan, summaryData, contact, agentName
                   (rk) => (!('riskType' in rec) && rec[rk] > 0) || (rec.riskType === rk && rec.coverageAmount > 0)
                 )
                 const recMonthly = toMonthly(rec.premiumAmount, rec.frequency)
-                const recTermYears = rec.termYears || rec.periodYears || 1
+                // rec.periodYears is the numeric premium-payment period (matches the "Total
+                // Premium Paid" figure shown live in ProtectionPlannerPage). rec.termYears is
+                // a SEPARATE, descriptive field — the policy's coverage term, e.g. "20 years",
+                // "To Age 70", "Whole of Life" — never a number, so it must never be multiplied
+                // into the premium total (that produced NaN -> silently displayed as "RM 0").
+                const recPeriodYears = rec.periodYears || 1
                 return (
                   <View key={rec.id || i} style={styles.recCard}>
                     <Text style={styles.recTitle}>{rec.name || rec.label || `Solution ${i + 1}`}</Text>
@@ -383,7 +389,8 @@ export function ProtectionReportDocument({ plan, summaryData, contact, agentName
                     )}
                     {recMonthly > 0 && (
                       <Text style={styles.recDetail}>
-                        Premium: {fmtRM(recMonthly)}/month · Total: {fmtRM(recMonthly * 12 * recTermYears)} over {recTermYears} years
+                        Premium: {fmtRM(recMonthly)}/month · Total: {fmtRM(recMonthly * 12 * recPeriodYears)} over {recPeriodYears} years
+                        {rec.termYears ? ` · Coverage Term: ${rec.termYears}` : ''}
                       </Text>
                     )}
                   </View>
@@ -549,26 +556,52 @@ export function ProtectionReportDocument({ plan, summaryData, contact, agentName
 }
 
 // ─── Export Button ─────────────────────────────────────────────────────────────
+// Uses usePDF (on-demand) instead of PDFDownloadLink — this component is mounted
+// directly in the live-editing view, and PDFDownloadLink regenerates its document
+// on every render of the `document` prop. Since `plan`/`summaryData` get a new
+// object identity on essentially every edit (typing a premium, toggling a rec,
+// switching risk tabs), that meant the PDF was silently being rebuilt on every
+// keystroke. usePDF only generates when handleClick fires. Matches the same fix
+// already applied to RetirementExportButton.
 export function ProtectionExportButton({ plan, summaryData, contact, agentName }) {
-  const fileName = `Protection_Plan_${(contact?.name || 'Client').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`
+  const [generating, setGenerating] = useState(false)
+  const [instance, updateInstance] = usePDF()
+  const pendingDownload = useRef(false)
+
+  useEffect(() => {
+    if (pendingDownload.current && !instance.loading && instance.url) {
+      pendingDownload.current = false
+      setGenerating(false)
+      const fileName = `Protection_Plan_${(contact?.name || 'Client').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`
+      const a = document.createElement('a')
+      a.href = instance.url
+      a.download = fileName
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
+  }, [instance.loading, instance.url, contact?.name])
+
+  const handleClick = () => {
+    setGenerating(true)
+    pendingDownload.current = true
+    updateInstance(
+      <ProtectionReportDocument plan={plan} summaryData={summaryData} contact={contact} agentName={agentName} />
+    )
+  }
+
   return (
-    <PDFDownloadLink
-      document={<ProtectionReportDocument plan={plan} summaryData={summaryData} contact={contact} agentName={agentName} />}
-      fileName={fileName}
+    <button
+      onClick={handleClick}
+      disabled={generating}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-hig-blue text-hig-blue hover:bg-hig-blue hover:text-white transition-colors disabled:opacity-50"
     >
-      {({ loading }) => (
-        <button
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-hig-blue text-hig-blue hover:bg-hig-blue hover:text-white transition-colors disabled:opacity-50"
-          disabled={loading}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          {loading ? 'Generating…' : 'Export PDF'}
-        </button>
-      )}
-    </PDFDownloadLink>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      {generating ? 'Generating…' : 'Export PDF'}
+    </button>
   )
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Document, Page, Text, View, StyleSheet, Image, usePDF,
 } from '@react-pdf/renderer'
-import { formatRMFull, recMonthlyFV } from '../../lib/calculations'
+import { formatRMFull, recMonthlyFV, toMonthly, DEFAULT_RECOMMENDATION_RATE } from '../../lib/calculations'
 
 const getLogo = () => `${window.location.origin}/assets/sora-logo.png`
 
@@ -440,7 +440,7 @@ export function RetirementReportDocument({ plan, projection, contact, agentName 
               <View style={styles.table}>
                 <View style={styles.tableHeader}>
                   <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Name</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Type</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Frequency</Text>
                   <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right' }]}>Today's Value</Text>
                   <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>Monthly</Text>
                   <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right' }]}>Projected at {retireAge}</Text>
@@ -448,9 +448,9 @@ export function RetirementReportDocument({ plan, projection, contact, agentName 
                 {provisions.map((p, i) => (
                   <View key={p.id || i} style={[styles.tableRow, i % 2 === 1 && styles.tableRowAlt]}>
                     <Text style={[styles.tableCell, { flex: 2 }]}>{p.name || '—'}</Text>
-                    <Text style={[styles.tableCell, { flex: 1 }]}>{p.type || '—'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1 }]}>{p.frequency || '—'}</Text>
                     <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right' }]}>{fmtRM(p.currentBalance)}</Text>
-                    <Text style={[styles.tableCell, { flex: 1, textAlign: 'right' }]}>{fmtRM(p.contributionAmount)}</Text>
+                    <Text style={[styles.tableCell, { flex: 1, textAlign: 'right' }]}>{fmtRM(toMonthly(p.amount, p.frequency))}</Text>
                     <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', color: C.green }]}>
                       {fmtRM(p.projectedValue)}
                     </Text>
@@ -465,10 +465,13 @@ export function RetirementReportDocument({ plan, projection, contact, agentName 
             <>
               <SectionHead title="Recommended Actions" />
               {recommendations.map((rec, i) => {
-                const rate    = rec.growthRate || 5
+                // Fallbacks mirror generateRetirementProjection's own recommendation loop
+                // (calculations.js) exactly, so a PDF figure can never silently diverge from
+                // what's actually summed into projection.totalCovered.
+                const rate    = rec.growthRate || DEFAULT_RECOMMENDATION_RATE
                 const monthly = rec.monthlyAmount || 0
                 const lump    = rec.lumpSum || 0
-                const years   = rec.periodYears || yearsToRetirement
+                const years   = rec.periodYears || 10
 
                 let fvResult = 0
                 if (rec.type === 'custom') {
